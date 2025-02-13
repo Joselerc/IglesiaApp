@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "845718278055",
+    "project_id": "churchappbr",
+    "storage_bucket": "churchappbr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845718278055:android:d02110a13c868c42873082",
+        "android_client_info": {
+          "package_name": "com.example.church_app_br"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKeYInFDBBZNpthEd0Rt9K9zVTuN7cjb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
