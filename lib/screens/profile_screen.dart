@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../widgets/profile_image_picker.dart';
+import '../widgets/circular_image_picker.dart';
 import '../models/user_model.dart';
+import 'counseling/pastor_availability_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,7 +17,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _phoneController = TextEditingController();
-  String? _currentImageUrl;
   bool _isLoading = false;
   UserModel? _currentUser;
 
@@ -41,7 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _nameController.text = _currentUser?.name ?? '';
           _surnameController.text = _currentUser?.surname ?? '';
           _phoneController.text = _currentUser?.phone ?? '';
-          _currentImageUrl = _currentUser?.photoUrl;
         }
       }
     } catch (e) {
@@ -90,111 +89,136 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil'),
-        centerTitle: true,
+        title: const Text('Profile'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ProfileImagePicker(
-                      currentImageUrl: _currentImageUrl,
-                      onImageSelected: (file) {
-                        // Manejaremos la subida de imágenes en la siguiente actualización
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa tu nombre';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _surnameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Apellidos',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa tus apellidos';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Teléfono',
-                        border: OutlineInputBorder(),
-                        hintText: 'Opcional',
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Text('Guardar cambios'),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          try {
-                            await FirebaseAuth.instance.signOut();
-                            if (mounted) {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/',
-                                (route) => false,
-                              );
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Error al cerrar sesión'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.logout),
-                        label: const Text('Cerrar sesión'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
+          final isPastor = userData['role'] == 'pastor';
+
+          return ListView(
+            children: [
+              CircularImagePicker(
+                documentId: FirebaseAuth.instance.currentUser!.uid,
+                currentImageUrl: userData['photoUrl'] as String? ?? '',
+                storagePath: 'user_images',
+                collectionName: 'users',
+                fieldName: 'photoUrl',
+                defaultIcon: const Icon(Icons.person, size: 60),
+                isEditable: true,
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingresa tu nombre';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _surnameController,
+                decoration: const InputDecoration(
+                  labelText: 'Apellidos',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingresa tus apellidos';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(
+                  labelText: 'Teléfono',
+                  border: OutlineInputBorder(),
+                  hintText: 'Opcional',
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Guardar cambios'),
                 ),
               ),
-            ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    try {
+                      await FirebaseAuth.instance.signOut();
+                      if (mounted) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/',
+                          (route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error al cerrar sesión'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Cerrar sesión'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (isPastor) ...[
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.calendar_month),
+                  title: const Text('Counseling Availability'),
+                  subtitle: const Text('Set your counseling schedule'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PastorAvailabilityScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
+          );
+        },
+      ),
     );
   }
 

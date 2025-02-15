@@ -10,6 +10,7 @@ class MinistryEvent {
   final DocumentReference createdBy;
   final String description;
   final bool isActive;
+  final List<dynamic> attendees;
 
   MinistryEvent({
     required this.id,
@@ -21,6 +22,7 @@ class MinistryEvent {
     required this.createdBy,
     required this.description,
     required this.isActive,
+    required this.attendees,
   });
 
   factory MinistryEvent.fromFirestore(DocumentSnapshot doc) {
@@ -30,11 +32,12 @@ class MinistryEvent {
       title: data['title'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       ministryId: data['ministryId'],
-      date: (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      date: (data['date'] as Timestamp).toDate(),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       createdBy: data['createdBy'],
       description: data['description'] ?? '',
-      isActive: data['isActive'] ?? false,
+      isActive: data['isActive'] ?? true,
+      attendees: data['attendees'] ?? [],
     );
   }
 } 

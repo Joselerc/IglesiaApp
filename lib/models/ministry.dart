@@ -23,12 +23,14 @@ class Ministry {
 
   factory Ministry.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final timestamp = data['createdAt'] as Timestamp?;
+    
     return Ministry(
       id: doc.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: timestamp?.toDate() ?? DateTime.now(),
       createdBy: data['createdBy'] as DocumentReference,
       members: (data['members'] as List?)?.map((ref) => ref as DocumentReference).toList() ?? [],
       ministrieAdmin: (data['ministrieAdmin'] as List?)?.map((ref) => ref as DocumentReference).toList() ?? [],

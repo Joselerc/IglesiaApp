@@ -8,6 +8,9 @@ import 'announcements/announcement_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'ministries/ministries_list_screen.dart';
 import 'groups/groups_list_screen.dart';
+import 'prayers/public_prayer_screen.dart';
+import 'prayers/private_prayer_screen.dart';
+import 'counseling/counseling_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -282,7 +285,14 @@ class HomeScreen extends StatelessWidget {
                       Expanded(
                         child: Card(
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PrivatePrayerScreen(),
+                                ),
+                              );
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Row(
@@ -315,7 +325,14 @@ class HomeScreen extends StatelessWidget {
                       Expanded(
                         child: Card(
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PublicPrayerScreen(),
+                                ),
+                              );
+                            },
                             child: const Padding(
                               padding: EdgeInsets.all(16),
                               child: Column(
@@ -478,7 +495,14 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Card(
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CounselingScreen(),
+                          ),
+                        );
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
