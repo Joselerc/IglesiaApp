@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class MinistryPostContent extends StatefulWidget {
   final String userName;
   final String content;
+  final DateTime createdAt;
+  final DateTime? date;
 
   const MinistryPostContent({
     super.key,
     required this.userName,
     required this.content,
+    required this.createdAt,
+    this.date,
   });
 
   @override

@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PrivatePrayer {
   final String id;
-  final DocumentReference pastorId;
+  final DocumentReference? pastorId;
+  final DocumentReference? acceptedBy;
   final DocumentReference userId;
   final String content;
   final DateTime createdAt;
@@ -10,10 +11,13 @@ class PrivatePrayer {
   final List<String> preferredMethods;
   final String? selectedMethod;
   final DateTime? scheduledAt;
+  final String? pastorResponse;
+  final DateTime? respondedAt;
 
   PrivatePrayer({
     required this.id,
-    required this.pastorId,
+    this.pastorId,
+    this.acceptedBy,
     required this.userId,
     required this.content,
     required this.createdAt,
@@ -21,6 +25,8 @@ class PrivatePrayer {
     required this.preferredMethods,
     this.selectedMethod,
     this.scheduledAt,
+    this.pastorResponse,
+    this.respondedAt,
   });
 
   factory PrivatePrayer.fromFirestore(DocumentSnapshot doc) {
@@ -28,6 +34,7 @@ class PrivatePrayer {
     return PrivatePrayer(
       id: doc.id,
       pastorId: data['pastorId'],
+      acceptedBy: data['acceptedBy'],
       userId: data['userId'],
       content: data['content'] ?? '',
       createdAt: data['createdAt'] != null 
@@ -39,12 +46,17 @@ class PrivatePrayer {
       scheduledAt: data['scheduledAt'] != null 
           ? (data['scheduledAt'] as Timestamp).toDate()
           : null,
+      pastorResponse: data['pastorResponse'],
+      respondedAt: data['respondedAt'] != null
+          ? (data['respondedAt'] as Timestamp).toDate()
+          : null,
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
       'pastorId': pastorId,
+      'acceptedBy': acceptedBy,
       'userId': userId,
       'content': content,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -52,6 +64,8 @@ class PrivatePrayer {
       'preferredMethods': preferredMethods,
       'selectedMethod': selectedMethod,
       'scheduledAt': scheduledAt != null ? Timestamp.fromDate(scheduledAt!) : null,
+      'pastorResponse': pastorResponse,
+      'respondedAt': respondedAt != null ? Timestamp.fromDate(respondedAt!) : null,
     };
   }
 } 

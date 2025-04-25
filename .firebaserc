@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "churchappbr": "churchappbr",
+    "default": "churchappbr"
+  },
+  "targets": {},
+  "etags": {}
+}

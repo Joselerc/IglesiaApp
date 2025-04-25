@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import '../../../models/pastor_availability.dart';
 
 class BookCounselingModal extends StatefulWidget {
   const BookCounselingModal({super.key});
@@ -11,112 +12,84 @@ class BookCounselingModal extends StatefulWidget {
 }
 
 class _BookCounselingModalState extends State<BookCounselingModal> {
-  DocumentReference? _selectedPastorId;
-  bool? _isOnline;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  // Estados para la selección
+  DocumentReference? _selectedPastorRef;
+  String _appointmentType = 'online'; // 'online' o 'inPerson'
+  bool _hasSelectedType = false; // Para rastrear si el usuario ha seleccionado activamente un tipo
   DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
-  bool _isLoading = false;
-
-  // Almacenamos la disponibilidad del pastor seleccionado
-  DocumentSnapshot? _pastorAvailability;
+  String? _selectedTime;
+  
+  // Estados de carga
+  bool _isLoadingAvailability = false;
+  bool _isBooking = false;
+  
+  // Datos de disponibilidad
+  PastorAvailability? _pastorAvailability;
+  List<String> _availableTimes = [];
+  
+  // Controlador para el campo de razón
+  final TextEditingController _reasonController = TextEditingController();
+  
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
 
   Future<void> _loadPastorAvailability() async {
-    if (_selectedPastorId == null) return;
+    if (_selectedPastorRef == null) return;
 
     setState(() {
-      _pastorAvailability = null;
+      _isLoadingAvailability = true;
       _selectedDate = null;
       _selectedTime = null;
+      _pastorAvailability = null;
+      _availableTimes = [];
+      _hasSelectedType = false;
+      _appointmentType = 'online';
     });
 
     try {
-      final doc = await FirebaseFirestore.instance
+      final availabilityDoc = await _firestore
           .collection('pastor_availability')
-          .doc(_selectedPastorId!.id)  // Usamos el ID del pastor directamente
+          .doc(_selectedPastorRef!.id)
           .get();
 
-      if (!doc.exists) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('This pastor has not set their availability yet'),
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-        return;
+      if (!availabilityDoc.exists) {
+        throw Exception('El pastor no ha configurado su disponibilidad');
       }
-
-      setState(() {
-        _pastorAvailability = doc;
-      });
+      
+      _pastorAvailability = PastorAvailability.fromFirestore(availabilityDoc);
+      
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading pastor availability')),
+          SnackBar(content: Text('Error: $e')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingAvailability = false;
+        });
       }
     }
   }
-
-  Future<void> _selectDate() async {
-    if (_selectedPastorId == null || _isOnline == null || _pastorAvailability == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a pastor and appointment type first'),
-        ),
-      );
-      return;
-    }
-
-    final now = DateTime.now();
-    final availabilityData = _pastorAvailability!.data() as Map<String, dynamic>;
-
-    // Encontrar la primera fecha disponible
-    DateTime initialDate = now;
-    bool foundValidDate = false;
-    for (int i = 0; i < 90; i++) {
-      final date = now.add(Duration(days: i));
-      final dateStr = DateFormat('yyyy-MM-dd').format(date);
-      final dayData = availabilityData[dateStr];
-      
-      if (dayData != null && 
-          dayData.containsKey('slots') && 
-          (dayData['slots'] as List).isNotEmpty &&
-          (dayData['slots'] as List).any((slot) => 
-            (_isOnline! && slot['isOnline']) || (!_isOnline! && slot['isInPerson'])
-          )) {
-        initialDate = date;
-        foundValidDate = true;
-        break;
-      }
-    }
-
-    if (!foundValidDate) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No available dates found in the next 90 days'),
-        ),
-      );
-      return;
-    }
-
-    final picked = await showDatePicker(
+  
+  Future<void> _selectDate(BuildContext context) async {
+    if (_pastorAvailability == null) return;
+    
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: initialDate,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 90)),
-      selectableDayPredicate: (DateTime date) {
-        final dateStr = DateFormat('yyyy-MM-dd').format(date);
-        final dayData = availabilityData[dateStr];
-        
-        if (dayData == null || !dayData.containsKey('slots') || (dayData['slots'] as List).isEmpty) {
-          return false;
-        }
-
-        return (dayData['slots'] as List).any((slot) => 
-          (_isOnline! && slot['isOnline']) || (!_isOnline! && slot['isInPerson'])
-        );
+      initialDate: _getNextAvailableDate(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+      selectableDayPredicate: (DateTime day) {
+        // Solo permitir seleccionar días disponibles
+        return _pastorAvailability!.isDayAvailable(day);
       },
     );
 
@@ -124,184 +97,223 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
       setState(() {
         _selectedDate = picked;
         _selectedTime = null;
+        _loadAvailableTimesForDate();
       });
     }
   }
 
-  Future<void> _selectTime() async {
-    if (_selectedDate == null || _pastorAvailability == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date first')),
-      );
-      return;
-    }
-
-    final availabilityData = _pastorAvailability!.data() as Map<String, dynamic>;
-    final dayName = DateFormat('EEEE').format(_selectedDate!).toLowerCase();
-    final daySchedule = availabilityData[dayName];
-
-    // Obtener el rango de horas disponibles
-    final startTimeStr = _isOnline! ? daySchedule['onlineStart'] : daySchedule['inPersonStart'];
-    final endTimeStr = _isOnline! ? daySchedule['onlineEnd'] : daySchedule['inPersonEnd'];
+  DateTime _getNextAvailableDate() {
+    if (_pastorAvailability == null) return DateTime.now();
     
-    final startTime = TimeOfDay(
-      hour: int.parse(startTimeStr.split(':')[0]),
-      minute: int.parse(startTimeStr.split(':')[1])
-    );
-    final endTime = TimeOfDay(
-      hour: int.parse(endTimeStr.split(':')[0]),
-      minute: int.parse(endTimeStr.split(':')[1])
-    );
-
-    // Obtener citas existentes para ese día
-    final existingAppointments = await FirebaseFirestore.instance
-        .collection('counseling_appointments')
-        .where('pastorId', isEqualTo: _selectedPastorId)
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
-          DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day)))
-        .where('date', isLessThan: Timestamp.fromDate(
-          DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day + 1)))
-        .get();
-
-    final bookedTimes = existingAppointments.docs
-        .map((doc) => TimeOfDay.fromDateTime((doc.data()['date'] as Timestamp).toDate()))
-        .toList();
-
-    final sessionDuration = availabilityData['sessionDuration'] ?? 60;
-
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            alwaysUse24HourFormat: false,
-          ),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              timePickerTheme: TimePickerThemeData(
-                hourMinuteColor: MaterialStateColor.resolveWith((states) =>
-                    states.contains(MaterialState.selected)
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey.shade200),
-              ),
-            ),
-            child: child!,
-          ),
-        );
-      },
-    );
-
-    if (picked != null) {
-      // Verificar si la hora está dentro del rango disponible
-      final selectedDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        picked.hour,
-        picked.minute,
-      );
-
-      final startDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        startTime.hour,
-        startTime.minute,
-      );
-
-      final endDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        endTime.hour,
-        endTime.minute,
-      );
-
-      if (selectedDateTime.isBefore(startDateTime) || 
-          selectedDateTime.isAfter(endDateTime.subtract(Duration(minutes: sessionDuration)))) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Please select a time between ${startTime.format(context)} and ${endTime.format(context)}'
-            ),
-          ),
-        );
-        return;
+    DateTime date = DateTime.now();
+    // Buscar el próximo día disponible
+    for (int i = 0; i < 90; i++) {
+      if (_pastorAvailability!.isDayAvailable(date)) {
+        return date;
       }
-
-      // Verificar si el horario está ocupado
-      if (bookedTimes.any((time) => 
-          time.hour == picked.hour && time.minute == picked.minute)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This time slot is already booked'),
-          ),
-        );
-        return;
+      date = date.add(const Duration(days: 1));
+    }
+    return DateTime.now();
+  }
+  
+  void _loadAvailableTimesForDate() {
+    if (_pastorAvailability == null || _selectedDate == null) return;
+    
+    setState(() {
+      _availableTimes = [];
+    });
+    
+    // Obtener el horario para el día seleccionado
+    final daySchedule = _pastorAvailability!.getScheduleForDay(_selectedDate!);
+    
+    if (!daySchedule.isWorking || daySchedule.timeSlots.isEmpty) return;
+    
+    // Generar slots para cada franja horaria
+    for (final timeSlot in daySchedule.timeSlots) {
+      // Verificar si la franja es del tipo seleccionado (online o presencial)
+      if ((_appointmentType == 'online' && !timeSlot.isOnline) ||
+          (_appointmentType == 'inPerson' && !timeSlot.isInPerson)) {
+        continue;
       }
+      
+      // Convertir las horas de string a TimeOfDay
+      final startParts = timeSlot.start.split(':');
+      final endParts = timeSlot.end.split(':');
+      
+      final start = TimeOfDay(
+        hour: int.parse(startParts[0]),
+        minute: int.parse(startParts[1]),
+      );
+      
+      final end = TimeOfDay(
+        hour: int.parse(endParts[0]),
+        minute: int.parse(endParts[1]),
+      );
+      
+      // Duración de la sesión en minutos
+      final sessionDuration = _pastorAvailability!.sessionDuration;
+      final breakDuration = _pastorAvailability!.breakDuration;
+      
+      // Generar slots de tiempo disponibles para esta franja
+      final slots = _generateTimeSlots(start, end, sessionDuration, breakDuration);
+      
+      // Añadir a la lista de slots disponibles
+      _availableTimes.addAll(slots);
+    }
+    
+    // Verificar qué slots ya están reservados
+    _checkAvailableSlots(_availableTimes);
+  }
+  
+  List<String> _generateTimeSlots(
+    TimeOfDay start,
+    TimeOfDay end,
+    int sessionDuration,
+    int breakDuration
+  ) {
+    final slots = <String>[];
+    
+    // Convertir a minutos desde medianoche para facilitar cálculos
+    int startMinutes = start.hour * 60 + start.minute;
+    int endMinutes = end.hour * 60 + end.minute;
+    
+    // Si el fin es antes que el inicio (por ejemplo, 17:00 a 9:00), ajustar
+    if (endMinutes <= startMinutes) {
+      endMinutes += 24 * 60; // Añadir un día completo
+    }
+    
+    // Calcular slots
+    int currentMinutes = startMinutes;
+    while (currentMinutes + sessionDuration <= endMinutes) {
+      // Convertir minutos a formato de hora
+      final hour = (currentMinutes ~/ 60) % 24;
+      final minute = currentMinutes % 60;
+      
+      final timeString = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+      slots.add(timeString);
+      
+      // Avanzar al siguiente slot
+      currentMinutes += sessionDuration + breakDuration;
+    }
+    
+    return slots;
+  }
+  
+  Future<void> _checkAvailableSlots(List<String> slots) async {
+    if (_selectedPastorRef == null || _selectedDate == null) return;
+    
+    try {
+      // Crear fecha de inicio y fin para el día seleccionado
+      final startOfDay = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+      );
 
+      final endOfDay = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        23,
+        59,
+        59,
+      );
+      
+      // Buscar citas existentes para este pastor en esta fecha
+      final querySnapshot = await _firestore
+          .collection('counseling_appointments')
+          .where('pastorId', isEqualTo: _selectedPastorRef)
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+          .get();
+      
+      // Crear un conjunto de horas ya reservadas
+      final bookedTimes = <String>{};
+      
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data();
+        final date = (data['date'] as Timestamp).toDate();
+        final hour = date.hour.toString().padLeft(2, '0');
+        final minute = date.minute.toString().padLeft(2, '0');
+        bookedTimes.add('$hour:$minute');
+      }
+      
+      // Filtrar los slots disponibles
+      final availableSlots = slots.where((slot) => !bookedTimes.contains(slot)).toList();
+      
       setState(() {
-        _selectedTime = picked;
+        _availableTimes = availableSlots;
       });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al verificar disponibilidad: $e')),
+        );
+      }
     }
   }
 
   Future<void> _bookAppointment() async {
-    if (_selectedPastorId == null ||
-        _isOnline == null ||
-        _selectedDate == null ||
-        _selectedTime == null) {
+    if (_selectedPastorRef == null || _selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: Text('Por favor complete todos los campos')),
       );
       return;
     }
 
     setState(() {
-      _isLoading = true;
+      _isBooking = true;
     });
 
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
-
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) throw Exception('Usuario no autenticado');
+      
+      final userRef = _firestore.collection('users').doc(userId);
+      
+      // Crear la fecha y hora de la cita
+      final appointmentTime = _selectedTime!.split(':');
       final appointmentDate = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
         _selectedDate!.day,
-        _selectedTime!.hour,
-        _selectedTime!.minute,
+        int.parse(appointmentTime[0]),
+        int.parse(appointmentTime[1]),
       );
 
-      final userRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid);
+      // Duración de la sesión
+      final sessionDuration = _pastorAvailability?.sessionDuration ?? 60;
 
-      await FirebaseFirestore.instance.collection('counseling_appointments').add({
-        'pastorId': _selectedPastorId,
+      // Crear la cita
+      await _firestore.collection('counseling_appointments').add({
         'userId': userRef,
+        'pastorId': _selectedPastorRef,
         'date': Timestamp.fromDate(appointmentDate),
-        'isOnline': _isOnline,
-        'location': _isOnline! ? 'online' : "Church Avenue 32, Pinheiros",
-        'status': 'scheduled',
-        'reminder': null,
+        'endDate': Timestamp.fromDate(
+          appointmentDate.add(Duration(minutes: sessionDuration)),
+        ),
+        'type': _appointmentType,
+        'status': 'pending', // pending, confirmed, cancelled, completed
+        'reason': _reasonController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cita solicitada correctamente')),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error booking appointment')),
+          SnackBar(content: Text('Error al reservar: $e')),
         );
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isBooking = false;
         });
       }
     }
@@ -309,162 +321,412 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canSelectDateTime = _selectedPastorId != null && _isOnline != null;
-
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      height: MediaQuery.of(context).size.height * 0.8,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+        children: [
+          // Encabezado
+          Row(
             children: [
               const Text(
-                'Book Counseling',
+                'Solicitar Consejería',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 24),
-              // Pastor selector
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          
+          // Indicador de progreso
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              children: [
+                _buildStepIndicator(1, 'Pastor', _selectedPastorRef != null),
+                _buildStepConnector(),
+                _buildStepIndicator(2, 'Tipo', _hasSelectedType),
+                _buildStepConnector(),
+                _buildStepIndicator(3, 'Fecha', _selectedDate != null),
+                _buildStepConnector(),
+                _buildStepIndicator(4, 'Hora', _selectedTime != null),
+              ],
+            ),
+          ),
+          
+          const Divider(),
+          const SizedBox(height: 16),
+          
+          // Contenido principal
+          Expanded(
+            child: _isLoadingAvailability 
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Selección de pastor
+                    _buildSectionTitle('Seleccione un Pastor'),
+                    const SizedBox(height: 8),
               StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
+                      stream: _firestore
                     .collection('users')
                     .where('role', isEqualTo: 'pastor')
                     .snapshots(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        
+                        if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        }
+                        
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(child: Text('No hay pastores disponibles'));
                   }
 
                   final pastors = snapshot.data!.docs;
 
-                  return DropdownButtonFormField<DocumentReference>(
-                    decoration: const InputDecoration(
-                      labelText: 'Select Pastor',
-                      border: OutlineInputBorder(),
-                    ),
-                    value: _selectedPastorId,
-                    items: pastors.map((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return DropdownMenuItem(
-                        value: doc.reference,
-                        child: Text('Pastor ${data['name'] ?? 'Unknown'}'),
-                      );
-                    }).toList(),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<DocumentReference>(
+                              isExpanded: true,
+                              hint: const Text('Seleccione un pastor'),
+                              value: _selectedPastorRef,
                     onChanged: (value) {
+                                if (value != null) {
                       setState(() {
-                        _selectedPastorId = value;
+                                    _selectedPastorRef = value;
                       });
                       _loadPastorAvailability();
-                    },
+                                }
+                              },
+                              items: pastors.map((doc) {
+                                final data = doc.data() as Map<String, dynamic>?;
+                                final name = data?['name'] as String? ?? 'Sin nombre';
+                                return DropdownMenuItem<DocumentReference>(
+                                  value: doc.reference,
+                                  child: Text(name),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              // Appointment type selector
-              DropdownButtonFormField<bool>(
-                decoration: const InputDecoration(
-                  labelText: 'Appointment Type',
-                  border: OutlineInputBorder(),
-                ),
-                value: _isOnline,
-                items: const [
-                  DropdownMenuItem(
-                    value: true,
-                    child: Text('Online'),
-                  ),
-                  DropdownMenuItem(
-                    value: false,
-                    child: Text('In Person'),
-                  ),
-                ],
-                onChanged: (value) {
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Tipo de cita
+                    _buildSectionTitle('Tipo de Cita'),
+                    const SizedBox(height: 8),
+                    Card(
+                      elevation: 0,
+                      color: Colors.grey.shade100,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          RadioListTile<String>(
+                            title: Row(
+                              children: const [
+                                Icon(Icons.video_call, color: Colors.blue),
+                                SizedBox(width: 8),
+                                Text('Online'),
+                              ],
+                            ),
+                            subtitle: const Text('Sesión por videollamada'),
+                            value: 'online',
+                            groupValue: _appointmentType,
+                            onChanged: (_pastorAvailability?.isAcceptingOnline ?? false)
+                                ? (value) {
+                                    if (value != null) {
                   setState(() {
-                    _isOnline = value;
-                    _selectedDate = null;
+                                      _appointmentType = value;
+                                      _hasSelectedType = true;
                     _selectedTime = null;
                   });
-                },
-              ),
-              const SizedBox(height: 24),
-              // Date and time selection siempre visible
-              ListTile(
-                enabled: canSelectDateTime,
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Select Date'),
-                subtitle: Text(
-                  _selectedDate != null
-                      ? DateFormat('EEEE, MMMM d, y').format(_selectedDate!)
-                      : 'Select pastor and type first',
-                  style: TextStyle(
-                    color: canSelectDateTime ? null : Colors.grey,
-                  ),
-                ),
-                onTap: canSelectDateTime ? _selectDate : null,
-              ),
-              ListTile(
-                enabled: canSelectDateTime && _selectedDate != null,
-                leading: const Icon(Icons.access_time),
-                title: const Text('Select Time'),
-                subtitle: Text(
-                  _selectedTime != null
-                      ? _selectedTime!.format(context)
-                      : canSelectDateTime 
-                          ? 'Select date first'
-                          : 'Select pastor and type first',
-                  style: TextStyle(
-                    color: (canSelectDateTime && _selectedDate != null) ? null : Colors.grey,
-                  ),
-                ),
-                onTap: (canSelectDateTime && _selectedDate != null) ? _selectTime : null,
-              ),
-              const SizedBox(height: 24),
-              if (_isOnline == false)
+                                    if (_selectedDate != null) {
+                                      _loadAvailableTimesForDate();
+                                    }
+                                  }
+                                }
+                              : null,
+                          ),
+                          const Divider(height: 1),
+                          RadioListTile<String>(
+                            title: Row(
+                              children: const [
+                                Icon(Icons.person, color: Colors.green),
+                                SizedBox(width: 8),
+                                Text('Presencial'),
+                              ],
+                            ),
+                            subtitle: const Text('Sesión en persona'),
+                            value: 'inPerson',
+                            groupValue: _appointmentType,
+                            onChanged: (_pastorAvailability?.isAcceptingInPerson ?? false)
+                                ? (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _appointmentType = value;
+                                        _hasSelectedType = true;
+                                        _selectedTime = null;
+                                      });
+                                      if (_selectedDate != null) {
+                                        _loadAvailableTimesForDate();
+                                      }
+                                    }
+                                  }
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    if (_appointmentType == 'inPerson' && _pastorAvailability != null) ...[
+                      const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                          color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue.shade100),
                   ),
-                  child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
                     children: const [
-                      Icon(Icons.location_on, color: Colors.grey),
+                                Icon(Icons.location_on, color: Colors.blue),
                       SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Church Avenue 32, Pinheiros',
-                          style: TextStyle(color: Colors.grey),
+                                Text(
+                                  'Dirección:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(_pastorAvailability!.location),
+                          ],
                         ),
                       ),
                     ],
-                  ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Fecha y hora
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionTitle('Fecha'),
+                              const SizedBox(height: 8),
+                              InkWell(
+                                onTap: _pastorAvailability != null
+                                    ? () => _selectDate(context)
+                                    : null,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                                    children: [
+                                      Icon(Icons.calendar_today, 
+                                        size: 18, 
+                                        color: _pastorAvailability != null 
+                                          ? Theme.of(context).primaryColor 
+                                          : Colors.grey
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _selectedDate != null
+                                            ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+                                            : 'Seleccionar fecha',
+                                        style: TextStyle(
+                                          color: _pastorAvailability == null 
+                                            ? Colors.grey 
+                                            : Colors.black
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionTitle('Hora'),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    hint: const Text('Seleccionar hora'),
+                                    value: _selectedTime,
+                                    onChanged: _availableTimes.isNotEmpty
+                                        ? (value) {
+                                            setState(() {
+                                              _selectedTime = value;
+                                            });
+                                          }
+                                        : null,
+                                    items: _availableTimes.map((time) {
+                                      return DropdownMenuItem<String>(
+                                        value: time,
+                                        child: Text(time),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Razón de la cita
+                    _buildSectionTitle('Motivo de la Consejería'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _reasonController,
+                      decoration: InputDecoration(
+                        hintText: 'Describa brevemente el motivo de su consulta',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
                 ),
-              const SizedBox(height: 24),
+              ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Botón de reserva
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _bookAppointment,
-                  child: _isLoading
+              onPressed: _isBooking ? null : _bookAppointment,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: _isBooking
                       ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Book Appointment'),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('Solicitar Cita'),
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+  
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+  
+  Widget _buildStepIndicator(int step, String label, bool isCompleted) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isCompleted 
+                ? Theme.of(context).primaryColor 
+                : Colors.grey.shade300,
+            ),
+            child: Center(
+              child: isCompleted
+                ? const Icon(Icons.check, color: Colors.white, size: 16)
+                : Text(
+                    '$step',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isCompleted 
+                ? Theme.of(context).primaryColor 
+                : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildStepConnector() {
+    return Container(
+      width: 20,
+      height: 1,
+      color: Colors.grey.shade300,
     );
   }
 }

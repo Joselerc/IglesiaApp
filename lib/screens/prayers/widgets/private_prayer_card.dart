@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:intl/intl.dart';
 import '../../../models/private_prayer.dart';
 
 class PrivatePrayerCard extends StatelessWidget {
@@ -18,123 +19,260 @@ class PrivatePrayerCard extends StatelessWidget {
     final isCreator = currentUser != null && prayer.userId.id == currentUser.uid;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          // Encabezado con estado
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: prayer.pastorResponse != null
+                  ? Colors.green.withOpacity(0.1)
+                  : prayer.isAccepted
+                      ? Colors.blue.withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
+            ),
+            child: Row(
               children: [
-                // Pastor name
-                StreamBuilder<DocumentSnapshot>(
-                  stream: prayer.pastorId.snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const Text('Loading...');
-                    
-                    final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                    return Text(
-                      'Pastor ${userData?['name'] ?? 'Unknown'}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
+                Icon(
+                  prayer.pastorResponse != null
+                      ? Icons.check_circle
+                      : prayer.isAccepted
+                          ? Icons.pending_actions
+                          : Icons.watch_later_outlined,
+                  color: prayer.pastorResponse != null
+                      ? Colors.green
+                      : prayer.isAccepted
+                          ? Colors.blue
+                          : Colors.orange,
                 ),
-                const Spacer(),
-                // Status badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: prayer.isAccepted ? Colors.green[100] : Colors.orange[100],
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                      Text(
+                        prayer.pastorResponse != null
+                            ? 'Respondida'
+                            : prayer.isAccepted
+                                ? 'Aceitada'
+                                : 'Pendente',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: prayer.pastorResponse != null
+                              ? Colors.green
+                              : prayer.isAccepted
+                                  ? Colors.blue
+                                  : Colors.orange,
+                        ),
+                      ),
+                      Text(
+                        'Enviada el ${DateFormat('dd MMM yyyy - HH:mm', 'es').format(prayer.createdAt)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    prayer.isAccepted ? 'Accepted' : 'Pending',
-                    style: TextStyle(
-                      color: prayer.isAccepted ? Colors.green : Colors.orange[800],
-                      fontSize: 12,
+                ),
+                  Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: prayer.pastorResponse != null 
+                        ? Colors.green
+                          : prayer.isAccepted 
+                            ? Colors.blue
+                            : Colors.orange,
+                    borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      prayer.pastorResponse != null 
+                        ? 'Respondida'
+                          : prayer.isAccepted 
+                            ? 'Aceitada'
+                              : 'Pendente',
+                    style: const TextStyle(
+                        fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                if (isCreator)
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete Prayer'),
-                          content: const Text('Are you sure you want to delete this private prayer?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirmed == true) {
-                        await FirebaseFirestore.instance
-                            .collection('private_prayers')
-                            .doc(prayer.id)
-                            .delete();
-                      }
-                    },
-                  ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(prayer.content),
-            const SizedBox(height: 8),
-            if (prayer.isAccepted && prayer.scheduledAt != null) ...[
-              const Divider(),
-              Row(
-                children: [
-                  Icon(
-                    prayer.selectedMethod == 'call' ? Icons.phone : Icons.phone_iphone,
-                    size: 16,
-                    color: Colors.grey,
+          ),
+
+          // Contenido principal
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Pastor asignado (si está aceptada o respondida)
+                if (prayer.acceptedBy != null || prayer.pastorId != null) ...[
+                  FutureBuilder<DocumentSnapshot>(
+                    future: (prayer.acceptedBy ?? prayer.pastorId)!.get(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final pastorData = snapshot.data!.data() as Map<String, dynamic>?;
+                      final pastorName = pastorData?['displayName'] as String? ?? 'Pastor';
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Colors.grey[200],
+                              backgroundImage: pastorData?['photoUrl'] != null
+                                  ? NetworkImage(pastorData!['photoUrl'])
+                                  : null,
+                              child: pastorData?['photoUrl'] == null
+                                  ? const Icon(Icons.person, size: 16)
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    prayer.pastorResponse != null
+                                        ? 'Respondida por:'
+                                        : 'Atribuída a:',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  Text(
+                                    pastorName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                ],
+
+                // Contenido de la oración
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Scheduled for ${_formatDateTime(prayer.scheduledAt!)}',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Minha oração:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                prayer.content,
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Respuesta del pastor
+              if (prayer.pastorResponse != null) ...[
+                const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Resposta do pastor:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          prayer.pastorResponse!,
+                          style: const TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                        if (prayer.respondedAt != null) ...[
+                          const SizedBox(height: 8),
+                      Text(
+                            'Respondido el ${DateFormat('dd MMM yyyy - HH:mm', 'es').format(prayer.respondedAt!)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                          color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ],
-            if (!prayer.isAccepted) ...[
-              const Divider(),
-              Row(
-                children: [
-                  const Icon(Icons.schedule, size: 16, color: Colors.grey),
-                  const SizedBox(width: 8),
+
+                // Fecha de resposta se está aceita mas não respondida ainda
+                if (prayer.isAccepted && prayer.pastorResponse == null) ...[
+                  const SizedBox(height: 12),
                   Text(
-                    'Requested ${timeago.format(prayer.createdAt)}',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
+                    'Sua solicitação foi aceita e será atendida em breve.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ],
-              ),
             ],
-          ],
+          ),
         ),
+        ],
       ),
     );
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year} at ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 } 

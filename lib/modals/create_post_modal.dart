@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
+import '../services/image_service.dart';
 
 class CreatePostModal extends StatefulWidget {
   final String ministryId;
@@ -28,7 +29,16 @@ class _CreatePostModalState extends State<CreatePostModal> {
     
     if (pickedFile != null) {
       setState(() {
-        selectedImages.add(File(pickedFile.path));
+        isLoading = true;
+      });
+      
+      // Comprimir la imagen antes de añadirla
+      final imageFile = File(pickedFile.path);
+      final compressedImage = await ImageService().compressImage(imageFile, quality: 85);
+      
+      setState(() {
+        selectedImages.add(compressedImage ?? imageFile);
+        isLoading = false;
       });
     }
   }
@@ -48,12 +58,22 @@ class _CreatePostModalState extends State<CreatePostModal> {
       
       // Subir imágenes si hay alguna seleccionada
       for (var image in selectedImages) {
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${imageUrls.length}.jpg';
         final storageRef = FirebaseStorage.instance
             .ref()
             .child('ministry_posts')
-            .child('${DateTime.now().millisecondsSinceEpoch}_${imageUrls.length}.jpg');
+            .child(fileName);
 
-        await storageRef.putFile(image);
+        // Crear metadatos para la imagen
+        final metadata = SettableMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: {
+            'compressed': 'true',
+            'uploadedBy': FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
+          },
+        );
+
+        await storageRef.putFile(image, metadata);
         final imageUrl = await storageRef.getDownloadURL();
         imageUrls.add(imageUrl);
       }

@@ -1,0 +1,148 @@
+Requerimientos para la Funcionalidad de Planificación de Trabajo en Grupo
+1️⃣ Roles de Usuario
+Líder del Grupo:
+Puede crear tareas, asignar miembros, gestionar disponibilidad y realizar seguimiento de asistencia.
+Recibe notificaciones cuando hay huecos sin cubrir en las tareas.
+Puede aprobar o modificar asignaciones automáticas sugeridas.
+Miembros del Grupo:
+Pueden definir su disponibilidad semanal.
+Reciben sugerencias de tareas solo para las franjas horarias que aún no están cubiertas.
+Pueden aceptar o rechazar tareas asignadas.
+Consultan su historial de participación y rendimiento.
+
+2️⃣ Gestión de Disponibilidad (Miembros del Grupo)
+Cada miembro define su disponibilidad semanal seleccionando:
+Días y franjas horarias en las que puede trabajar.
+Posibilidad de actualizar disponibilidad en cualquier momento.
+Vista en calendario interactivo para gestionar disponibilidad.
+Integración con la lógica de asignación automática (ver punto 5).
+📌 Ejemplo de disponibilidad en Firebase (Availability):
+json
+CopiarEditar
+{
+  "userID": "user123",
+  "availability": {
+    "Monday": ["10:00-12:00", "16:00-18:00"],
+    "Wednesday": ["14:00-16:00"],
+    "Saturday": ["09:00-12:00"]
+  }
+}
+
+
+3️⃣ Creación y Gestión de Tareas (Líder del Grupo)
+El líder puede crear y gestionar tareas, estableciendo:
+Nombre y descripción de la tarea.
+Fecha y franja horaria en la que se realizará.
+Cantidad de trabajadores necesarios (puede ser más de uno).
+Prioridad (Normal / Urgente).
+Vista del estado de las tareas (completas, incompletas, en proceso).
+Posibilidad de editar o eliminar tareas existentes.
+📌 Ejemplo de tarea en Firebase (Tasks):
+json
+CopiarEditar
+{
+  "taskID": "abc123",
+  "taskName": "Montaje de escenario",
+  "description": "Montar el escenario para el evento del sábado",
+  "date": "2025-02-22",
+  "timeSlot": "18:00-20:00",
+  "requiredWorkers": 3,
+  "assignedWorkers": ["userID_1", "userID_2"],
+  "status": "incomplete",
+  "priority": "normal"
+}
+
+
+4️⃣ Asignación de Trabajos
+Asignación manual: El líder selecciona a los trabajadores basándose en su disponibilidad.
+Asignación automática (ver punto 5).
+Los miembros solo recibirán sugerencias de tareas en las franjas horarias que aún no están cubiertas.
+Los miembros pueden:
+Aceptar o rechazar tareas asignadas.
+Recibir notificaciones cuando se les asigna una tarea.
+Si faltan trabajadores en una tarea, el sistema notifica al líder.
+Si un miembro rechaza una tarea, el sistema busca una alternativa automática o alerta al líder.
+
+5️⃣ Automatización de Asignaciones
+El sistema sugiere asignaciones automáticas basándose en:
+Disponibilidad declarada de los miembros.
+Historial de asistencia (ver punto 6), priorizando a los más comprometidos.
+Carga de trabajo equilibrada para evitar que siempre recaiga en los mismos.
+📌 Lógica de la automatización:
+1️⃣ El líder crea tareas, estableciendo día, franja horaria y cantidad de trabajadores requeridos.
+2️⃣ El sistema revisa la disponibilidad de los miembros en la colección Availability.
+3️⃣ Se sugiere una asignación automática, que el líder puede aprobar o modificar.
+4️⃣ Si hay huecos sin cubrir, el sistema notifica al líder para que lo revise manualmente.
+5️⃣ Los miembros solo reciben sugerencias para tareas en franjas sin cubrir dentro de su disponibilidad.
+
+6️⃣ Historial de Asistencias y Rendimiento
+Registro de asistencia en la colección Attendance.
+Estado de cada trabajador en cada tarea:
+attended: Asistió.
+missed: No asistió.
+rejected: Rechazó la tarea.
+Motivo opcional en caso de ausencia.
+Ranking de confiabilidad, basado en:
+% de tareas aceptadas.
+% de asistencia.
+Cantidad de rechazos/faltas.
+📌 Ejemplo de asistencia en Firebase (Attendance):
+json
+CopiarEditar
+{
+  "taskID": "abc123",
+  "userID": "user123",
+  "status": "attended",
+  "reason": ""
+}
+
+
+7️⃣ Seguimiento y Control de Huecos Vacíos
+Visualización en tiempo real de tareas incompletas.
+Alertas automáticas cuando faltan trabajadores en una tarea.
+Posibilidad de reprogramar o reasignar tareas con un clic.
+
+8️⃣ Notificaciones e Invitaciones
+📌 Para el líder:
+Recibe alertas cuando:
+Se crean tareas sin suficientes trabajadores.
+Un miembro rechaza una tarea asignada.
+📌 Para los miembros:
+Reciben notificaciones cuando:
+Se les sugiere una tarea en su franja horaria sin cubrir.
+Tienen una tarea pendiente de aceptar/rechazar.
+Se acerca la fecha de una tarea aceptada.
+
+9️⃣ Interfaz de Usuario (UI)
+👤 Para el Líder del Grupo
+✅ Panel de control con:
+Calendario de tareas con estado de asignación.
+Vista de asignaciones automáticas sugeridas, con opción de confirmarlas o modificarlas.
+Alertas de huecos vacíos en la planificación.
+Historial de asistencia de los miembros.
+
+👥 Para los Miembros del Grupo
+✅ Panel de usuario con:
+Calendario de disponibilidad editable.
+Lista de tareas sugeridas (solo aquellas en franjas sin cubrir).
+Opción de aceptar/rechazar tareas.
+Historial de asistencia personal.
+Notificaciones de asignaciones y recordatorios.
+
+🔧 10️⃣ Tecnología y Desarrollo
+📌 Base de Datos Firebase
+Tasks
+Availability
+Attendance
+Users (ya existente, se usa para identificar roles y nombres).
+📌 Backend y Lógica de Negocio
+✅ Sistema de asignación automática basado en reglas de disponibilidad y confiabilidad.
+✅ Notificaciones en tiempo real (Firebase Cloud Messaging).
+✅ Sistema de alertas y recordatorios para tareas pendientes o incompletas.
+
+📌 Resumen Final
+🔹 Gestión de disponibilidad → Los miembros eligen cuándo pueden trabajar.
+🔹 Creación y asignación de tareas → Manual o automática, con alertas de huecos vacíos.
+🔹 Automatización inteligente → Sugiere asignaciones según disponibilidad y rendimiento.
+🔹 Historial de asistencia → Registra el compromiso de cada miembro.
+🔹 Notificaciones y recordatorios → Para asignaciones, faltas y cambios.

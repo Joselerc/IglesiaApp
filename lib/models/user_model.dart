@@ -10,7 +10,12 @@ class UserModel {
   final String? phone;      // Número de teléfono (opcional)
   final DateTime createdAt;  // Fecha de creación
   final DateTime? lastLogin;  // Última fecha de inicio de sesión
-  final bool hasSkippedBanner;  // Nuevo campo
+  final bool hasSkippedBanner;  // Si el usuario ha omitido el banner
+  final bool hasCompletedAdditionalFields; // Si el usuario ha completado los campos adicionales
+  final DateTime? additionalFieldsLastUpdated; // Última actualización de campos adicionales
+  final DateTime? lastBannerShown; // Última vez que se mostró el banner
+  final bool neverShowBannerAgain; // Si el usuario ha elegido no mostrar el banner nunca más
+  final String role;      // Rol del usuario (user, admin, pastor, etc.)
 
   UserModel({
     required this.email,
@@ -21,7 +26,12 @@ class UserModel {
     this.phone,
     required this.createdAt,
     this.lastLogin,
-    this.hasSkippedBanner = false,  // Por defecto false
+    this.hasSkippedBanner = false,
+    this.hasCompletedAdditionalFields = false,
+    this.additionalFieldsLastUpdated,
+    this.lastBannerShown,
+    this.neverShowBannerAgain = false,
+    this.role = 'user',
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +45,15 @@ class UserModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLogin': lastLogin != null ? Timestamp.fromDate(lastLogin!) : null,
       'hasSkippedBanner': hasSkippedBanner,
+      'hasCompletedAdditionalFields': hasCompletedAdditionalFields,
+      'additionalFieldsLastUpdated': additionalFieldsLastUpdated != null 
+          ? Timestamp.fromDate(additionalFieldsLastUpdated!) 
+          : null,
+      'lastBannerShown': lastBannerShown != null 
+          ? Timestamp.fromDate(lastBannerShown!) 
+          : null,
+      'neverShowBannerAgain': neverShowBannerAgain,
+      'role': role,
     };
   }
 
@@ -51,6 +70,15 @@ class UserModel {
           ? (map['lastLogin'] as Timestamp).toDate() 
           : null,
       hasSkippedBanner: map['hasSkippedBanner'] ?? false,
+      hasCompletedAdditionalFields: map['hasCompletedAdditionalFields'] ?? false,
+      additionalFieldsLastUpdated: map['additionalFieldsLastUpdated'] != null 
+          ? (map['additionalFieldsLastUpdated'] as Timestamp).toDate() 
+          : null,
+      lastBannerShown: map['lastBannerShown'] != null 
+          ? (map['lastBannerShown'] as Timestamp).toDate() 
+          : null,
+      neverShowBannerAgain: map['neverShowBannerAgain'] ?? false,
+      role: map['role'] ?? 'user',
     );
   }
 

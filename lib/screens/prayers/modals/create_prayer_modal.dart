@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_text_styles.dart';
 
 class CreatePrayerModal extends StatefulWidget {
   const CreatePrayerModal({super.key});
@@ -14,6 +16,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
   final _contentController = TextEditingController();
   bool _isAnonymous = false;
   bool _isLoading = false;
+  int get _remainingChars => 200 - (_contentController.text.length);
 
   @override
   void dispose() {
@@ -30,30 +33,47 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você deve estar conectado para enviar uma oração')),
+        );
+        return;
+      }
 
-      final userRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid);
-
+      final userRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      
       await FirebaseFirestore.instance.collection('prayers').add({
         'content': _contentController.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
         'createdBy': userRef,
+        'createdAt': FieldValue.serverTimestamp(),
         'isAnonymous': _isAnonymous,
+        'isAccepted': false,
         'upVotedBy': [],
         'downVotedBy': [],
-        'isAccepted': false,
-        'acceptedBy': null,
+        'score': 0,
+        'totalVotes': 0,
       });
 
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Oração enviada com sucesso!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error creating prayer')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao enviar a oração: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -65,77 +85,208 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 20,
-        left: 20,
-        right: 20,
+    // Obtener los paddings del sistema (teclado y área segura)
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Ask for prayer',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Form(
-            key: _formKey,
-            child: TextFormField(
-              controller: _contentController,
-              maxLength: 200,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: 'Write your prayer request...',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your prayer request';
-                }
-                if (value.length > 200) {
-                  return 'Maximum 200 characters allowed';
-                }
-                return null;
-              },
-            ),
-          ),
-          Row(
+      // Aplicar padding que incluye espacio para teclado y área segura
+      padding: EdgeInsets.fromLTRB(
+        20, 
+        16, 
+        20, 
+        // Asegurar al menos un padding base (ej: 20) + el espacio del teclado + el padding del sistema
+        20 + bottomInset + bottomPadding 
+      ),
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Checkbox(
-                value: _isAnonymous,
-                onChanged: (value) {
-                  setState(() {
-                    _isAnonymous = value ?? false;
-                  });
+              // Barra superior con título y botón de cerrar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Pedido de Oração',
+                    style: AppTextStyles.headline3.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: AppColors.textSecondary),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Información explicativa
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: AppColors.primary, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Sua oração será compartilhada com toda a comunidade para que possam orar por você.',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Campo para el contenido de la oración
+              TextFormField(
+                controller: _contentController,
+                maxLength: 200,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: 'Por que você precisa de oração?',
+                  hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.7)),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                  counterText: '',
+                ),
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.newline,
+                onChanged: (_) => setState(() {}), // Actualizar contador de caracteres
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Por favor, escreva seu pedido de oração';
+                  }
+                  return null;
                 },
               ),
-              const Text('Post anonymously'),
+              
+              // Contador de caracteres restantes
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '$_remainingChars caracteres restantes',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _remainingChars < 20 ? Colors.red : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Opción para publicar anónimamente
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Publicar anonimamente',
+                            style: AppTextStyles.subtitle2.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Seu nome permanecerá oculto para todos',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _isAnonymous,
+                      onChanged: (value) => setState(() => _isAnonymous = value),
+                      activeColor: AppColors.primary,
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Botón de enviar
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitPrayer,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        'PUBLICAR PEDIDO',
+                        style: AppTextStyles.button.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
             ],
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _submitPrayer,
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text('Submit'),
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
     );
   }

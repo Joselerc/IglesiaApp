@@ -4,7 +4,7 @@ import 'package:crop_your_image/crop_your_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
-import 'dart:typed_data';
+import '../services/image_service.dart';
 
 class CircularImagePicker extends StatefulWidget {
   final String documentId;
@@ -12,21 +12,23 @@ class CircularImagePicker extends StatefulWidget {
   final String storagePath;
   final String collectionName;
   final String fieldName;
-  final double radius;
-  final Widget? defaultIcon;
+  final Widget defaultIcon;
   final bool isEditable;
+  final double size;
+  final bool showEditIconOutside;
 
   const CircularImagePicker({
-    super.key,
+    Key? key,
     required this.documentId,
     required this.currentImageUrl,
     required this.storagePath,
     required this.collectionName,
     required this.fieldName,
-    this.radius = 60,
-    this.defaultIcon = const Icon(Icons.person, size: 60),
+    required this.defaultIcon,
     this.isEditable = true,
-  });
+    this.size = 80,
+    this.showEditIconOutside = false,
+  }) : super(key: key);
 
   @override
   State<CircularImagePicker> createState() => _CircularImagePickerState();
@@ -34,124 +36,162 @@ class CircularImagePicker extends StatefulWidget {
 
 class _CircularImagePickerState extends State<CircularImagePicker> {
   late final cropController = CropController();
+  bool _isUploading = false;
+  final ImagePicker _picker = ImagePicker();
 
-  Future<void> _updateImage(BuildContext context) async {
+  Future<void> _pickImage() async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      final image = File(pickedFile.path);
       
-      if (image == null) return;
+      // Comprimir la imagen para reducir su tamaño
+      final compressedImage = await ImageService().compressImage(image, quality: 85);
+      final file = compressedImage ?? image;
 
-      final bytes = await image.readAsBytes();
-      Uint8List? croppedBytes;
-
-      await showDialog(
-        context: context,
-        builder: (context) => Dialog.fullscreen(
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text('Crop Image'),
-              leading: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.check),
-                  onPressed: () => cropController.crop(),
-                ),
-              ],
-            ),
-            body: Crop(
-              image: bytes,
-              controller: cropController,
-              aspectRatio: 1,
-              initialSize: 0.8,
-              withCircleUi: true,
-              baseColor: Colors.black,
-              maskColor: Colors.black.withOpacity(0.6),
-              onCropped: (value) {
-                croppedBytes = value;
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        ),
-      );
-
-      if (croppedBytes == null) return;
-
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-
-      final tempDir = await Directory.systemTemp.createTemp();
-      final tempFile = File('${tempDir.path}/temp.jpg');
-      await tempFile.writeAsBytes(croppedBytes!);
-
+      // Subir la imagen a Firebase Storage
       final storageRef = FirebaseStorage.instance
           .ref()
           .child(widget.storagePath)
           .child('${widget.documentId}.jpg');
 
-      if (widget.currentImageUrl.isNotEmpty) {
-        try {
-          await FirebaseStorage.instance.refFromURL(widget.currentImageUrl).delete();
-        } catch (e) {
-          debugPrint('Error deleting old image: $e');
-        }
-      }
+      // Configurar los metadatos para el tipo de archivo
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {'picked-file-path': file.path},
+      );
 
-      await storageRef.putFile(tempFile);
+      await storageRef.putFile(file, metadata);
       final imageUrl = await storageRef.getDownloadURL();
 
+      // Actualizar la URL de la imagen en Firestore
       await FirebaseFirestore.instance
           .collection(widget.collectionName)
           .doc(widget.documentId)
           .update({widget.fieldName: imageUrl});
 
-      await tempFile.delete();
-      await tempDir.delete();
-
-      if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image updated successfully')),
-        );
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
       }
     } catch (e) {
-      debugPrint('Error updating image: $e');
-      if (context.mounted) {
-        Navigator.pop(context);
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating image: $e')),
+          SnackBar(content: Text('Error: $e')),
         );
       }
     }
   }
 
+  bool get isValidUrl {
+    try {
+      final uri = Uri.parse(widget.currentImageUrl);
+      return uri.isAbsolute && (uri.scheme == 'http' || uri.scheme == 'https');
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.isEditable ? () => _updateImage(context) : null,
-      child: CircleAvatar(
-        radius: widget.radius,
-        backgroundImage: widget.currentImageUrl.isNotEmpty
-            ? NetworkImage(widget.currentImageUrl)
-            : null,
-        child: widget.currentImageUrl.isEmpty ? widget.defaultIcon : null,
-      ),
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: widget.isEditable ? _pickImage : null,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).primaryColor.withOpacity(0.2),
+              border: Border.all(
+                color: Colors.white,
+                width: 3,
+              ),
+            ),
+            child: ClipOval(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (widget.currentImageUrl.isNotEmpty && isValidUrl)
+                    Image.network(
+                      widget.currentImageUrl,
+                      width: widget.size,
+                      height: widget.size,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return widget.defaultIcon;
+                      },
+                    )
+                  else
+                    widget.defaultIcon,
+                  if (_isUploading)
+                    Container(
+                      width: widget.size,
+                      height: widget.size,
+                      color: Colors.black.withOpacity(0.5),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    ),
+                  if (widget.isEditable && !_isUploading && !widget.showEditIconOutside)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (widget.isEditable && !_isUploading && widget.showEditIconOutside)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 } 

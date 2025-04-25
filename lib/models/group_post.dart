@@ -10,6 +10,9 @@ class GroupPost {
   final List<DocumentReference> likes;
   final List<DocumentReference> savedBy;
   final List<DocumentReference> shares;
+  final DateTime? date;
+  final String aspectRatio;
+  final int commentCount;
 
   GroupPost({
     required this.id,
@@ -21,6 +24,9 @@ class GroupPost {
     required this.likes,
     required this.savedBy,
     required this.shares,
+    this.date,
+    this.aspectRatio = 'AspectRatioOption.square',
+    this.commentCount = 0,
   });
 
   factory GroupPost.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +41,9 @@ class GroupPost {
       likes: List<DocumentReference>.from(data['likes'] ?? []),
       savedBy: List<DocumentReference>.from(data['savedBy'] ?? []),
       shares: List<DocumentReference>.from(data['shares'] ?? []),
+      date: (data['date'] as Timestamp?)?.toDate(),
+      aspectRatio: data['aspectRatio'] ?? 'AspectRatioOption.square',
+      commentCount: (data['commentCount'] ?? 0) as int,
     );
   }
 
@@ -48,6 +57,9 @@ class GroupPost {
       'likes': likes,
       'savedBy': savedBy,
       'shares': shares,
+      'date': date != null ? Timestamp.fromDate(date!) : null,
+      'aspectRatio': aspectRatio,
+      'commentCount': commentCount,
     };
   }
 } 

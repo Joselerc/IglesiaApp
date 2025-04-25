@@ -5,6 +5,8 @@ class GroupEvent {
   final String title;
   final String description;
   final DateTime date;
+  final DateTime? endDate;
+  final String location;
   final String imageUrl;
   final DocumentReference groupId;
   final DocumentReference createdBy;
@@ -17,6 +19,8 @@ class GroupEvent {
     required this.title,
     required this.description,
     required this.date,
+    this.endDate,
+    required this.location,
     required this.imageUrl,
     required this.groupId,
     required this.createdBy,
@@ -27,17 +31,65 @@ class GroupEvent {
 
   factory GroupEvent.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    // Verificar y convertir los campos seguros
+    final id = doc.id;
+    final title = data['title'] ?? '';
+    final description = data['description'] ?? '';
+    final date = (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final endDate = (data['endDate'] as Timestamp?)?.toDate();
+    final location = data['location'] ?? '';
+    final imageUrl = data['imageUrl'] ?? '';
+    final isActive = data['isActive'] ?? true;
+    
+    // Manejar referencias que podrían ser nulas o venir como strings
+    DocumentReference groupIdRef;
+    if (data['groupId'] is DocumentReference) {
+      groupIdRef = data['groupId'];
+    } else if (data['groupId'] is String) {
+      // Convertir string en formato de ruta a DocumentReference
+      final String path = data['groupId'];
+      groupIdRef = FirebaseFirestore.instance.doc(path);
+    } else {
+      // Valor predeterminado si es nulo o de un tipo no esperado
+      groupIdRef = FirebaseFirestore.instance.collection('groups').doc('placeholder');
+    }
+    
+    // Manejar la referencia createdBy
+    DocumentReference createdByRef;
+    if (data['createdBy'] is DocumentReference) {
+      createdByRef = data['createdBy'];
+    } else {
+      createdByRef = FirebaseFirestore.instance.collection('users').doc('placeholder');
+    }
+    
+    // Manejar la lista de attendees
+    List<DocumentReference> attendeesList = [];
+    if (data['attendees'] != null) {
+      try {
+        attendeesList = List<DocumentReference>.from(data['attendees']);
+      } catch (e) {
+        // Si hay un error, simplemente usar una lista vacía
+        print('Error al convertir attendees: $e');
+      }
+    }
+    
+    // Manejar timestamp de createdAt
+    final createdAt = (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+    
     return GroupEvent(
-      id: doc.id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
-      imageUrl: data['imageUrl'] ?? '',
-      groupId: data['groupId'],
-      createdBy: data['createdBy'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      isActive: data['isActive'] ?? true,
-      attendees: List<DocumentReference>.from(data['attendees'] ?? []),
+      id: id,
+      title: title,
+      description: description,
+      date: date,
+      endDate: endDate,
+      location: location,
+      imageUrl: imageUrl,
+      groupId: groupIdRef,
+      createdBy: createdByRef,
+      createdAt: createdAt,
+      isActive: isActive,
+      attendees: attendeesList,
     );
   }
 
@@ -46,6 +98,8 @@ class GroupEvent {
       'title': title,
       'description': description,
       'date': Timestamp.fromDate(date),
+      'endDate': endDate != null ? Timestamp.fromDate(endDate!) : null,
+      'location': location,
       'imageUrl': imageUrl,
       'groupId': groupId,
       'createdBy': createdBy,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
+import '../../services/image_service.dart';
 
 class CreateMinistryPostScreen extends StatefulWidget {
   final String ministryId;
@@ -28,7 +29,27 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
     
     if (images.isNotEmpty) {
       setState(() {
-        _selectedImages.addAll(images.map((image) => File(image.path)));
+        _isLoading = true;
+      });
+      
+      // Comprimir las imágenes antes de añadirlas
+      for (var image in images) {
+        final imageFile = File(image.path);
+        final compressedImage = await ImageService().compressImage(imageFile, quality: 85);
+        if (compressedImage != null) {
+          setState(() {
+            _selectedImages.add(compressedImage);
+          });
+        } else {
+          // Si la compresión falla, usar la original
+          setState(() {
+            _selectedImages.add(imageFile);
+          });
+        }
+      }
+      
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -50,12 +71,22 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
       
       // Subir imágenes si hay alguna seleccionada
       for (var imageFile in _selectedImages) {
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${imageUrls.length}.jpg';
         final ref = FirebaseStorage.instance
             .ref()
             .child('ministry_posts')
-            .child('${DateTime.now().millisecondsSinceEpoch}_${imageUrls.length}.jpg');
+            .child(fileName);
         
-        await ref.putFile(imageFile);
+        // Crear metadatos para la imagen
+        final metadata = SettableMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: {
+            'compressed': 'true',
+            'uploadedBy': FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
+          },
+        );
+        
+        await ref.putFile(imageFile, metadata);
         final url = await ref.getDownloadURL();
         imageUrls.add(url);
       }
@@ -200,4 +231,4 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
     _contentController.dispose();
     super.dispose();
   }
-} 
+}
