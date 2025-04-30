@@ -8,6 +8,8 @@ enum HomeScreenSectionType {
   counseling,
   customPageList, // Representa la sección "Saiba Mais" o similares
   videos,
+  liveStream,
+  donations,
   unknown // Para manejo de errores o tipos futuros
 }
 
@@ -74,6 +76,8 @@ class HomeScreenSection {
       case 'counseling': return HomeScreenSectionType.counseling;
       case 'customPageList': return HomeScreenSectionType.customPageList;
       case 'videos': return HomeScreenSectionType.videos;
+      case 'liveStream': return HomeScreenSectionType.liveStream;
+      case 'donations': return HomeScreenSectionType.donations;
       default: return HomeScreenSectionType.unknown;
     }
   }
@@ -88,6 +92,8 @@ class HomeScreenSection {
       case HomeScreenSectionType.counseling: return 'counseling';
       case HomeScreenSectionType.customPageList: return 'customPageList';
       case HomeScreenSectionType.videos: return 'videos';
+      case HomeScreenSectionType.liveStream: return 'liveStream';
+      case HomeScreenSectionType.donations: return 'donations';
       default: return 'unknown';
     }
   }

@@ -76,6 +76,7 @@ dependencies:
   intl_phone_field: ^3.2.0
   flutter_local_notifications: 19.0.0
   flutter_colorpicker: ^1.1.0
+  marquee: ^2.3.0
 
 dev_dependencies:
   flutter_test:

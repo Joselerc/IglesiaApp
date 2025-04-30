@@ -23,6 +23,8 @@ import '../widgets/custom/selection_field.dart';
 import 'admin/manage_home_sections_screen.dart';
 import '../theme/app_text_styles.dart';
 import 'admin/profile_fields_admin_screen.dart';
+import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
+import 'admin/manage_donations_screen.dart'; // <-- Import añadido
 
 
 class ProfileScreen extends StatefulWidget {
@@ -2021,6 +2023,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                            title: 'Gerenciar Vídeos',
                            subtitle: 'Administre as seções e vídeos da igreja',
                            onTap: () => Navigator.pushNamed(context, '/videos/manage'), // <-- Navegación corregida
+                         ),
+
+                         _buildAdminListTile(
+                           icon: Icons.volunteer_activism,
+                           title: 'Gerenciar Doações',
+                           subtitle: 'Configure a seção e formas de doação',
+                           onTap: () {
+                             Navigator.push(
+                               context,
+                               MaterialPageRoute(builder: (context) => const ManageDonationsScreen()),
+                             );
+                           },
+                         ), 
+
+                        // Añadir la gestión de transmisiones en vivo aquí
+                        _buildAdminListTile(
+                           icon: Icons.live_tv_outlined,
+                           title: 'Gerenciar Transmissões Ao Vivo',
+                           subtitle: 'Criar, editar e controlar transmissões',
+                           onTap: () {
+                             Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen()), // Navegación actualizada
+                              );
+                           },
                          ),
 
                         // 8. Administrar Cultos (Restaurado con pushNamed)

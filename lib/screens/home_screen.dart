@@ -1,33 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../models/event_model.dart';
-import '../models/announcement_model.dart';
 import '../models/profile_field_response.dart';
-import 'events/event_detail_screen.dart';
-import 'announcements/announcement_detail_screen.dart';
-import 'announcements/cult_announcements_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'ministries/ministries_list_screen.dart';
-import 'groups/groups_list_screen.dart';
-import 'prayers/public_prayer_screen.dart';
-import 'prayers/private_prayer_screen.dart';
-import 'events/events_page.dart';
-import 'videos/videos_preview_section.dart';
-import 'counseling/counseling_screen.dart';
 import '../services/profile_fields_service.dart';
-import '../widgets/announcement_card.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
-import '../widgets/common/app_card.dart';
 import '../widgets/common/app_button.dart';
 import 'package:church_app_br/screens/profile/additional_info_screen.dart';
 import '../widgets/home/announcements_section.dart';
-import '../models/cult.dart';
-import 'dynamic_page_viewer_screen.dart';
 import '../widgets/home/cults_section.dart';
 import '../widgets/home/services_grid_section.dart';
 import '../widgets/home/events_section.dart';
@@ -35,6 +18,8 @@ import '../widgets/home/counseling_section.dart';
 import '../widgets/home/custom_page_list_section.dart';
 import '../widgets/home/videos_section.dart';
 import '../models/home_screen_section.dart';
+import '../widgets/home/live_stream_home_section.dart';
+import '../widgets/home/donations_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -274,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
           statusBarIconBrightness: Brightness.dark,
         ),
         child: SafeArea(
-          child: Column( // Usar Column para Header + StreamBuilder
+          child: Column( // Usar Column para Header + LiveStream + StreamBuilder
             children: [
               // --- Header Fijo ---
                               Container(
@@ -351,13 +336,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
               ),
-              // --- Contenido Dinámico ---
+
+              // --- Contenido Dinámico (Secciones normales) ---
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
-                      .collection('homeScreenSections') // Lee la nueva colección
-                      .where('isActive', isEqualTo: true) // Filtra activas
-                      .orderBy('order') // Ordena por el campo 'order'
+                      .collection('homeScreenSections')
+                      .where('isActive', isEqualTo: true)
+                      .orderBy('order')
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -366,49 +352,117 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text('Nenhuma seção configurada.'));
-                    }
+                    // Ajuste: Permitir que no haya secciones sin mostrar error
+                    // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    //   return const Center(child: Text('Nenhuma seção configurada.'));
+                    // }
 
-                    // Mapea los documentos a nuestro modelo
-                    final sections = snapshot.data!.docs
-                        .map((doc) => HomeScreenSection.fromFirestore(doc))
-                        .toList();
-                    
-                    // Construye la lista de widgets de sección dinámicamente
+                    // Mapea los documentos
+                    final sections = snapshot.hasData
+                      ? snapshot.data!.docs
+                          .map((doc) => HomeScreenSection.fromFirestore(doc))
+                          .toList()
+                      : <HomeScreenSection>[];
+
+                    // Filtrar secciones activas aquí por si acaso (aunque el query ya lo hace)
+                    final activeSections = sections.where((s) => s.isActive).toList();
+                    print('🔍 HomeScreen: Secciones activas cargadas: ${activeSections.map((s) => s.type).toList()}'); // <-- DEBUG PRINT 1
+
                     return ListView.separated(
-                      padding: const EdgeInsets.only(top: 8, bottom: 16),
-                      itemCount: sections.length + 1, // +1 para el banner
+                      // Aumentar padding inferior general
+                      padding: const EdgeInsets.only(top: 8, bottom: 48), // <-- Aumentado bottom padding
+                      itemCount: activeSections.length + 1,
                       separatorBuilder: (context, index) {
-                           // Añadir espacio solo entre secciones reales, no antes del banner
-                           if (index == 0) return const SizedBox.shrink();
-                           // Usar diferente espaciado basado en el tipo de sección si es necesario
-                           // Por ahora, un espaciado estándar
-                           return const SizedBox(height: 32);
-                       },
-                      itemBuilder: (context, index) {
-                        // Mostrar Banner primero (si es necesario)
-                           if (index == 0) {
-                              return AnimatedCrossFade(
-                                 firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
-                                   ? _buildProfileRequirementsBanner()
-                                   : const SizedBox.shrink(),
-                                 secondChild: const SizedBox.shrink(),
-                                 crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
-                                   ? CrossFadeState.showFirst
-                                   : CrossFadeState.showSecond,
-                                 duration: const Duration(milliseconds: 500),
-                                 sizeCurve: Curves.easeInOutCubic,
-                                 firstCurve: Curves.easeInOut,
-                                 secondCurve: Curves.easeOut,
-                               );
-                           }
-                           
-                           // Obtener la sección actual (ajustando índice por el banner)
-                           final section = sections[index - 1];
+                        if (index == 0) return const SizedBox.shrink(); // No hay separador antes del banner
 
-                        // Usa el switch para determinar qué widget renderizar
+                        // Índice real de la sección *anterior* a la que se le añadirá el separador
+                        final previousSectionIndex = index - 1; 
+                        // Índice real de la sección *actual* (la que viene después del separador)
+                        final currentSectionIndex = index; 
+
+                        // Verificar si estamos a punto de dibujar la sección 'donations'
+                        // y si la sección anterior era 'videos'
+                        bool showSmallerSeparator = false;
+                        // Asegurar que los índices sean válidos para la lista activeSections
+                        if (currentSectionIndex < activeSections.length && previousSectionIndex >= 0) { 
+                           final currentSection = activeSections[currentSectionIndex];
+                           final previousSection = activeSections[previousSectionIndex];
+                           
+                           // Reducir espacio si la sección actual es Donaciones Y la anterior es Videos
+                           if (currentSection.type == HomeScreenSectionType.donations && 
+                               previousSection.type == HomeScreenSectionType.videos) {
+                                 showSmallerSeparator = true;
+                           }
+                           // Mantener espacio reducido después de liveStream si es la primera sección real
+                           else if (previousSection.type == HomeScreenSectionType.liveStream && previousSectionIndex == 0) {
+                              showSmallerSeparator = true; 
+                           }
+                        }
+
+                        // Aplicar separador pequeño o grande según la condición
+                        return SizedBox(height: showSmallerSeparator ? 16.0 : 32.0); 
+                      },
+                      itemBuilder: (context, index) {
+                        // Mostrar Banner primero
+                        if (index == 0) {
+                          return AnimatedCrossFade(
+                             firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
+                               ? _buildProfileRequirementsBanner()
+                               : const SizedBox.shrink(),
+                             secondChild: const SizedBox.shrink(),
+                             crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
+                               ? CrossFadeState.showFirst
+                               : CrossFadeState.showSecond,
+                             duration: const Duration(milliseconds: 500),
+                             sizeCurve: Curves.easeInOutCubic,
+                             firstCurve: Curves.easeInOut,
+                             secondCurve: Curves.easeOut,
+                           );
+                        }
+
+                        // Obtener la sección actual (ajustando índice por el banner)
+                        final section = activeSections[index - 1];
+                        print('➡️ HomeScreen: Procesando sección tipo: ${section.type} con título: ${section.title}'); // <-- DEBUG PRINT 2
+
+                        // Switch para renderizar el widget adecuado
                         switch (section.type) {
+                          case HomeScreenSectionType.liveStream:
+                            print('  🔴 Entrando al case liveStream'); // <-- DEBUG PRINT 3
+                            // StreamBuilder anidado para la configuración del directo
+                            return StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance.collection('app_config').doc('live_stream').snapshots(),
+                              builder: (context, liveSnapshot) {
+                                if (!liveSnapshot.hasData || !liveSnapshot.data!.exists) {
+                                  return const SizedBox.shrink(); // No mostrar si no hay config
+                                }
+                                final liveConfig = liveSnapshot.data!.data() as Map<String, dynamic>;
+                                // final liveConfigDocRef = FirebaseFirestore.instance.collection('app_config').doc('live_stream'); // Ya no se necesita para actualizar
+
+                                // --- Leer configuración (solo isActive) ---
+                                final bool isLiveActive = liveConfig['isActive'] ?? false;
+                                print('    👀 Estado isActive leído de app_config/live_stream: $isLiveActive'); // <-- DEBUG PRINT 4
+                                /* Eliminada lógica de horario
+                                final int minutesBefore = liveConfig['minutesBeforeStartToShow'] ?? 0;
+                                final DateTime now = DateTime.now();
+                                final startTime = (liveConfig['scheduledStartTime'] as Timestamp?)?.toDate();
+                                final endTime = (liveConfig['scheduledEndTime'] as Timestamp?)?.toDate();
+                                final DateTime? displayStartTime = startTime?.subtract(Duration(minutes: minutesBefore));
+                                */
+
+                                // --- Determinar estado automático basado en horario --- (Eliminado)
+                                // bool shouldBeActiveAutomatically = false;
+                                // ... (cálculo eliminado)
+
+                                // --- Lógica de actualización y visibilidad --- (Simplificada)
+                                // bool showSection = currentIsActive; 
+                                // ... (intentos de actualización eliminados) ...
+
+                                // Finalmente, mostrar u ocultar basado solo en isActive
+                                return isLiveActive
+                                  ? LiveStreamHomeSection(configData: liveConfig)
+                                  : const SizedBox.shrink();
+                              },
+                            );
                           case HomeScreenSectionType.announcements:
                             return const AnnouncementsSection();
                           case HomeScreenSectionType.cults:
@@ -420,19 +474,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           case HomeScreenSectionType.counseling:
                             return const CounselingSection();
                           case HomeScreenSectionType.customPageList:
-                            // Pasar los datos reales de title y pageIds
                             return CustomPageListSection(
-                              title: section.title, // Pasar el título de la sección
-                              pageIds: section.pageIds ?? [], // Pasar la lista de IDs (o lista vacía si es null)
+                              title: section.title,
+                              pageIds: section.pageIds ?? [],
                             );
                           case HomeScreenSectionType.videos:
                             return const VideosSection();
+                          case HomeScreenSectionType.donations:
+                            return StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance.collection('donationsPage').doc('settings').snapshots(),
+                              builder: (context, donationSnapshot) {
+                                if (!donationSnapshot.hasData || !donationSnapshot.data!.exists) {
+                                  return const SizedBox.shrink(); 
+                                }
+                                final donationConfig = donationSnapshot.data!.data() as Map<String, dynamic>;
+                                // Mostrar el widget de sección/tarjeta, pasando el título y la config
+                                return DonationsSection(
+                                  title: section.title, // Usar título de homeScreenSections
+                                  configData: donationConfig
+                                );
+                              },
+                            );
                           case HomeScreenSectionType.unknown:
                           default:
-                            // Widget placeholder para tipos desconocidos o errores
-                      return Padding(
-                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                               child: Text('Seção desconhecida: ${section.type}'),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('Seção desconhecida ou erro: ${section.type}'),
                             );
                         }
                       },
