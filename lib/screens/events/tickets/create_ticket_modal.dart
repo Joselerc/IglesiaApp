@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/event_model.dart';
 import '../../../models/ticket_model.dart';
 import '../../../services/ticket_service.dart';
+import '../../../services/permission_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,7 @@ class CreateTicketModal extends StatefulWidget {
 class _CreateTicketModalState extends State<CreateTicketModal> {
   final _formKey = GlobalKey<FormState>();
   final _ticketService = TicketService();
+  final _permissionService = PermissionService();
   
   final _typeController = TextEditingController();
   final _priceController = TextEditingController();
@@ -31,6 +33,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   String _currency = 'BRL';
   bool _isLoading = false;
   String? _errorMessage;
+  bool _hasPermission = false;
   
   // Nuevos campos
   bool _useEventDateAsDeadline = true;
@@ -64,6 +67,54 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       userProfileField: 'phoneNumber',
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+  }
+  
+  Future<void> _checkPermissions() async {
+    try {
+      final isPastor = await _isPastor();
+      final hasManageTicketPermission = await _permissionService.hasPermission('manage_event_tickets');
+      
+      setState(() {
+        _hasPermission = isPastor || hasManageTicketPermission;
+        
+        if (!_hasPermission) {
+          _errorMessage = 'No tienes permiso para crear tickets';
+        }
+      });
+    } catch (e) {
+      print('Error al verificar permisos: $e');
+      setState(() {
+        _errorMessage = 'Error al verificar permisos';
+        _hasPermission = false;
+      });
+    }
+  }
+  
+  Future<bool> _isPastor() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return false;
+      
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+          
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        return userData['role'] == 'pastor';
+      }
+      return false;
+    } catch (e) {
+      print('Error al verificar si es pastor: $e');
+      return false;
+    }
+  }
 
   @override
   void dispose() {
@@ -111,6 +162,14 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   }
 
   Future<void> _createTicket() async {
+    // No permitir crear tickets si no tiene permiso
+    if (!_hasPermission) {
+      setState(() {
+        _errorMessage = 'No tienes permiso para crear tickets';
+      });
+      return;
+    }
+    
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -489,6 +548,40 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
 
   @override
   Widget build(BuildContext context) {
+    // Si no tiene permiso, mostrar mensaje de error
+    if (!_hasPermission && _errorMessage != null) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                style: TextStyle(fontSize: 18, color: Colors.red.shade700),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/notification_service.dart';
 import '../../services/simple_notification_service.dart';
+import '../../services/permission_service.dart';
 import '../../models/ministry.dart';
 import '../../models/group.dart';
 import '../../models/notification.dart';
@@ -22,6 +23,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
   final _messageController = TextEditingController();
   final NotificationService _notificationService = NotificationService();
   final SimpleNotificationService _simpleNotificationService = SimpleNotificationService();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   
   // Filtros
@@ -312,6 +314,18 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
   }
   
   Future<void> _sendNotification() async {
+    // --- Doble verificación de permiso --- 
+    final bool hasPermission = await _permissionService.hasPermission('send_push_notifications');
+    if (!hasPermission) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Você não tem permissão para enviar notificações.'), backgroundColor: Colors.red),
+         );
+      }
+      return; // No continuar si no tiene permiso
+    }
+    // -------------------------------------
+
     if (!_formKey.currentState!.validate()) return;
     
     setState(() => _isLoading = true);
@@ -400,484 +414,531 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-            ))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('send_push_notifications'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Tarjeta de envío
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                      Icon(
+                        Icons.notifications_off,
+                        size: 64,
+                        color: Colors.grey.shade400,
                       ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Enviar notificação',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Campo de título
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey[300]!),
-                              ),
-                              child: TextFormField(
-                                controller: _titleController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Título',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(Icons.title),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Por favor insira um título';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Campo de mensaje
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey[300]!),
-                              ),
-                              child: TextFormField(
-                                controller: _messageController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Mensagem',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(Icons.message),
-                                  alignLabelWithHint: true,
-                                ),
-                                maxLines: 5,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Por favor insira uma mensagem';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Acesso não autorizado',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade700,
                         ),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Tarjeta de filtros
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Você não tem permissão para enviar notificações push.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Destinatários',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Opciones de filtrado
-                            Column(
+                   ],
+                 ),
+              ),
+            );
+          }
+
+          return _isLoading
+              ? Center(child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                ))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Tarjeta de envío
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Todos los usuarios
-                                RadioListTile<String>(
-                                  title: const Text('Todos os membros'),
-                                  value: 'all',
-                                  groupValue: _targetType,
-                                  activeColor: AppColors.primary,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _targetType = value!;
-                                    });
-                                  },
-                                ),
-                                
-                                // Miembros de un ministerio
-                                RadioListTile<String>(
-                                  title: const Text('Membros de um ministério'),
-                                  value: 'ministry',
-                                  groupValue: _targetType,
-                                  activeColor: AppColors.primary,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _targetType = value!;
-                                      // Limpiar selección anterior
-                                      _selectedMinistryId = null;
-                                      _ministryMembers = [];
-                                      _selectedMinistryMembers.clear();
-                                    });
-                                  },
-                                ),
-                                
-                                // Selector de ministerio (visible solo si se selecciona la opción)
-                                if (_targetType == 'ministry') ...[
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.grey[300]!),
-                                      ),
-                                      child: DropdownButtonFormField<String>(
-                                        decoration: const InputDecoration(
-                                          labelText: 'Selecionar ministério',
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                                          border: InputBorder.none,
-                                        ),
-                                        items: _ministries.map((ministry) {
-                                          return DropdownMenuItem<String>(
-                                            value: ministry.id,
-                                            child: Text(ministry.name),
-                                          );
-                                        }).toList(),
-                                        value: _selectedMinistryId,
-                                        onChanged: (value) {
-                                          if (value != _selectedMinistryId) {
-                                            setState(() {
-                                              _selectedMinistryId = value;
-                                              _selectedMinistryMembers.clear();
-                                              _ministryMembers = [];
-                                            });
-                                            if (value != null) {
-                                              _loadMinistryMembers(value);
-                                            }
-                                          }
-                                        },
-                                        validator: _targetType == 'ministry'
-                                            ? (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Por favor selecione um ministério';
-                                                }
-                                                return null;
-                                              }
-                                            : null,
-                                      ),
-                                    ),
+                                Text(
+                                  'Enviar notificação',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
                                   ),
-                                  
-                                  // Lista de miembros del ministerio para selección múltiple
-                                  if (_ministryMembers.isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'Selecionar membros (${_selectedMinistryMembers.values.where((selected) => selected).length}/${_ministryMembers.length})',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  final bool allSelected = _selectedMinistryMembers.values.every((selected) => selected);
-                                                  setState(() {
-                                                    for (final member in _ministryMembers) {
-                                                      _selectedMinistryMembers[member['id']] = !allSelected;
-                                                    }
-                                                  });
-                                                },
-                                                child: Text(
-                                                  _selectedMinistryMembers.values.every((selected) => selected)
-                                                      ? 'Desmarcar todos'
-                                                      : 'Selecionar todos',
-                                                  style: TextStyle(
-                                                    color: AppColors.primary,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.grey[300]!),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            height: 200,
-                                            child: ListView.builder(
-                                              itemCount: _ministryMembers.length,
-                                              itemBuilder: (context, index) {
-                                                final member = _ministryMembers[index];
-                                                final memberId = member['id'];
-                                                
-                                                return CheckboxListTile(
-                                                  title: Text(
-                                                    member['name'],
-                                                    style: const TextStyle(fontSize: 14),
-                                                  ),
-                                                  value: _selectedMinistryMembers[memberId] ?? false,
-                                                  activeColor: AppColors.primary,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      _selectedMinistryMembers[memberId] = value!;
-                                                    });
-                                                  },
-                                                  dense: true,
-                                                  controlAffinity: ListTileControlAffinity.leading,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 8),
-                                ],
-                                
-                                // Miembros de un grupo
-                                RadioListTile<String>(
-                                  title: const Text('Membros de um grupo'),
-                                  value: 'group',
-                                  groupValue: _targetType,
-                                  activeColor: AppColors.primary,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _targetType = value!;
-                                      // Limpiar selección anterior
-                                      _selectedGroupId = null;
-                                      _groupMembers = [];
-                                      _selectedGroupMembers.clear();
-                                    });
-                                  },
                                 ),
-                                
-                                // Selector de grupo (visible solo si se selecciona la opción)
-                                if (_targetType == 'group') ...[
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.grey[300]!),
-                                      ),
-                                      child: DropdownButtonFormField<String>(
-                                        decoration: const InputDecoration(
-                                          labelText: 'Selecionar grupo',
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                                          border: InputBorder.none,
-                                        ),
-                                        items: _groups.map((group) {
-                                          return DropdownMenuItem<String>(
-                                            value: group['id'],
-                                            child: Text(group['name']),
-                                          );
-                                        }).toList(),
-                                        value: _selectedGroupId,
-                                        onChanged: (value) {
-                                          if (value != _selectedGroupId) {
-                                            setState(() {
-                                              _selectedGroupId = value;
-                                              _selectedGroupMembers.clear();
-                                              _groupMembers = [];
-                                            });
-                                            if (value != null) {
-                                              _loadGroupMembers(value);
-                                            }
-                                          }
-                                        },
-                                        validator: _targetType == 'group'
-                                            ? (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Por favor selecione um grupo';
-                                                }
-                                                return null;
-                                              }
-                                            : null,
-                                      ),
-                                    ),
+                                const SizedBox(height: 16),
+                                // Campo de título
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.grey[300]!),
                                   ),
-                                  
-                                  // Lista de miembros del grupo para selección múltiple
-                                  if (_groupMembers.isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'Selecionar (${_selectedGroupMembers.values.where((selected) => selected).length}/${_groupMembers.length})',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  final bool allSelected = _selectedGroupMembers.values.every((selected) => selected);
-                                                  setState(() {
-                                                    for (final member in _groupMembers) {
-                                                      _selectedGroupMembers[member['id']] = !allSelected;
-                                                    }
-                                                  });
-                                                },
-                                                child: Text(
-                                                  _selectedGroupMembers.values.every((selected) => selected)
-                                                      ? 'Desmarcar todos'
-                                                      : 'Selecionar todos',
-                                                  style: TextStyle(
-                                                    color: AppColors.primary,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.grey[300]!),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            height: 200,
-                                            child: ListView.builder(
-                                              itemCount: _groupMembers.length,
-                                              itemBuilder: (context, index) {
-                                                final member = _groupMembers[index];
-                                                final memberId = member['id'];
-                                                
-                                                return CheckboxListTile(
-                                                  title: Text(
-                                                    member['name'],
-                                                    style: const TextStyle(fontSize: 14),
-                                                  ),
-                                                  value: _selectedGroupMembers[memberId] ?? false,
-                                                  activeColor: AppColors.primary,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      _selectedGroupMembers[memberId] = value!;
-                                                    });
-                                                  },
-                                                  dense: true,
-                                                  controlAffinity: ListTileControlAffinity.leading,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  child: TextFormField(
+                                    controller: _titleController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Título',
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                      border: InputBorder.none,
+                                      prefixIcon: Icon(Icons.title),
                                     ),
-                                  ],
-                                  const SizedBox(height: 8),
-                                ],
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Por favor insira um título';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                // Campo de mensaje
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.grey[300]!),
+                                  ),
+                                  child: TextFormField(
+                                    controller: _messageController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Mensagem',
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                      border: InputBorder.none,
+                                      prefixIcon: Icon(Icons.message),
+                                      alignLabelWithHint: true,
+                                    ),
+                                    maxLines: 5,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Por favor insira uma mensagem';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Opción para incluirse a sí mismo
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Receber também esta notificação',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Tarjeta de filtros
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Destinatários',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
+                                const SizedBox(height: 16),
+                                
+                                // Opciones de filtrado
+                                Column(
+                                  children: [
+                                    // Todos los usuarios
+                                    RadioListTile<String>(
+                                      title: const Text('Todos os membros'),
+                                      value: 'all',
+                                      groupValue: _targetType,
+                                      activeColor: AppColors.primary,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _targetType = value!;
+                                        });
+                                      },
+                                    ),
+                                    
+                                    // Miembros de un ministerio
+                                    RadioListTile<String>(
+                                      title: const Text('Membros de um ministério'),
+                                      value: 'ministry',
+                                      groupValue: _targetType,
+                                      activeColor: AppColors.primary,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _targetType = value!;
+                                          // Limpiar selección anterior
+                                          _selectedMinistryId = null;
+                                          _ministryMembers = [];
+                                          _selectedMinistryMembers.clear();
+                                        });
+                                      },
+                                    ),
+                                    
+                                    // Selector de ministerio (visible solo si se selecciona la opción)
+                                    if (_targetType == 'ministry') ...[
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey[300]!),
+                                          ),
+                                          child: DropdownButtonFormField<String>(
+                                            decoration: const InputDecoration(
+                                              labelText: 'Selecionar ministério',
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                                              border: InputBorder.none,
+                                            ),
+                                            items: _ministries.map((ministry) {
+                                              return DropdownMenuItem<String>(
+                                                value: ministry.id,
+                                                child: Text(ministry.name),
+                                              );
+                                            }).toList(),
+                                            value: _selectedMinistryId,
+                                            onChanged: (value) {
+                                              if (value != _selectedMinistryId) {
+                                                setState(() {
+                                                  _selectedMinistryId = value;
+                                                  _selectedMinistryMembers.clear();
+                                                  _ministryMembers = [];
+                                                });
+                                                if (value != null) {
+                                                  _loadMinistryMembers(value);
+                                                }
+                                              }
+                                            },
+                                            validator: _targetType == 'ministry'
+                                                ? (value) {
+                                                    if (value == null || value.isEmpty) {
+                                                      return 'Por favor selecione um ministério';
+                                                    }
+                                                    return null;
+                                                  }
+                                                : null,
+                                          ),
+                                        ),
+                                      ),
+                                      
+                                      // Lista de miembros del ministerio para selección múltiple
+                                      if (_ministryMembers.isNotEmpty) ...[
+                                        const SizedBox(height: 12),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Selecionar membros (${_selectedMinistryMembers.values.where((selected) => selected).length}/${_ministryMembers.length})',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      final bool allSelected = _selectedMinistryMembers.values.every((selected) => selected);
+                                                      setState(() {
+                                                        for (final member in _ministryMembers) {
+                                                          _selectedMinistryMembers[member['id']] = !allSelected;
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Text(
+                                                      _selectedMinistryMembers.values.every((selected) => selected)
+                                                          ? 'Desmarcar todos'
+                                                          : 'Selecionar todos',
+                                                      style: TextStyle(
+                                                        color: AppColors.primary,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: Colors.grey[300]!),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                height: 200,
+                                                child: ListView.builder(
+                                                  itemCount: _ministryMembers.length,
+                                                  itemBuilder: (context, index) {
+                                                    final member = _ministryMembers[index];
+                                                    final memberId = member['id'];
+                                                    
+                                                    return CheckboxListTile(
+                                                      title: Text(
+                                                        member['name'],
+                                                        style: const TextStyle(fontSize: 14),
+                                                      ),
+                                                      value: _selectedMinistryMembers[memberId] ?? false,
+                                                      activeColor: AppColors.primary,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          _selectedMinistryMembers[memberId] = value!;
+                                                        });
+                                                      },
+                                                      dense: true,
+                                                      controlAffinity: ListTileControlAffinity.leading,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                    
+                                    // Miembros de un grupo
+                                    RadioListTile<String>(
+                                      title: const Text('Membros de um grupo'),
+                                      value: 'group',
+                                      groupValue: _targetType,
+                                      activeColor: AppColors.primary,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _targetType = value!;
+                                          // Limpiar selección anterior
+                                          _selectedGroupId = null;
+                                          _groupMembers = [];
+                                          _selectedGroupMembers.clear();
+                                        });
+                                      },
+                                    ),
+                                    
+                                    // Selector de grupo (visible solo si se selecciona la opción)
+                                    if (_targetType == 'group') ...[
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey[300]!),
+                                          ),
+                                          child: DropdownButtonFormField<String>(
+                                            decoration: const InputDecoration(
+                                              labelText: 'Selecionar grupo',
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                                              border: InputBorder.none,
+                                            ),
+                                            items: _groups.map((group) {
+                                              return DropdownMenuItem<String>(
+                                                value: group['id'],
+                                                child: Text(group['name']),
+                                              );
+                                            }).toList(),
+                                            value: _selectedGroupId,
+                                            onChanged: (value) {
+                                              if (value != _selectedGroupId) {
+                                                setState(() {
+                                                  _selectedGroupId = value;
+                                                  _selectedGroupMembers.clear();
+                                                  _groupMembers = [];
+                                                });
+                                                if (value != null) {
+                                                  _loadGroupMembers(value);
+                                                }
+                                              }
+                                            },
+                                            validator: _targetType == 'group'
+                                                ? (value) {
+                                                    if (value == null || value.isEmpty) {
+                                                      return 'Por favor selecione um grupo';
+                                                    }
+                                                    return null;
+                                                  }
+                                                : null,
+                                          ),
+                                        ),
+                                      ),
+                                      
+                                      // Lista de miembros del grupo para selección múltiple
+                                      if (_groupMembers.isNotEmpty) ...[
+                                        const SizedBox(height: 12),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Selecionar (${_selectedGroupMembers.values.where((selected) => selected).length}/${_groupMembers.length})',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      final bool allSelected = _selectedGroupMembers.values.every((selected) => selected);
+                                                      setState(() {
+                                                        for (final member in _groupMembers) {
+                                                          _selectedGroupMembers[member['id']] = !allSelected;
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Text(
+                                                      _selectedGroupMembers.values.every((selected) => selected)
+                                                          ? 'Desmarcar todos'
+                                                          : 'Selecionar todos',
+                                                      style: TextStyle(
+                                                        color: AppColors.primary,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: Colors.grey[300]!),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                height: 200,
+                                                child: ListView.builder(
+                                                  itemCount: _groupMembers.length,
+                                                  itemBuilder: (context, index) {
+                                                    final member = _groupMembers[index];
+                                                    final memberId = member['id'];
+                                                    
+                                                    return CheckboxListTile(
+                                                      title: Text(
+                                                        member['name'],
+                                                        style: const TextStyle(fontSize: 14),
+                                                      ),
+                                                      value: _selectedGroupMembers[memberId] ?? false,
+                                                      activeColor: AppColors.primary,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          _selectedGroupMembers[memberId] = value!;
+                                                        });
+                                                      },
+                                                      dense: true,
+                                                      controlAffinity: ListTileControlAffinity.leading,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Opción para incluirse a sí mismo
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Receber também esta notificação',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Switch(
+                                  value: _includeSelf,
+                                  activeColor: AppColors.primary,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _includeSelf = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Botón de enviar
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _sendNotification,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const Text(
+                              'ENVIAR NOTIFICAÇÃO',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Switch(
-                              value: _includeSelf,
-                              activeColor: AppColors.primary,
-                              onChanged: (value) {
-                                setState(() {
-                                  _includeSelf = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Botón de enviar
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _sendNotification,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                        child: const Text(
-                          'ENVIAR NOTIFICAÇÃO',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                        
+                        // Espacio para el padding inferior
+                        SizedBox(height: MediaQuery.of(context).padding.bottom + 32),
+                      ],
                     ),
-                    
-                    // Espacio para el padding inferior
-                    SizedBox(height: MediaQuery.of(context).padding.bottom + 32),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+        },
+      ),
     );
   }
 } 

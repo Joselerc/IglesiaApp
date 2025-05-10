@@ -4,6 +4,7 @@ import '../../models/video_section.dart';
 import './edit_section_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../services/permission_service.dart';
 
 class ManageSectionsScreen extends StatefulWidget {
   const ManageSectionsScreen({super.key});
@@ -14,230 +15,263 @@ class ManageSectionsScreen extends StatefulWidget {
 
 class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final PermissionService _permissionService = PermissionService();
   bool _isReordering = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.primary,
-                    AppColors.primary.withOpacity(0.8),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_videos'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar vídeos.', textAlign: TextAlign.center),
                   ],
                 ),
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Text(
-                        'Seções de Vídeos',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: Icon(_isReordering ? Icons.done : Icons.reorder, color: Colors.white),
-                        tooltip: _isReordering ? 'Salvar ordem' : 'Reordenar seções',
-                        onPressed: () {
-                          setState(() {
-                            _isReordering = !_isReordering;
-                          });
-                          
-                          if (_isReordering) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Arraste as seções para reordená-las'),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            );
+          }
+          
+          // Contenido original cuando tiene permiso
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
             ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('videoSections')
-                    .orderBy('order')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final sections = snapshot.data!.docs
-                      .map((doc) => VideoSection.fromFirestore(doc))
-                      .toList();
-
-                  if (sections.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Row(
                         children: [
-                          Icon(
-                            Icons.video_library_outlined,
-                            size: 70,
-                            color: Colors.grey[300],
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Nenhuma seção criada',
+                          const Text(
+                            'Seções de Vídeos',
                             style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => _navigateToEditSection(context),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Criar Primeira Seção'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
+                          const Spacer(),
+                          IconButton(
+                            icon: Icon(_isReordering ? Icons.done : Icons.reorder, color: Colors.white),
+                            tooltip: _isReordering ? 'Salvar ordem' : 'Reordenar seções',
+                            onPressed: () {
+                              setState(() {
+                                _isReordering = !_isReordering;
+                              });
+                              
+                              if (_isReordering) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Arraste as seções para reordená-las'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
-                    );
-                  }
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('videoSections')
+                        .orderBy('order')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  return Column(
-                    children: [
-                      if (_isReordering)
-                        Container(
-                          color: Colors.amber[50],
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
+                      final sections = snapshot.data!.docs
+                          .map((doc) => VideoSection.fromFirestore(doc))
+                          .toList();
+
+                      if (sections.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.info_outline, color: Colors.amber[800]),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text(
-                                  'Arraste para reordenar. Pressione o botão concluído quando terminar.',
-                                  style: TextStyle(color: Colors.black87),
+                              Icon(
+                                Icons.video_library_outlined,
+                                size: 70,
+                                color: Colors.grey[300],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Nenhuma seção criada',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () => _navigateToEditSection(context),
+                                icon: const Icon(Icons.add),
+                                label: const Text('Criar Primeira Seção'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      Expanded(
-                        child: _isReordering
-                        ? ReorderableListView.builder(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            itemCount: sections.length,
-                            onReorder: _reorderSections,
-                            itemBuilder: (context, index) {
-                              final section = sections[index];
-                              return Card(
-                                key: Key(section.id),
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  leading: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.drag_handle, color: Colors.blueGrey),
-                                  ),
-                                  title: Text(
-                                    section.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                        );
+                      }
+
+                      return Column(
+                        children: [
+                          if (_isReordering)
+                            Container(
+                              color: Colors.amber[50],
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.amber[800]),
+                                  const SizedBox(width: 12),
+                                  const Expanded(
+                                    child: Text(
+                                      'Arraste para reordenar. Pressione o botão concluído quando terminar.',
+                                      style: TextStyle(color: Colors.black87),
                                     ),
                                   ),
-                                  subtitle: _buildSectionTypeLabel(section.type),
-                                ),
-                              );
-                            },
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            itemCount: sections.length,
-                            itemBuilder: (context, index) {
-                              final section = sections[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  leading: _getSectionIcon(section.type),
-                                  title: Text(
-                                    section.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                ],
+                              ),
+                            ),
+                          Expanded(
+                            child: _isReordering
+                            ? ReorderableListView.builder(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: sections.length,
+                                onReorder: _reorderSections,
+                                itemBuilder: (context, index) {
+                                  final section = sections[index];
+                                  return Card(
+                                    key: Key(section.id),
+                                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  ),
-                                  subtitle: _buildSectionTypeLabel(section.type),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit, color: AppColors.primary),
-                                        tooltip: 'Editar seção',
-                                        onPressed: () => _navigateToEditSection(
-                                          context,
-                                          section: section,
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      leading: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(Icons.drag_handle, color: Colors.blueGrey),
+                                      ),
+                                      title: Text(
+                                        section.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red[400]),
-                                        tooltip: 'Excluir seção',
-                                        onPressed: () => _confirmDeleteSection(section),
+                                      subtitle: _buildSectionTypeLabel(section.type),
+                                    ),
+                                  );
+                                },
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: sections.length,
+                                itemBuilder: (context, index) {
+                                  final section = sections[index];
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      leading: _getSectionIcon(section.type),
+                                      title: Text(
+                                        section.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
+                                      subtitle: _buildSectionTypeLabel(section.type),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.edit, color: AppColors.primary),
+                                            tooltip: 'Editar seção',
+                                            onPressed: () => _navigateToEditSection(
+                                              context,
+                                              section: section,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete, color: Colors.red[400]),
+                                            tooltip: 'Excluir seção',
+                                            onPressed: () => _confirmDeleteSection(section),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                           ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: !_isReordering
           ? FloatingActionButton.extended(

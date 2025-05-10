@@ -6,6 +6,7 @@ import 'widgets/prayer_card.dart';
 import '../prayers/modals/create_prayer_modal.dart';
 import '../../widgets/empty_state.dart';
 import '../../services/prayer_service.dart';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
@@ -19,29 +20,27 @@ class PublicPrayerScreen extends StatefulWidget {
 class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
   final ScrollController _scrollController = ScrollController();
   final PrayerService _prayerService = PrayerService();
+  final PermissionService _permissionService = PermissionService();
   
   bool _isLoadingMore = false;
   DocumentSnapshot? _lastVisibleDocument;
   String _sortBy = 'popular'; // 'recent', 'popular'
   String _filterBy = 'all'; // 'all', 'assigned'
-  bool _isPastor = false;
+  bool _hasAssignPermission = false;
   int _refreshKey = 0; // Añadir clave para forzar reconstrucción
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _checkIfUserIsPastor();
+    _checkPermissions();
   }
   
-  Future<void> _checkIfUserIsPastor() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    
-    final isPastor = await _prayerService.isPastor(user.uid);
+  Future<void> _checkPermissions() async {
+    final hasPermission = await _permissionService.hasPermission('assign_cult_to_prayer');
     if (mounted) {
       setState(() {
-        _isPastor = isPastor;
+        _hasAssignPermission = hasPermission;
       });
     }
   }
@@ -308,8 +307,8 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                         ),
                       ),
                       
-                      // Filtros de pastor para asignación a cultos
-                      if (_isPastor) ...[
+                      // Filtros para asignación a cultos (visible para usuarios con permiso)
+                      if (_hasAssignPermission) ...[
                         const SizedBox(width: 12),
                         const SizedBox(
                           height: 24,

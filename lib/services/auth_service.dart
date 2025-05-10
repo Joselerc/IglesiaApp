@@ -205,14 +205,43 @@ class AuthService extends ChangeNotifier {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return false;
       
+      // Verificar si el usuario tiene el rol de pastor basado en el roleId y permisos
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
           .get();
       
-      if (userDoc.exists) {
-        final userData = userDoc.data();
-        return userData != null && userData['role'] == 'pastor';
+      if (!userDoc.exists) return false;
+      
+      // Primero verificamos si tiene roleId de pastor (compatibilidad)
+      final userData = userDoc.data();
+      if (userData != null) {
+        final String? roleId = userData['roleId'] as String?;
+        
+        if (roleId != null) {
+          // Obtener el rol y verificar si tiene los permisos necesarios
+          final roleDoc = await FirebaseFirestore.instance
+              .collection('roles')
+              .doc(roleId)
+              .get();
+              
+          if (roleDoc.exists) {
+            final roleData = roleDoc.data();
+            if (roleData != null) {
+              final List<dynamic> permissions = roleData['permissions'] ?? [];
+              
+              // Si tiene permiso de manage_pages o es el rol específico de pastor
+              if (roleId == 'pastor' || permissions.contains('manage_pages')) {
+                return true;
+              }
+            }
+          }
+        }
+        
+        // Para compatibilidad con versiones anteriores
+        if (userData['role'] == 'pastor') {
+          return true;
+        }
       }
       
       return false;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme/app_colors.dart';
 import '../../models/group.dart';
+import '../../services/permission_service.dart';
 import 'tabs/new/group_history_tab.dart';
 import 'tabs/new/group_events_tab.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +16,7 @@ class GroupMembersStatsScreen extends StatefulWidget {
 
 class _GroupMembersStatsScreenState extends State<GroupMembersStatsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = true;
   List<Group> _groups = [];
   Map<String, dynamic> _groupStats = {};
@@ -113,16 +115,48 @@ class _GroupMembersStatsScreenState extends State<GroupMembersStatsScreen> with 
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildMembersTab(),
-                _buildHistoryTab(),
-                _buildEventsTab(),
-              ],
-            ),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('view_group_stats'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para visualizar estatísticas de grupos.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            );
+          }
+          
+          // Contenido original cuando tiene permiso
+          return _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMembersTab(),
+                  _buildHistoryTab(),
+                  _buildEventsTab(),
+                ],
+              );
+        },
+      ),
     );
   }
 

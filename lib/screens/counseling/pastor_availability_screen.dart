@@ -6,6 +6,7 @@ import '../../models/pastor_availability.dart' as model;
 import 'widgets/day_schedule_dialog.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../services/permission_service.dart';
 
 class PastorAvailabilityScreen extends StatefulWidget {
   const PastorAvailabilityScreen({super.key});
@@ -17,6 +18,7 @@ class PastorAvailabilityScreen extends StatefulWidget {
 class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final PermissionService _permissionService = PermissionService();
   
   bool _isLoading = true;
   String _pastorId = '';
@@ -93,13 +95,11 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       
       _pastorId = user.uid;
       
-      // Verificar si el usuario es pastor
-      final userDoc = await _firestore.collection('users').doc(_pastorId).get();
-      final userData = userDoc.data();
-      // Removido temporalmente para pruebas si es necesario
-      // if (userData == null || userData['role'] != 'pastor') {
-      //   throw Exception('Apenas pastores podem acessar esta tela');
-      // }
+      // Verificar si el usuario tiene permiso
+      final hasPermission = await _permissionService.hasPermission('manage_counseling_availability');
+      if (!hasPermission) {
+        throw Exception('Você não tem permissão para gerenciar disponibilidade');
+      }
       
       // Buscar disponibilidad existente
       final availabilityDoc = await _firestore
@@ -920,147 +920,178 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // Selector de semana con diseño mejorado
-              Container(
-                padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.05),
-                      spreadRadius: 1,
-                      blurRadius: 3,
-                      offset: const Offset(0, 2),
-                    ),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_counseling_availability'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar a disponibilidade para aconselhamento.', textAlign: TextAlign.center),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    // Selector de semana
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Material(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(30),
-                            onTap: () {
-                              setState(() {
-                                _selectedWeek = _selectedWeek.subtract(const Duration(days: 7));
-                                _loadWeekSchedule();
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.arrow_back_ios_rounded,
-                                size: 20,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(
-                                'Semana de',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${DateFormat('d MMM', 'pt_BR').format(_selectedWeek)} a ${DateFormat('d MMM', 'pt_BR').format(_getEndOfWeek(_selectedWeek))}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(30),
-                            onTap: () {
-              setState(() {
-                                _selectedWeek = _selectedWeek.add(const Duration(days: 7));
-                                _loadWeekSchedule();
-              });
-            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                size: 20,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ),
+              ),
+            );
+          }
+          
+          return Stack(
+            children: [
+              Column(
+                children: [
+                  // Selector de semana con diseño mejorado
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.05),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    
-                    const SizedBox(height: 12),
-                    
-                    // Botón de copiar a siguiente semana
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.copy_all_rounded, size: 16),
-                      label: const Text('Copiar para próxima semana'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    child: Column(
+                      children: [
+                        // Selector de semana
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: () {
+                                  setState(() {
+                                    _selectedWeek = _selectedWeek.subtract(const Duration(days: 7));
+                                    _loadWeekSchedule();
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.arrow_back_ios_rounded,
+                                    size: 20,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Semana de',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${DateFormat('d MMM', 'pt_BR').format(_selectedWeek)} a ${DateFormat('d MMM', 'pt_BR').format(_getEndOfWeek(_selectedWeek))}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: () {
+                                  setState(() {
+                                    _selectedWeek = _selectedWeek.add(const Duration(days: 7));
+                                    _loadWeekSchedule();
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 20,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      onPressed: _copyToNextWeek,
+                        
+                        const SizedBox(height: 12),
+                        
+                        // Botón de copiar a siguiente semana
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.copy_all_rounded, size: 16),
+                          label: const Text('Copiar para próxima semana'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Theme.of(context).primaryColor,
+                            side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: _copyToNextWeek,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Lista de días de la semana
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _getDaysOfWeek().length,
+                      itemBuilder: (context, index) {
+                        final date = _getDaysOfWeek()[index];
+                        final schedule = _weekSchedule[date] ?? model.DaySchedule(isWorking: false);
+                        
+                        return _buildDayScheduleCard(date, schedule);
+                      },
+                    ),
+                  ),
+                ],
               ),
-              
-              const SizedBox(height: 8),
-              
-              // Lista de días de la semana
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _getDaysOfWeek().length,
-                  itemBuilder: (context, index) {
-                    final date = _getDaysOfWeek()[index];
-                    final schedule = _weekSchedule[date] ?? model.DaySchedule(isWorking: false);
-                    
-                    return _buildDayScheduleCard(date, schedule);
-                  },
+              // Indicador de carga sutil que solo cubre la parte superior de la pantalla
+              if (_isLoading)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: LinearProgressIndicator(
+                    backgroundColor: Colors.transparent,
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                  ),
                 ),
-              ),
             ],
-          ),
-          // Indicador de carga sutil que solo cubre la parte superior de la pantalla
-          if (_isLoading)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
-                color: Theme.of(context).primaryColor.withOpacity(0.5),
-              ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/ministry_card.dart';
 import '../../modals/create_ministry_modal.dart';
+import '../../services/permission_service.dart';
 
 class MinistriesListScreen extends StatefulWidget {
   const MinistriesListScreen({super.key});
@@ -24,30 +25,29 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
   final _searchController = TextEditingController();
   String _searchQuery = '';
   final MinistryService _ministryService = MinistryService();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   
   // Controlador para las pestañas
   late TabController _tabController;
   
-  // Estado para saber si el usuario es pastor
-  bool _isPastor = false; 
+  // Estado para saber si el usuario puede crear ministerios
+  bool _canCreateMinistry = false;
   
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // Verificamos el rol del usuario al iniciar
-    _checkPastorRole(); 
+    // Verificar el permiso específico
+    _checkCreatePermission();
   }
   
-  Future<void> _checkPastorRole() async {
-    // Obtenemos la instancia de AuthService usando Provider.of fuera del build
-    // Es importante usar listen: false aquí si no necesitas escuchar cambios en este punto
-    final authService = Provider.of<AuthService>(context, listen: false); 
-    final isPastorResult = await authService.isCurrentUserPastor();
-    if (mounted) { // Comprobar si el widget sigue montado antes de llamar a setState
+  Future<void> _checkCreatePermission() async {
+    // Verificar el permiso específico para crear ministerios
+    final hasPermission = await _permissionService.hasPermission('create_ministry');
+    if (mounted) {
       setState(() {
-        _isPastor = isPastorResult;
+        _canCreateMinistry = hasPermission;
       });
     }
   }
@@ -171,7 +171,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
                         ),
                         const Spacer(),
                         // Mostrar el botón de añadir solo si es pastor
-                        if (_isPastor) 
+                        if (_canCreateMinistry) 
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
                             tooltip: 'Criar Ministério',
@@ -264,7 +264,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
         ],
       ),
       // Mostrar el FAB solo si es pastor
-      floatingActionButton: _isPastor 
+      floatingActionButton: _canCreateMinistry 
           ? FloatingActionButton(
               onPressed: () {
                 showModalBottomSheet(

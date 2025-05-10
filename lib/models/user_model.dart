@@ -8,6 +8,9 @@ class UserModel {
   final String? displayName; // Nombre completo (name + surname)
   final String? photoUrl;   // URL de la foto de perfil (opcional)
   final String? phone;      // Número de teléfono (opcional)
+  final String? phoneCountryCode;  // Código de país del número de teléfono
+  final String? phoneComplete;
+  final String? isoCountryCode;
   final DateTime createdAt;  // Fecha de creación
   final DateTime? lastLogin;  // Última fecha de inicio de sesión
   final bool hasSkippedBanner;  // Si el usuario ha omitido el banner
@@ -15,7 +18,13 @@ class UserModel {
   final DateTime? additionalFieldsLastUpdated; // Última actualización de campos adicionales
   final DateTime? lastBannerShown; // Última vez que se mostró el banner
   final bool neverShowBannerAgain; // Si el usuario ha elegido no mostrar el banner nunca más
-  final String role;      // Rol del usuario (user, admin, pastor, etc.)
+  final String? roleId; // <<< Añadir roleId anulable
+
+  // --- NUEVOS CAMPOS ---
+  final Timestamp? birthDate;
+  final String? gender;
+  final bool isVisitorOnly;
+  // --- FIN NUEVOS CAMPOS ---
 
   UserModel({
     required this.email,
@@ -24,6 +33,9 @@ class UserModel {
     this.displayName,
     this.photoUrl,
     this.phone,
+    this.phoneCountryCode,
+    this.phoneComplete,
+    this.isoCountryCode,
     required this.createdAt,
     this.lastLogin,
     this.hasSkippedBanner = false,
@@ -31,7 +43,10 @@ class UserModel {
     this.additionalFieldsLastUpdated,
     this.lastBannerShown,
     this.neverShowBannerAgain = false,
-    this.role = 'user',
+    this.roleId, // <<< Añadir roleId al constructor
+    this.birthDate,
+    this.gender,
+    this.isVisitorOnly = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -42,6 +57,9 @@ class UserModel {
       'displayName': displayName,
       'photoUrl': photoUrl,
       'phone': phone,
+      'phoneCountryCode': phoneCountryCode,
+      'phoneComplete': phoneComplete,
+      'isoCountryCode': isoCountryCode,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLogin': lastLogin != null ? Timestamp.fromDate(lastLogin!) : null,
       'hasSkippedBanner': hasSkippedBanner,
@@ -53,7 +71,10 @@ class UserModel {
           ? Timestamp.fromDate(lastBannerShown!) 
           : null,
       'neverShowBannerAgain': neverShowBannerAgain,
-      'role': role,
+      'roleId': roleId, // <<< Añadir roleId al map
+      'birthDate': birthDate,
+      'gender': gender,
+      'isVisitorOnly': isVisitorOnly,
     };
   }
 
@@ -65,7 +86,10 @@ class UserModel {
       displayName: map['displayName'],
       photoUrl: map['photoUrl'],
       phone: map['phone'],
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      phoneCountryCode: map['phoneCountryCode'] as String?,
+      phoneComplete: map['phoneComplete'] as String?,
+      isoCountryCode: map['isoCountryCode'] as String?,
+      createdAt: (map['createdAt'] as Timestamp? ?? Timestamp.now()).toDate(),
       lastLogin: map['lastLogin'] != null 
           ? (map['lastLogin'] as Timestamp).toDate() 
           : null,
@@ -78,7 +102,10 @@ class UserModel {
           ? (map['lastBannerShown'] as Timestamp).toDate() 
           : null,
       neverShowBannerAgain: map['neverShowBannerAgain'] ?? false,
-      role: map['role'] ?? 'user',
+      roleId: map['roleId'], // <<< Añadir roleId de fromMap (puede ser null)
+      birthDate: map['birthDate'] as Timestamp?,
+      gender: map['gender'] as String?,
+      isVisitorOnly: map['isVisitorOnly'] ?? false,
     );
   }
 

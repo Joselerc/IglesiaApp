@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../models/user_stats.dart';
 import '../../services/user_stats_service.dart';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 
 class ServicesStatsScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class ServicesStatsScreen extends StatefulWidget {
 
 class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = true;
   
   // Variables para controlar el estado de carga de cada pestaña
@@ -679,15 +681,47 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Tab 1: Servicios
-          _buildServicesTab(),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('view_schedule_stats'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
           
-          // Tab 2: Usuarios
-          _buildUsersTab(),
-        ],
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para visualizar estatísticas de escalas.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            );
+          }
+          
+          // Contenido original cuando tiene permiso
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              // Tab 1: Servicios
+              _buildServicesTab(),
+              
+              // Tab 2: Usuarios
+              _buildUsersTab(),
+            ],
+          );
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/ministry.dart';
 import './membership_log_service.dart';
 import './membership_request_service.dart';
+import 'package:flutter/foundation.dart';
 
 class MinistryService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -472,6 +473,40 @@ class MinistryService {
     } catch (e) {
       print('Error al eliminar miembro: $e');
       throw Exception('Error al eliminar miembro: $e');
+    }
+  }
+
+  /// Elimina un ministerio por su ID
+  Future<void> deleteMinistry(String ministryId) async {
+    try {
+      // Primero obtenemos las referencias a los miembros para poder limpiar relaciones
+      final ministryDoc = await _firestore.collection('ministries').doc(ministryId).get();
+      final ministry = Ministry.fromFirestore(ministryDoc);
+      
+      // Obtener todos los miembros del ministerio
+      final members = ministry.memberIds ?? [];
+      
+      // Batch para hacer todas las operaciones atómicamente
+      final batch = _firestore.batch();
+      
+      // Eliminar el ministerio
+      batch.delete(_firestore.collection('ministries').doc(ministryId));
+      
+      // Actualizar usuarios que pertenecen al ministerio (quitar la referencia)
+      for (String userId in members) {
+        batch.update(
+          _firestore.collection('users').doc(userId), 
+          {'ministryIds': FieldValue.arrayRemove([ministryId])}
+        );
+      }
+      
+      // Ejecutar batch
+      await batch.commit();
+      
+      debugPrint('✅ Ministerio $ministryId eliminado con éxito');
+    } catch (e) {
+      debugPrint('❌ Error al eliminar ministerio $ministryId: $e');
+      rethrow;
     }
   }
 } 

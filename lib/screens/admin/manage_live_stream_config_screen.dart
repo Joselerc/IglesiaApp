@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 
 class ManageLiveStreamConfigScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class ManageLiveStreamConfigScreen extends StatefulWidget {
 
 class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   bool _isLoadingData = true; // Para la carga inicial
 
@@ -36,10 +38,12 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
   DocumentReference get _liveStreamConfigDocRef =>
       _firestore.collection('app_config').doc('live_stream');
 
+  Future<void>? _loadConfigFuture;
+
   @override
   void initState() {
     super.initState();
-    _loadConfigData();
+    _loadConfigFuture = _loadConfigData();
   }
 
   @override
@@ -112,6 +116,16 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
   }
 
   Future<void> _saveConfig() async {
+    final bool hasPermission = await _permissionService.hasPermission('manage_livestream_config');
+    if (!hasPermission) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Sem permissão para salvar configurações.'), backgroundColor: Colors.red),
+         );
+      }
+      return;
+    }
+    
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -182,183 +196,218 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
         ),
         foregroundColor: Colors.white,
       ),
-      body: _isLoadingData
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0), // Aumentado padding inferior
-                children: [
-                  // Título de la Sección
-                  TextFormField(
-                    controller: _sectionTitleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título da Seção (Home)',
-                      hintText: 'Ex: Transmissão Ao Vivo',
-                      border: OutlineInputBorder(),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_livestream_config'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                      Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      SizedBox(height: 8),
+                      Text('Você não tem permissão para gerenciar a configuração de transmissão.', textAlign: TextAlign.center),
+                   ],
+                 ),
+              ),
+            );
+          }
+
+          return FutureBuilder<void>(
+            future: _loadConfigFuture,
+            builder: (context, dataSnapshot) {
+              if (_isLoadingData) {
+                 return const Center(child: CircularProgressIndicator());
+              }
+              
+              return Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
+                  children: [
+                    // Título de la Sección
+                    TextFormField(
+                      controller: _sectionTitleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Título da Seção (Home)',
+                        hintText: 'Ex: Transmissão Ao Vivo',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um título para a seção';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira um título para a seção';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Descripción -> Texto Adicional
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Texto Adicional (opcional)',
-                      border: OutlineInputBorder(),
+                    // Descripción -> Texto Adicional
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Texto Adicional (opcional)',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
                     ),
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
 
 
-                  // Imagen y Título sobre Imagen
-                  const Text('Imagem da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
+                    // Imagen y Título sobre Imagen
+                    const Text('Imagem da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
 
-                  // --- Selector de Imagen Mejorado ---
-                  _imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty)
-                      ? GestureDetector(
-                          onTap: _pickImage,
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Toque para adicionar imagem\n(Recomendado 16:9)',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.grey.shade600),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      : GestureDetector( // Hacer la imagen existente también clickable para cambiarla
-                          onTap: _pickImage,
-                          child: AspectRatio(
-                             aspectRatio: 16 / 9,
+                    // --- Selector de Imagen Mejorado ---
+                    _imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty)
+                        ? GestureDetector(
+                            onTap: _pickImage,
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
                               child: Container(
                                 decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Colors.grey.shade100,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: _imageFile != null
-                                      ? Image.file(_imageFile!, fit: BoxFit.cover)
-                                      : Image.network(_imageUrl!, fit: BoxFit.cover,
-                                          loadingBuilder: (context, child, progress) =>
-                                              progress == null ? child : const Center(child: CircularProgressIndicator()),
-                                          errorBuilder: (context, error, stackTrace) =>
-                                             const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40))),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Toque para adicionar imagem\n(Recomendado 16:9)',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                          )
+                        : GestureDetector(
+                            onTap: _pickImage,
+                            child: AspectRatio(
+                               aspectRatio: 16 / 9,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.grey.shade100,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: _imageFile != null
+                                        ? Image.file(_imageFile!, fit: BoxFit.cover)
+                                        : Image.network(_imageUrl!, fit: BoxFit.cover,
+                                            loadingBuilder: (context, child, progress) =>
+                                                progress == null ? child : const Center(child: CircularProgressIndicator()),
+                                            errorBuilder: (context, error, stackTrace) =>
+                                               const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40))),
+                                  ),
+                                ),
+                              ),
                           ),
-                  // -------------------------------------
+                    // -------------------------------------
+                    const SizedBox(height: 16),
 
-                  const SizedBox(height: 16),
-
-                  // Título sobre Imagen
-                  TextFormField(
-                    controller: _imageTitleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título sobre a Imagem',
-                      hintText: 'Ex: Culto de Domingo',
-                      border: OutlineInputBorder(),
+                    // Título sobre Imagen
+                    TextFormField(
+                      controller: _imageTitleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Título sobre a Imagem',
+                        hintText: 'Ex: Culto de Domingo',
+                        border: OutlineInputBorder(),
+                      ),
+                      // Podría ser opcional, ajustar validator si es necesario
                     ),
-                    // Podría ser opcional, ajustar validator si es necesario
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
 
-                  // URL del Directo
-                  const Text('Link da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                   TextFormField(
-                    controller: _urlController,
-                    decoration: const InputDecoration(
-                      labelText: 'URL (YouTube, Vimeo, etc.)',
-                      hintText: 'Cole o link completo aqui',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.link),
+                    // URL del Directo
+                    const Text('Link da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                     TextFormField(
+                      controller: _urlController,
+                      decoration: const InputDecoration(
+                        labelText: 'URL (YouTube, Vimeo, etc.)',
+                        hintText: 'Cole o link completo aqui',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.link),
+                      ),
+                       keyboardType: TextInputType.url,
+                      validator: (value) {
+                        // Es opcional tener URL, pero si se pone, validar formato básico
+                        if (value != null && value.isNotEmpty && !value.startsWith('http')) {
+                          return 'Por favor, insira um URL válido (começando com http ou https)';
+                        }
+                        return null;
+                      },
                     ),
-                     keyboardType: TextInputType.url,
-                    validator: (value) {
-                      // Es opcional tener URL, pero si se pone, validar formato básico
-                      if (value != null && value.isNotEmpty && !value.startsWith('http')) {
-                        return 'Por favor, insira um URL válido (começando com http ou https)';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
 
-                  const SizedBox(height: 16),
-                  // Interruptor Activo/Inactivo
-                  SwitchListTile(
-                    title: const Text('Ativar Transmissão na Home'),
-                    subtitle: Text(
-                        _isActive
-                         ? 'Visível na Home'
-                         : 'Oculto na Home',
-                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _isActive ? AppColors.secondary : Colors.grey
-                         )
+                    const SizedBox(height: 16),
+                    // Interruptor Activo/Inactivo
+                    SwitchListTile(
+                      title: const Text('Ativar Transmissão na Home'),
+                      subtitle: Text(
+                          _isActive
+                           ? 'Visível na Home'
+                           : 'Oculto na Home',
+                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: _isActive ? AppColors.secondary : Colors.grey
+                           )
+                      ),
+                      value: _isActive,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _isActive = value;
+                        });
+                      },
+                      secondary: Icon(_isActive ? Icons.visibility : Icons.visibility_off, color: _isActive ? AppColors.secondary : Colors.grey),
                     ),
-                    value: _isActive,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _isActive = value;
-                      });
-                    },
-                    secondary: Icon(_isActive ? Icons.visibility : Icons.visibility_off, color: _isActive ? AppColors.secondary : Colors.grey),
-                  ),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  // Botón de Guardar
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton.icon(
-                          icon: const Icon(Icons.save, color: Colors.white),
-                          label: const Text('Salvar Configuração', style: TextStyle(color: Colors.white, fontSize: 16)),
-                          onPressed: _saveConfig,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    // Botón de Guardar
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ElevatedButton.icon(
+                            icon: const Icon(Icons.save, color: Colors.white),
+                            label: const Text('Salvar Configuração', style: TextStyle(color: Colors.white, fontSize: 16)),
+                            onPressed: _saveConfig,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           ),
-                        ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

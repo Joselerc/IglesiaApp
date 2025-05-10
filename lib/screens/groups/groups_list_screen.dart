@@ -10,6 +10,7 @@ import 'group_feed_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/group_card.dart';
 import '../../modals/create_group_modal.dart';
+import '../../services/permission_service.dart';
 
 class GroupsListScreen extends StatefulWidget {
   const GroupsListScreen({super.key});
@@ -23,24 +24,25 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
   final TextEditingController _searchController = TextEditingController();
   late TabController _tabController;
   final GroupService _groupService = GroupService();
+  final PermissionService _permissionService = PermissionService();
   
-  // Estado para saber si el usuario es pastor
-  bool _isPastor = false;
+  // Estado para saber si el usuario tiene permiso para crear grupos
+  bool _canCreateGroup = false;
   
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // Verificamos el rol del usuario al iniciar
-    _checkPastorRole();
+    // Verificamos el permiso del usuario al iniciar
+    _checkCreatePermission();
   }
   
-  Future<void> _checkPastorRole() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final isPastorResult = await authService.isCurrentUserPastor();
+  Future<void> _checkCreatePermission() async {
+    // Verificar el permiso específico para crear grupos
+    final hasPermission = await _permissionService.hasPermission('create_group');
     if (mounted) {
       setState(() {
-        _isPastor = isPastorResult;
+        _canCreateGroup = hasPermission;
       });
     }
   }
@@ -153,7 +155,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
                         ),
                         const Spacer(),
                         // Mostrar el botón de añadir solo si es pastor
-                        if (_isPastor)
+                        if (_canCreateGroup)
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
                             tooltip: 'Criar Grupo',
@@ -247,7 +249,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
         ],
       ),
       // Mostrar el FAB solo si es pastor
-      floatingActionButton: _isPastor
+      floatingActionButton: _canCreateGroup
           ? FloatingActionButton(
               onPressed: () {
                 // Acción para crear un nuevo grupo

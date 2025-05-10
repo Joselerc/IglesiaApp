@@ -3,9 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/user_model.dart';
 import '../../services/user_role_service.dart';
-import '../../services/auth_service.dart';
+import '../../services/permission_service.dart';
+import '../../services/role_service.dart';
+import '../../models/role.dart';
 import '../../theme/app_colors.dart';
-import 'package:provider/provider.dart';
 
 class UserRoleManagementScreen extends StatefulWidget {
   const UserRoleManagementScreen({Key? key}) : super(key: key);
@@ -16,18 +17,21 @@ class UserRoleManagementScreen extends StatefulWidget {
 
 class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
   final UserRoleService _roleService = UserRoleService();
+  final PermissionService _permissionService = PermissionService();
+  final RoleService _roleServiceNew = RoleService();
   final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
   bool _isAuthorized = false;
   List<Map<String, dynamic>> _users = [];
   List<Map<String, dynamic>> _filteredUsers = [];
   String _currentUserId = '';
+  List<Role> _availableRoles = [];
 
   @override
   void initState() {
     super.initState();
     _currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    _checkAuthorization();
+    _checkPermissions();
   }
 
   @override
@@ -36,24 +40,24 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
     super.dispose();
   }
 
-  Future<void> _checkAuthorization() async {
+  Future<void> _checkPermissions() async {
     setState(() {
       _isLoading = true;
     });
     
     try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final isPastor = await authService.isCurrentUserPastor();
+      final hasViewListPermission = await _permissionService.hasPermission('view_user_list');
+      final hasAssignRolesPermission = await _permissionService.hasPermission('assign_user_roles');
+      final canAccessScreen = hasViewListPermission || hasAssignRolesPermission;
       
       setState(() {
-        _isAuthorized = isPastor;
-        _isLoading = false;
+        _isAuthorized = canAccessScreen;
       });
       
       if (_isAuthorized) {
-        _loadUsers();
+        await _loadAvailableRoles();
+        await _loadUsers();
       } else {
-        // Si no está autorizado, mostrar mensaje y navegar hacia atrás después de un delay
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -64,16 +68,37 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
           );
           
           Future.delayed(const Duration(seconds: 2), () {
-            Navigator.of(context).pop();
+            if (mounted) Navigator.of(context).pop();
           });
         }
       }
     } catch (e) {
-      print('Erro ao verificar autorização: $e');
+      print('Erro ao verificar permissão: $e');
       setState(() {
         _isLoading = false;
         _isAuthorized = false;
       });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao verificar permissão: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadAvailableRoles() async {
+    try {
+      _availableRoles = await _roleServiceNew.getRoles().first;
+    } catch (e) {
+      print("Error al cargar roles disponibles: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Erro ao carregar papéis: $e'), backgroundColor: Colors.red),
+        );
+      }
+      _availableRoles = [];
     }
   }
 
@@ -97,37 +122,27 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
   }
 
   Future<void> _loadUsers() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
       final snapshot = await FirebaseFirestore.instance.collection('users').get();
       final loadedUsers = snapshot.docs.map((doc) {
         final data = doc.data();
-        final userRole = data['role'] as String? ?? 'user';
-        
-        // Asegurarse de que el rol sea uno de los disponibles
-        String safeRole = userRole;
-        if (!_roleService.getAvailableRoles().contains(userRole)) {
-          print('⚠️ Usuario ${doc.id} tiene un rol desconocido: $userRole');
-          safeRole = 'user'; // Valor predeterminado seguro
-        }
+        final roleId = data['roleId'] as String?;
         
         return {
           'id': doc.id,
           'email': data['email'] ?? '',
           'displayName': data['displayName'] ?? data['email'] ?? 'Usuário sem nome',
           'photoUrl': data['photoUrl'],
-          'role': safeRole,
+          'roleId': roleId,
         };
       }).toList();
       
-      setState(() {
-        _users = loadedUsers;
-        _filteredUsers = List.from(loadedUsers);
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _users = loadedUsers;
+          _filteredUsers = List.from(loadedUsers);
+        });
+      }
     } catch (e) {
       print('Erro ao carregar usuários: $e');
       if (mounted) {
@@ -135,14 +150,20 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
           SnackBar(content: Text('Erro ao carregar usuários: $e')),
         );
       }
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
-  Future<void> _updateUserRole(String userId, String newRole) async {
-    // No permitir cambiar el propio rol (para evitar que un pastor se quite sus privilegios)
+  Future<void> _updateUserRole(String userId, String? newRoleId) async {
+    final bool hasAssignPermission = await _permissionService.hasPermission('assign_user_roles');
+    if (!hasAssignPermission) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Você não tem permissão para atualizar papéis.'), backgroundColor: Colors.red),
+         );
+      }
+      return;
+    }
+
     if (userId == _currentUserId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Não é possível alterar seu próprio papel')),
@@ -155,40 +176,55 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
     });
     
     try {
-      await _roleService.updateUserRole(userId, newRole);
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'roleId': newRoleId,
+      });
       
-      // Actualizar la lista local
       final index = _users.indexWhere((u) => u['id'] == userId);
       if (index >= 0) {
-        setState(() {
-          _users[index]['role'] = newRole;
-          // También actualizar la lista filtrada
-          final filteredIndex = _filteredUsers.indexWhere((u) => u['id'] == userId);
-          if (filteredIndex >= 0) {
-            _filteredUsers[filteredIndex]['role'] = newRole;
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _users[index]['roleId'] = newRoleId;
+            final filteredIndex = _filteredUsers.indexWhere((u) => u['id'] == userId);
+            if (filteredIndex >= 0) {
+              _filteredUsers[filteredIndex]['roleId'] = newRoleId;
+            }
+          });
+        }
       }
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Papel do usuário atualizado com sucesso'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Papel do usuário atualizado com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      
+      print('✅ Papel atualizado com sucesso para o usuário $userId - Novo papel: ${_getRoleName(newRoleId)}');
     } catch (e) {
       print('Erro ao atualizar papel: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao atualizar papel: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao atualizar papel: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  String _getRoleName(String? roleId) {
+     if (roleId == null || roleId.isEmpty) return "Sem Papel";
+     try {
+        return _availableRoles.firstWhere((role) => role.id == roleId).name;
+     } catch (e) {
+       return "Papel inválido";
+     }
   }
 
   @override
@@ -250,7 +286,6 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                 )
               : Column(
                   children: [
-                    // Buscador
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -291,179 +326,271 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                       ),
                     ),
                     
-                    // Lista de usuarios
                     Expanded(
-                      child: _isLoading
+                      child: _filteredUsers.isEmpty
                           ? Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.person_off,
+                                    size: 64,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Nenhum usuário encontrado',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
-                          : _filteredUsers.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                          : ListView.separated(
+                              itemCount: _filteredUsers.length,
+                              separatorBuilder: (context, index) => Divider(
+                                height: 1,
+                                color: Colors.grey.shade200,
+                                indent: 70,
+                              ),
+                              itemBuilder: (context, index) {
+                                final user = _filteredUsers[index];
+                                final userId = user['id'] as String;
+                                final userEmail = user['email'] as String;
+                                final userDisplayName = user['displayName'] as String;
+                                final userPhotoUrl = user['photoUrl'] as String?;
+                                final userRoleId = user['roleId'] as String?;
+                                final isCurrentUser = userId == _currentUserId;
+                                
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  leading: CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                                    backgroundImage: userPhotoUrl != null
+                                        ? NetworkImage(userPhotoUrl)
+                                        : null,
+                                    child: userPhotoUrl == null
+                                        ? Text(
+                                            userDisplayName[0].toUpperCase(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  title: Text(
+                                    userDisplayName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        Icons.person_off,
-                                        size: 64,
-                                        color: Colors.grey.shade400,
-                                      ),
-                                      const SizedBox(height: 16),
                                       Text(
-                                        'Nenhum usuário encontrado',
+                                        userEmail,
                                         style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey.shade700,
+                                          color: Colors.grey.shade600,
+                                          fontSize: 13,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.separated(
-                                  itemCount: _filteredUsers.length,
-                                  separatorBuilder: (context, index) => Divider(
-                                    height: 1,
-                                    color: Colors.grey.shade200,
-                                    indent: 70,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final user = _filteredUsers[index];
-                                    final userId = user['id'] as String;
-                                    final userEmail = user['email'] as String;
-                                    final userDisplayName = user['displayName'] as String;
-                                    final userPhotoUrl = user['photoUrl'] as String?;
-                                    final userRole = user['role'] as String;
-                                    final isCurrentUser = userId == _currentUserId;
-                                    
-                                    return ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
-                                      ),
-                                      leading: CircleAvatar(
-                                        radius: 24,
-                                        backgroundColor: AppColors.primary.withOpacity(0.1),
-                                        backgroundImage: userPhotoUrl != null
-                                            ? NetworkImage(userPhotoUrl)
-                                            : null,
-                                        child: userPhotoUrl == null
-                                            ? Text(
-                                                userDisplayName[0].toUpperCase(),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: AppColors.primary,
-                                                ),
-                                              )
-                                            : null,
-                                      ),
-                                      title: Text(
-                                        userDisplayName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                      const SizedBox(height: 4),
+                                      Row(
                                         children: [
                                           Text(
-                                            userEmail,
+                                            'Papel atual: ',
                                             style: TextStyle(
-                                              color: Colors.grey.shade600,
-                                              fontSize: 13,
+                                              color: Colors.grey.shade700,
+                                              fontSize: 12,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Papel atual: ',
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade700,
-                                                  fontSize: 12,
-                                                ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: userRoleId == 'pastor'
+                                                  ? Colors.blue.withOpacity(0.1)
+                                                  : Colors.grey.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              _getRoleName(userRoleId),
+                                              style: TextStyle(
+                                                color: userRoleId == 'pastor'
+                                                    ? Colors.blue.shade700
+                                                    : Colors.grey.shade700,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: userRole == 'pastor'
-                                                      ? Colors.blue.withOpacity(0.1)
-                                                      : Colors.grey.withOpacity(0.1),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Text(
-                                                  userRole,
-                                                  style: TextStyle(
-                                                    color: userRole == 'pastor'
-                                                        ? Colors.blue.shade700
-                                                        : Colors.grey.shade700,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                      trailing: isCurrentUser
-                                          ? const Tooltip(
-                                              message: 'Não é possível alterar seu próprio papel',
-                                              child: Icon(Icons.lock, color: Colors.grey),
-                                            )
-                                          : userRole == 'admin'
-                                          ? Tooltip(
-                                              message: 'Este usuário é administrador',
+                                    ],
+                                  ),
+                                  trailing: isCurrentUser
+                                      ? const Tooltip(
+                                          message: 'Não é possível alterar seu próprio papel',
+                                          child: Icon(Icons.lock, color: Colors.grey),
+                                        )
+                                      : FutureBuilder<bool>(
+                                          future: _permissionService.hasPermission('assign_user_roles'),
+                                          builder: (context, snapshot) {
+                                            final hasPermission = snapshot.data ?? false;
+                                            if (!hasPermission) {
+                                              return const Tooltip(
+                                                message: 'Você não tem permissão para alterar papéis',
+                                                child: Icon(Icons.no_accounts, color: Colors.grey),
+                                              );
+                                            }
+                                            
+                                            return InkWell(
+                                              onTap: () {
+                                                _showRoleSelectionDialog(userId, userRoleId);
+                                              },
                                               child: Container(
                                                 padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
+                                                  horizontal: 12,
+                                                  vertical: 6,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.grey.shade200,
-                                                  borderRadius: BorderRadius.circular(4),
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(color: Colors.grey.shade300),
                                                 ),
-                                                child: const Text(
-                                                  'admin',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black54,
-                                                  ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Container(
+                                                      constraints: const BoxConstraints(maxWidth: 100),
+                                                      child: Text(
+                                                        _getRoleName(userRoleId),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    const Icon(Icons.edit, size: 16, color: Colors.grey),
+                                                  ],
                                                 ),
                                               ),
-                                            )
-                                          : DropdownButton<String>(
-                                              value: _roleService.getAvailableRoles().contains(userRole) 
-                                                  ? userRole 
-                                                  : _roleService.getAvailableRoles().first,
-                                              underline: Container(),
-                                              icon: const Icon(Icons.edit, size: 16),
-                                              items: _roleService.getAvailableRoles()
-                                                .where((role) => role != 'admin')
-                                                .map((role) {
-                                                return DropdownMenuItem<String>(
-                                                  value: role,
-                                                  child: Text(role),
-                                                );
-                                              }).toList(),
-                                              onChanged: (newRole) {
-                                                if (newRole != null && newRole != userRole) {
-                                                  _updateUserRole(userId, newRole);
-                                                }
-                                              },
-                                            ),
-                                    );
-                                  },
-                                ),
+                                            );
+                                          },
+                                        ),
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
+    );
+  }
+
+  void _showRoleSelectionDialog(String userId, String? currentRoleId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Selecionar papel do usuário'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Selecione o papel para atribuir ao usuário:',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: const Text(
+                            "Sem Papel",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          leading: Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.grey.shade500,
+                          ),
+                          selected: currentRoleId == null,
+                          selectedTileColor: Colors.grey.shade100,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (currentRoleId != null) {
+                              _updateUserRole(userId, null);
+                            }
+                          },
+                        ),
+                        
+                        const SizedBox(height: 8),
+                        
+                        ..._availableRoles.map((role) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: ListTile(
+                              title: Text(role.name),
+                              subtitle: role.description != null 
+                                  ? Text(
+                                      role.description!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                    )
+                                  : null,
+                              leading: Icon(
+                                Icons.assignment_ind,
+                                color: AppColors.primary.withOpacity(0.7),
+                              ),
+                              selected: currentRoleId == role.id,
+                              selectedTileColor: AppColors.primary.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                if (currentRoleId != role.id) {
+                                  _updateUserRole(userId, role.id);
+                                }
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      },
     );
   }
 } 

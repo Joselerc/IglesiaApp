@@ -7,6 +7,7 @@ import 'package:flutter/services.dart'; // Para Clipboard
 import 'package:qr_flutter/qr_flutter.dart'; // Para QR Code (aunque no se usa aquí, el import general)
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../services/permission_service.dart';
 
 class ManageDonationsScreen extends StatefulWidget {
   const ManageDonationsScreen({super.key});
@@ -26,6 +27,7 @@ class PixKeyEntry {
 
 class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   bool _isLoadingData = true;
 
@@ -50,10 +52,12 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   DocumentReference get _donationConfigDocRef =>
       _firestore.collection('donationsPage').doc('settings');
 
+  Future<void>? _loadConfigFuture;
+
   @override
   void initState() {
     super.initState();
-    _loadConfigData();
+    _loadConfigFuture = _loadConfigData();
   }
 
   @override
@@ -144,6 +148,18 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
    }
 
   Future<void> _saveConfig() async {
+    // --- Doble verificación de permiso --- 
+    final bool hasPermission = await _permissionService.hasPermission('manage_donations_config');
+    if (!hasPermission) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Sem permissão para salvar configurações.'), backgroundColor: Colors.red),
+         );
+      }
+      return; // No continuar si no tiene permiso
+    }
+    // -------------------------------------
+    
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
@@ -209,192 +225,228 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Gerenciar Doações')),
-      body: _isLoadingData
-        ? const Center(child: CircularProgressIndicator())
-        : Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              Text('Configure como a seção de doações aparecerá na Tela Inicial.', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: AppSpacing.lg),
-
-              // --- Campos Gerais ---
-              TextFormField(
-                 controller: _sectionTitleController,
-                 decoration: const InputDecoration(labelText: 'Título da Seção (Opcional)', border: OutlineInputBorder()),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_donations_config'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                      Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      SizedBox(height: 8),
+                      Text('Você não tem permissão para gerenciar as configurações de doação.', textAlign: TextAlign.center),
+                   ],
+                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                 controller: _descriptionController,
-                 decoration: const InputDecoration(labelText: 'Descrição (Opcional)', border: OutlineInputBorder()),
-                 maxLines: 3,
-              ),
-              const SizedBox(height: AppSpacing.lg),
+            );
+          }
 
-              // --- Imagem ---
-              const Text('Imagem de Fundo (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppSpacing.sm),
-               GestureDetector(
-                 onTap: _pickImage,
-                 child: AspectRatio(
-                   aspectRatio: 16 / 9,
-                   child: Container(
-                     decoration: BoxDecoration(
-                       color: Colors.grey.shade200,
-                       borderRadius: BorderRadius.circular(8),
-                       border: Border.all(color: Colors.grey.shade300),
-                       image: _imageFile != null
-                           ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
-                           : (_imageUrl != null && _imageUrl!.isNotEmpty
-                               ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
-                               : null),
-                     ),
-                     child: (_imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty))
-                       ? Center(
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
-                               const SizedBox(height: 8),
-                               Text(
-                                 'Toque para adicionar imagem\n(Recomendado 16:9)',
-                                 textAlign: TextAlign.center,
-                                 style: TextStyle(color: Colors.grey.shade600),
-                               ),
-                             ],
+          return FutureBuilder<void>(
+            future: _loadConfigFuture,
+            builder: (context, dataSnapshot) {
+              if (_isLoadingData) {
+                 return const Center(child: CircularProgressIndicator());
+              }
+              
+              return Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    Text('Configure como a seção de doações aparecerá na Tela Inicial.', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // --- Campos Gerais ---
+                    TextFormField(
+                       controller: _sectionTitleController,
+                       decoration: const InputDecoration(labelText: 'Título da Seção (Opcional)', border: OutlineInputBorder()),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    TextFormField(
+                       controller: _descriptionController,
+                       decoration: const InputDecoration(labelText: 'Descrição (Opcional)', border: OutlineInputBorder()),
+                       maxLines: 3,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // --- Imagem ---
+                    const Text('Imagem de Fundo (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: AppSpacing.sm),
+                     GestureDetector(
+                       onTap: _pickImage,
+                       child: AspectRatio(
+                         aspectRatio: 16 / 9,
+                         child: Container(
+                           decoration: BoxDecoration(
+                             color: Colors.grey.shade200,
+                             borderRadius: BorderRadius.circular(8),
+                             border: Border.all(color: Colors.grey.shade300),
+                             image: _imageFile != null
+                                 ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
+                                 : (_imageUrl != null && _imageUrl!.isNotEmpty
+                                     ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
+                                     : null),
                            ),
-                         )
-                       : Align(
-                         alignment: Alignment.topRight,
-                         child: IconButton(
-                           icon: const Icon(Icons.delete_outline, color: Colors.white, shadows: [Shadow(blurRadius: 2, color: Colors.black54)]), 
-                           onPressed: () => setState(() { _imageFile = null; _imageUrl = null; }),
-                           tooltip: 'Remover Imagem',
+                           child: (_imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty))
+                             ? Center(
+                                 child: Column(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
+                                     const SizedBox(height: 8),
+                                     Text(
+                                       'Toque para adicionar imagem\n(Recomendado 16:9)',
+                                       textAlign: TextAlign.center,
+                                       style: TextStyle(color: Colors.grey.shade600),
+                                     ),
+                                   ],
+                                 ),
+                               )
+                             : Align(
+                               alignment: Alignment.topRight,
+                               child: IconButton(
+                                 icon: const Icon(Icons.delete_outline, color: Colors.white, shadows: [Shadow(blurRadius: 2, color: Colors.black54)]), 
+                                 onPressed: () => setState(() { _imageFile = null; _imageUrl = null; }),
+                                 tooltip: 'Remover Imagem',
+                               ),
+                             ),
                          ),
                        ),
-                   ),
-                 ),
-               ),
-              const SizedBox(height: AppSpacing.lg),
-              const Divider(),
-              const SizedBox(height: AppSpacing.lg),
+                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    const Divider(),
+                    const SizedBox(height: AppSpacing.lg),
 
-              // --- Contas Bancárias ---
-               const Text('Contas Bancárias (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-               const SizedBox(height: AppSpacing.sm),
-               TextFormField(
-                 controller: _bankAccountsController,
-                 decoration: const InputDecoration(
-                   labelText: 'Informações Bancárias',
-                   hintText: 'Banco: XXX\nAgência: YYYY\nConta: ZZZZZZ\nNome Titular\n\n(Separe contas com linha em branco)',
-                   border: OutlineInputBorder(),
-                 ),
-                 maxLines: 5,
-               ),
-               const SizedBox(height: AppSpacing.lg),
-               const Divider(),
-               const SizedBox(height: AppSpacing.lg),
+                    // --- Contas Bancárias ---
+                     const Text('Contas Bancárias (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                     const SizedBox(height: AppSpacing.sm),
+                     TextFormField(
+                       controller: _bankAccountsController,
+                       decoration: const InputDecoration(
+                         labelText: 'Informações Bancárias',
+                         hintText: 'Banco: XXX\nAgência: YYYY\nConta: ZZZZZZ\nNome Titular\n\n(Separe contas com linha em branco)',
+                         border: OutlineInputBorder(),
+                       ),
+                       maxLines: 5,
+                     ),
+                     const SizedBox(height: AppSpacing.lg),
+                     const Divider(),
+                     const SizedBox(height: AppSpacing.lg),
 
-               // --- Chaves Pix ---
-                const Text('Chaves Pix (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: AppSpacing.sm),
-                if (_pixKeyEntries.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text('Nenhuma chave Pix adicionada.', style: TextStyle(color: Colors.grey)),
-                  ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _pixKeyEntries.length,
-                  itemBuilder: (context, index) {
-                    final entry = _pixKeyEntries[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Dropdown Tipo (Ahora Flexible)
-                          Flexible(
-                            flex: 2, // Darle una proporción (ajustable)
-                            child: DropdownButtonFormField<String>(
-                              value: entry.type,
-                              items: _pixKeyTypes.map((String type) {
-                                return DropdownMenuItem<String>(
-                                  value: type,
-                                  child: Text(type, overflow: TextOverflow.ellipsis),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() => entry.type = value);
-                                }
-                              },
-                              // Quitar el SizedBox fijo y usar Flexible
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(), 
-                                // Ajustar padding si es necesario para la apariencia
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15)
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          // Input Chave (Mantiene Expanded)
-                          Expanded(
-                            flex: 3, // Darle una proporción mayor (ajustable)
-                            child: TextFormField(
-                              controller: entry.keyController,
-                              decoration: InputDecoration(
-                                labelText: 'Chave Pix',
-                                border: const OutlineInputBorder(),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                                  onPressed: () => _removePixKeyEntry(index),
-                                  tooltip: 'Remover Chave',
+                     // --- Chaves Pix ---
+                      const Text('Chaves Pix (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: AppSpacing.sm),
+                      if (_pixKeyEntries.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text('Nenhuma chave Pix adicionada.', style: TextStyle(color: Colors.grey)),
+                        ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _pixKeyEntries.length,
+                        itemBuilder: (context, index) {
+                          final entry = _pixKeyEntries[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Dropdown Tipo (Ahora Flexible)
+                                Flexible(
+                                  flex: 2, // Darle una proporción (ajustable)
+                                  child: DropdownButtonFormField<String>(
+                                    value: entry.type,
+                                    items: _pixKeyTypes.map((String type) {
+                                      return DropdownMenuItem<String>(
+                                        value: type,
+                                        child: Text(type, overflow: TextOverflow.ellipsis),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() => entry.type = value);
+                                      }
+                                    },
+                                    // Quitar el SizedBox fijo y usar Flexible
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(), 
+                                      // Ajustar padding si es necesario para la apariencia
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15)
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Chave obrigatória';
-                                }
-                                // TODO: Añadir validaciones específicas por tipo?
-                                return null;
-                              },
+                                const SizedBox(width: AppSpacing.sm),
+                                // Input Chave (Mantiene Expanded)
+                                Expanded(
+                                  flex: 3, // Darle una proporción mayor (ajustable)
+                                  child: TextFormField(
+                                    controller: entry.keyController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Chave Pix',
+                                      border: const OutlineInputBorder(),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                        onPressed: () => _removePixKeyEntry(index),
+                                        tooltip: 'Remover Chave',
+                                      ),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.trim().isEmpty) {
+                                        return 'Chave obrigatória';
+                                      }
+                                      // TODO: Añadir validaciones específicas por tipo?
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                TextButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('Adicionar Chave Pix'),
-                  onPressed: _addPixKeyEntry,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                const Divider(),
-                const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.sm),
+                      TextButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: const Text('Adicionar Chave Pix'),
+                        onPressed: _addPixKeyEntry,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      const Divider(),
+                      const SizedBox(height: AppSpacing.lg),
 
-               // Botón Guardar
-               _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton.icon(
-                    icon: const Icon(Icons.save, color: Colors.white),
-                    label: const Text('Salvar Configurações', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    onPressed: _saveConfig,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                const SizedBox(height: AppSpacing.lg), // Espacio extra al final
-            ],
-          ),
-        ),
+                     // Botón Guardar
+                     _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton.icon(
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          label: const Text('Salvar Configurações', style: TextStyle(color: Colors.white, fontSize: 16)),
+                          onPressed: _saveConfig,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      const SizedBox(height: AppSpacing.lg), // Espacio extra al final
+                  ],
+                ),
+              );
+            }
+          );
+        },
+      ),
     );
   }
 } 

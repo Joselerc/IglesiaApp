@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/culto_stats_service.dart';
 import '../../models/user_service_stats.dart';
 import '../../theme/app_colors.dart';
+import '../../services/permission_service.dart';
 
 /*
  * IMPORTANTE: Módulo de Estadísticas de Cultos
@@ -36,6 +37,7 @@ class CultoStatsScreen extends StatefulWidget {
 
 class _CultoStatsScreenState extends State<CultoStatsScreen> {
   final CultoStatsService _cultoService = CultoStatsService();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = true;
   String _selectedEntityId = '';
   String _selectedEntityName = '';
@@ -61,6 +63,16 @@ class _CultoStatsScreenState extends State<CultoStatsScreen> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
+        setState(() {
+          _isLoading = false;
+          _availableEntities = [];
+        });
+        return;
+      }
+
+      // Verificar si el usuario tiene permiso para ver estadísticas
+      final hasPermission = await _permissionService.hasPermission('view_cult_stats');
+      if (!hasPermission) {
         setState(() {
           _isLoading = false;
           _availableEntities = [];
@@ -236,128 +248,159 @@ class _CultoStatsScreenState extends State<CultoStatsScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : Column(
-              children: [
-                // Título de la sección
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('view_cult_stats'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para visualizar estatísticas de cultos.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            );
+          }
+          
+          return _isLoading
+              ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+              : Column(
+                  children: [
+                    // Título de la sección
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Participação em Escalas',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Selector de ministerio más simple
-                      InkWell(
-                        onTap: () => _showMinistrySelector(context),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.primary.withOpacity(0.05),
-                                Colors.white,
-                              ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Participação em Escalas',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.church, color: AppColors.primary),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Ministério',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      _selectedEntityName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                          const SizedBox(height: 16),
+                          // Selector de ministerio más simple
+                          InkWell(
+                            onTap: () => _showMinistrySelector(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                                borderRadius: BorderRadius.circular(12),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppColors.primary.withOpacity(0.05),
+                                    Colors.white,
                                   ],
                                 ),
                               ),
-                              Icon(Icons.arrow_drop_down, color: Colors.grey.shade700),
-                            ],
+                              child: Row(
+                                children: [
+                                  Icon(Icons.church, color: AppColors.primary),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Ministério',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          _selectedEntityName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(Icons.arrow_drop_down, color: Colors.grey.shade700),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                
-                // Lista de usuarios
-                Expanded(
-                  child: _stats.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.search_off, size: 64, color: Colors.grey.shade300),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Não há dados para mostrar',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade700,
-                                ),
+                    ),
+                    
+                    // Lista de usuarios
+                    Expanded(
+                      child: _stats.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.search_off, size: 64, color: Colors.grey.shade300),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Não há dados para mostrar',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Tente com outro ministério ou intervalo de datas',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Tente com outro ministério ou intervalo de datas',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: _stats.length,
-                          padding: const EdgeInsets.all(8),
-                          itemBuilder: (context, index) {
-                            final stat = _stats[index];
-                            return _buildUserCard(stat);
-                          },
-                        ),
-                ),
-              ],
-            ),
+                            )
+                          : ListView.builder(
+                              itemCount: _stats.length,
+                              padding: const EdgeInsets.all(8),
+                              itemBuilder: (context, index) {
+                                final stat = _stats[index];
+                                return _buildUserCard(stat);
+                              },
+                            ),
+                    ),
+                  ],
+                );
+        },
+      ),
     );
   }
 

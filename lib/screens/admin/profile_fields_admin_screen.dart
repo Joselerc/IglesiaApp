@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/profile_field.dart';
 import '../../services/profile_fields_service.dart';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/custom/selection_field.dart';
 
@@ -14,6 +15,7 @@ class ProfileFieldsAdminScreen extends StatefulWidget {
 
 class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
   final ProfileFieldsService _profileFieldsService = ProfileFieldsService();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
 
   @override
@@ -36,175 +38,218 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: StreamBuilder<List<ProfileField>>(
-        stream: _profileFieldsService.getAllProfileFields(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_profile_fields'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          if (snapshot.hasError) {
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
             return Center(
-              child: Text(
-                'Erro ao carregar os campos: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar campos de perfil.', textAlign: TextAlign.center),
+                  ],
+                ),
               ),
             );
           }
+          
+          // Contenido original cuando tiene permiso
+          return StreamBuilder<List<ProfileField>>(
+            stream: _profileFieldsService.getAllProfileFields(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          final fields = snapshot.data ?? [];
-
-          if (fields.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.note_alt_outlined, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Não há campos de perfil definidos',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[600],
-                    ),
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Erro ao carregar os campos: ${snapshot.error}',
+                    style: const TextStyle(color: Colors.red),
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddEditFieldDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Criar Campo'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+                );
+              }
 
-          return Stack(
-            children: [
-              ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: fields.length,
-                itemBuilder: (context, index) {
-                  final field = fields[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      title: Text(
-                        field.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+              final fields = snapshot.data ?? [];
+
+              if (fields.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.note_alt_outlined, size: 64, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Não há campos de perfil definidos',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[600],
                         ),
                       ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            field.description,
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 14,
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () => _showAddEditFieldDialog(context),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Criar Campo'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return Stack(
+                children: [
+                  ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: fields.length,
+                    itemBuilder: (context, index) {
+                      final field = fields[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          title: Text(
+                            field.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Chip(
-                                label: Text(
-                                  _getLocalizedFieldType(field.type),
-                                  style: const TextStyle(fontSize: 12),
+                              Text(
+                                field.description,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 14,
                                 ),
-                                backgroundColor: AppColors.primary.withOpacity(0.15),
-                                side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
-                                padding: const EdgeInsets.symmetric(horizontal: 2),
                               ),
-                              Chip(
-                                label: Text(
-                                  field.isRequired ? 'Obrigatório' : 'Opcional',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                backgroundColor: field.isRequired
-                                    ? Colors.red.shade100
-                                    : Colors.green.shade100,
-                                side: BorderSide(
-                                  color: field.isRequired
-                                      ? Colors.red.shade300
-                                      : Colors.green.shade300,
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 2),
-                              ),
-                              Chip(
-                                label: Text(
-                                  field.isActive ? 'Ativo' : 'Inativo',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                backgroundColor: field.isActive
-                                    ? Colors.green.shade100
-                                    : Colors.grey.shade200,
-                                side: BorderSide(
-                                  color: field.isActive
-                                      ? Colors.green.shade300
-                                      : Colors.grey.shade400,
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 2),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  Chip(
+                                    label: Text(
+                                      _getLocalizedFieldType(field.type),
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    backgroundColor: AppColors.primary.withOpacity(0.15),
+                                    side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  ),
+                                  Chip(
+                                    label: Text(
+                                      field.isRequired ? 'Obrigatório' : 'Opcional',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    backgroundColor: field.isRequired
+                                        ? Colors.red.shade100
+                                        : Colors.green.shade100,
+                                    side: BorderSide(
+                                      color: field.isRequired
+                                          ? Colors.red.shade300
+                                          : Colors.green.shade300,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  ),
+                                  Chip(
+                                    label: Text(
+                                      field.isActive ? 'Ativo' : 'Inativo',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    backgroundColor: field.isActive
+                                        ? Colors.green.shade100
+                                        : Colors.grey.shade200,
+                                    side: BorderSide(
+                                      color: field.isActive
+                                          ? Colors.green.shade300
+                                          : Colors.grey.shade400,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit, color: AppColors.primary),
-                            tooltip: 'Editar',
-                            onPressed: () => _showAddEditFieldDialog(context, field),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: AppColors.primary),
+                                tooltip: 'Editar',
+                                onPressed: () => _showAddEditFieldDialog(context, field),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                tooltip: 'Excluir',
+                                onPressed: () => _confirmDeleteField(context, field),
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            tooltip: 'Excluir',
-                            onPressed: () => _confirmDeleteField(context, field),
-                          ),
-                        ],
+                        ),
+                      );
+                    },
+                  ),
+                  if (_isLoading)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-                  );
-                },
-              ),
-              if (_isLoading)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditFieldDialog(context),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+      floatingActionButton: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_profile_fields'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.done &&
+              permissionSnapshot.hasData &&
+              permissionSnapshot.data == true) {
+            return FloatingActionButton(
+              onPressed: () => _showAddEditFieldDialog(context),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
       ),
     );
   }
@@ -229,6 +274,17 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
   }
 
   Future<void> _showAddEditFieldDialog(BuildContext context, [ProfileField? field]) async {
+    // Verificar permiso
+    final bool hasPermission = await _permissionService.hasPermission('manage_profile_fields');
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sem permissão para gerenciar campos de perfil.'), backgroundColor: Colors.red),
+        );
+      }
+      return;
+    }
+    
     final _formKey = GlobalKey<FormState>();
     final _nameController = TextEditingController(text: field?.name ?? '');
     final _descriptionController = TextEditingController(text: field?.description ?? '');

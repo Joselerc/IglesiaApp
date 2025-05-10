@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/event_attendance_service.dart';
 import '../../models/user_work_stats.dart';
+import '../../theme/app_colors.dart';
+import '../../services/permission_service.dart';
 
 class WorkStatsScreen extends StatefulWidget {
   const WorkStatsScreen({Key? key}) : super(key: key);
@@ -14,6 +16,7 @@ class WorkStatsScreen extends StatefulWidget {
 
 class _WorkStatsScreenState extends State<WorkStatsScreen> {
   final EventAttendanceService _attendanceService = EventAttendanceService();
+  final PermissionService _permissionService = PermissionService();
   bool _isLoading = true;
   String _selectedEntityId = '';
   String _selectedEntityName = '';
@@ -39,6 +42,16 @@ class _WorkStatsScreenState extends State<WorkStatsScreen> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
+        setState(() {
+          _isLoading = false;
+          _availableEntities = [];
+        });
+        return;
+      }
+
+      // Verificar si el usuario tiene permiso para ver estadísticas
+      final hasPermission = await _permissionService.hasPermission('view_work_stats');
+      if (!hasPermission) {
         setState(() {
           _isLoading = false;
           _availableEntities = [];
@@ -235,271 +248,302 @@ class _WorkStatsScreenState extends State<WorkStatsScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _availableEntities.isEmpty
-              ? _buildEmptyState()
-              : SafeArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Selector de entidad
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            labelText: 'Seleccionar Ministerio',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          ),
-                          value: _availableEntities.isNotEmpty && _selectedEntityId.isNotEmpty 
-                              ? _selectedEntityId
-                              : null,
-                          items: _availableEntities.map((entity) {
-                            final String id = entity['id'];
-                            final String name = entity['name'];
-                            final int workCount = entity['workCount'] ?? 0;
-                            
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    id == 'all_ministries' ? Icons.groups_2 : Icons.people,
-                                    color: Colors.blue.shade800,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      name,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (id != 'all_ministries') ...[
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '$workCount trabajos',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ],
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('view_work_stats'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para visualizar estatísticas de trabalho.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            );
+          }
+          
+          return _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _availableEntities.isEmpty
+                  ? _buildEmptyState()
+                  : SafeArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Selector de entidad
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                labelText: 'Seleccionar Ministerio',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              final entity = _availableEntities.firstWhere(
-                                (e) => e['id'] == value,
-                              );
-                              
-                              _selectEntity(value, entity['name']);
-                            }
-                          },
-                        ),
-                      ),
-                      
-                      // Filtros activos
-                      if (_startDate != null || _endDate != null)
-                        SizedBox(
-                          height: 50,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_startDate != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
-                                      child: Chip(
-                                        label: Text('Desde: ${DateFormat('dd/MM/yyyy').format(_startDate!)}'),
-                                        deleteIcon: const Icon(Icons.close, size: 16),
-                                        onDeleted: () {
-                                          setState(() {
-                                            _startDate = null;
-                                          });
-                                          
-                                          _selectEntity(_selectedEntityId, _selectedEntityName);
-                                        },
+                              value: _availableEntities.isNotEmpty && _selectedEntityId.isNotEmpty 
+                                  ? _selectedEntityId
+                                  : null,
+                              items: _availableEntities.map((entity) {
+                                final String id = entity['id'];
+                                final String name = entity['name'];
+                                final int workCount = entity['workCount'] ?? 0;
+                                
+                                return DropdownMenuItem<String>(
+                                  value: id,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        id == 'all_ministries' ? Icons.groups_2 : Icons.people,
+                                        color: Colors.blue.shade800,
+                                        size: 20,
                                       ),
-                                    ),
-                                  if (_endDate != null)
-                                    Chip(
-                                      label: Text('Hasta: ${DateFormat('dd/MM/yyyy').format(_endDate!)}'),
-                                      deleteIcon: const Icon(Icons.close, size: 16),
-                                      onDeleted: () {
-                                        setState(() {
-                                          _endDate = null;
-                                        });
-                                        
-                                        _selectEntity(_selectedEntityId, _selectedEntityName);
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      
-                      // Ordenar por
-                      SizedBox(
-                        height: 50,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('Ordenar por:'),
-                                const SizedBox(width: 8),
-                                _buildSortButton(0, 'Tasa de Aceptación'),
-                                const SizedBox(width: 8),
-                                _buildSortButton(1, 'Trabajos Aceptados'),
-                                const SizedBox(width: 8),
-                                _buildSortButton(2, 'Último Trabajo'),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      // Tabla o lista de estadísticas
-                      Expanded(
-                        child: _stats.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.work_off,
-                                      size: 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      'No hay datos de trabajos',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                      child: Text(
-                                        'No se encontraron registros de trabajos para $_selectedEntityName',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          name,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        textAlign: TextAlign.center,
                                       ),
-                                    ),
+                                      if (id != 'all_ministries') ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '$workCount trabajos',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  final entity = _availableEntities.firstWhere(
+                                    (e) => e['id'] == value,
+                                  );
+                                  
+                                  _selectEntity(value, entity['name']);
+                                }
+                              },
+                            ),
+                          ),
+                          
+                          // Filtros activos
+                          if (_startDate != null || _endDate != null)
+                            SizedBox(
+                              height: 50,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (_startDate != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 8.0),
+                                          child: Chip(
+                                            label: Text('Desde: ${DateFormat('dd/MM/yyyy').format(_startDate!)}'),
+                                            deleteIcon: const Icon(Icons.close, size: 16),
+                                            onDeleted: () {
+                                              setState(() {
+                                                _startDate = null;
+                                              });
+                                              
+                                              _selectEntity(_selectedEntityId, _selectedEntityName);
+                                            },
+                                          ),
+                                        ),
+                                      if (_endDate != null)
+                                        Chip(
+                                          label: Text('Hasta: ${DateFormat('dd/MM/yyyy').format(_endDate!)}'),
+                                          deleteIcon: const Icon(Icons.close, size: 16),
+                                          onDeleted: () {
+                                            setState(() {
+                                              _endDate = null;
+                                            });
+                                            
+                                            _selectEntity(_selectedEntityId, _selectedEntityName);
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          
+                          // Ordenar por
+                          SizedBox(
+                            height: 50,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text('Ordenar por:'),
+                                    const SizedBox(width: 8),
+                                    _buildSortButton(0, 'Tasa de Aceptación'),
+                                    const SizedBox(width: 8),
+                                    _buildSortButton(1, 'Trabajos Aceptados'),
+                                    const SizedBox(width: 8),
+                                    _buildSortButton(2, 'Último Trabajo'),
                                   ],
                                 ),
-                              )
-                            : ListView.builder(
-                                itemCount: _stats.length,
-                                padding: const EdgeInsets.all(16),
-                                itemBuilder: (context, index) {
-                                  final stat = _stats[index];
-                                  
-                                  return Card(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    elevation: 1,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Encabezado con datos de usuario
-                                          Row(
-                                            children: [
-                                              CircleAvatar(
-                                                backgroundImage: stat.userPhotoUrl.isNotEmpty ? 
-                                                  NetworkImage(stat.userPhotoUrl) : null,
-                                                child: stat.userPhotoUrl.isEmpty ? 
-                                                  const Icon(Icons.person) : null,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      stat.userName,
-                                                      style: const TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'Último trabajo: ${DateFormat('dd/MM/yyyy').format(stat.lastWorkDate)}',
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              _buildRateChip(stat.acceptanceRate),
-                                            ],
-                                          ),
-                                          
-                                          const Divider(height: 24),
-                                          
-                                          // Estadísticas detalladas
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                            children: [
-                                              _buildStatColumn(
-                                                'Total', 
-                                                stat.totalInvitations.toString(),
-                                                Icons.work,
-                                                Colors.blue,
-                                              ),
-                                              _buildStatColumn(
-                                                'Aceptados', 
-                                                stat.acceptedJobs.toString(),
-                                                Icons.check_circle,
-                                                Colors.green,
-                                              ),
-                                              _buildStatColumn(
-                                                'Rechazados', 
-                                                stat.rejectedJobs.toString(),
-                                                Icons.cancel,
-                                                Colors.red,
-                                              ),
-                                              _buildStatColumn(
-                                                'Pendientes', 
-                                                stat.pendingJobs.toString(),
-                                                Icons.hourglass_empty,
-                                                Colors.orange,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
                               ),
+                            ),
+                          ),
+                          
+                          // Tabla o lista de estadísticas
+                          Expanded(
+                            child: _stats.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.work_off,
+                                          size: 64,
+                                          color: Colors.grey[400],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        const Text(
+                                          'No hay datos de trabajos',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                          child: Text(
+                                            'No se encontraron registros de trabajos para $_selectedEntityName',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    itemCount: _stats.length,
+                                    padding: const EdgeInsets.all(16),
+                                    itemBuilder: (context, index) {
+                                      final stat = _stats[index];
+                                      
+                                      return Card(
+                                        margin: const EdgeInsets.only(bottom: 8),
+                                        elevation: 1,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              // Encabezado con datos de usuario
+                                              Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundImage: stat.userPhotoUrl.isNotEmpty ? 
+                                                      NetworkImage(stat.userPhotoUrl) : null,
+                                                    child: stat.userPhotoUrl.isEmpty ? 
+                                                      const Icon(Icons.person) : null,
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          stat.userName,
+                                                          style: const TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          'Último trabajo: ${DateFormat('dd/MM/yyyy').format(stat.lastWorkDate)}',
+                                                          style: TextStyle(
+                                                            color: Colors.grey[600],
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  _buildRateChip(stat.acceptanceRate),
+                                                ],
+                                              ),
+                                              
+                                              const Divider(height: 24),
+                                              
+                                              // Estadísticas detalladas
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                children: [
+                                                  _buildStatColumn(
+                                                    'Total', 
+                                                    stat.totalInvitations.toString(),
+                                                    Icons.work,
+                                                    Colors.blue,
+                                                  ),
+                                                  _buildStatColumn(
+                                                    'Aceptados', 
+                                                    stat.acceptedJobs.toString(),
+                                                    Icons.check_circle,
+                                                    Colors.green,
+                                                  ),
+                                                  _buildStatColumn(
+                                                    'Rechazados', 
+                                                    stat.rejectedJobs.toString(),
+                                                    Icons.cancel,
+                                                    Colors.red,
+                                                  ),
+                                                  _buildStatColumn(
+                                                    'Pendientes', 
+                                                    stat.pendingJobs.toString(),
+                                                    Icons.hourglass_empty,
+                                                    Colors.orange,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    );
+        },
+      ),
     );
   }
   

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group.dart';
 import './membership_log_service.dart';
 import './membership_request_service.dart';
+import 'package:flutter/foundation.dart';
 
 class GroupService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -420,6 +421,40 @@ class GroupService {
     } catch (e) {
       print('Error al eliminar miembro: $e');
       throw Exception('Error al eliminar miembro: $e');
+    }
+  }
+
+  /// Elimina un grupo por su ID
+  Future<void> deleteGroup(String groupId) async {
+    try {
+      // Primero obtenemos las referencias a los miembros para poder limpiar relaciones
+      final groupDoc = await _firestore.collection('groups').doc(groupId).get();
+      final group = Group.fromFirestore(groupDoc);
+      
+      // Obtener todos los miembros del grupo
+      final members = group.memberIds ?? [];
+      
+      // Batch para hacer todas las operaciones atómicamente
+      final batch = _firestore.batch();
+      
+      // Eliminar el grupo
+      batch.delete(_firestore.collection('groups').doc(groupId));
+      
+      // Actualizar usuarios que pertenecen al grupo (quitar la referencia)
+      for (String userId in members) {
+        batch.update(
+          _firestore.collection('users').doc(userId), 
+          {'groupIds': FieldValue.arrayRemove([groupId])}
+        );
+      }
+      
+      // Ejecutar batch
+      await batch.commit();
+      
+      debugPrint('✅ Grupo $groupId eliminado con éxito');
+    } catch (e) {
+      debugPrint('❌ Error al eliminar grupo $groupId: $e');
+      rethrow;
     }
   }
 } 

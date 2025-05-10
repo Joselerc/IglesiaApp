@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../models/event_model.dart';
+import '../../../services/permission_service.dart';
 
 class QrScannerScreen extends StatefulWidget {
   final EventModel event;
@@ -18,6 +19,7 @@ class QrScannerScreen extends StatefulWidget {
 
 class _QrScannerScreenState extends State<QrScannerScreen> {
   final MobileScannerController _scannerController = MobileScannerController();
+  final PermissionService _permissionService = PermissionService();
   bool _isProcessing = false;
   String? _lastScannedCode;
   
@@ -151,117 +153,149 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Encabezado con información del evento
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.event.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tipo: ${_getEventTypeText(widget.event.eventType)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_event_attendance'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
           
-          // Scanner
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Scanner view
-                MobileScanner(
-                  controller: _scannerController,
-                  onDetect: _handleDetection,
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar a assistência de eventos.', textAlign: TextAlign.center),
+                  ],
                 ),
-                
-                // Overlay for scanning area
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Transparent center
-                      Container(
-                        width: 250,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
+              ),
+            );
+          }
+          
+          // Contenido original cuando tiene permiso
+          return Column(
+            children: [
+              // Encabezado con información del evento
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.event.title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tipo: ${_getEventTypeText(widget.event.eventType)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Scanner
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Scanner view
+                    MobileScanner(
+                      controller: _scannerController,
+                      onDetect: _handleDetection,
+                    ),
+                    
+                    // Overlay for scanning area
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Transparent center
+                          Container(
+                            width: 250,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          
+                          // Scanner Animation
+                          Container(
+                            width: 250,
+                            height: 2,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Processing indicator
+                    if (_isProcessing)
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.black.withOpacity(0.7),
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
                       ),
-                      
-                      // Scanner Animation
-                      Container(
-                        width: 250,
-                        height: 2,
-                        color: Theme.of(context).primaryColor,
+                  ],
+                ),
+              ),
+              
+              // Instrucciones
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                color: Colors.grey[200],
+                child: Column(
+                  children: const [
+                    Text(
+                      'Escaneie o código QR do ingresso',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  ),
-                ),
-                
-                // Processing indicator
-                if (_isProcessing)
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.black.withOpacity(0.7),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-              ],
-            ),
-          ),
-          
-          // Instrucciones
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.grey[200],
-            child: Column(
-              children: const [
-                Text(
-                  'Escaneie o código QR do ingresso',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
+                    SizedBox(height: 8),
+                    Text(
+                      'Certifique-se de que o código QR esteja completamente visível dentro do quadro',
+                      style: TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Certifique-se de que o código QR esteja completamente visível dentro do quadro',
-                  style: TextStyle(fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

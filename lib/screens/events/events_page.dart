@@ -8,6 +8,7 @@ import './event_detail_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/auth_service.dart';
+import '../../services/permission_service.dart';
 import 'package:provider/provider.dart';
 
 class EventsPage extends StatefulWidget {
@@ -21,23 +22,23 @@ class _EventsPageState extends State<EventsPage> {
   String _selectedFilter = 'Próximos';
   final List<String> _filterOptions = ['Próximos', 'Esta semana', 'Este mês', 'Todos'];
   
-  // Estado para saber si el usuario es pastor
-  bool _isPastor = false;
+  // Estado para saber si el usuario puede crear eventos
+  bool _canCreateEvents = false;
   
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('pt_BR', null);
-    // Verificamos el rol del usuario al iniciar
-    _checkPastorRole();
+    // Verificamos el permiso del usuario al iniciar
+    _checkCreatePermission();
   }
   
-  Future<void> _checkPastorRole() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final isPastorResult = await authService.isCurrentUserPastor();
+  Future<void> _checkCreatePermission() async {
+    final permissionService = PermissionService();
+    final hasPermission = await permissionService.hasPermission('create_events');
     if (mounted) {
       setState(() {
-        _isPastor = isPastorResult;
+        _canCreateEvents = hasPermission;
       });
     }
   }
@@ -138,8 +139,8 @@ class _EventsPageState extends State<EventsPage> {
               ),
             ),
             actions: [
-              // Mostrar el botón de añadir solo si es pastor
-              if (_isPastor)
+              // Mostrar el botón de añadir solo si tiene permiso para crear eventos
+              if (_canCreateEvents)
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: IconButton(
@@ -275,8 +276,8 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ],
       ),
-      // Mostrar el FAB solo si es pastor
-      floatingActionButton: _isPastor
+      // Mostrar el FAB solo si tiene permiso para crear eventos
+      floatingActionButton: _canCreateEvents
           ? FloatingActionButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -298,7 +299,7 @@ class _EventsPageState extends State<EventsPage> {
               child: const Icon(Icons.add),
               tooltip: 'Criar Evento',
             )
-          : null, // Ocultar si no es pastor
+          : null, // Ocultar si no tiene permiso
     );
   }
 
@@ -338,43 +339,56 @@ class _EventsPageState extends State<EventsPage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          Text(
-            'Tente outro filtro ou crie um novo evento',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
+          // El texto de crear evento solo aparece si tiene permiso
+          if (_canCreateEvents)
+            Text(
+              'Tente outro filtro ou crie um novo evento',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            )
+          else
+            Text(
+              'Tente selecionar outro filtro',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) => Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 10,
+          // El botón de crear evento solo aparece si tiene permiso
+          if (_canCreateEvents)
+            ElevatedButton.icon(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 10,
+                    ),
+                    child: FractionallySizedBox(
+                      heightFactor: 0.92,
+                      child: const CreateEventModal(),
+                    ),
                   ),
-                  child: FractionallySizedBox(
-                    heightFactor: 0.92,
-                    child: const CreateEventModal(),
-                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Criar Evento'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Criar Evento'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
               ),
             ),
-          ),
         ],
       ),
     );

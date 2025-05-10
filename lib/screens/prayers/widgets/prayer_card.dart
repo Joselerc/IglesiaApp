@@ -6,6 +6,7 @@ import '../../../models/prayer.dart';
 import '../modals/prayer_comment_modal.dart';
 import '../modals/assign_cult_modal.dart';
 import '../../../services/prayer_service.dart';
+import '../../../services/permission_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/rendering.dart';
 
@@ -23,7 +24,8 @@ class PrayerCard extends StatefulWidget {
 
 class _PrayerCardState extends State<PrayerCard> {
   final PrayerService _prayerService = PrayerService();
-  bool _isPastor = false;
+  final PermissionService _permissionService = PermissionService();
+  bool _hasAssignPermission = false;
   bool _isLoading = false;
   
   // Estado local para UI optimista de votos
@@ -39,7 +41,7 @@ class _PrayerCardState extends State<PrayerCard> {
   void initState() {
     super.initState();
     _initializeState();
-    _checkIfUserIsPastor();
+    _checkPermissions();
     _fetchAuthorData(); // Cargar datos del autor una vez
   }
   
@@ -74,14 +76,12 @@ class _PrayerCardState extends State<PrayerCard> {
     }
   }
   
-  Future<void> _checkIfUserIsPastor() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    
-    final isPastor = await _prayerService.isPastor(user.uid);
+  // Método para verificar si el usuario tiene el permiso de asignar oraciones a cultos
+  Future<void> _checkPermissions() async {
+    final hasPermission = await _permissionService.hasPermission('assign_cult_to_prayer');
     if (mounted) {
       setState(() {
-        _isPastor = isPastor;
+        _hasAssignPermission = hasPermission;
       });
     }
   }
@@ -174,11 +174,8 @@ class _PrayerCardState extends State<PrayerCard> {
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
     final isCreator = currentUser != null && widget.prayer.createdBy.id == currentUser.uid;
-    // Usar estado local para votos
-    // final hasUpvoted = _currentUserHasUpvoted;
-    // final hasDownvoted = _currentUserHasDownvoted;
-    // final score = _currentScore;
-
+    final canAssignCultToPrayer = _hasAssignPermission;
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 1.5, // Reducir un poco la elevación
@@ -211,9 +208,9 @@ class _PrayerCardState extends State<PrayerCard> {
                 // if (widget.prayer.isAccepted)
                 //   _buildStatusChip(Icons.check_circle_outline, 'Aceptada', Colors.green),
                 
-                // Menú de opciones (sin cambios)
-                if (isCreator || _isPastor)
-                  _buildOptionsMenu(isCreator),
+                // Menú de opciones (se pasa canAssignCultToPrayer en lugar de _hasAssignPermission)
+                if (isCreator || canAssignCultToPrayer)
+                  _buildOptionsMenu(isCreator, canAssignCultToPrayer),
               ],
             ),
             
@@ -368,8 +365,8 @@ class _PrayerCardState extends State<PrayerCard> {
     );
   }
 
-  Widget _buildOptionsMenu(bool isCreator) {
-    // Lógica del PopupMenuButton sin cambios, solo extraída
+  Widget _buildOptionsMenu(bool isCreator, bool canAssignCultToPrayer) {
+    // Lógica del PopupMenuButton modificada para usar canAssignCultToPrayer
     return PopupMenuButton<String>(
        icon: const Icon(Icons.more_vert, color: Colors.grey),
        padding: EdgeInsets.zero, // Reducir padding si es necesario
@@ -416,9 +413,9 @@ class _PrayerCardState extends State<PrayerCard> {
                }
              }
            }
-         } else if (value == 'assign_cult' && _isPastor) {
+         } else if (value == 'assign_cult' && canAssignCultToPrayer) {
            _showAssignCultModal();
-         } else if (value == 'unassign_cult' && _isPastor) {
+         } else if (value == 'unassign_cult' && canAssignCultToPrayer) {
            _unassignFromCult();
          }
        },
@@ -429,7 +426,7 @@ class _PrayerCardState extends State<PrayerCard> {
 
          return [
             // Opción de Eliminar (visible para pastor O creador)
-            if (_isPastor || isCreator)
+            if (canAssignCultToPrayer || isCreator)
               const PopupMenuItem(
                 value: 'delete',
                 child: Row(
@@ -441,12 +438,12 @@ class _PrayerCardState extends State<PrayerCard> {
                 ),
               ),
               
-            // Separador visual si hay opciones de pastor Y opción de eliminar
-            if ((_isPastor || isCreator) && _isPastor) 
+            // Separador visual si hay opciones de asignación Y opción de eliminar
+            if ((canAssignCultToPrayer || isCreator) && canAssignCultToPrayer) 
                const PopupMenuDivider(height: 1), 
 
-            // Opciones de Pastor
-            if (_isPastor && !widget.prayer.isAssignedToCult)
+            // Opciones de asignación/desasignación (para usuarios con permiso o pastores)
+            if (canAssignCultToPrayer && !widget.prayer.isAssignedToCult)
               const PopupMenuItem(
                 value: 'assign_cult',
                 child: Row(
@@ -457,7 +454,7 @@ class _PrayerCardState extends State<PrayerCard> {
                   ],
                 ),
               ),
-            if (_isPastor && widget.prayer.isAssignedToCult)
+            if (canAssignCultToPrayer && widget.prayer.isAssignedToCult)
               const PopupMenuItem(
                 value: 'unassign_cult',
                 child: Row(
@@ -521,7 +518,7 @@ class _PrayerCardState extends State<PrayerCard> {
               ),
               builder: (context) => PrayerCommentModal(
                                   prayer: widget.prayer,
-                currentUserIsPastor: _isPastor,
+                                  currentUserIsPastor: false,
                           ),
                         );
                       },

@@ -10,6 +10,7 @@ enum HomeScreenSectionType {
   videos,
   liveStream,
   donations,
+  courses, // Nueva sección de Cursos Online
   unknown // Para manejo de errores o tipos futuros
 }
 
@@ -78,6 +79,7 @@ class HomeScreenSection {
       case 'videos': return HomeScreenSectionType.videos;
       case 'liveStream': return HomeScreenSectionType.liveStream;
       case 'donations': return HomeScreenSectionType.donations;
+      case 'courses': return HomeScreenSectionType.courses;
       default: return HomeScreenSectionType.unknown;
     }
   }
@@ -94,6 +96,7 @@ class HomeScreenSection {
       case HomeScreenSectionType.videos: return 'videos';
       case HomeScreenSectionType.liveStream: return 'liveStream';
       case HomeScreenSectionType.donations: return 'donations';
+      case HomeScreenSectionType.courses: return 'courses';
       default: return 'unknown';
     }
   }

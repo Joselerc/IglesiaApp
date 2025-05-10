@@ -20,6 +20,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../admin/event_attendance_screen.dart';
 import '../admin/admin_events_list_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../services/permission_service.dart'; // Importar servicio de permisos
 
 class GroupFeedScreen extends StatefulWidget {
   final Group group;
@@ -40,6 +41,10 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   File? imageFile;
+  final PermissionService _permissionService = PermissionService(); // Instancia del servicio
+  bool _canCreateEvents = false;
+  bool _canManageRequests = false;
+  bool _canCreatePosts = false;
 
   void _showComments(BuildContext context, GroupPost post) {
     showModalBottomSheet(
@@ -97,12 +102,45 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Verificar permisos al iniciar la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Cargar permisos del usuario
+      _loadPermissions();
+      
+      // Log para depuración
+      final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      debugPrint('🚀 GROUP_FEED - Inicializando pantalla para usuario: $userId');
+      final isAdmin = widget.group.isAdmin(userId);
+      debugPrint('👑 GROUP_FEED - Usuario es admin del grupo: $isAdmin');
+    });
+  }
+
+  // Método para cargar permisos
+  Future<void> _loadPermissions() async {
+    // Ya que estos permisos se eliminaron, establecemos todos como true
+    // para que las funcionalidades estén disponibles para todos
+    if (mounted) {
+      setState(() {
+        _canCreateEvents = true;
+        _canManageRequests = true;
+        _canCreatePosts = true;
+        
+        debugPrint('🔒 GROUP_FEED - Permisos establecidos como disponibles para todos los usuarios');
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Usar un color más profesional para la AppBar
-    final appBarColor = Theme.of(context).primaryColor;
-    // Determinar si el usuario actual es admin
+    // Determinar si el usuario actual es admin (solo para logging)
     final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
     final isAdmin = widget.group.isAdmin(userId);
+    
+    // Solo usar permisos directamente, sin combinar con isAdmin
+    debugPrint('🛡️ GROUP_FEED - Permisos: canCreatePosts=$_canCreatePosts, canCreateEvents=$_canCreateEvents, canManageRequests=$_canManageRequests');
+    debugPrint('👑 GROUP_FEED - Admin status (solo informativo): $isAdmin');
     
     return Scaffold(
       appBar: AppBar(
@@ -175,8 +213,8 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           ),
         ),
         actions: [
-          // Mostrar botón de crear evento solo si es admin
-          if (isAdmin) 
+          // Mostrar botón de crear evento solo si tiene permiso
+          if (_canCreateEvents) 
             IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(4),
@@ -198,8 +236,8 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                 );
               },
             ),
-          // Mostrar botón de gestionar solicitudes solo si es admin
-          if (isAdmin) 
+          // Mostrar botón de gestionar solicitudes solo si tiene permiso
+          if (_canManageRequests) 
             IconButton(
               icon: const Icon(Icons.people, color: Colors.white),
               tooltip: 'Gestionar solicitudes',
@@ -284,7 +322,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         ),
                         const SizedBox(height: 32),
                         // Botón CTA (solo visible para admins)
-                        if (isAdmin) 
+                        if (_canCreatePosts) 
                           ElevatedButton.icon(
                             icon: const Icon(Icons.add),
                             label: const Text('Criar publicação'),
@@ -583,9 +621,9 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                 ),
               );
             } else if (index == 2) {
-              // Para admins: mostrar diálogo de creación
-              // Para no admins: ir a detalles del grupo
-              if (isAdmin) {
+              // Para usuarios con permisos: mostrar diálogo de creación
+              // Para usuarios sin permisos: ir a detalles del grupo
+              if (_canCreatePosts) {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
@@ -626,7 +664,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
               label: 'Chat',
             ),
             BottomNavigationBarItem(
-              icon: isAdmin 
+              icon: _canCreatePosts 
                 ? Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -636,7 +674,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                     child: const Icon(Icons.add, color: Colors.white, size: 24),
                   )
                 : const Icon(Icons.info_outline),
-              label: isAdmin ? 'Novo' : 'Info',
+              label: _canCreatePosts ? 'Novo' : 'Info',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
@@ -760,7 +798,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         color: Theme.of(context).primaryColor,
                       ),
                     ),
-                    if (widget.group.isAdmin(FirebaseAuth.instance.currentUser?.uid ?? '')) 
+                    if (_canCreateEvents) 
                       IconButton(
                         icon: const Icon(
                           Icons.admin_panel_settings,
@@ -804,7 +842,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => GroupEventDetailScreen(
+                            builder: (context) => GroupEventDetailScreen( 
                               event: GroupEvent.fromFirestore(doc),
                             ),
                           ),

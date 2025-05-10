@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import './register/register_ticket_form.dart';
 import '../../services/ticket_service.dart';
+import '../../services/permission_service.dart';
 import '../../models/ticket_model.dart';
 import '../../models/ticket_registration_model.dart';
 import './register/my_ticket_card.dart';
@@ -30,17 +31,25 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   final TicketService _ticketService = TicketService();
+  final PermissionService _permissionService = PermissionService();
   bool _loadingMyTicket = false;
   bool _showMyTicket = false;
   TicketRegistrationModel? _myRegistration;
   TicketModel? _myTicket;
   bool _isPastor = false;
+  bool _canCreateEvents = false;
+  bool _canManageTickets = false;
+  bool _canManageAttendance = false;
+  bool _canDeleteEvents = false;
+  bool _isEventCreator = false;
   
   @override
   void initState() {
     super.initState();
     _checkExistingRegistration();
     _checkUserRole();
+    _checkPermissions();
+    _checkEventCreator();
   }
   
   Future<void> _checkExistingRegistration() async {
@@ -94,6 +103,81 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       }
     } catch (e) {
       print('Error al verificar el rol del usuario: $e');
+    }
+  }
+
+  Future<void> _checkPermissions() async {
+    print('DEBUG: Verificando permisos para evento ${widget.event.id}');
+    
+    final hasCreatePermission = await _permissionService.hasPermission('create_events');
+    final hasManageTicketsPermission = await _permissionService.hasPermission('manage_event_tickets');
+    final hasManageAttendancePermission = await _permissionService.hasPermission('manage_event_attendance');
+    final hasDeletePermission = await _permissionService.hasPermission('delete_events');
+    
+    print('DEBUG: create_events: $hasCreatePermission');
+    print('DEBUG: manage_event_tickets: $hasManageTicketsPermission');
+    print('DEBUG: manage_event_attendance: $hasManageAttendancePermission');
+    print('DEBUG: delete_events: $hasDeletePermission');
+    
+    if (mounted) {
+      setState(() {
+        _canCreateEvents = hasCreatePermission;
+        _canManageTickets = hasManageTicketsPermission;
+        _canManageAttendance = hasManageAttendancePermission;
+        _canDeleteEvents = hasDeletePermission;
+      });
+    }
+  }
+
+  Future<void> _checkEventCreator() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    
+    // Establecer como false por defecto para más seguridad
+    setState(() {
+      _isEventCreator = false;
+    });
+    
+    try {
+      print('DEBUG: Verificando si el usuario ${user.uid} es el creador del evento ${widget.event.id}');
+      
+      final eventDoc = await FirebaseFirestore.instance
+          .collection('events')
+          .doc(widget.event.id)
+          .get();
+      
+      if (eventDoc.exists) {
+        final data = eventDoc.data() as Map<String, dynamic>;
+        
+        // El campo createdBy puede ser una referencia o un string
+        String? creatorId;
+        final createdBy = data['createdBy'];
+        
+        if (createdBy is DocumentReference) {
+          // Si es una referencia, obtenemos el ID
+          creatorId = createdBy.id;
+          print('DEBUG: createdBy es una referencia: ${creatorId}');
+        } else if (createdBy is String) {
+          // Si ya es un string, lo usamos directamente
+          creatorId = createdBy;
+          print('DEBUG: createdBy es un string: ${creatorId}');
+        } else {
+          print('DEBUG: createdBy no encontrado o con formato desconocido: ${createdBy?.runtimeType}');
+        }
+        
+        print('DEBUG: Creador del evento (ID): $creatorId, Usuario actual: ${user.uid}');
+        print('DEBUG: ¿Tienen el mismo ID?: ${creatorId == user.uid}');
+        
+        if (mounted) {
+          setState(() {
+            _isEventCreator = creatorId != null && creatorId == user.uid;
+          });
+        }
+      } else {
+        print('DEBUG: Documento del evento no encontrado');
+      }
+    } catch (e) {
+      print('ERROR: Error al verificar creador del evento: $e');
     }
   }
 
@@ -295,6 +379,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _deleteEvent(BuildContext context) async {
+    if (!_canUserDeleteThisEvent()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No tienes permiso para eliminar este evento'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -570,7 +664,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 ),
               )
             );
-          } else if (_isPastor && widget.event.hasTickets) {
+          } else if ((_isPastor || _canCreateEvents) && widget.event.hasTickets) {
              // Añadir el contenedor de "Enlace no configurado" a la lista
              onlineWidgets.add(
                Container(
@@ -761,7 +855,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
            ),
          )
        );
-      } else if (_isPastor && widget.event.hasTickets) {
+      } else if ((_isPastor || _canCreateEvents) && widget.event.hasTickets) {
         hybridWidgets.add(
           Container(
            margin: const EdgeInsets.only(top: 8),
@@ -887,7 +981,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          if (_isPastor)
+          if (_isPastor || _canManageAttendance)
             IconButton(
               icon: const Icon(Icons.people, color: Colors.white),
               tooltip: 'Gestionar asistentes',
@@ -918,17 +1012,27 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 );
               },
             ),
-          if (_isPastor && (widget.event.eventType == 'online' || widget.event.eventType == 'hybrid'))
+          if ((_isPastor || _canCreateEvents) && (widget.event.eventType == 'online' || widget.event.eventType == 'hybrid'))
             IconButton(
               icon: const Icon(Icons.link, color: Colors.white),
               tooltip: 'Actualizar enlace',
               onPressed: _updateEventUrl,
             ),
-          if (_isPastor)
+          if (_isPastor || _canManageTickets)
             IconButton(
               icon: const Icon(Icons.add_card, color: Colors.white),
               tooltip: 'Crear nuevo ticket',
               onPressed: () {
+                if (!_canManageTickets && !_isPastor) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No tienes permiso para crear tickets'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
@@ -937,7 +1041,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 );
               },
             ),
-          if (_isPastor)
+          if (_canUserDeleteThisEvent())
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.white),
               tooltip: 'Eliminar evento',
@@ -1616,5 +1720,29 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       default:
         return 'Desconocido';
     }
+  }
+
+  bool _canUserDeleteThisEvent() {
+    print('DEBUG: Verificando si el usuario puede eliminar el evento');
+    print('DEBUG: _isPastor: $_isPastor');
+    print('DEBUG: _canDeleteEvents: $_canDeleteEvents');
+    print('DEBUG: _canCreateEvents: $_canCreateEvents');
+    print('DEBUG: _isEventCreator: $_isEventCreator');
+    
+    // Si es pastor o tiene permiso especial para eliminar eventos, puede eliminar cualquiera
+    if (_isPastor || _canDeleteEvents) {
+      print('DEBUG: Puede eliminar por ser pastor o tener permiso delete_events');
+      return true;
+    }
+    
+    // Si tiene permiso para crear eventos y es el creador de este evento, puede eliminarlo
+    if (_canCreateEvents && _isEventCreator) {
+      print('DEBUG: Puede eliminar por tener create_events y ser el creador');
+      return true;
+    }
+    
+    // En cualquier otro caso, no puede eliminar el evento
+    print('DEBUG: No tiene permiso para eliminar este evento');
+    return false;
   }
 }

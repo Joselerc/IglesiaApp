@@ -10,6 +10,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_text_field.dart';
 import '../../cubits/navigation_cubit.dart';
+import '../../services/role_service.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 
 class RegisterScreen extends StatefulWidget {
@@ -56,23 +57,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Obtenemos el roleId por defecto para nuevos usuarios
+      final RoleService roleService = RoleService();
+      final String? defaultRoleId = await roleService.getDefaultRoleId();
+      
       // Criar usuário no Firebase Auth
       final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
       
-      // Criar documento no Firestore
+      // Obtener el nombre del rol si tenemos un ID
+      String roleName = 'member'; // Valor por defecto
+      if (defaultRoleId != null) {
+        final defaultRole = await roleService.getRoleById(defaultRoleId);
+        if (defaultRole != null) {
+          roleName = defaultRole.name;
+        }
+      }
+      
+      // Crear documento en Firestore
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
         'name': _nameController.text.trim(),
         'surname': _surnameController.text.trim(),
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
-        'role': 'member', // Papel padrão
+        'role': roleName, // Nombre del rol por defecto
+        'roleId': defaultRoleId, // ID del rol para el nuevo sistema
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'photoUrl': '',
         'createdAt': DateTime.now(),
-        'lastLogin': DateTime.now(), // Registro del primer login
+        'lastLogin': DateTime.now(),
       });
       
       debugPrint('✅ Usuário registrado com sucesso: ${userCredential.user!.uid}');

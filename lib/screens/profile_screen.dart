@@ -25,6 +25,13 @@ import '../theme/app_text_styles.dart';
 import 'admin/profile_fields_admin_screen.dart';
 import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
 import 'admin/manage_donations_screen.dart'; // <-- Import añadido
+import 'admin/create_edit_role_screen.dart'; // <-- Import añadido
+import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
+import 'package:church_app_br/services/permission_service.dart'; // <-- Import PermissionService
+import '../services/role_service.dart'; // <-- Import correcto del servicio de roles
+import 'admin/delete_ministries_screen.dart';
+import 'admin/delete_groups_screen.dart';
+import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
 
 
 class ProfileScreen extends StatefulWidget {
@@ -42,7 +49,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = false;
   UserModel? _currentUser;
   final ProfileFieldsService _profileFieldsService = ProfileFieldsService();
-  bool _isPastor = false;
+  final PermissionService _permissionService = PermissionService(); // <-- Instancia del servicio
+  final RoleService _roleService = RoleService(); // <-- Instancia del servicio
+  
+  // Variables para controlar si se muestran las opciones administrativas
+  bool _hasAdminAccess = false; // Reemplaza a _isPastor
   
   // Variables para el teléfono con código de país
   String _phoneCountryCode = '+55'; // Código de marcación (ej: +55)
@@ -50,11 +61,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isValidPhone = false;
   String _isoCountryCode = 'BR'; // NUEVO: Código ISO (ej: BR)
 
+  // --- NUEVOS CAMPOS PARA PERFIL ---
+  DateTime? _birthDate;
+  String? _gender;
+  // --- FIN NUEVOS CAMPOS ---
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _checkPastorStatus();
+    _checkAdminAccess(); // Nuevo método que reemplaza a _checkPastorStatus
   }
 
   Future<void> _loadUserData() async {
@@ -104,6 +120,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _isoCountryCode = loadedIsoCode; // Usar el código ISO cargado o convertido
             _isValidPhone = phoneSimple.length >= 8;
             
+            // Cargar nuevos campos
+            _birthDate = (userData['birthDate'] as Timestamp?)?.toDate();
+            _gender = userData['gender'] as String?;
+
             // Log adicional después de asignar
             print('📱 TELÉFONO INICIALIZADO EN UI:');
             print('- _phoneController.text: "${_phoneController.text}"');
@@ -213,27 +233,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isLoading = false);
   }
 
-  // Verificar si el usuario actual es un pastor
-  Future<void> _checkPastorStatus() async {
+  // Verificar si el usuario tiene acceso administrativo basado en permisos
+  Future<void> _checkAdminAccess() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (user == null) return;
+    
+    try {
+      print('🔍 Verificando acceso administrativo para: ${user.uid}');
+      // Comprobar si es SuperAdmin primero
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
       
-      // Asegurarse de que el widget esté montado antes de llamar a setState
-      if (userDoc.exists && mounted) {
+      if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
+        
+        // Si es superusuario, tiene acceso a todo
+        if (userData['isSuperUser'] == true) {
         setState(() {
-          _isPastor = userData['role'] == 'pastor';
-          print('✅ Rol de Pastor verificado: $_isPastor'); // Log
-        });
-      } else if (mounted) {
+            _hasAdminAccess = true;
+            print('✅ SuperUser verificado: Acceso completo otorgado');
+          });
+          return;
+        }
+        
+        // Si no es superusuario, verificar si tiene roleId
+        final String? roleId = userData['roleId'] as String?;
+        if (roleId != null && roleId.isNotEmpty) {
+          // Buscar el rol para ver sus permisos
+          final role = await _roleService.getRoleById(roleId);
+          if (role != null && role.permissions.isNotEmpty) {
+            // Si tiene al menos un permiso, darle acceso a la sección
          setState(() {
-           _isPastor = false; // Asegurarse de que es false si no se encuentra o no es pastor
-         });
-         print('ℹ️ Usuario no es pastor o documento no existe.');
+              _hasAdminAccess = true;
+              print('✅ Usuario tiene rol con permisos: ${role.name}');
+            });
+            return;
+          }
+        }
+        
+        // Si llegamos aquí, no tiene permiso según el rol, verificar permisos individuales
+        setState(() {
+          _hasAdminAccess = false;
+          print('ℹ️ Usuario no tiene rol con permisos administrativos, verificando permisos individuales...');
+        });
+        
+        // Solo verificamos un permiso para determinar si mostrar la sección
+        final hasAnyAdminPermission = await _permissionService.hasPermission('view_user_list');
+        if (hasAnyAdminPermission) {
+          setState(() {
+            _hasAdminAccess = true;
+            print('✅ Usuario tiene al menos un permiso administrativo');
+          });
+          return;
+        }
+      }
+      
+      setState(() {
+        _hasAdminAccess = false;
+        print('ℹ️ Usuario no tiene acceso administrativo');
+      });
+    } catch (e) {
+      print('❌ Error al verificar permisos administrativos: $e');
+      if (mounted) {
+        setState(() {
+          _hasAdminAccess = false;
+        });
       }
     }
   }
@@ -286,6 +352,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         datos['phoneComplete'] = '';
         datos['phoneCountryCode'] = '';
       }
+      
+      // Guardar nuevos campos
+      datos['birthDate'] = _birthDate != null ? Timestamp.fromDate(_birthDate!) : null;
+      datos['gender'] = _gender;
       
       print('📤 DATOS A GUARDAR:');
       datos.forEach((key, value) {
@@ -426,1472 +496,688 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           return Form(
             key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Sección de cabecera con imagen de perfil
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Stack(
-            children: [
-              CircularImagePicker(
-                documentId: FirebaseAuth.instance.currentUser!.uid,
-                currentImageUrl: userData['photoUrl'] as String? ?? '',
-                storagePath: 'user_images',
-                collectionName: 'users',
-                fieldName: 'photoUrl',
-                defaultIcon: const Icon(Icons.person, size: 60, color: Colors.white),
-                size: 100,
-                isEditable: true,
-              ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () {
-                                // Simular el clic en la imagen principal
-                                final imagePicker = ImagePicker();
-                                imagePicker.pickImage(source: ImageSource.gallery);
-                              },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[700],
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                                size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        userData['displayName'] ?? 'Completa tu perfil',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        userData['email'] ?? '',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                // Sección de información personal - NUEVO DISEÑO
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Header con estilo
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2196F3).withOpacity(0.08),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  // Sección de cabecera con imagen de perfil
+                  Container( // <<< Este es el contenedor azul claro
+                    // Añadir width: double.infinity
+                    width: double.infinity, 
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Stack(
                           children: [
-                            // Título con icono
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
+                            CircularImagePicker(
+                              documentId: FirebaseAuth.instance.currentUser!.uid,
+                              currentImageUrl: userData['photoUrl'] as String? ?? '',
+                              storagePath: 'user_images',
+                              collectionName: 'users',
+                              fieldName: 'photoUrl',
+                              defaultIcon: const Icon(Icons.person, size: 60, color: Colors.white),
+                              size: 100,
+                              isEditable: true,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Simular el clic en la imagen principal
+                                  final imagePicker = ImagePicker();
+                                  imagePicker.pickImage(source: ImageSource.gallery);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Colors.blue[700],
                                     shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF2196F3).withOpacity(0.2),
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
+                                    border: Border.all(color: Colors.white, width: 2),
                                   ),
                                   child: const Icon(
-                                    Icons.person_outline,
-                                    color: Color(0xFF2196F3),
+                                    Icons.camera_alt,
+                                    color: Colors.white,
                                     size: 20,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Informação Pessoal',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2196F3),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 12),
-                            
-                            // Botón de guardar en su propia línea
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton.icon(
-                                icon: const Icon(Icons.save, size: 14, color: Colors.white),
-                                label: const Text(
-                                  'Salvar',
-                                  style: TextStyle(fontSize: 13),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2196F3),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  elevation: 0,
-                                  minimumSize: const Size(85, 32),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                onPressed: _guardarInformacionPersonal,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      
-                      // Contenido
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            // Campo de nombre
-                            TextFormField(
-                              controller: _nameController,
-                              decoration: InputDecoration(
-                                labelText: 'Nome',
-                                labelStyle: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[50],
-                                prefixIcon: Container(
-                                  margin: const EdgeInsets.only(left: 12, right: 8),
-                                  child: Icon(
-                                    Icons.person_outline,
-                                    color: const Color(0xFF2196F3).withOpacity(0.7),
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, digite seu nome';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Campo de apellido
-                            TextFormField(
-                              controller: _surnameController,
-                              decoration: InputDecoration(
-                                labelText: 'Sobrenome',
-                                labelStyle: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[50],
-                                prefixIcon: Container(
-                                  margin: const EdgeInsets.only(left: 12, right: 8),
-                                  child: Icon(
-                                    Icons.person_outline,
-                                    color: const Color(0xFF2196F3).withOpacity(0.7),
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Por favor, digite seu sobrenome';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Campo de teléfono
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Si hay un teléfono guardado, mostrarlo como texto informativo
-                                if (_phoneCompleteNumber.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 4, bottom: 4),
-                                    child: Text(
-                                      'Número atual: $_phoneCompleteNumber',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.blue[700],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                IntlPhoneField(
-                                  initialCountryCode: _isoCountryCode, // Usar código ISO directamente
-                                  decoration: InputDecoration(
-                                    labelText: 'Telefone',
-                                    labelStyle: TextStyle(
-                                      color: Colors.grey[500],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.grey[300]!),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.grey[300]!),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.grey[50],
-                                    hintText: _phoneController.text.isEmpty ? 'Opcional' : null,
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                  ),
-                                  // Establecer el valor inicial del teléfono
-                                  initialValue: _phoneController.text,
-                                  onChanged: (phone) {
-                                    setState(() {
-                                      // Guardar el número sin espacios ni caracteres especiales
-                                      final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
-                                      _phoneCountryCode = phone.countryCode;
-                                      _phoneCompleteNumber = phone.completeNumber;
-                                      _isValidPhone = cleanNumber.length >= 10;
-                                      
-                                      // Solo actualizar el controller si el número ha cambiado
-                                      // para evitar ciclos de actualización
-                                      if (_phoneController.text != cleanNumber) {
-                                        _phoneController.text = cleanNumber;
-                                      }
-                                      
-                                      // Depuración detallada
-                                      print('📱 TELÉFONO ACTUALIZADO (onChanged):');
-                                      print('- Número: $cleanNumber');
-                                      print('- Completo: ${phone.completeNumber}');
-                                      print('- País: ${phone.countryCode}');
-                                    });
-                                  },
-                                  onSaved: (phone) {
-                                    if (phone != null) {
-                                      // Este evento ocurre cuando se guarda el formulario
-                                      final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
-                                      _phoneController.text = cleanNumber;
-                                      _phoneCompleteNumber = phone.completeNumber;
-                                      _phoneCountryCode = phone.countryCode;
-                                      
-                                      print('📱 TELÉFONO GUARDADO (onSaved):');
-                                      print('- Número: $cleanNumber');
-                                      print('- Completo: ${phone.completeNumber}');
-                                    }
-                                  },
-                                  validator: (phone) {
-                                    if (phone == null || phone.number.isEmpty) {
-                                      return null; // Es opcional
-                                    }
-                                    if (phone.number.length < 8) {
-                                      return 'Telefone inválido';
-                                    }
-                                    return null;
-                                  },
-                                  // Asegurar que el teléfono se guarde correctamente incluso cuando solo se cambia el código de país
-                                  onCountryChanged: (country) {
-                                    setState(() {
-                                      _isoCountryCode = country.code; // Actualizar código ISO
-                                      _phoneCountryCode = '+${country.dialCode}'; // Actualizar código de marcación
-                                      if (_phoneController.text.isNotEmpty) {
-                                        _phoneCompleteNumber = '$_phoneCountryCode${_phoneController.text}';
-                                      }
-                                      
-                                      // Depuración
-                                      print('📱 PAÍS CAMBIADO:');
-                                      print('- Código ISO: $_isoCountryCode');
-                                      print('- Código Marcación: $_phoneCountryCode');
-                                      print('- Completo actualizado: $_phoneCompleteNumber');
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(height: 16),
+                        Text(
+                          userData['displayName'] ?? 'Completa tu perfil',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                // Sección de información adicional - NUEVO DISEÑO
-                StreamBuilder<List<ProfileFieldResponse>>(
-                  stream: _profileFieldsService.getUserResponses(
-                    FirebaseAuth.instance.currentUser!.uid,
-                  ),
-                  builder: (context, responsesSnapshot) {
-                    if (responsesSnapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final responses = responsesSnapshot.data ?? [];
-
-                    return StreamBuilder<List<ProfileField>>(
-                      stream: _profileFieldsService.getActiveProfileFields(),
-                      builder: (context, fieldsSnapshot) {
-                        if (fieldsSnapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-
-                        final fields = fieldsSnapshot.data ?? [];
-
-                        if (fields.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        
-                        // Crear un map para almacenar controladores y valores para cada campo
-                        final Map<String, TextEditingController> controllers = {};
-                        final Map<String, dynamic> fieldValues = {};
-                        
-                        // Inicializar controladores con valores existentes
-                        for (var field in fields) {
-                          final response = responses.firstWhere(
-                            (r) => r.fieldId == field.id,
-                            orElse: () => ProfileFieldResponse(
-                              id: '',
-                              userId: FirebaseAuth.instance.currentUser!.uid,
-                              fieldId: field.id,
-                              value: '',
-                              updatedAt: DateTime.now(),
-                            ),
-                          );
-                          
-                          String initialValue = '';
-                          if (response.value != null && response.value != '') {
-                            if (field.type == 'date' && response.value is DateTime) {
-                              initialValue = '${response.value.day}/${response.value.month}/${response.value.year}';
-                            } else {
-                              initialValue = response.value.toString();
-                            }
-                          }
-                          
-                          controllers[field.id] = TextEditingController(text: initialValue);
-                          fieldValues[field.id] = response.value;
-                        }
-
-                        return Container(
+                        Text(
+                          userData['email'] ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ), // <<< Fin del contenedor azul claro
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Sección de información personal - NUEVO DISEÑO
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Header con estilo
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            color: const Color(0xFF2196F3).withOpacity(0.08),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Header con estilo
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF9C27B0).withOpacity(0.08),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
+                              // Título con icono
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF2196F3).withOpacity(0.2),
+                                          spreadRadius: 1,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.person_outline,
+                                      color: Color(0xFF2196F3),
+                                      size: 20,
+                                    ),
                                   ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Título con icono
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: const Color(0xFF9C27B0).withOpacity(0.2),
-                                                spreadRadius: 1,
-                                                blurRadius: 5,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.assignment_outlined,
-                                            color: Color(0xFF9C27B0),
-                                            size: 20,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        const Text(
-                                          'Informação Adicional',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF9C27B0),
-                                          ),
-                                        ),
-                                      ],
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Informação Pessoal',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF2196F3),
                                     ),
-                                    
-                                    const SizedBox(height: 12),
-                                    
-                                    // Botón de guardar en su propia línea
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: ElevatedButton.icon(
-                                        icon: const Icon(Icons.save, size: 14, color: Colors.white),
-                                        label: const Text(
-                                          'Salvar',
-                                          style: TextStyle(fontSize: 13),
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF9C27B0),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                          elevation: 0,
-                                          minimumSize: const Size(85, 32),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        onPressed: () => _guardarInformacionAdicional(fields, controllers, fieldValues),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              // Contenido
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: fields.isEmpty
-                                  ? Center(
-                                      child: Column(
-                                        children: [
-                                          Icon(
-                                            Icons.info_outline,
-                                            size: 48,
-                                            color: Colors.grey[400],
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            'Não há informações adicionais para preencher',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 16,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        ...fields.map((field) {
-                                          // Construir un widget de entrada para cada campo con estilo mejorado
-                                          return Padding(
-                                            padding: const EdgeInsets.only(bottom: 16),
-                                            child: _buildFieldInput(
-                                              field, 
-                                              controllers[field.id]!,
-                                              fieldValues,
-                                              responses.firstWhere(
-                                                (r) => r.fieldId == field.id,
-                                                orElse: () => ProfileFieldResponse(
-                                                  id: '',
-                                                  userId: FirebaseAuth.instance.currentUser!.uid,
-                                                  fieldId: field.id,
-                                                  value: '',
-                                                  updatedAt: DateTime.now(),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ],
-                                    ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                
-                const SizedBox(height: 24),
-
-                // Sección de Ministerios y Grupos - NUEVO DISEÑO
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header con estilo
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.08),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withOpacity(0.2),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
-                              child: Icon(
-                                Icons.people_outline,
-                                color: AppColors.primary,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 15),
-                            Text(
-                              'Participação',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Sección de ministerios
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Título de Ministerios con badge informativo
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE57373),
-                                    borderRadius: BorderRadius.circular(20),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // Botón de guardar en su propia línea
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.save, size: 14, color: Colors.white),
+                                  label: const Text(
+                                    'Salvar',
+                                    style: TextStyle(fontSize: 13),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.work_outline,
-                                        color: Colors.white,
-                                        size: 16,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2196F3),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    elevation: 0,
+                                    minimumSize: const Size(85, 32),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: _guardarInformacionPersonal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Contenido
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              // Campo de nombre
+                              TextFormField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Nome',
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.only(left: 12, right: 8),
+                                    child: Icon(
+                                      Icons.person_outline,
+                                      color: const Color(0xFF2196F3).withOpacity(0.7),
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Por favor, digite seu nome';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              
+                              // Campo de apellido
+                              TextFormField(
+                                controller: _surnameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Sobrenome',
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.only(left: 12, right: 8),
+                                    child: Icon(
+                                      Icons.person_outline,
+                                      color: const Color(0xFF2196F3).withOpacity(0.7),
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Por favor, digite seu sobrenome';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              
+                              // --- NUEVOS CAMPOS UI ---
+                              // Campo de Fecha de Nacimiento
+                              InkWell(
+                                onTap: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: _birthDate ?? DateTime.now(),
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime.now(),
+                                    locale: const Locale('pt', 'BR'),
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: AppColors.primary, // Color primario para el DatePicker
+                                            onPrimary: Colors.white, 
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (picked != null && picked != _birthDate) {
+                                    setState(() {
+                                      _birthDate = picked;
+                                    });
+                                  }
+                                },
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: 'Nascimento',
+                                    labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                                    filled: true,
+                                    fillColor: Colors.grey[50],
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.only(left: 12, right: 8),
+                                      child: Icon(Icons.calendar_today_outlined, color: const Color(0xFF2196F3).withOpacity(0.7)),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0), // Ajuste de padding
+                                  ),
+                                  child: Padding( // Padding interno para el texto
+                                    padding: const EdgeInsets.only(left: 12.0), // Alinea con el texto de otros campos
+                                    child: Text(
+                                      _birthDate != null 
+                                          ? '${_birthDate!.day.toString().padLeft(2, '0')}/${_birthDate!.month.toString().padLeft(2, '0')}/${_birthDate!.year}' 
+                                          : 'Selecionar data',
+                                      style: _birthDate != null 
+                                          ? AppTextStyles.bodyText1.copyWith(color: Colors.black87)
+                                          : AppTextStyles.bodyText1.copyWith(color: Colors.grey[700]),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Campo de Sexo
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: 'Sexo',
+                                  labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.only(left: 12, right: 8),
+                                    child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7)), // Icono ejemplo
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0), // Reducir padding vertical
+                                ),
+                                value: _gender,
+                                isExpanded: true,
+                                items: ['Masculino', 'Feminino', 'Prefiro não dizer']
+                                    .map((label) => DropdownMenuItem(
+                                          child: Padding( // Padding para los items del dropdown
+                                            padding: const EdgeInsets.only(left: 12.0),
+                                            child: Text(label),
+                                          ), 
+                                          value: label,
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value;
+                                  });
+                                },
+                                // validator: (value) => (value == null) ? 'Sexo é obrigatório.' : null, // Opcional, si lo quieres obligatorio
+                                selectedItemBuilder: (BuildContext context) { // Para alinear el texto seleccionado
+                                  return ['Masculino', 'Feminino', 'Prefiro não dizer'].map<Widget>((String item) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(left: 12.0),
+                                      child: Text(
+                                        item,
+                                        style: AppTextStyles.bodyText1.copyWith(color: Colors.black87),
                                       ),
-                                      const SizedBox(width: 6),
-                                      const Text(
-                                        'Ministérios',
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              // --- FIN NUEVOS CAMPOS UI ---
+                              
+                              // Campo de teléfono
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Si hay un teléfono guardado, mostrarlo como texto informativo
+                                  if (_phoneCompleteNumber.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 4, bottom: 4),
+                                      child: Text(
+                                        'Número atual: $_phoneCompleteNumber',
                                         style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                          fontSize: 12,
+                                          color: Colors.blue[700],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  IntlPhoneField(
+                                    initialCountryCode: _isoCountryCode, // Usar código ISO directamente
+                                    decoration: InputDecoration(
+                                      labelText: 'Telefone',
+                                      labelStyle: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(color: Colors.grey[300]!),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(color: Colors.grey[300]!),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.grey[50],
+                                      hintText: _phoneController.text.isEmpty ? 'Opcional' : null,
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                    // Establecer el valor inicial del teléfono
+                                    initialValue: _phoneController.text,
+                                    onChanged: (phone) {
+                                      setState(() {
+                                        // Guardar el número sin espacios ni caracteres especiales
+                                        final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
+                                        _phoneCountryCode = phone.countryCode;
+                                        _phoneCompleteNumber = phone.completeNumber;
+                                        _isValidPhone = cleanNumber.length >= 10;
+                                        
+                                        // Solo actualizar el controller si el número ha cambiado
+                                        // para evitar ciclos de actualización
+                                        if (_phoneController.text != cleanNumber) {
+                                          _phoneController.text = cleanNumber;
+                                        }
+                                        
+                                        // Depuración detallada
+                                        print('📱 TELÉFONO ACTUALIZADO (onChanged):');
+                                        print('- Número: $cleanNumber');
+                                        print('- Completo: ${phone.completeNumber}');
+                                        print('- País: ${phone.countryCode}');
+                                      });
+                                    },
+                                    onSaved: (phone) {
+                                      if (phone != null) {
+                                        // Este evento ocurre cuando se guarda el formulario
+                                        final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
+                                        _phoneController.text = cleanNumber;
+                                        _phoneCompleteNumber = phone.completeNumber;
+                                        _phoneCountryCode = phone.countryCode;
+                                        
+                                        print('📱 TELÉFONO GUARDADO (onSaved):');
+                                        print('- Número: $cleanNumber');
+                                        print('- Completo: ${phone.completeNumber}');
+                                      }
+                                    },
+                                    validator: (phone) {
+                                      if (phone == null || phone.number.isEmpty) {
+                                        return null; // Es opcional
+                                      }
+                                      if (phone.number.length < 8) {
+                                        return 'Telefone inválido';
+                                      }
+                                      return null;
+                                    },
+                                    // Asegurar que el teléfono se guarde correctamente incluso cuando solo se cambia el código de país
+                                    onCountryChanged: (country) {
+                                      setState(() {
+                                        _isoCountryCode = country.code; // Actualizar código ISO
+                                        _phoneCountryCode = '+${country.dialCode}'; // Actualizar código de marcación
+                                        if (_phoneController.text.isNotEmpty) {
+                                          _phoneCompleteNumber = '$_phoneCountryCode${_phoneController.text}';
+                                        }
+                                        
+                                        // Depuración
+                                        print('📱 PAÍS CAMBIADO:');
+                                        print('- Código ISO: $_isoCountryCode');
+                                        print('- Código Marcación: $_phoneCountryCode');
+                                        print('- Completo actualizado: $_phoneCompleteNumber');
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Sección de información adicional - NUEVO DISEÑO
+                  StreamBuilder<List<ProfileFieldResponse>>(
+                    stream: _profileFieldsService.getUserResponses(
+                      FirebaseAuth.instance.currentUser!.uid,
+                    ),
+                    builder: (context, responsesSnapshot) {
+                      if (responsesSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final responses = responsesSnapshot.data ?? [];
+
+                      return StreamBuilder<List<ProfileField>>(
+                        stream: _profileFieldsService.getActiveProfileFields(),
+                        builder: (context, fieldsSnapshot) {
+                          if (fieldsSnapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+
+                          final fields = fieldsSnapshot.data ?? [];
+
+                          if (fields.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          
+                          // Crear un map para almacenar controladores y valores para cada campo
+                          final Map<String, TextEditingController> controllers = {};
+                          final Map<String, dynamic> fieldValues = {};
+                          
+                          // Inicializar controladores con valores existentes
+                          for (var field in fields) {
+                            final response = responses.firstWhere(
+                              (r) => r.fieldId == field.id,
+                              orElse: () => ProfileFieldResponse(
+                                id: '',
+                                userId: FirebaseAuth.instance.currentUser!.uid,
+                                fieldId: field.id,
+                                value: '',
+                                updatedAt: DateTime.now(),
+                              ),
+                            );
+                            
+                            String initialValue = '';
+                            if (response.value != null && response.value != '') {
+                              if (field.type == 'date' && response.value is DateTime) {
+                                initialValue = '${response.value.day}/${response.value.month}/${response.value.year}';
+                              } else {
+                                initialValue = response.value.toString();
+                              }
+                            }
+                            
+                            controllers[field.id] = TextEditingController(text: initialValue);
+                            fieldValues[field.id] = response.value;
+                          }
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                // Header con estilo
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF9C27B0).withOpacity(0.08),
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Título con icono
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(0xFF9C27B0).withOpacity(0.2),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 5,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.assignment_outlined,
+                                              color: Color(0xFF9C27B0),
+                                              size: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          const Text(
+                                            'Informação Adicional',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF9C27B0),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      
+                                      const SizedBox(height: 12),
+                                      
+                                      // Botón de guardar en su propia línea
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: ElevatedButton.icon(
+                                          icon: const Icon(Icons.save, size: 14, color: Colors.white),
+                                          label: const Text(
+                                            'Salvar',
+                                            style: TextStyle(fontSize: 13),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFF9C27B0),
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            elevation: 0,
+                                            minimumSize: const Size(85, 32),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () => _guardarInformacionAdicional(fields, controllers, fieldValues),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Lista de ministerios
-                            FutureBuilder<bool>(
-                              future: _checkIfUserBelongsToAnyMinistry(),
-                              builder: (context, ministrySnapshot) {
-                                if (ministrySnapshot.connectionState == ConnectionState.waiting) {
-                                  return const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 20),
-                                      child: SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Color(0xFFE57373),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
                                 
-                                if (ministrySnapshot.hasError) {
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.error_outline, color: Colors.red.shade700),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'Erro ao carregar ministérios',
-                                            style: TextStyle(
-                                              color: Colors.red.shade700,
+                                // Contenido
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: fields.isEmpty
+                                    ? Center(
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                              Icons.info_outline,
+                                              size: 48,
+                                              color: Colors.grey[400],
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                
-                                // Si pertenece a algún ministerio
-                                if (ministrySnapshot.hasData && ministrySnapshot.data == true) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      // Tarjeta de servicios
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Color(0xFFF9F9FC), Color(0xFFF3E5F5)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(16),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.1),
-                                              blurRadius: 8,
-                                              offset: const Offset(0, 3),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'Não há informações adicionais para preencher',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 16,
+                                              ),
+                                              textAlign: TextAlign.center,
                                             ),
                                           ],
                                         ),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(16),
-                                            onTap: () {
-                                              Navigator.pushNamed(context, '/work-services');
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(18),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    width: 50,
-                                                    height: 50,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      shape: BoxShape.circle,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: const Color(0xFFE57373).withOpacity(0.3),
-                                                          blurRadius: 8,
-                                                          offset: const Offset(0, 3),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons.workspace_premium,
-                                                        color: Color(0xFFE57373),
-                                                        size: 26,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 16),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        const Text(
-                                                          'Minhas Escalas',
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Color(0xFFD32F2F),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(height: 4),
-                                                        Text(
-                                                          'Gerenciar suas atribuições e convites de trabalho nos ministérios',
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: Colors.grey.shade700,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    padding: const EdgeInsets.all(8),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: const Icon(
-                                                      Icons.arrow_forward_ios,
-                                                      color: Color(0xFFE57373),
-                                                      size: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      
-                                      const SizedBox(height: 16),
-                                      
-                                      // Botón para unirse a otro ministerio
-                                      Container(
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: const Color(0xFFE57373).withOpacity(0.3)),
-                                          gradient: LinearGradient(
-                                            colors: [Colors.white, const Color(0xFFFFF8F8)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                        ),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(12),
-                                            onTap: () {
-                                              Navigator.pushNamed(context, '/ministries');
-                                            },
-                                            child: Center(
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.add_circle,
-                                                    color: Color(0xFFE57373),
-                                                    size: 20,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Flexible(
-                                                    child: Text(
-                                                      'Juntar-se a outro Ministério',
-                                                      style: TextStyle(
-                                                        color: Color(0xFFE57373),
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 15,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  // Si NO pertenece a ningún ministerio
-                                  return Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade50,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey.withOpacity(0.2),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.work_outline,
-                                              color: Colors.grey.shade400,
-                                              size: 35,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        Text(
-                                          'Você não pertence a nenhum ministério',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Junte-se a um ministério para participar do serviço na igreja',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 24),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          height: 50,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFFE57373),
-                                              foregroundColor: Colors.white,
-                                              elevation: 0,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pushNamed(context, '/ministries');
-                                            },
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
-                                                SizedBox(width: 8),
-                                                Flexible(
-                                                  child: Text(
-                                                    'Juntar-se a um Ministério',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                    overflow: TextOverflow.ellipsis,
+                                      )
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          ...fields.map((field) {
+                                            // Construir un widget de entrada para cada campo con estilo mejorado
+                                            return Padding(
+                                              padding: const EdgeInsets.only(bottom: 16),
+                                              child: _buildFieldInput(
+                                                field, 
+                                                controllers[field.id]!,
+                                                fieldValues,
+                                                responses.firstWhere(
+                                                  (r) => r.fieldId == field.id,
+                                                  orElse: () => ProfileFieldResponse(
+                                                    id: '',
+                                                    userId: FirebaseAuth.instance.currentUser!.uid,
+                                                    fieldId: field.id,
+                                                    value: '',
+                                                    updatedAt: DateTime.now(),
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                            
-                            const SizedBox(height: 32),
-                            
-                            // Título de Grupos con badge informativo
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF4CAF50),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.group,
-                                        color: Colors.white,
-                                        size: 16,
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
                                       ),
-                                      SizedBox(width: 6),
-                                      Text(
-                                        'Grupos',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            
-                            // Consultar pertenencia a grupos
-                            FutureBuilder<bool>(
-                              future: _checkIfUserBelongsToAnyGroup(),
-                              builder: (context, groupSnapshot) {
-                                if (groupSnapshot.connectionState == ConnectionState.waiting) {
-                                  return const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 20),
-                                      child: SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Color(0xFF4CAF50),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                
-                                if (groupSnapshot.hasError) {
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.error_outline, color: Colors.red.shade700),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'Erro ao carregar grupos',
-                                            style: TextStyle(
-                                              color: Colors.red.shade700,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                
-                                // Si pertenece a algún grupo
-                                if (groupSnapshot.hasData && groupSnapshot.data == true) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      // --- INICIO MODIFICACIÓN ---
-                                      // Eliminar el FutureBuilder que mostraba la lista de grupos
-                                      // const SizedBox.shrink(), // Ya no es necesario si eliminamos el FutureBuilder
-                                      // --- FIN MODIFICACIÓN ---
-                                      
-                                      /* Código Original Eliminado:
-                                      FutureBuilder<QuerySnapshot>(
-                                        future: FirebaseFirestore.instance.collection('groups').get(),
-                                        builder: (context, gruposSnapshot) {
-                                          if (gruposSnapshot.connectionState == ConnectionState.waiting) {
-                                            return const Center(
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(vertical: 20),
-                                                child: SizedBox(
-                                                  width: 24,
-                                                  height: 24,
-                                                  child: CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    color: Color(0xFF4CAF50),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          
-                                          if (gruposSnapshot.hasError) {
-                                            return Container(
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red.shade50,
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.error_outline, color: Colors.red.shade700),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                    child: Text(
-                                                      'Erro ao carregar grupos',
-                                                      style: TextStyle(
-                                                        color: Colors.red.shade700,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          }
-                                          
-                                          final userId = FirebaseAuth.instance.currentUser?.uid;
-                                          if (userId == null) return const SizedBox();
-                                          
-                                          final userPath = '/users/$userId';
-                                          final gruposDelUsuario = gruposSnapshot.data!.docs.where((doc) {
-                                            final data = doc.data() as Map<String, dynamic>;
-                                            if (!data.containsKey('members') || !(data['members'] is List)) return false;
-                                            
-                                            final List<dynamic> members = data['members'];
-                                            
-                                            // Verificar todas las posibles formas en que un usuario puede estar en la lista
-                                            return members.any((m) => 
-                                              m.toString() == userPath || // Ruta completa
-                                              m.toString() == userId || // Solo ID
-                                              (m is DocumentReference && m.id == userId) // DocumentReference
-                                            );
-                                          }).toList();
-                                          
-                                          // Log para depuración
-                                          debugPrint('📊 GRUPOS-UI: Encontrados ${gruposDelUsuario.length} grupos para el usuario');
-                                          
-                                          return Column(
-                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                            children: [
-                                              // Lista de grupos del usuario con nuevo diseño
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: const LinearGradient(
-                                                    colors: [Color(0xFFF9F9FC), Color(0xFFE8F5E9)],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.grey.withOpacity(0.1),
-                                                      blurRadius: 8,
-                                                      offset: const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  child: gruposDelUsuario.isEmpty
-                                                    ? Padding(
-                                                        padding: const EdgeInsets.all(20),
-                                                        child: Center(
-                                                          child: Column(
-                                                            children: [
-                                                              Icon(
-                                                                Icons.info_outline,
-                                                                size: 24,
-                                                                color: Colors.grey[400],
-                                                              ),
-                                                              const SizedBox(height: 8),
-                                                              Text(
-                                                                'Você não pertence a nenhum grupo',
-                                                                style: TextStyle(
-                                                                  color: Colors.grey[600],
-                                                                  fontWeight: FontWeight.w500,
-                                                                ),
-                                                                textAlign: TextAlign.center,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : ListView.separated(
-                                                        shrinkWrap: true,
-                                                        physics: const NeverScrollableScrollPhysics(),
-                                                        itemCount: gruposDelUsuario.length,
-                                                        separatorBuilder: (context, index) => Divider(
-                                                          height: 1,
-                                                          thickness: 1,
-                                                          color: Colors.green.shade50,
-                                                          indent: 70,
-                                                          endIndent: 16,
-                                                        ),
-                                                        itemBuilder: (context, index) {
-                                                          final doc = gruposDelUsuario[index];
-                                                          final data = doc.data() as Map<String, dynamic>;
-                                                          final name = data['name'] as String? ?? 'Grupo sem nome';
-                                                          
-                                                          return Material(
-                                                            color: Colors.transparent,
-                                                            child: InkWell(
-                                                              onTap: () {
-                                                                Navigator.pushNamed(
-                                                                  context,
-                                                                  '/groups/${doc.id}',
-                                                                );
-                                                              },
-                                                              child: Padding(
-                                                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                      width: 45,
-                                                                      height: 45,
-                                                                      decoration: BoxDecoration(
-                                                                        color: Colors.white,
-                                                                        shape: BoxShape.circle,
-                                                                        boxShadow: [
-                                                                          BoxShadow(
-                                                                            color: const Color(0xFF4CAF50).withOpacity(0.3),
-                                                                            blurRadius: 8,
-                                                                            offset: const Offset(0, 3),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      child: const Center(
-                                                                        child: Icon(
-                                                                          Icons.group_rounded,
-                                                                          color: Color(0xFF4CAF50),
-                                                                          size: 24,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(width: 16),
-                                                                    Expanded(
-                                                                      child: Text(
-                                                                        name,
-                                                                        style: const TextStyle(
-                                                                          fontWeight: FontWeight.w600,
-                                                                          fontSize: 16,
-                                                                          color: Color(0xFF2E7D32),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    Container(
-                                                                      padding: const EdgeInsets.all(8),
-                                                                      decoration: BoxDecoration(
-                                                                        color: Colors.white,
-                                                                        shape: BoxShape.circle,
-                                                                      ),
-                                                                      child: const Icon(
-                                                                        Icons.arrow_forward_ios,
-                                                                        color: Color(0xFF4CAF50),
-                                                                        size: 16,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                ),
-                                              ),
-                                
-                                              const SizedBox(height: 16),
-                                              
-                                              // Botón para unirse a otro grupo - nuevo diseño
-                                              Container(
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
-                                                  gradient: LinearGradient(
-                                                    colors: [Colors.white, const Color(0xFFF1F8E9)],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                ),
-                                                child: Material(
-                                                  color: Colors.transparent,
-                                                  child: InkWell(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    onTap: () {
-                                                      Navigator.pushNamed(context, '/groups');
-                                                    },
-                                                    child: Center(
-                                                      child: Row(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          Icon(
-                                                            Icons.add_circle,
-                                                            color: Color(0xFF4CAF50),
-                                                            size: 20,
-                                                          ),
-                                                          SizedBox(width: 8),
-                                                          Flexible(
-                                                            child: Text(
-                                                              'Juntar-se a outro Grupo',
-                                                              style: TextStyle(
-                                                                color: Color(0xFF4CAF50),
-                                                                fontWeight: FontWeight.bold,
-                                                                fontSize: 15,
-                                                              ),
-                                                              overflow: TextOverflow.ellipsis,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                      */
-                                      
-                                      // Mantener el botón "Juntar-se a outro Grupo"
-                                      const SizedBox(height: 16), // Espacio antes del botón
-                                      Container(
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
-                                          gradient: LinearGradient(
-                                            colors: [Colors.white, const Color(0xFFF1F8E9)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                        ),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(12),
-                                            onTap: () {
-                                              Navigator.pushNamed(context, '/groups');
-                                            },
-                                            child: Center(
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.add_circle,
-                                                    color: Color(0xFF4CAF50),
-                                                    size: 20,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Flexible(
-                                                    child: Text(
-                                                      'Juntar-se a outro Grupo',
-                                                      style: TextStyle(
-                                                        color: Color(0xFF4CAF50),
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 15,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  // Si NO pertenece a ningún grupo - nuevo diseño
-                                  return Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade50,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey.withOpacity(0.2),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.group,
-                                              color: Colors.grey.shade400,
-                                              size: 35,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        Text(
-                                          'Você não pertence a nenhum grupo',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Junte-se a um grupo para participar da vida comunitária',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 24),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          height: 50,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF4CAF50),
-                                              foregroundColor: Colors.white,
-                                              elevation: 0,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pushNamed(context, '/groups');
-                                            },
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
-                                                SizedBox(width: 8),
-                                                Flexible(
-                                                  child: Text(
-                                                    'Juntar-se a um Grupo',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                          );
+                        },
+                      );
+                    },
                   ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                // --- NUEVA SECCIÓN DE ADMINISTRACIÓN (Solo para Pastores) ---
-                if (_isPastor) ...[
+                  
                   const SizedBox(height: 24),
+
+                  // Sección de Ministerios y Grupos - NUEVO DISEÑO
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -1908,11 +1194,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header de la sección admin (Estilo unificado)
+                        // Header con estilo
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.08), // Color base para admin
+                            color: AppColors.primary.withOpacity(0.08),
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
@@ -1935,278 +1221,954 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                                 child: Icon(
-                                  Icons.admin_panel_settings_outlined,
-                                  color: AppColors.primary, 
+                                  Icons.people_outline,
+                                  color: AppColors.primary,
                                   size: 24,
                                 ),
                               ),
                               const SizedBox(width: 15),
                               Text(
-                    'Administração',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                                  color: AppColors.primary, 
+                                'Participação',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
                                   letterSpacing: 0.5,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        // --- Lista de Opciones Administrativas --- 
                         
-                        // 1. Gerenciar Tela Inicial (Nueva Opción)
-                        _buildAdminListTile(
-                          icon: Icons.view_quilt_outlined,
-                          title: 'Gerenciar Tela Inicial',
-                      onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen()),
-                            );
-                          },
-                        ),
-                        
-                        // 2. Gerenciar Páginas (Contenido)
-                        _buildAdminListTile(
-                          icon: Icons.edit_document, 
-                          title: 'Gerenciar Páginas',
-                          subtitle: 'Criar e editar conteúdo informativo',
-                          onTap: () => Navigator.pushNamed(context, '/admin/manage-pages'), // <-- Usar pushNamed como antes
-                        ),
-                        
-                        // 3. Gerenciar Disponibilidade
-                         _buildAdminListTile(
-                          icon: Icons.event_available, 
-                          title: 'Gerenciar Disponibilidade',
-                          subtitle: 'Configure seus horários para aconselhamento',
-                          onTap: () => Navigator.pushNamed(context, '/counseling/pastor-availability'), // <-- Usar pushNamed como antes
-                        ),
-
-                        // 4. Gerenciar Campos de Perfil (Descomentado y Corregido)
-                        _buildAdminListTile(
-                          icon: Icons.list_alt,
-                          title: 'Gerenciar Campos de Perfil',
-                          subtitle: 'Configure os campos adicionais para os usuários',
-                      onTap: () {
-                             Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => const ProfileFieldsAdminScreen()), // <-- Nombre de clase corregido
-                             );
-                           },
-                        ),
-                        
-                        // 5. Gerenciar Papéis
-                        _buildAdminListTile(
-                           icon: Icons.admin_panel_settings,
-                           title: 'Gerenciar Papéis',
-                           subtitle: 'Atribua papéis de pastor a outros usuários',
-                      onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const UserRoleManagementScreen()), // <-- Correcto con push(MaterialPageRoute...)
-                            );
-                           },
-                         ),
-                         
-                        // 6. Gerenciar Anúncios
-                        _buildAdminListTile(
-                          icon: Icons.campaign, 
-                          title: 'Gerenciar Anúncios',
-                          subtitle: 'Crie e edite anúncios para a igreja',
-                          onTap: () => _showCreateAnnouncementModal(context), // <-- Correcto con Modal
-                        ),
-                        
-                        // 7. Gerenciar Vídeos (Restaurado con pushNamed)
-                         _buildAdminListTile(
-                           icon: Icons.video_library, 
-                           title: 'Gerenciar Vídeos',
-                           subtitle: 'Administre as seções e vídeos da igreja',
-                           onTap: () => Navigator.pushNamed(context, '/videos/manage'), // <-- Navegación corregida
-                         ),
-
-                         _buildAdminListTile(
-                           icon: Icons.volunteer_activism,
-                           title: 'Gerenciar Doações',
-                           subtitle: 'Configure a seção e formas de doação',
-                           onTap: () {
-                             Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => const ManageDonationsScreen()),
-                             );
-                           },
-                         ), 
-
-                        // Añadir la gestión de transmisiones en vivo aquí
-                        _buildAdminListTile(
-                           icon: Icons.live_tv_outlined,
-                           title: 'Gerenciar Transmissões Ao Vivo',
-                           subtitle: 'Criar, editar e controlar transmissões',
-                           onTap: () {
-                             Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen()), // Navegación actualizada
-                              );
-                           },
-                         ),
-
-                        // 8. Administrar Cultos (Restaurado con pushNamed)
-                         _buildAdminListTile(
-                           icon: Icons.church,
-                           title: 'Administrar Cultos',
-                           subtitle: 'Gerenciar cultos, ministérios e canções',
-                           onTap: () => Navigator.pushNamed(context, '/cults'), // <-- Navegación corregida
-                         ),
-                      
-                         
-                        // 10. Criar Ministério
-                        _buildAdminListTile(
-                          icon: Icons.add_business_outlined, 
-                          title: 'Criar Ministério',
-                          onTap: () => _showCreateMinistryModal(context), // <-- Correcto con Modal
-                        ),
-                        
-                        // 11. Criar Grupo
-                        _buildAdminListTile(
-                          icon: Icons.group_add_outlined, 
-                          title: 'Criar Grupo',
-                          onTap: () => _showCreateGroupModal(context), // <-- Correcto con Modal
-                        ),
-                        
-                        // 12. Solicitações de Aconselhamento
-                        _buildAdminListTile(
-                           icon: Icons.support_agent, 
-                           title: 'Solicitações de Aconselhamento',
-                           subtitle: 'Gerencie as solicitações dos membros',
-                           onTap: () => Navigator.pushNamed(context, '/counseling/pastor-requests'), // <-- Usar pushNamed como antes
-                         ),
-                         
-                        // 13. Orações Privadas (Restaurado con pushNamed)
-                         _buildAdminListTile(
-                            icon: Icons.favorite_outline, 
-                            title: 'Orações Privadas',
-                            subtitle: 'Gerencie as solicitações de oração privada',
-                            onTap: () => Navigator.pushNamed(context, '/prayers/pastor-private-requests'), // <-- Navegación corregida
-                          ),
-                         
-                        // 14. Enviar Notificação Push
-                        _buildAdminListTile(
-                           icon: Icons.notifications_active_outlined,
-                           title: 'Enviar Notificação Push',
-                           subtitle: 'Envie mensagens aos membros da igreja',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                               MaterialPageRoute(builder: (context) => const PushNotificationScreen()), // <-- Correcto con push(MaterialPageRoute...)
-                            );
-                          },
-                        ),
-                
-                        // --- Subsección: Estadísticas y Asistencia ---
-                FutureBuilder<bool>(
-                  future: _isUserLeader(),
-                  builder: (context, leaderSnapshot) {
-                             if (!leaderSnapshot.hasData || leaderSnapshot.data != true) {
-                               return const SizedBox.shrink();
-                    }
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                                const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20, bottom: 8),
-                                  child: Text('Relatórios e Assistência', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
-                                ),
-                                
-                                // 15. Gerenciar Assistência a Eventos (Descomentado - Ajustar navegación si es necesario)
-                                 _buildAdminListTile(
-                                   icon: Icons.event_available, 
-                                   title: 'Gerenciar Assistência a Eventos',
-                                   subtitle: 'Verificar assistência e gerar relatórios',
-                                   onTap: () => Navigator.pushNamed(context, '/admin/events'), // Mantengo pushNamed aquí, verifica si existe
-                                 ),
-                                
-                                // 16. Estatísticas de Ministérios
-                                _buildAdminListTile(
-                                  icon: Icons.bar_chart_outlined,
-                                  title: 'Estatísticas de Ministérios',
-                                  subtitle: 'Análise de participação e membros',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                      MaterialPageRoute(builder: (context) => const MinistryMembersStatsScreen()), // <-- Correcto
-                                    );
-                                  },
-                                ),
-
-                                // 17. Estatísticas de Grupos
-                                _buildAdminListTile(
-                                  icon: Icons.pie_chart_outline, 
-                                  title: 'Estatísticas de Grupos',
-                                  subtitle: 'Análise de participação e membros',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                      MaterialPageRoute(builder: (context) => const GroupMembersStatsScreen()), // <-- Correcto
-                                    );
-                                  },
-                                ),
-
-                                // 18. Estatísticas de Serviços/Escalas
-                                _buildAdminListTile(
-                                  icon: Icons.assessment_outlined, // Icono alternativo 
-                                  title: 'Estatísticas de Escalas',
-                                  subtitle: 'Análise de participação e convites',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                      MaterialPageRoute(builder: (context) => const ServicesStatsScreen()), // <-- Correcto
-                                    );
-                                  },
-                                ),
-                                
-                                // 19. Informação de Usuários (Restaurado con pushNamed)
-                                 _buildAdminListTile(
-                                    icon: Icons.supervised_user_circle_outlined,
-                                    title: 'Informação de Usuários',
-                                    subtitle: 'Consultar detalhes de participação',
-                                    onTap: () => Navigator.pushNamed(context, '/admin/user-info'), // <-- Navegación corregida
+                        // Sección de ministerios
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Título de Ministerios con badge informativo
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE57373),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.work_outline,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        const Text(
+                                          'Ministérios',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                              ],
-                            );
-                          },
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              
+                              // Lista de ministerios
+                              FutureBuilder<bool>(
+                                future: _checkIfUserBelongsToAnyMinistry(),
+                                builder: (context, ministrySnapshot) {
+                                  if (ministrySnapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 20),
+                                        child: SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Color(0xFFE57373),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  
+                                  if (ministrySnapshot.hasError) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.error_outline, color: Colors.red.shade700),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              'Erro ao carregar ministérios',
+                                              style: TextStyle(
+                                                color: Colors.red.shade700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  
+                                  // Si pertenece a algún ministerio
+                                  if (ministrySnapshot.hasData && ministrySnapshot.data == true) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        // Tarjeta de servicios
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [Color(0xFFF9F9FC), Color(0xFFF3E5F5)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(16),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey.withOpacity(0.1),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(16),
+                                              onTap: () {
+                                                Navigator.pushNamed(context, '/work-services');
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(18),
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        shape: BoxShape.circle,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: const Color(0xFFE57373).withOpacity(0.3),
+                                                            blurRadius: 8,
+                                                            offset: const Offset(0, 3),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: const Center(
+                                                        child: Icon(
+                                                          Icons.workspace_premium,
+                                                          color: Color(0xFFE57373),
+                                                          size: 26,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 16),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            'Minhas Escalas',
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Color(0xFFD32F2F),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(height: 4),
+                                                          Text(
+                                                            'Gerenciar suas atribuições e convites de trabalho nos ministérios',
+                                                            style: TextStyle(
+                                                              fontSize: 13,
+                                                              color: Colors.grey.shade700,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.arrow_forward_ios,
+                                                        color: Color(0xFFE57373),
+                                                        size: 16,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 16),
+                                        
+                                        // Botón para unirse a otro ministerio
+                                        Container(
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: const Color(0xFFE57373).withOpacity(0.3)),
+                                            gradient: LinearGradient(
+                                              colors: [Colors.white, const Color(0xFFFFF8F8)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(12),
+                                              onTap: () {
+                                                Navigator.pushNamed(context, '/ministries');
+                                              },
+                                              child: Center(
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add_circle,
+                                                      color: Color(0xFFE57373),
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Flexible(
+                                                      child: Text(
+                                                        'Juntar-se a outro Ministério',
+                                                        style: TextStyle(
+                                                          color: Color(0xFFE57373),
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 15,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    // Si NO pertenece a ningún ministerio
+                                    return Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.05),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 70,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey.withOpacity(0.2),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 5),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.work_outline,
+                                                color: Colors.grey.shade400,
+                                                size: 35,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Text(
+                                            'Você não pertence a nenhum ministério',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Junte-se a um ministério para participar do serviço na igreja',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 24),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            height: 50,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFFE57373),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/ministries');
+                                              },
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
+                                                  SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      'Juntar-se a um Ministério',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                              
+                              const SizedBox(height: 32),
+                              
+                              // Título de Grupos con badge informativo
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF4CAF50),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.group,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'Grupos',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              
+                              // Consultar pertenencia a grupos
+                              FutureBuilder<bool>(
+                                future: _checkIfUserBelongsToAnyGroup(),
+                                builder: (context, groupSnapshot) {
+                                  if (groupSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 20),
+                                        child: SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  
+                                  if (groupSnapshot.hasError) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.error_outline, color: Colors.red.shade700),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              'Erro ao carregar grupos',
+                                              style: TextStyle(
+                                                color: Colors.red.shade700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  
+                                  // Si pertenece a algún grupo
+                                  if (groupSnapshot.hasData && groupSnapshot.data == true) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        // Mantener el botón "Juntar-se a outro Grupo"
+                                        const SizedBox(height: 16), // Espacio antes del botón
+                                        Container(
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
+                                            gradient: LinearGradient(
+                                              colors: [Colors.white, const Color(0xFFF1F8E9)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(12),
+                                              onTap: () {
+                                                Navigator.pushNamed(context, '/groups');
+                                              },
+                                              child: Center(
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add_circle,
+                                                      color: Color(0xFF4CAF50),
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Flexible(
+                                                      child: Text(
+                                                        'Juntar-se a outro Grupo',
+                                                        style: TextStyle(
+                                                          color: Color(0xFF4CAF50),
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 15,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    // Si NO pertenece a ningún grupo - nuevo diseño
+                                    return Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.05),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: 70,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey.withOpacity(0.2),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 5),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.group,
+                                                color: Colors.grey.shade400,
+                                                size: 35,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Text(
+                                            'Você não pertence a nenhum grupo',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Junte-se a um grupo para participar da vida comunitária',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 24),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            height: 50,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF4CAF50),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/groups');
+                                              },
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
+                                                  SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      'Juntar-se a um Grupo',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-                // --- FIN SECCIÓN ADMINISTRACIÓN ---
-
-                // Botón de Cerrar Sesión 
-                const SizedBox(height: 32),
-                Center(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.logout, color: Colors.white),
-                    label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary, // Color naranja
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-                    ),
-                    onPressed: () {
-                      try {
-                        Provider.of<AuthService>(context, listen: false).forceSignOut();
-                      } catch (e) {
-                        print("Error al cerrar sesión: $e");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error al cerrar sesión: $e"))
-                        );
-                      }
-                              },
+                  
+                  const SizedBox(height: 24),                 
+                  
+                  // --- NUEVA SECCIÓN DE ADMINISTRACIÓN (Basada en permisos) ---
+                  if (_hasAdminAccess) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header de la sección admin (Estilo unificado)
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.08), // Color base para admin
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary.withOpacity(0.2),
+                                        spreadRadius: 1,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.admin_panel_settings_outlined,
+                                    color: AppColors.primary, 
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                Text(
+                      'Administração',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                                    color: AppColors.primary, 
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                const SizedBox(height: 20),
-              ],
+                          // --- Lista de Opciones Administrativas --- 
+                          
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_donations_config',
+                            icon: Icons.volunteer_activism, 
+                            title: 'Gerenciar Doações',
+                            subtitle: 'Configure a seção e formas de doação',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageDonationsScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_livestream_config',
+                            icon: Icons.live_tv_outlined,
+                            title: 'Gerenciar Transmissões Ao Vivo',
+                            subtitle: 'Criar, editar e controlar transmissões',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_courses',
+                            icon: Icons.school, 
+                            title: 'Gerenciar Cursos Online',
+                            subtitle: 'Criar, editar e configurar cursos',
+                            onTap: () => Navigator.pushNamed(context, '/admin/courses'),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_home_sections',
+                            icon: Icons.view_quilt_outlined,
+                            title: 'Gerenciar Tela Inicial',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_pages',
+                            icon: Icons.edit_document, 
+                            title: 'Gerenciar Páginas',
+                            subtitle: 'Criar e editar conteúdo informativo',
+                            onTap: () => Navigator.pushNamed(context, '/admin/manage-pages'),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_counseling_availability',
+                            icon: Icons.event_available, 
+                            title: 'Gerenciar Disponibilidade',
+                            subtitle: 'Configure seus horários para aconselhamento',
+                            onTap: () => Navigator.pushNamed(context, '/counseling/pastor-availability'),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_profile_fields',
+                            icon: Icons.list_alt,
+                            title: 'Gerenciar Campos de Perfil',
+                            subtitle: 'Configure os campos adicionais para os usuários',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileFieldsAdminScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'assign_user_roles', // Permiso para pantalla antigua
+                            icon: Icons.admin_panel_settings,
+                            title: 'Gerenciar Papéis',
+                            subtitle: 'Atribua papéis de pastor a outros usuários',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UserRoleManagementScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_roles', // Permiso para nueva pantalla
+                            icon: Icons.assignment_ind_outlined, 
+                            title: 'Gerenciar Papéis (New)',
+                            subtitle: 'Criar/editar papéis e permissões',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageRolesScreen())),
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_announcements',
+                             icon: Icons.campaign, 
+                             title: 'Gerenciar Anúncios',
+                             subtitle: 'Crie e edite anúncios para a igreja',
+                             onTap: () => _showCreateAnnouncementModal(context),
+                           ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_videos',
+                             icon: Icons.video_library, 
+                             title: 'Gerenciar Vídeos',
+                             subtitle: 'Administre as seções e vídeos da igreja',
+                             onTap: () => Navigator.pushNamed(context, '/videos/manage'),
+                           ),
+                          _buildPermissionControlledTile( 
+                             permissionKey: 'manage_cults',
+                             icon: Icons.church,
+                             title: 'Administrar Cultos',
+                             subtitle: 'Gerenciar cultos, ministérios e canções',
+                             onTap: () => Navigator.pushNamed(context, '/cults'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'create_ministry',
+                             icon: Icons.add_business_outlined, 
+                             title: 'Criar Ministério',
+                             onTap: () => _showCreateMinistryModal(context),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'create_group',
+                             icon: Icons.group_add_outlined, 
+                             title: 'Criar Grupo',
+                             onTap: () => _showCreateGroupModal(context),
+                           ),
+                          _buildPermissionControlledTile(
+                              permissionKey: 'manage_counseling_requests',
+                              icon: Icons.support_agent, 
+                              title: 'Solicitações de Aconselhamento',
+                              subtitle: 'Gerencie as solicitações dos membros',
+                              onTap: () => Navigator.pushNamed(context, '/counseling/pastor-requests'),
+                            ),
+                          _buildPermissionControlledTile(
+                              permissionKey: 'manage_private_prayers',
+                              icon: Icons.favorite_outline, 
+                              title: 'Orações Privadas',
+                              subtitle: 'Gerencie as solicitações de oração privada',
+                              onTap: () => Navigator.pushNamed(context, '/prayers/pastor-private-requests'), 
+                            ),
+                          _buildPermissionControlledTile(
+                              permissionKey: 'send_push_notifications',
+                              icon: Icons.notifications_active_outlined,
+                              title: 'Enviar Notificação Push',
+                              subtitle: 'Envie mensagens aos membros da igreja',
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PushNotificationScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'delete_ministry',
+                             icon: Icons.delete_outline, 
+                             title: 'Eliminar Ministérios',
+                             subtitle: 'Remover ministérios existentes',
+                             onTap: () => Navigator.push(
+                               context, 
+                               MaterialPageRoute(
+                                 builder: (context) => const DeleteMinistriesScreen()
+                               )
+                             ),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'delete_group',
+                             icon: Icons.remove_circle_outline, 
+                             title: 'Eliminar Grupos',
+                             subtitle: 'Remover grupos existentes',
+                             onTap: () => Navigator.push(
+                               context, 
+                               MaterialPageRoute(
+                                 builder: (context) => const DeleteGroupsScreen()
+                               )
+                             ),
+                           ),
+                  
+                          // --- Subsección: Estadísticas y Asistencia --- 
+                          // Verificamos primero si el usuario tiene algún permiso de esta sección
+                          FutureBuilder<bool>(
+                            future: _hasAnyReportPermission(),
+                            builder: (context, snapshot) {
+                              // No mostrar nada mientras carga o si no tiene permisos
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              // Mostrar la sección solo si tiene al menos un permiso
+                              final hasAnyPermission = snapshot.data ?? false;
+                              if (!hasAnyPermission) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              // Si tiene permisos, mostrar el encabezado y los elementos
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                           const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
+                           Padding(
+                             padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
+                             child: Text('Relatórios e Assistência', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'manage_event_attendance',
+                             icon: Icons.event_available, 
+                             title: 'Gerenciar Assistência a Eventos',
+                             subtitle: 'Verificar assistência e gerar relatórios',
+                             onTap: () => Navigator.pushNamed(context, '/admin/events'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_ministry_stats',
+                             icon: Icons.bar_chart_outlined,
+                             title: 'Estatísticas de Ministérios',
+                             subtitle: 'Análise de participação e membros',
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MinistryMembersStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_group_stats',
+                             icon: Icons.pie_chart_outline, 
+                             title: 'Estatísticas de Grupos',
+                             subtitle: 'Análise de participação e membros',
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GroupMembersStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_schedule_stats',
+                             icon: Icons.assessment_outlined, 
+                             title: 'Estatísticas de Escalas',
+                             subtitle: 'Análise de participação e convites',
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_course_stats',
+                             icon: Icons.analytics_outlined,
+                             title: 'Estatísticas de Cursos',
+                             subtitle: 'Análise de inscrições e progresso',
+                             onTap: () => Navigator.pushNamed(context, '/admin/course-stats'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_user_details',
+                             icon: Icons.supervised_user_circle_outlined,
+                             title: 'Informação de Usuários',
+                             subtitle: 'Consultar detalhes de participação',
+                             onTap: () => Navigator.pushNamed(context, '/admin/user-info'),
+                           ),
+                        ],
+                              );
+                            },
+                      ),
+
+                          // --- Subsección: Gestão MyKids ---
+                          const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
+                            child: Text('Gestão MyKids', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)), // Color distintivo para el título
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_family_profiles', // Permiso específico
+                            icon: Icons.family_restroom_outlined, 
+                            title: 'Perfis Familiares',
+                            subtitle: 'Gerenciar perfis de pais e crianças',
+                            iconColor: Colors.teal.shade700, // Color del ícono
+                            onTap: () {
+                              // TODO: Navegar a la pantalla de gestión de perfiles familiares
+                              print('Navegar para Perfis Familiares');
+                            },
+                          ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_checkin_rooms', // Permiso para administrar salas
+                            icon: Icons.meeting_room_outlined, 
+                            title: 'Gerenciar Salas e Check-in', // Título actualizado para reflejar la pantalla de admin
+                            subtitle: 'Administrar salas, check-in/out e assistência',
+                            iconColor: Colors.teal.shade700, // Mantener el color del ícono
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const KidsAdminScreen()));
+                            },
+                          ),
+                          // Aquí se pueden añadir más _buildPermissionControlledTile para otras funciones de MyKids
+
+                        ],
+                    ),
+                    ),
+                  ], // <<< Fin del if (_hasAdminAccess)
+
+                  // Botón de Cerrar Sesión 
+                  const SizedBox(height: 32),
+                  Center(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.logout, color: Colors.white),
+                      label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary, // Color naranja
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                      ),
+                      onPressed: () {
+                        try {
+                          Provider.of<AuthService>(context, listen: false).forceSignOut();
+                        } catch (e) {
+                          print("Error al cerrar sesión: $e");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error al cerrar sesión: $e"))
+                          );
+                        }
+                                },
+                              ),
+                            ),
+                  
+                  // Botón de Diagnóstico (solo para administradores)
+                  if (_hasAdminAccess) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.admin_panel_settings, size: 16),
+                        label: const Text("Diagnóstico de Permisos", style: TextStyle(fontSize: 14)),
+                        onPressed: () => _showPermissionDiagnostics(context),
+                      ),
+                    ),
+                  ],
+                  
+                  const SizedBox(height: 20),
+                  
+                  // Contenedor de cambio rápido de usuario ELIMINADO
+
+                ],
+              ),
             ),
           );
         },
@@ -2214,26 +2176,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
   
-  // --- NUEVO: Helper para construir los ListTiles de admin de forma consistente ---
+  // --- NUEVO: Helper para construir ListTiles controlados por permiso ---
+  Widget _buildPermissionControlledTile({
+    required String permissionKey,
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    // <<< Añadir print para depurar si la función se llama >>>
+    print("DEBUG_PROFILE: Intentando construir Tile para permiso: $permissionKey"); 
+    
+    // El FutureBuilder existente ahora maneja todos los casos
+      return FutureBuilder<bool>(
+        future: _permissionService.hasPermission(permissionKey),
+        builder: (context, snapshot) {
+        // No mostrar nada mientras carga (evita parpadeo)
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox.shrink(); 
+          }
+        // Si hubo error, tampoco mostrar (podríamos loggear el error)
+        if (snapshot.hasError) {
+           print("Error al verificar permiso $permissionKey: ${snapshot.error}");
+           return const SizedBox.shrink(); 
+        }
+        // Mostrar el ListTile solo si tiene permiso (o es SuperUser)
+          final bool hasPerm = snapshot.data ?? false; 
+          if (hasPerm) {
+            return _buildAdminListTile(
+              icon: icon,
+              title: title,
+              subtitle: subtitle,
+              onTap: onTap,
+              iconColor: iconColor,
+            );
+          } else {
+          // Si no tiene permiso, no mostrar nada
+            return const SizedBox.shrink();
+          }
+        },
+      );
+  }
+
+  // --- Helper original para la apariencia del ListTile ---
+  // (Sin cambios)
   Widget _buildAdminListTile({
     required IconData icon,
     required String title,
     String? subtitle,
     required VoidCallback onTap,
-    Color? iconColor, // Opcional para mantener colores específicos si se desea
+    Color? iconColor,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          leading: Icon(icon, color: iconColor ?? AppColors.primary), // Usar color primario por defecto
+          leading: Icon(icon, color: iconColor ?? AppColors.primary), 
           title: Text(title, style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.w500)),
           subtitle: subtitle != null ? Text(subtitle, style: AppTextStyles.caption) : null,
           trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           onTap: onTap,
           dense: true,
         ),
-        const Divider(height: 1, indent: 70, endIndent: 16), // Ajustar indentación si el icono cambia de tamaño
+        const Divider(height: 1, indent: 70, endIndent: 16),
       ],
     );
   }
@@ -2913,5 +2919,572 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     // Devolver 'BR' como default si no se encuentra o es nulo
     return 'BR';
+  }
+
+  // Método para depuración de permisos
+  void _showPermissionDiagnostics(BuildContext context) async {
+    try {
+      final Map<String, bool> allPermissions = await _permissionService.getAllPermissions();
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      
+      if (!mounted || userId == null) return;
+      
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        builder: (context) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          expand: false,
+          builder: (context, scrollController) => Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Diagnóstico de Permisos',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              // Lista de permisos
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // Obtener datos del usuario actual
+                    FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(userId)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (!snapshot.hasData || !snapshot.data!.exists) {
+                          return const Text('No hay datos de usuario');
+                        }
+                        
+                        final userData = snapshot.data!.data() as Map<String, dynamic>;
+                        final roleId = userData['roleId'] as String?;
+                        final isSuperUser = userData['isSuperUser'] == true;
+                        
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Usuario: ${userData['displayName'] ?? 'Sin nombre'}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text('Email: ${userData['email'] ?? 'Sin email'}'),
+                                Text('Role ID: ${roleId ?? 'Sin rol'}'),
+                                Text('SuperUser: ${isSuperUser ? 'Sí' : 'No'}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    // Título de la sección
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        'Permisos Disponibles',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    
+                    // Lista de permisos con su estado
+                    ...allPermissions.entries.map((entry) {
+                      final String permissionKey = entry.key;
+                      final bool hasPermission = entry.value;
+                      
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        color: hasPermission ? Colors.green.shade50 : Colors.grey.shade100,
+                        child: ListTile(
+                          title: Text(
+                            permissionKey,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          trailing: Icon(
+                            hasPermission ? Icons.check_circle : Icons.cancel,
+                            color: hasPermission ? Colors.green : Colors.red.shade300,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    
+                    // Sección de diagnóstico de rol
+                    FutureBuilder<String?>(
+                      future: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userId)
+                            .get()
+                            .then((doc) => doc.data()?['roleId'] as String?),
+                      builder: (context, roleIdSnapshot) {
+                        if (roleIdSnapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        
+                        final String? roleId = roleIdSnapshot.data;
+                        if (roleId == null || roleId.isEmpty) {
+                          return const Card(
+                            margin: EdgeInsets.only(top: 16),
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text('No hay información de rol disponible'),
+                            ),
+                          );
+                        }
+                        
+                        return FutureBuilder<dynamic>(
+                          future: _roleService.getRoleById(roleId),
+                          builder: (context, roleSnapshot) {
+                            if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            
+                            final role = roleSnapshot.data;
+                            if (role == null) {
+                              return Card(
+                                margin: const EdgeInsets.only(top: 16),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text('Rol no encontrado: $roleId'),
+                                ),
+                              );
+                            }
+                            
+                            return Card(
+                              margin: const EdgeInsets.only(top: 16),
+                              color: Colors.blue.shade50,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Rol: ${role.name}',
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    if (role.description != null && role.description!.isNotEmpty)
+                                      Text('Descripción: ${role.description}'),
+                                    const SizedBox(height: 8),
+                                    const Text('Permisos del rol:'),
+                                    const SizedBox(height: 4),
+                                    if (role.permissions.isEmpty)
+                                      const Text('Este rol no tiene permisos asignados')
+                                    else
+                                      ...role.permissions.map((permission) => Padding(
+                                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.check, size: 16, color: Colors.green),
+                                            const SizedBox(width: 8),
+                                            Text(permission),
+                                          ],
+                                        ),
+                                      )),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al obtener diagnóstico: $e')),
+        );
+      }
+    }
+  }
+
+  // Verificar si el usuario tiene algún permiso relacionado con informes y estadísticas
+  Future<bool> _hasAnyReportPermission() async {
+    // Lista de permisos relacionados con informes y estadísticas
+    final reportPermissions = [
+      'manage_event_attendance',
+      'view_ministry_stats',
+      'view_group_stats',
+      'view_schedule_stats',
+      'view_user_details'
+    ];
+    
+    // Comprobamos primero si es superusuario
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    
+    if (userDoc.exists && userDoc.data()?['isSuperUser'] == true) {
+      return true;
+    }
+    
+    // Verificamos cada permiso de la lista
+    for (final permission in reportPermissions) {
+      if (await _permissionService.hasPermission(permission)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  
+  // Verifica si el usuario puede eliminar grupos o ministerios
+  Future<bool> _canDeleteGroupsOrMinistries() async {
+    try {
+      // Verificar si es superusuario primero
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .get();
+          
+      if (userDoc.exists && userDoc.data()?['isSuperUser'] == true) {
+        return true;
+      }
+      
+      // Verificar permisos específicos
+      final canDeleteGroups = await _permissionService.hasPermission('delete_group');
+      final canDeleteMinistries = await _permissionService.hasPermission('delete_ministry');
+      
+      return canDeleteGroups || canDeleteMinistries;
+    } catch (e) {
+      print('Error al verificar permisos de eliminación: $e');
+      return false;
+    }
+  }
+  
+  // Construye la pestaña para eliminar grupos
+  Widget _buildDeleteGroupsTab() {
+    return FutureBuilder<bool>(
+      future: _permissionService.hasPermission('delete_group'),
+      builder: (context, permissionSnapshot) {
+        final bool canDeleteGroups = permissionSnapshot.data ?? false;
+        
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('groups').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error al cargar grupos: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
+            
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.group_off, size: 64, color: Colors.grey.shade400),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No hay grupos disponibles',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
+            final groups = snapshot.data!.docs;
+            
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: groups.length,
+              separatorBuilder: (context, index) => const Divider(),
+              itemBuilder: (context, index) {
+                final group = groups[index];
+                final groupData = group.data() as Map<String, dynamic>;
+                final groupName = groupData['name'] as String? ?? 'Grupo sin nombre';
+                final groupId = group.id;
+                
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.shade100,
+                    child: const Icon(Icons.group, color: Colors.blue),
+                  ),
+                  title: Text(groupName),
+                  subtitle: Text('ID: $groupId'),
+                  trailing: canDeleteGroups
+                      ? IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _confirmDeleteGroup(groupId, groupName),
+                        )
+                      : const Icon(Icons.lock, color: Colors.grey),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  // Construye la pestaña para eliminar ministerios
+  Widget _buildDeleteMinistriesTab() {
+    return FutureBuilder<bool>(
+      future: _permissionService.hasPermission('delete_ministry'),
+      builder: (context, permissionSnapshot) {
+        final bool canDeleteMinistries = permissionSnapshot.data ?? false;
+        
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('ministries').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error al cargar ministerios: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
+            
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.work_off, size: 64, color: Colors.grey.shade400),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No hay ministerios disponibles',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
+            final ministries = snapshot.data!.docs;
+            
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: ministries.length,
+              separatorBuilder: (context, index) => const Divider(),
+              itemBuilder: (context, index) {
+                final ministry = ministries[index];
+                final ministryData = ministry.data() as Map<String, dynamic>;
+                final ministryName = ministryData['name'] as String? ?? 'Ministerio sin nombre';
+                final ministryId = ministry.id;
+                
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.amber.shade100,
+                    child: const Icon(Icons.work_outline, color: Colors.amber),
+                  ),
+                  title: Text(ministryName),
+                  subtitle: Text('ID: $ministryId'),
+                  trailing: canDeleteMinistries
+                      ? IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _confirmDeleteMinistry(ministryId, ministryName),
+                        )
+                      : const Icon(Icons.lock, color: Colors.grey),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  // Confirmar y eliminar un grupo
+  Future<void> _confirmDeleteGroup(String groupId, String groupName) async {
+    final bool confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Grupo'),
+        content: RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black87, fontSize: 16),
+            children: [
+              const TextSpan(text: '¿Está seguro que desea eliminar el grupo '),
+              TextSpan(
+                text: groupName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(text: '?'),
+              const TextSpan(
+                text: '\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    ) ?? false;
+    
+    if (confirm && mounted) {
+      setState(() => _isLoading = true);
+      
+      try {
+        await FirebaseFirestore.instance.collection('groups').doc(groupId).delete();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Grupo "$groupName" eliminado con éxito'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al eliminar el grupo: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
+  }
+  
+  // Confirmar y eliminar un ministerio
+  Future<void> _confirmDeleteMinistry(String ministryId, String ministryName) async {
+    final bool confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Ministerio'),
+        content: RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black87, fontSize: 16),
+            children: [
+              const TextSpan(text: '¿Está seguro que desea eliminar el ministerio '),
+              TextSpan(
+                text: ministryName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(text: '?'),
+              const TextSpan(
+                text: '\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    ) ?? false;
+    
+    if (confirm && mounted) {
+      setState(() => _isLoading = true);
+      
+      try {
+        await FirebaseFirestore.instance.collection('ministries').doc(ministryId).delete();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Ministerio "$ministryName" eliminado con éxito'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al eliminar el ministerio: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
   }
 } 

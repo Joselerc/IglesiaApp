@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/service.dart';
 import './cults_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../services/permission_service.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -14,39 +15,15 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  bool _isPastor = false;
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
-  @override
-  void initState() {
-    super.initState();
-    _checkPastorStatus();
-  }
+  final PermissionService _permissionService = PermissionService();
   
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-  
-  // Verifica si el usuario actual es un pastor
-  Future<void> _checkPastorStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      
-      if (userDoc.exists) {
-        final userData = userDoc.data() as Map<String, dynamic>;
-        setState(() {
-          _isPastor = userData['role'] == 'pastor';
-        });
-      }
-    }
   }
   
   // Muestra un diálogo para crear un nuevo servicio
@@ -216,6 +193,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
   // Crea un nuevo servicio en Firestore
   Future<void> _createService() async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para criar serviços')),
+        );
+        return;
+      }
+
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
       
@@ -303,6 +289,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
   // Actualiza un servicio existente en Firestore
   Future<void> _updateService(String serviceId, String newName, String newDescription) async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para atualizar serviços')),
+        );
+        return;
+      }
+
       await FirebaseFirestore.instance.collection('services').doc(serviceId).update({
         'name': newName,
         'description': newDescription,
@@ -349,6 +344,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
   // Elimina un servicio y todo su contenido relacionado
   Future<void> _deleteService(String serviceId) async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para excluir serviços')),
+        );
+        return;
+      }
+
       // Mostrar indicador de carga
       showDialog(
         context: context,
@@ -492,97 +496,124 @@ class _ServicesScreenState extends State<ServicesScreen> {
   
   @override
   Widget build(BuildContext context) {
-    // Si el usuario no es pastor, mostrar mensaje de acceso restringido
-    if (!_isPastor) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Serviços'),
-          backgroundColor: AppColors.primary,
-        ),
-        body: const Center(
-          child: Text('Apenas pastores podem acessar esta seção'),
-        ),
-      );
-    }
-    
     // Interfaz principal para pastores
     return Scaffold(
       appBar: AppBar(
         title: const Text('Serviços'),
         backgroundColor: AppColors.primary,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('services')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_cults'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Não há serviços disponíveis'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _showCreateServiceDialog,
-                    child: const Text('Criar Serviço'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar cultos.', textAlign: TextAlign.center),
+                  ],
+                ),
               ),
             );
           }
           
-          final services = snapshot.data!.docs.map((doc) => Service.fromFirestore(doc)).toList();
-          
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: services.length,
-            itemBuilder: (context, index) {
-              final service = services[index];
+          // Contenido original cuando tiene permiso
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('services')
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
               
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                child: ListTile(
-                  leading: IconButton(
-                    icon: Icon(Icons.edit, color: AppColors.primary.withOpacity(0.7)),
-                    tooltip: 'Editar Serviço',
-                    onPressed: () => _showEditServiceDialog(service),
-                  ),
-                  title: Text(
-                    service.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: service.description.isNotEmpty
-                      ? Text(service.description)
-                      : null,
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CultsScreen(service: service),
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Não há serviços disponíveis'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _showCreateServiceDialog,
+                        child: const Text('Criar Serviço'),
                       ),
-                    );
-                  },
-                  onLongPress: () => _showDeleteServiceDialog(service),
-                ),
+                    ],
+                  ),
+                );
+              }
+              
+              final services = snapshot.data!.docs.map((doc) => Service.fromFirestore(doc)).toList();
+              
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: services.length,
+                itemBuilder: (context, index) {
+                  final service = services[index];
+                  
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: ListTile(
+                      leading: IconButton(
+                        icon: Icon(Icons.edit, color: AppColors.primary.withOpacity(0.7)),
+                        tooltip: 'Editar Serviço',
+                        onPressed: () => _showEditServiceDialog(service),
+                      ),
+                      title: Text(
+                        service.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: service.description.isNotEmpty
+                          ? Text(service.description)
+                          : null,
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CultsScreen(service: service),
+                          ),
+                        );
+                      },
+                      onLongPress: () => _showDeleteServiceDialog(service),
+                    ),
+                  );
+                },
               );
             },
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateServiceDialog,
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('manage_cults'),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data == true) {
+            return FloatingActionButton(
+              onPressed: _showCreateServiceDialog,
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }

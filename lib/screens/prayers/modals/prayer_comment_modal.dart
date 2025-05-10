@@ -6,10 +6,11 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../models/prayer.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../services/permission_service.dart';
 
 class PrayerCommentModal extends StatefulWidget {
   final Prayer prayer;
-  final bool currentUserIsPastor;
+  final bool currentUserIsPastor; // Mantenemos por compatibilidad pero no lo usaremos
 
   const PrayerCommentModal({
     super.key, 
@@ -23,7 +24,9 @@ class PrayerCommentModal extends StatefulWidget {
 
 class _PrayerCommentModalState extends State<PrayerCommentModal> {
   final _commentController = TextEditingController();
+  final _permissionService = PermissionService(); // Servicio de permisos
   bool _isSubmitting = false;
+  bool _hasAssignPermission = false; // Permiso para asignar oraciones a cultos
   
   // Referencia a la colección de comentarios
   late final CollectionReference _commentsCollection;
@@ -40,6 +43,19 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
     timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages()); 
     _prayerRef = FirebaseFirestore.instance.collection('prayers').doc(widget.prayer.id);
     _commentsCollection = FirebaseFirestore.instance.collection('prayer_comments');
+    
+    // Verificar permisos al iniciar
+    _checkPermissions();
+  }
+
+  // Verificar si el usuario tiene permiso para gestionar oraciones
+  Future<void> _checkPermissions() async {
+    final hasPermission = await _permissionService.hasPermission('assign_cult_to_prayer');
+    if (mounted) {
+      setState(() {
+        _hasAssignPermission = hasPermission;
+      });
+    }
   }
 
   @override
@@ -95,8 +111,8 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
     final authorRef = commentDoc['authorId'] as DocumentReference?;
     final isAuthor = authorRef?.id == currentUser?.uid;
 
-    // Permitir eliminar si el usuario es autor O es pastor
-    if (currentUser == null || (!isAuthor && !widget.currentUserIsPastor)) {
+    // Permitir eliminar si el usuario es autor O tiene el permiso assign_cult_to_prayer
+    if (currentUser == null || (!isAuthor && !_hasAssignPermission)) {
        if(mounted){
          ScaffoldMessenger.of(context).showSnackBar(
             // Mensaje genérico de permiso
@@ -407,7 +423,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
             ],
           ),
         ),
-        if (isAuthor || widget.currentUserIsPastor)
+        if (isAuthor || _hasAssignPermission)
           IconButton(
              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
              padding: const EdgeInsets.only(left: 8, top: 0, bottom: 0, right: 0),

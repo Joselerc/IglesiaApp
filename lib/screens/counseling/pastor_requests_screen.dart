@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../services/permission_service.dart';
 
 class PastorRequestsScreen extends StatefulWidget {
   const PastorRequestsScreen({super.key});
@@ -17,6 +18,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
   late TabController _tabController;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final PermissionService _permissionService = PermissionService();
   
   bool _isLoading = false;
   String _pastorId = '';
@@ -44,6 +46,21 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
   }
   
   Future<void> _updateAppointmentStatus(String appointmentId, String status) async {
+    // Verificar permiso antes de ejecutar la acción
+    bool hasPermission = await _permissionService.hasPermission('manage_counseling_requests');
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Você não tem permissão para gerenciar solicitações de aconselhamento'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    
     setState(() {
       _isLoading = true;
     });
@@ -457,35 +474,82 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
   
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Solicitações de Aconselhamento'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          indicatorWeight: 3.0,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.8),
-          labelStyle: AppTextStyles.button.copyWith(fontSize: 14),
-          tabs: const [
-            Tab(text: 'Pendentes'),
-            Tab(text: 'Confirmados'),
-            Tab(text: 'Concluídos'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildAppointmentList('pending'),
-          _buildAppointmentList('confirmed'),
-          _buildAppointmentList('completed'),
-        ],
-      ),
+    return FutureBuilder<bool>(
+      future: _permissionService.hasPermission('manage_counseling_requests'),
+      builder: (context, permissionSnapshot) {
+        if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        if (permissionSnapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Solicitações de Aconselhamento'),
+              backgroundColor: AppColors.primary,
+            ),
+            body: Center(
+              child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'),
+            ),
+          );
+        }
+        
+        if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Solicitações de Aconselhamento'),
+              backgroundColor: AppColors.primary,
+            ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar solicitações de aconselhamento.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            title: const Text('Solicitações de Aconselhamento'),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 2,
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: Colors.white,
+              indicatorWeight: 3.0,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white.withOpacity(0.8),
+              labelStyle: AppTextStyles.button.copyWith(fontSize: 14),
+              tabs: const [
+                Tab(text: 'Pendentes'),
+                Tab(text: 'Confirmados'),
+                Tab(text: 'Concluídos'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildAppointmentList('pending'),
+              _buildAppointmentList('confirmed'),
+              _buildAppointmentList('completed'),
+            ],
+          ),
+        );
+      },
     );
   }
 } 

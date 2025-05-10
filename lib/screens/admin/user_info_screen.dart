@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user_model.dart';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import 'user_detail_screen.dart';
 
@@ -13,14 +14,16 @@ class UserInfoScreen extends StatefulWidget {
 
 class _UserInfoScreenState extends State<UserInfoScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final PermissionService _permissionService = PermissionService();
   List<UserModel> _users = [];
   List<UserModel> _filteredUsers = [];
   bool _isLoading = false;
+  Future<void>? _fetchUsersFuture;
   
   @override
   void initState() {
     super.initState();
-    _fetchUsers();
+    _fetchUsersFuture = _fetchUsers();
   }
 
   @override
@@ -102,7 +105,65 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
+      body: FutureBuilder<bool>(
+        future: _permissionService.hasPermission('view_user_details'),
+        builder: (context, permissionSnapshot) {
+          if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (permissionSnapshot.hasError) {
+            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+          }
+          
+          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                      Icon(
+                        Icons.visibility_off,
+                        size: 64,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Acesso não autorizado',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Você não tem permissão para visualizar detalhes de usuários.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                   ],
+                 ),
+              ),
+            );
+          }
+          
+          return FutureBuilder<void>(
+             future: _fetchUsersFuture,
+             builder: (context, dataSnapshot) {
+                if (_isLoading) {
+                   return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    );
+                }
+             
+                return Column(
         children: [
           Container(
             decoration: BoxDecoration(
@@ -152,13 +213,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
-                  )
-                : _filteredUsers.isEmpty
+                      child: _filteredUsers.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -277,6 +332,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       ),
           ),
         ],
+                );
+             }
+          );
+        },
       ),
     );
   }

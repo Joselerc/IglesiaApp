@@ -21,6 +21,9 @@ import 'screens/admin/culto_stats_screen.dart';
 import 'screens/prayers/public_prayer_screen.dart';
 import 'screens/prayers/private_prayer_screen.dart';
 import 'screens/prayers/pastor_private_prayers_screen.dart';
+import 'screens/courses/courses_screen.dart';
+import 'screens/courses/course_detail_screen.dart';
+import 'screens/courses/lesson_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'services/event_service.dart';
@@ -53,6 +56,13 @@ import 'theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/admin/manage_pages_screen.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'screens/admin/manage_courses_screen.dart';
+import 'screens/admin/course_stats_screen.dart';
+import 'screens/admin/course_enrollment_stats_screen.dart';
+import 'screens/admin/course_progress_stats_screen.dart';
+import 'screens/admin/course_completion_stats_screen.dart';
+import 'screens/admin/course_milestone_stats_screen.dart';
+import 'screens/admin/course_detail_stats_screen.dart';
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -159,6 +169,27 @@ class MyApp extends StatelessWidget {
           '/admin/user-info': (context) => const UserInfoScreen(),
           '/design-reference': (context) => const DesignReferenceScreen(),
           '/admin/manage-pages': (context) => const ManagePagesScreen(),
+          '/admin/courses': (context) => const ManageCoursesScreen(),
+          '/admin/course-stats': (context) => const CourseStatsScreen(),
+          '/admin/course-stats/enrollments': (context) => const CourseEnrollmentStatsScreen(),
+          '/admin/course-stats/progress': (context) => const CourseProgressStatsScreen(),
+          '/admin/course-stats/completion': (context) => const CourseCompletionStatsScreen(),
+          '/admin/course-stats/milestones': (context) => const CourseMilestoneStatsScreen(),
+          '/admin/course-stats/detail': (context) {
+            final courseId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+            return CourseDetailStatsScreen(courseId: courseId);
+          },
+          '/courses': (context) => const CoursesScreen(),
+          '/courses/detail': (context) {
+            final courseId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+            return CourseDetailScreen(courseId: courseId);
+          },
+          '/courses/lesson': (context) {
+            final args = ModalRoute.of(context)?.settings.arguments as Map<String, String>? ?? {};
+            final courseId = args['courseId'] ?? '';
+            final lessonId = args['lessonId'] ?? '';
+            return LessonScreen(courseId: courseId, lessonId: lessonId);
+          },
         },
         onGenerateRoute: (settings) {
           // Manejar rutas dinámicas

@@ -3,10 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import '../models/ticket_model.dart';
 import '../models/ticket_registration_model.dart';
+import '../services/permission_service.dart';
 
 class TicketService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final PermissionService _permissionService = PermissionService();
   final uuid = Uuid();
 
   // Referencia a la colección de eventos
@@ -31,6 +33,15 @@ class TicketService {
       if (currentUser == null) {
         throw Exception('Usuario no autenticado');
       }
+      
+      // Verificar si el usuario tiene permiso para crear tickets
+      final isPastor = await _isPastor(currentUser.uid);
+      final hasPermission = await _permissionService.hasPermission('manage_event_tickets');
+      
+      if (!isPastor && !hasPermission) {
+        print('DEBUG: createTicket - Usuario sin permiso para crear tickets');
+        throw Exception('No tienes permiso para crear tickets');
+      }
 
       // Asegurarse de que el creador se establezca correctamente
       final Map<String, dynamic> ticketData = ticket.toMap();
@@ -51,6 +62,21 @@ class TicketService {
     } catch (e) {
       print('Error al crear el ticket: $e');
       throw e;
+    }
+  }
+
+  // Método auxiliar para verificar si el usuario es pastor
+  Future<bool> _isPastor(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        return userData['role'] == 'pastor';
+      }
+      return false;
+    } catch (e) {
+      print('Error al verificar si es pastor: $e');
+      return false;
     }
   }
 

@@ -17,6 +17,7 @@ import '../widgets/home/events_section.dart';
 import '../widgets/home/counseling_section.dart';
 import '../widgets/home/custom_page_list_section.dart';
 import '../widgets/home/videos_section.dart';
+import '../widgets/home/courses_section.dart';
 import '../models/home_screen_section.dart';
 import '../widgets/home/live_stream_home_section.dart';
 import '../widgets/home/donations_section.dart';
@@ -360,10 +361,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Mapea los documentos
                     final sections = snapshot.hasData
                       ? snapshot.data!.docs
-                          .map((doc) => HomeScreenSection.fromFirestore(doc))
+                        .map((doc) => HomeScreenSection.fromFirestore(doc))
                           .toList()
                       : <HomeScreenSection>[];
-
+                    
                     // Filtrar secciones activas aquí por si acaso (aunque el query ya lo hace)
                     final activeSections = sections.where((s) => s.isActive).toList();
                     print('🔍 HomeScreen: Secciones activas cargadas: ${activeSections.map((s) => s.type).toList()}'); // <-- DEBUG PRINT 1
@@ -401,26 +402,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         // Aplicar separador pequeño o grande según la condición
                         return SizedBox(height: showSmallerSeparator ? 16.0 : 32.0); 
-                      },
+                       },
                       itemBuilder: (context, index) {
                         // Mostrar Banner primero
-                        if (index == 0) {
-                          return AnimatedCrossFade(
-                             firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
-                               ? _buildProfileRequirementsBanner()
-                               : const SizedBox.shrink(),
-                             secondChild: const SizedBox.shrink(),
-                             crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
-                               ? CrossFadeState.showFirst
-                               : CrossFadeState.showSecond,
-                             duration: const Duration(milliseconds: 500),
-                             sizeCurve: Curves.easeInOutCubic,
-                             firstCurve: Curves.easeInOut,
-                             secondCurve: Curves.easeOut,
-                           );
-                        }
-
-                        // Obtener la sección actual (ajustando índice por el banner)
+                           if (index == 0) {
+                              return AnimatedCrossFade(
+                                 firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
+                                   ? _buildProfileRequirementsBanner()
+                                   : const SizedBox.shrink(),
+                                 secondChild: const SizedBox.shrink(),
+                                 crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
+                                   ? CrossFadeState.showFirst
+                                   : CrossFadeState.showSecond,
+                                 duration: const Duration(milliseconds: 500),
+                                 sizeCurve: Curves.easeInOutCubic,
+                                 firstCurve: Curves.easeInOut,
+                                 secondCurve: Curves.easeOut,
+                               );
+                           }
+                           
+                           // Obtener la sección actual (ajustando índice por el banner)
                         final section = activeSections[index - 1];
                         print('➡️ HomeScreen: Procesando sección tipo: ${section.type} con título: ${section.title}'); // <-- DEBUG PRINT 2
 
@@ -480,6 +481,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           case HomeScreenSectionType.videos:
                             return const VideosSection();
+                          case HomeScreenSectionType.courses:
+                            return CoursesSection(title: section.title);
                           case HomeScreenSectionType.donations:
                             return StreamBuilder<DocumentSnapshot>(
                               stream: FirebaseFirestore.instance.collection('donationsPage').doc('settings').snapshots(),
@@ -497,8 +500,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           case HomeScreenSectionType.unknown:
                           default:
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                      return Padding(
+                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Text('Seção desconhecida ou erro: ${section.type}'),
                             );
                         }

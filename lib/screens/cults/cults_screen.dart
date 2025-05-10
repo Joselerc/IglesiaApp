@@ -7,6 +7,7 @@ import '../../models/cult.dart';
 import './cult_detail_screen.dart';
 import '../../services/work_schedule_service.dart';
 import '../../theme/app_colors.dart';
+import '../../services/permission_service.dart';
 
 class CultsScreen extends StatefulWidget {
   final Service service;
@@ -40,6 +41,8 @@ class _CultsScreenState extends State<CultsScreen> {
   final _postalCodeController = TextEditingController();
   final _countryController = TextEditingController();
   bool _saveThisLocation = false;
+  
+  final PermissionService _permissionService = PermissionService();
   
   // Función auxiliar para crear TimeOfDay con valores seguros
   TimeOfDay _safeTimeOfDay(int hour, int minute) {
@@ -905,6 +908,15 @@ class _CultsScreenState extends State<CultsScreen> {
   // Guarda una nueva ubicación en Firestore
   Future<String?> _saveNewLocation() async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para criar localizações')),
+        );
+        return null;
+      }
+
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return null;
       
@@ -934,6 +946,15 @@ class _CultsScreenState extends State<CultsScreen> {
   // Crea un nuevo culto en Firestore
   Future<void> _createCult() async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para criar cultos')),
+        );
+        return;
+      }
+
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
       
@@ -1010,68 +1031,151 @@ class _CultsScreenState extends State<CultsScreen> {
   Widget build(BuildContext context) {
     final serviceRef = FirebaseFirestore.instance.collection('services').doc(widget.service.id);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Cultos - ${widget.service.name}'),
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primary,
-                  AppColors.primary.withOpacity(0.7),
-                ],
+    return FutureBuilder<bool>(
+      future: _permissionService.hasPermission('manage_cults'),
+      builder: (context, permissionSnapshot) {
+        if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Cultos - ${widget.service.name}'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Próximos'),
-              Tab(text: 'Todos'),
-            ],
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: Colors.white,
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Pestaña de cultos próximos
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('cults')
-                  .where('serviceId', isEqualTo: serviceRef)
-                  .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
-                  .orderBy('date')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                return _buildCultsList(snapshot, 'Não há cultos próximos');
-              },
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        if (permissionSnapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Cultos - ${widget.service.name}'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            
-            // Pestaña de todos los cultos
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('cults')
-                  .where('serviceId', isEqualTo: serviceRef)
-                  .orderBy('date', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                return _buildCultsList(snapshot, 'Não há cultos disponíveis');
-              },
+            body: Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}')),
+          );
+        }
+        
+        if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Cultos - ${widget.service.name}'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _showCreateCultDialog,
-          child: const Icon(Icons.add),
-          backgroundColor: AppColors.primary,
-          elevation: 4,
-        ),
-      ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar cultos.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        
+        // Contenido original cuando tiene permiso
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Cultos - ${widget.service.name}'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+              bottom: const TabBar(
+                tabs: [
+                  Tab(text: 'Próximos'),
+                  Tab(text: 'Todos'),
+                ],
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: Colors.white,
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                // Pestaña de cultos próximos
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('cults')
+                      .where('serviceId', isEqualTo: serviceRef)
+                      .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
+                      .orderBy('date')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    return _buildCultsList(snapshot, 'Não há cultos próximos');
+                  },
+                ),
+                
+                // Pestaña de todos los cultos
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('cults')
+                      .where('serviceId', isEqualTo: serviceRef)
+                      .orderBy('date', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    return _buildCultsList(snapshot, 'Não há cultos disponíveis');
+                  },
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: _showCreateCultDialog,
+              child: const Icon(Icons.add),
+              backgroundColor: AppColors.primary,
+              elevation: 4,
+            ),
+          ),
+        );
+      },
     );
   }
   
@@ -1251,6 +1355,15 @@ class _CultsScreenState extends State<CultsScreen> {
 
   // Muestra un diálogo para confirmar la eliminación de un culto
   void _showDeleteCultDialog(Cult cult) async {
+    // Verificar permisos antes de mostrar el diálogo
+    bool hasPermission = await _permissionService.hasPermission('manage_cults');
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você não tem permissão para excluir cultos')),
+      );
+      return;
+    }
+    
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1364,6 +1477,15 @@ class _CultsScreenState extends State<CultsScreen> {
   // Actualiza el nombre de un culto existente en Firestore
   Future<void> _updateCultName(String cultId, String newName) async {
     try {
+      // Verificar permisos antes de ejecutar la acción
+      bool hasPermission = await _permissionService.hasPermission('manage_cults');
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Você não tem permissão para atualizar cultos')),
+        );
+        return;
+      }
+
       await FirebaseFirestore.instance.collection('cults').doc(cultId).update({
         'name': newName,
         // 'updatedAt': FieldValue.serverTimestamp(), // Opcional

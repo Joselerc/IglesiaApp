@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/private_prayer.dart';
 import '../../services/prayer_service.dart';
+import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import 'modals/respond_prayer_modal.dart';
 import 'modals/create_predefined_message_modal.dart';
@@ -17,6 +18,7 @@ class PastorPrivatePrayersScreen extends StatefulWidget {
 
 class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen> with SingleTickerProviderStateMixin {
   final PrayerService _prayerService = PrayerService();
+  final PermissionService _permissionService = PermissionService();
   late TabController _tabController;
   bool _isLoading = true;
   List<PrivatePrayer> _privatePrayers = [];
@@ -123,7 +125,16 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
       .toList();
   }
 
-  void _showRespondModal(PrivatePrayer prayer) {
+  void _showRespondModal(PrivatePrayer prayer) async {
+    // Verificar permisos antes de mostrar el modal
+    bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você não tem permissão para responder orações privadas')),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -138,7 +149,16 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
     ).then((_) => _loadPrayers());
   }
 
-  void _showCreatePredefinedMessageModal() {
+  void _showCreatePredefinedMessageModal() async {
+    // Verificar permisos antes de mostrar el modal
+    bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você não tem permissão para criar mensagens predefinidas')),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -155,6 +175,15 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
 
   // Nueva función para aceptar una oración
   Future<void> _acceptPrayer(String prayerId) async {
+    // Verificar permisos antes de ejecutar la acción
+    bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você não tem permissão para gerenciar orações privadas')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -523,232 +552,318 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orações Privadas'),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary,
-                AppColors.primary.withOpacity(0.7),
-              ],
-            ),
-          ),
-        ),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        bottom: TabBar(
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.8),
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          tabs: [
-            Tab(
-              icon: const Icon(Icons.watch_later_outlined),
-              text: 'Pendentes',
-            ),
-            Tab(
-              icon: const Icon(Icons.check_circle_outline),
-              text: 'Aceitas',
-            ),
-            Tab(
-              icon: const Icon(Icons.chat_outlined),
-              text: 'Respondidas',
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_comment),
-            tooltip: 'Criar mensagem predefinida',
-            onPressed: _showCreatePredefinedMessageModal,
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Atualizar',
-            onPressed: _loadPrayers,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Sección de estadísticas mejorada
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        offset: const Offset(0, 2),
-                        blurRadius: 5,
-                      ),
+    return FutureBuilder<bool>(
+      future: _permissionService.hasPermission('manage_private_prayers'),
+      builder: (context, permissionSnapshot) {
+        if (permissionSnapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Orações Privadas'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
                     ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12, bottom: 8),
-                          child: Text(
-                            'Visão Geral das Orações',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[800],
-                            ),
+                ),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        if (permissionSnapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Orações Privadas'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            body: Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}')),
+          );
+        }
+        
+        if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Orações Privadas'),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    SizedBox(height: 8),
+                    Text('Você não tem permissão para gerenciar orações privadas.', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        
+        // Contenido original cuando tiene permiso
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Orações Privadas'),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.7),
+                  ],
+                ),
+              ),
+            ),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            bottom: TabBar(
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white.withOpacity(0.8),
+              controller: _tabController,
+              indicatorColor: Colors.white,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.watch_later_outlined),
+                  text: 'Pendentes',
+                ),
+                Tab(
+                  icon: const Icon(Icons.check_circle_outline),
+                  text: 'Aceitas',
+                ),
+                Tab(
+                  icon: const Icon(Icons.chat_outlined),
+                  text: 'Respondidas',
+                ),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.add_comment),
+                tooltip: 'Criar mensagem predefinida',
+                onPressed: _showCreatePredefinedMessageModal,
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Atualizar',
+                onPressed: _loadPrayers,
+              ),
+            ],
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    // Sección de estadísticas mejorada
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            offset: const Offset(0, 2),
+                            blurRadius: 5,
                           ),
-                        ),
-                        Row(
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildStatCard(
-                              'Total',
-                              _stats['total'] ?? 0,
-                              AppColors.primary,
-                              Icons.summarize,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12, bottom: 8),
+                              child: Text(
+                                'Visão Geral das Orações',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
                             ),
-                            _buildStatCard(
-                              'Pendentes',
-                              _stats['pending'] ?? 0,
-                              Colors.orange,
-                              Icons.watch_later_outlined,
-                            ),
-                            _buildStatCard(
-                              'Aceitas',
-                              _stats['accepted'] ?? 0,
-                              Colors.green,
-                              Icons.check_circle_outline,
-                              highlight: true,
-                            ),
-                            _buildStatCard(
-                              'Respondidas',
-                              _stats['responded'] ?? 0,
-                              Colors.purple,
-                              Icons.chat_outlined,
+                            Row(
+                              children: [
+                                _buildStatCard(
+                                  'Total',
+                                  _stats['total'] ?? 0,
+                                  AppColors.primary,
+                                  Icons.summarize,
+                                ),
+                                _buildStatCard(
+                                  'Pendentes',
+                                  _stats['pending'] ?? 0,
+                                  Colors.orange,
+                                  Icons.watch_later_outlined,
+                                ),
+                                _buildStatCard(
+                                  'Aceitas',
+                                  _stats['accepted'] ?? 0,
+                                  Colors.green,
+                                  Icons.check_circle_outline,
+                                  highlight: true,
+                                ),
+                                _buildStatCard(
+                                  'Respondidas',
+                                  _stats['responded'] ?? 0,
+                                  Colors.purple,
+                                  Icons.chat_outlined,
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    
+                    const Divider(),
+                    
+                    // Contenido de las pestañas
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // Tab de pendientes
+                          _pendingPrayers.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.check_circle_outline, size: 64, color: Colors.grey[400]),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Não há orações pendentes',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Todas as solicitações foram atendidas',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _pendingPrayers.length,
+                                  itemBuilder: (context, index) => _buildPrayerCard(_pendingPrayers[index], true),
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                ),
+                          
+                          // Tab de aceptadas
+                          _acceptedPrayers.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.mark_chat_unread_outlined, size: 64, color: Colors.grey[400]),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Não há orações aceitas sem resposta',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Aceite solicitações para responder aos irmãos',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _acceptedPrayers.length,
+                                  itemBuilder: (context, index) => _buildPrayerCard(_acceptedPrayers[index], false),
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                ),
+                          
+                          // Tab de respondidas
+                          _respondedPrayers.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.chat_outlined, size: 64, color: Colors.grey[400]),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Você não respondeu a nenhuma oração',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Suas respostas aparecerão aqui',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _respondedPrayers.length,
+                                  itemBuilder: (context, index) => _buildPrayerCard(_respondedPrayers[index], false),
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                
-                const Divider(),
-                
-                // Contenido de las pestañas
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // Tab de pendientes
-                      _pendingPrayers.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.check_circle_outline, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Não há orações pendentes',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Todas as solicitações foram atendidas',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: _pendingPrayers.length,
-                              itemBuilder: (context, index) => _buildPrayerCard(_pendingPrayers[index], true),
-                              padding: const EdgeInsets.only(bottom: 16),
-                            ),
-                      
-                      // Tab de aceptadas
-                      _acceptedPrayers.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.mark_chat_unread_outlined, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Não há orações aceitas sem resposta',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Aceite solicitações para responder aos irmãos',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: _acceptedPrayers.length,
-                              itemBuilder: (context, index) => _buildPrayerCard(_acceptedPrayers[index], false),
-                              padding: const EdgeInsets.only(bottom: 16),
-                            ),
-                      
-                      // Tab de respondidas
-                      _respondedPrayers.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.chat_outlined, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Você não respondeu a nenhuma oração',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Suas respostas aparecerão aqui',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: _respondedPrayers.length,
-                              itemBuilder: (context, index) => _buildPrayerCard(_respondedPrayers[index], false),
-                              padding: const EdgeInsets.only(bottom: 16),
-                            ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        );
+      },
     );
   }
 } 
