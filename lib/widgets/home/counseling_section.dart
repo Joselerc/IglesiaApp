@@ -3,6 +3,7 @@ import '../../screens/counseling/counseling_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/app_card.dart';
+import '../../utils/guest_utils.dart';
 
 class CounselingSection extends StatelessWidget {
   const CounselingSection({super.key});
@@ -33,13 +34,19 @@ class CounselingSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: AppCard(
             padding: const EdgeInsets.all(20),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CounselingScreen(),
-                ),
-              );
+            onTap: () async {
+              // Verificar si es usuario invitado
+              final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
+              
+              // Solo navegar si NO es invitado
+              if (!isGuest && context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CounselingScreen(),
+                  ),
+                );
+              }
             },
             child: Row(
               children: [

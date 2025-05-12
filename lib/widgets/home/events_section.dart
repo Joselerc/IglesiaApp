@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../utils/guest_utils.dart';
 
 class EventsSection extends StatelessWidget {
   const EventsSection({super.key});
@@ -30,11 +31,17 @@ class EventsSection extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EventsPage()),
-                  );
+                onPressed: () async {
+                  // Verificar si es usuario invitado
+                  final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
+                  
+                  // Solo navegar si NO es invitado
+                  if (!isGuest && context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EventsPage()),
+                    );
+                  }
                 },
                 child: Text(
                   'Ver mais',
@@ -96,13 +103,19 @@ class EventsSection extends StatelessWidget {
                       width: 280,
                       child: AppCard(
                         padding: EdgeInsets.zero,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EventDetailScreen(event: event),
-                            ),
-                          );
+                        onTap: () async {
+                          // Verificar si es usuario invitado
+                          final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
+                          
+                          // Solo navegar si NO es invitado
+                          if (!isGuest && context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EventDetailScreen(event: event),
+                              ),
+                            );
+                          }
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

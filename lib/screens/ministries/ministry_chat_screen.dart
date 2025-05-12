@@ -555,7 +555,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MinistryDetailsScreen(ministry: widget.ministry, isGuest: widget.isGuest, showAuthDialog: widget.showAuthDialog),
+              builder: (context) => MinistryDetailsScreen(ministry: widget.ministry),
             ),
           ),
           child: Row(

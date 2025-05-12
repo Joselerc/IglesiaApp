@@ -13,6 +13,7 @@ import './statistics_services/services_stats_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart'; // Importar para acceder a navigationCubit global
+import '../services/auth_service.dart'; // Importar para verificar si es invitado
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -49,6 +50,7 @@ class MainScreen extends StatelessWidget {
   
   Widget _buildDrawer(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final authService = AuthService();
     
     return Drawer(
       child: ListView(
@@ -65,10 +67,34 @@ class MainScreen extends StatelessWidget {
                   return const Text('Usuário');
                 }
                 final userData = snapshot.data!.data() as Map<String, dynamic>?;
+                
+                // Si el usuario es anónimo, mostrar "Invitado"
+                if (user?.isAnonymous == true || userData?['isGuest'] == true) {
+                  return const Text('Convidado');
+                }
+                
                 return Text(userData?['name'] ?? 'Usuário');
               },
             ),
-            accountEmail: Text(user?.email ?? ''),
+            accountEmail: StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user?.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                // Si el usuario es anónimo, mostrar mensaje informativo
+                if (user?.isAnonymous == true) {
+                  return const Text('Acesso limitado', style: TextStyle(fontStyle: FontStyle.italic));
+                }
+                
+                final userData = snapshot.data?.data() as Map<String, dynamic>?;
+                if (userData?['isGuest'] == true) {
+                  return const Text('Acesso limitado', style: TextStyle(fontStyle: FontStyle.italic));
+                }
+                
+                return Text(user?.email ?? '');
+              },
+            ),
             currentAccountPicture: CircleAvatar(
               backgroundImage: user?.photoURL != null
                   ? NetworkImage(user!.photoURL!)
@@ -79,73 +105,126 @@ class MainScreen extends StatelessWidget {
             ),
           ),
           
-          // Invitaciones de trabajo
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('work_invites')
-                .where('userId', isEqualTo: FirebaseFirestore.instance.collection('users').doc(user?.uid))
-                .where('status', isEqualTo: 'pending')
-                .snapshots(),
-            builder: (context, snapshot) {
-              int pendingCount = 0;
-              if (snapshot.hasData) {
-                pendingCount = snapshot.data!.docs.length;
+          // Opción para crear cuenta si es usuario invitado
+          StreamBuilder<bool>(
+            stream: Stream.fromFuture(authService.isCurrentUserGuest()),
+            builder: (context, isGuestSnapshot) {
+              if (isGuestSnapshot.hasData && isGuestSnapshot.data == true) {
+                return Column(
+                  children: [
+                    MenuItem(
+                      title: 'Criar conta',
+                      icon: Icons.person_add,
+                      onTap: () {
+                        Navigator.pop(context); // Cerrar el drawer
+                        Navigator.pushNamed(context, '/register');
+                      },
+                    ),
+                    const Divider(),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          
+          // Invitaciones de trabajo (solo para usuarios registrados)
+          StreamBuilder<bool>(
+            stream: Stream.fromFuture(authService.isCurrentUserGuest()),
+            builder: (context, isGuestSnapshot) {
+              // No mostrar esta opción para invitados
+              if (isGuestSnapshot.hasData && isGuestSnapshot.data == true) {
+                return const SizedBox.shrink();
               }
               
-              return MenuItem(
-                title: 'Convites de Trabalho',
-                icon: Icons.work,
-                badgeCount: pendingCount,
-                onTap: () {
-                  Navigator.pop(context); // Cerrar el drawer
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WorkInvitesScreen(),
-                    ),
+              return StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('work_invites')
+                    .where('userId', isEqualTo: FirebaseFirestore.instance.collection('users').doc(user?.uid))
+                    .where('status', isEqualTo: 'pending')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  int pendingCount = 0;
+                  if (snapshot.hasData) {
+                    pendingCount = snapshot.data!.docs.length;
+                  }
+                  
+                  return MenuItem(
+                    title: 'Convites de Trabalho',
+                    icon: Icons.work,
+                    badgeCount: pendingCount,
+                    onTap: () {
+                      Navigator.pop(context); // Cerrar el drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WorkInvitesScreen(),
+                        ),
+                      );
+                    },
                   );
                 },
               );
             },
           ),
           
-          // Estadísticas de Servicios
-          StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(user?.uid)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                final userRole = userData?['role'] as String? ?? '';
-                
-                // Solo mostrar esta opción para administradores y pastores
-                if (userRole == 'admin' || userRole == 'pastor') {
-                  return MenuItem(
-                    title: 'Estadísticas de Servicios',
-                    icon: Icons.analytics,
-                    onTap: () {
-                      Navigator.pop(context); // Cerrar el drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ServicesStatsScreen(),
-                        ),
-                      );
-                    },
-                  );
-                }
+          // Estadísticas de Servicios (solo para usuarios con roles específicos)
+          StreamBuilder<bool>(
+            stream: Stream.fromFuture(authService.isCurrentUserGuest()),
+            builder: (context, isGuestSnapshot) {
+              // No mostrar esta opción para invitados
+              if (isGuestSnapshot.hasData && isGuestSnapshot.data == true) {
+                return const SizedBox.shrink();
               }
               
-              return const SizedBox.shrink();
+              return StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user?.uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final userData = snapshot.data!.data() as Map<String, dynamic>?;
+                    final userRole = userData?['role'] as String? ?? '';
+                    
+                    // Solo mostrar esta opción para administradores y pastores
+                    if (userRole == 'admin' || userRole == 'pastor') {
+                      return MenuItem(
+                        title: 'Estadísticas de Servicios',
+                        icon: Icons.analytics,
+                        onTap: () {
+                          Navigator.pop(context); // Cerrar el drawer
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ServicesStatsScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  }
+                  
+                  return const SizedBox.shrink();
+                },
+              );
             },
           ),
           
           const Divider(),
           
-          // Otros elementos del menú
-          // Puedes agregar más elementos MenuItem aquí
+          // Cerrar sesión
+          MenuItem(
+            title: 'Sair',
+            icon: Icons.logout,
+            onTap: () async {
+              await AuthService().forceSignOut();
+              // Usar la instancia global del NavigationCubit
+              navigationCubit.navigateTo(NavigationState.home);
+              // Redirigir a la pantalla de login
+              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+            },
+          ),
         ],
       ),
     );

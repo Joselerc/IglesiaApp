@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/announcement_model.dart';
 import '../../screens/announcements/announcement_detail_screen.dart';
 import '../../screens/announcements/cult_announcements_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../announcement_card.dart'; // Asegúrate que la ruta sea correcta
+import '../../utils/guest_utils.dart';
 
 class AnnouncementsSection extends StatelessWidget {
   const AnnouncementsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final isAnonymous = user?.isAnonymous ?? false;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,22 +32,24 @@ class AnnouncementsSection extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CultAnnouncementsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.church, size: 16),
-                label: const Text('Ver Cultos'),
-                style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary, // Color explícito
-                    padding: EdgeInsets.zero, // Ajustar padding si es necesario
+              // Solo mostrar el botón "Ver Cultos" si no es usuario anónimo
+              if (!isAnonymous)
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CultAnnouncementsScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.church, size: 16),
+                  label: const Text('Ver Cultos'),
+                  style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      padding: EdgeInsets.zero,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -105,15 +112,21 @@ class AnnouncementsSection extends StatelessWidget {
                   final announcement = filteredAnnouncements[index];
                   return AnnouncementCard(
                     announcement: announcement,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AnnouncementDetailScreen(
-                            announcement: announcement,
+                    onTap: () async {
+                      // Verificar si es usuario invitado y mostrar diálogo si es necesario
+                      final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
+                      
+                      // Solo navegar al detalle si NO es invitado
+                      if (!isGuest && context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AnnouncementDetailScreen(
+                              announcement: announcement,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   );
                 },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../screens/videos/videos_preview_section.dart'; // Importa el widget existente
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/guest_utils.dart';
 
 class VideosSection extends StatelessWidget {
   const VideosSection({super.key});
@@ -24,8 +25,14 @@ class VideosSection extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/videos');
+                onPressed: () async {
+                  // Verificar si es usuario invitado
+                  final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
+                  
+                  // Solo navegar si NO es invitado
+                  if (!isGuest && context.mounted) {
+                    Navigator.pushNamed(context, '/videos');
+                  }
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

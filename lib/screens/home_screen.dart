@@ -36,14 +36,47 @@ class _HomeScreenState extends State<HomeScreen> {
   User? _user;
   List<QueryDocumentSnapshot>? _requiredFields;
   List<DocumentSnapshot> _churchLocations = [];
+  bool _isGuestUser = false;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('pt_BR');
     _user = FirebaseAuth.instance.currentUser;
+    _checkIfGuest();
     _checkProfileRequirements();
     _loadChurchLocations();
+  }
+
+  Future<void> _checkIfGuest() async {
+    if (_user == null) return;
+    
+    // Verificar si es usuario anónimo
+    if (_user!.isAnonymous) {
+      setState(() {
+        _isGuestUser = true;
+      });
+      return;
+    }
+    
+    // Verificar también en Firestore
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_user!.uid)
+          .get();
+      
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        final bool isGuest = userData?['isGuest'] as bool? ?? false;
+        
+        setState(() {
+          _isGuestUser = isGuest;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ HOME_SCREEN - Error al verificar si es usuario invitado: $e');
+    }
   }
 
   Future<void> _checkProfileRequirements() async {
@@ -58,6 +91,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
+      // Verificar si el usuario es invitado
+      if (_user!.isAnonymous) {
+        debugPrint('ℹ️ HOME_SCREEN - Usuario es invitado, no se muestra banner de perfil');
+        setState(() {
+          _shouldShowBanner = false;
+          _isBannerLoading = false;
+        });
+        return;
+      }
+      
       debugPrint('🔍 HOME_SCREEN - Obteniendo datos del usuario: ${_user!.uid}');
       // Obtener datos del usuario
       final userDoc = await FirebaseFirestore.instance
@@ -76,6 +119,17 @@ class _HomeScreenState extends State<HomeScreen> {
       
       _userData = userDoc.data();
       debugPrint('✅ HOME_SCREEN - Datos de usuario obtenidos: ${_userData?.keys.toList()}');
+      
+      // Verificar si es usuario invitado mediante flag en Firestore
+      final bool isGuest = _userData?['isGuest'] as bool? ?? false;
+      if (isGuest) {
+        debugPrint('ℹ️ HOME_SCREEN - Usuario marcado como invitado en Firestore, no se muestra banner');
+        setState(() {
+          _shouldShowBanner = false;
+          _isBannerLoading = false;
+        });
+        return;
+      }
       
       // Verificar flags importantes para la lógica del banner
       final neverShowAgain = _userData?['neverShowBannerAgain'] as bool? ?? false;
@@ -407,11 +461,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Mostrar Banner primero
                            if (index == 0) {
                               return AnimatedCrossFade(
-                                 firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
-                                   ? _buildProfileRequirementsBanner()
-                                   : const SizedBox.shrink(),
+                                 firstChild: _isGuestUser
+                                   ? _buildGuestBanner()
+                                   : (_shouldShowBanner && _userData != null && !_isBannerLoading
+                                     ? _buildProfileRequirementsBanner()
+                                     : const SizedBox.shrink()),
                                  secondChild: const SizedBox.shrink(),
-                                 crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
+                                 crossFadeState: (_isGuestUser || (_shouldShowBanner && _userData != null && !_isBannerLoading))
                                    ? CrossFadeState.showFirst
                                    : CrossFadeState.showSecond,
                                  duration: const Duration(milliseconds: 500),
@@ -704,5 +760,76 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     return const Icon(Icons.person, color: Color(0xFF2F2F2F), size: 24);
+  }
+
+  Widget _buildGuestBanner() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutQuad,
+      margin: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withOpacity(0.15), // Color diferente para distinguirlo
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: AppColors.secondary, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Modo Convidado',
+                    style: AppTextStyles.subtitle2.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'Você está usando o aplicativo no modo convidado com funções limitadas.',
+              style: AppTextStyles.bodyText2.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: AppColors.secondary.withOpacity(0.1), width: 1)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Spacer(),
+                AppButton(
+                  text: 'Criar uma conta',
+                  onPressed: () => Navigator.of(context).pushNamed('/register'),
+                  isSmall: true,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

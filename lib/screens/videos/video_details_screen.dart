@@ -9,6 +9,7 @@ import '../../theme/app_text_styles.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/services.dart';
+import '../../utils/guest_utils.dart';
 
 class VideoDetailsScreen extends StatefulWidget {
   final Video video;
@@ -104,6 +105,13 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
 
   Future<void> _toggleLike() async {
     final user = FirebaseAuth.instance.currentUser;
+    
+    // Verificar si el usuario es invitado
+    if (user != null && user.isAnonymous) {
+      await GuestUtils.showGuestRestrictedDialog(context);
+      return;
+    }
+    
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -171,8 +179,15 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
   }
 
   Future<void> _shareVideo() async {
+    // Verificar si el usuario es invitado
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.isAnonymous) {
+      await GuestUtils.showGuestRestrictedDialog(context);
+      return;
+    }
+    
     await Share.share(
-      'Confira este vídeo: ${widget.video.youtubeUrl}',
+      '${widget.video.youtubeUrl}',
       subject: widget.video.title,
     );
   }

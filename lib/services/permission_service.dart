@@ -214,4 +214,63 @@ class PermissionService {
     print("DEBUG_PERM: DENEGADO (${permissionKeys.join(', ')}) - Ningún permiso encontrado para rol '${_currentUserRole?.name ?? 'ninguno'}'.");
     return false; 
   }
+
+  // Método para verificar si el usuario actual es un invitado
+  Future<bool> isGuestUser() async {
+    final User? user = _authService.currentUser;
+    if (user == null) return false;
+    
+    // Verificar si la cuenta es anónima según Firebase Auth
+    if (user.isAnonymous) {
+      print("DEBUG_PERM: Usuario ${user.uid} es anónimo según Firebase Auth");
+      return true;
+    }
+    
+    // Como respaldo, también verificar en Firestore
+    try {
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        // Verificar flag explícito isGuest
+        final bool isGuest = userDoc.data()?['isGuest'] as bool? ?? false;
+        if (isGuest) {
+          print("DEBUG_PERM: Usuario ${user.uid} está marcado como invitado (isGuest=true)");
+          return true;
+        }
+        
+        // Verificar rol 'guest'
+        final String role = userDoc.data()?['role'] as String? ?? '';
+        if (role == 'guest') {
+          print("DEBUG_PERM: Usuario ${user.uid} tiene rol 'guest'");
+          return true;
+        }
+      }
+    } catch (e) {
+      print("DEBUG_PERM: ❌ Error al verificar si es usuario invitado: $e");
+    }
+    
+    return false;
+  }
+  
+  // Método para verificar si una acción específica está permitida para usuarios invitados
+  Future<bool> isGuestAllowedAction(String action) async {
+    // Primero verificar si el usuario es invitado
+    final bool isGuest = await isGuestUser();
+    if (!isGuest) return true; // No es invitado, puede realizar cualquier acción
+    
+    // Lista de acciones permitidas para invitados
+    final allowedActions = [
+      'view_home',
+      'view_cults',
+      'view_announcements',
+      'view_events',
+      'view_videos',
+      'view_livestream',
+      // Añadir otras acciones permitidas según sea necesario
+    ];
+    
+    final bool isAllowed = allowedActions.contains(action);
+    print("DEBUG_PERM: Acción '$action' para invitado: ${isAllowed ? 'PERMITIDA' : 'DENEGADA'}");
+    
+    return isAllowed;
+  }
 } 

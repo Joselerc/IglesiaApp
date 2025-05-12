@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -207,6 +208,74 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _signInAsGuest() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      debugPrint('🔑 LOGIN_SCREEN - Tentando entrar como convidado');
+      
+      // Iniciar sesión anónima con Firebase Auth
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      
+      debugPrint('✅ LOGIN_SCREEN - Login como convidado bem-sucedido: ${userCredential.user!.uid}');
+      
+      // Crear un documento de usuario para el invitado
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': 'Convidado',
+        'surname': '',
+        'email': '',
+        'phone': '',
+        'role': 'guest', // Rol específico para invitados
+        'roleId': null, // No tiene un rol formal
+        'displayName': 'Convidado',
+        'photoUrl': '',
+        'isGuest': true, // Marcar como usuario invitado
+        'createdAt': DateTime.now(),
+        'lastLogin': DateTime.now(),
+      });
+      
+      // Registrar inicio de sesión en el historial
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .collection('login_history')
+          .add({
+        'timestamp': FieldValue.serverTimestamp(),
+        'event': 'guest_login',
+        'platform': defaultTargetPlatform.toString(),
+      });
+      
+      if (mounted) {
+        // Configurar NavigationCubit
+        navigationCubit.navigateTo(NavigationState.home);
+        debugPrint('🧭 LOGIN_SCREEN - NavigationCubit redefinido para HOME (convidado)');
+        
+        // Navegar a la pantalla principal
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        
+        // Mostrar mensaje explicativo
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bem-vindo! Você está navegando como convidado com funções limitadas.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ LOGIN_SCREEN - Erro ao iniciar sessão como convidado: $e');
+      setState(() {
+        _errorMessage = 'Não foi possível entrar como convidado. Por favor, tente novamente.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obter o serviço de autenticação
@@ -324,6 +393,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _isLoading ? null : _login,
                     icon: Icons.login,
                     fullWidth: true,
+                  ),
+                  const SizedBox(height: 16),
+                  // Botón para entrar como invitado
+                  AppButton(
+                    text: 'Entrar como Convidado',
+                    icon: Icons.person_outline,
+                    onPressed: _isLoading ? null : _signInAsGuest,
+                    fullWidth: true,
+                    isSecondary: true,
                   ),
                   const SizedBox(height: 16),
                   Row(

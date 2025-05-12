@@ -32,6 +32,7 @@ import '../services/role_service.dart'; // <-- Import correcto del servicio de r
 import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';
 import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
+import '../utils/guest_utils.dart'; // <-- Importar utilidades para usuarios invitados
 
 
 class ProfileScreen extends StatefulWidget {
@@ -462,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Botón de Cerrar Sesión añadido aquí
                     ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
+                      label: const Text("Logout", style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary, // Color naranja
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -521,49 +522,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fieldName: 'photoUrl',
                               defaultIcon: const Icon(Icons.person, size: 60, color: Colors.white),
                               size: 100,
-                              isEditable: true,
+                                                              isEditable: FirebaseAuth.instance.currentUser?.isAnonymous != true,
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Simular el clic en la imagen principal
-                                  final imagePicker = ImagePicker();
-                                  imagePicker.pickImage(source: ImageSource.gallery);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[700],
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 20,
+                            // Botón de cámara solo para usuarios normales (no invitados)
+                            if (FirebaseAuth.instance.currentUser?.isAnonymous != true)
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Simular el clic en la imagen principal
+                                    final imagePicker = ImagePicker();
+                                    imagePicker.pickImage(source: ImageSource.gallery);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[700],
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 2),
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          userData['displayName'] ?? 'Completa tu perfil',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          userData['email'] ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                                                    const SizedBox(height: 16),
+                            Text(
+                              FirebaseAuth.instance.currentUser?.isAnonymous == true 
+                                ? 'Usuário Convidado' 
+                                : (userData['displayName'] ?? 'Complete seu perfil'),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              FirebaseAuth.instance.currentUser?.isAnonymous == true
+                                ? 'Acesso limitado'
+                                : (userData['email'] ?? ''),
+                                                        style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            
+                            // Banner informativo para usuarios invitados (ahora después del nombre y email)
+                            if (FirebaseAuth.instance.currentUser?.isAnonymous == true) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.orange.shade200)
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.info_outline, color: Colors.orange.shade800, size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Modo convidado ativo',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.orange.shade800,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Crie uma conta para acessar todas as funcionalidades.',
+                                      style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.orange.shade500,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 10),
+                                          minimumSize: const Size(double.infinity, 40),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, '/register');
+                                        },
+                                        child: const Text('Criar conta'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                       ],
                     ),
                   ), // <<< Fin del contenedor azul claro
@@ -571,7 +632,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),
                   
                   // Sección de información personal - NUEVO DISEÑO
-                  Container(
+                  // Sección de información personal - NUEVO DISEÑO
+                  FirebaseAuth.instance.currentUser?.isAnonymous == true 
+                    ? const SizedBox.shrink() // No mostrar para usuarios invitados
+                    : Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -971,7 +1035,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),
                   
                   // Sección de información adicional - NUEVO DISEÑO
-                  StreamBuilder<List<ProfileFieldResponse>>(
+                  FirebaseAuth.instance.currentUser?.isAnonymous == true
+                    ? const SizedBox.shrink() // No mostrar para usuarios invitados
+                    : StreamBuilder<List<ProfileFieldResponse>>(
                     stream: _profileFieldsService.getUserResponses(
                       FirebaseAuth.instance.currentUser!.uid,
                     ),
@@ -1439,8 +1505,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: Colors.transparent,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(12),
-                                              onTap: () {
-                                                Navigator.pushNamed(context, '/ministries');
+                                              onTap: () async {
+                                                final user = FirebaseAuth.instance.currentUser;
+                                                if (user != null && user.isAnonymous) {
+                                                  // Si es usuario invitado, mostrar diálogo de restricción
+                                                  if (context.mounted) {
+                                                    await GuestUtils.showGuestRestrictedDialog(context);
+                                                  }
+                                                } else {
+                                                  // Si no es invitado, navegar normalmente
+                                                  Navigator.pushNamed(context, '/ministries');
+                                                }
                                               },
                                               child: Center(
                                                 child: Row(
@@ -1542,8 +1617,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                               ),
-                                              onPressed: () {
-                                                Navigator.pushNamed(context, '/ministries');
+                                              onPressed: () async {
+                                                final user = FirebaseAuth.instance.currentUser;
+                                                if (user != null && user.isAnonymous) {
+                                                  // Si es usuario invitado, mostrar diálogo de restricción
+                                                  if (context.mounted) {
+                                                    await GuestUtils.showGuestRestrictedDialog(context);
+                                                  }
+                                                } else {
+                                                  // Si no es invitado, navegar normalmente
+                                                  Navigator.pushNamed(context, '/ministries');
+                                                }
                                               },
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1673,8 +1757,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: Colors.transparent,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(12),
-                                              onTap: () {
-                                                Navigator.pushNamed(context, '/groups');
+                                              onTap: () async {
+                                                final user = FirebaseAuth.instance.currentUser;
+                                                if (user != null && user.isAnonymous) {
+                                                  // Si es usuario invitado, mostrar diálogo de restricción
+                                                  if (context.mounted) {
+                                                    await GuestUtils.showGuestRestrictedDialog(context);
+                                                  }
+                                                } else {
+                                                  // Si no es invitado, navegar normalmente
+                                                  Navigator.pushNamed(context, '/groups');
+                                                }
                                               },
                                               child: Center(
                                                 child: Row(
@@ -1776,8 +1869,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                               ),
-                                              onPressed: () {
-                                                Navigator.pushNamed(context, '/groups');
+                                              onPressed: () async {
+                                                final user = FirebaseAuth.instance.currentUser;
+                                                if (user != null && user.isAnonymous) {
+                                                  // Si es usuario invitado, mostrar diálogo de restricción
+                                                  if (context.mounted) {
+                                                    await GuestUtils.showGuestRestrictedDialog(context);
+                                                  }
+                                                } else {
+                                                  // Si no es invitado, navegar normalmente
+                                                  Navigator.pushNamed(context, '/groups');
+                                                }
                                               },
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1815,7 +1917,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),                 
                   
                   // --- NUEVA SECCIÓN DE ADMINISTRACIÓN (Basada en permisos) ---
-                  if (_hasAdminAccess) ...[
+                  if (_hasAdminAccess && FirebaseAuth.instance.currentUser?.isAnonymous != true) ...[
                     const SizedBox(height: 24),
                     Container(
                       decoration: BoxDecoration(
@@ -2132,7 +2234,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
+                      label: Text(
+                        FirebaseAuth.instance.currentUser?.isAnonymous == true
+                          ? "Sair do modo convidado"
+                          : "Encerrar sessão", 
+                        style: const TextStyle(color: Colors.white)
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary, // Color naranja
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
