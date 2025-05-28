@@ -21,8 +21,46 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # Reglas adicionales para producción
+    avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    unnecessary_const: true
+    unnecessary_new: true
+    use_key_in_widget_constructors: true
+    
+    # Reglas de performance
+    avoid_function_literals_in_foreach_calls: true
+    prefer_collection_literals: true
+    prefer_spread_collections: true
+    
+    # Reglas de seguridad
+    avoid_web_libraries_in_flutter: true
+    
+    # Reglas de estilo
+    camel_case_types: true
+    file_names: true
+    non_constant_identifier_names: true
+    constant_identifier_names: true
+    
+    # Desactivar reglas que pueden ser problemáticas en desarrollo
+    # avoid_unnecessary_containers: false
+    # sized_box_for_whitespace: false
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated_plugin_registrant.dart"
+  
+  errors:
+    # Tratar algunos warnings como errores en producción
+    invalid_assignment: error
+    invalid_use_of_protected_member: error
+    missing_required_param: error
+    missing_return: error
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

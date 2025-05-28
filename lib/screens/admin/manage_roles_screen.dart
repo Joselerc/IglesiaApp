@@ -111,7 +111,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Papéis'),
+        title: const Text('Gerenciar Perfiles'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -129,9 +129,9 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -140,7 +140,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                     Text('Acesso Negado', 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar papéis e permissões.',
+                    Text('Você não tem permissão para gerenciar perfiles e permissões.',
                       textAlign: TextAlign.center),
                   ],
                 ),
@@ -193,7 +193,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              tooltip: 'Editar papel',
+                              tooltip: 'Editar perfil',
                               onPressed: () {
                                 Navigator.push(
                                   context, 

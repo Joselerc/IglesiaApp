@@ -11,11 +11,13 @@ import '../common/app_card.dart'; // Asumiendo que tienes un AppCard reutilizabl
 class LiveStreamHomeSection extends StatelessWidget {
   final Map<String, dynamic> configData;
   final bool isVisible; // Nuevo parámetro para saber si debe mostrarse
+  final String displayTitle; // NUEVO PARÁMETRO
 
   const LiveStreamHomeSection({
     super.key, 
     required this.configData,
     this.isVisible = true, // Por defecto true si se construye
+    required this.displayTitle, // NUEVO PARÁMETRO REQUERIDO
   });
 
   @override
@@ -43,7 +45,7 @@ class LiveStreamHomeSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.md), // Añadir padding inferior como en CultsSection
             child: Text(
-              sectionTitle, 
+              displayTitle,  // USAR EL NUEVO PARÁMETRO displayTitle
               style: AppTextStyles.headline3.copyWith(
                 color: AppColors.textPrimary, // Asegurar color consistente
                 fontWeight: FontWeight.bold, // Asegurar negrita consistente
@@ -70,6 +72,7 @@ class LiveStreamHomeSection extends StatelessWidget {
             child: AppCard(
               padding: EdgeInsets.zero, // El padding lo manejaremos dentro
               child: Container(
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppSpacing.md), // Asegurar borde redondeado
                   // Borde solo si se muestra como vivo

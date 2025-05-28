@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart'; // Asegúrate que la ruta a tus colores es
 import '../../theme/app_text_styles.dart'; // Asegúrate que la ruta a tus estilos de texto es correcta
 import './family_list_screen.dart'; // <-- AÑADIR IMPORT
 import './visitor_list_screen.dart'; // <-- AÑADIR IMPORT
+import './room_list_screen.dart'; // <-- AÑADIR IMPORT
 
 class KidsAdminScreen extends StatefulWidget {
   const KidsAdminScreen({super.key});
@@ -29,6 +30,10 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
   void _navigateToMoreOptions() {
     print('Navegar para Mais Opções');
     // Navigator.push(context, MaterialPageRoute(builder: (context) => MoreKidsOptionsScreen()));
+  }
+
+  void _navigateToRoomList() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const RoomListScreen()));
   }
 
   @override
@@ -114,8 +119,9 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
       children: [
         _buildQuickAccessButton(Icons.family_restroom_outlined, 'Família', _navigateToFamilyManagement, Colors.orange.shade700),
         _buildQuickAccessButton(Icons.person_add_alt_1_outlined, 'Visitante', _navigateToVisitorManagement, Colors.blue.shade700),
+        _buildQuickAccessButton(Icons.meeting_room_outlined, 'Salas', _navigateToRoomList, Colors.teal.shade700),
         _buildQuickAccessButton(Icons.qr_code_scanner_outlined, 'Check-in', _navigateToQuickCheckin, Colors.green.shade700),
-        _buildQuickAccessButton(Icons.more_horiz_outlined, 'Ver mais', _navigateToMoreOptions, Colors.purple.shade700),
+        // _buildQuickAccessButton(Icons.more_horiz_outlined, 'Ver mais', _navigateToMoreOptions, Colors.purple.shade700), // Comentado Ver Mais por ahora para hacer espacio
       ],
     );
   }

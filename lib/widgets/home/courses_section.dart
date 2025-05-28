@@ -7,7 +7,6 @@ import '../../services/course_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/shimmer_loading.dart';
-import '../../utils/guest_utils.dart';
 
 class CoursesSection extends StatefulWidget {
   final String? title;
@@ -68,14 +67,8 @@ class _CoursesSectionState extends State<CoursesSection> {
                     ),
                   ),
                   InkWell(
-                    onTap: () async {
-                      // Verificar si el usuario es invitado
-                      final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-                      
-                      // Solo navegar si NO es invitado
-                      if (!isGuest && context.mounted) {
-                        Navigator.pushNamed(context, '/courses');
-                      }
+                    onTap: () {
+                      Navigator.pushNamed(context, '/courses');
                     },
                     child: Text(
                       'Ver todos',
@@ -170,15 +163,7 @@ class _CoursesSectionState extends State<CoursesSection> {
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: GestureDetector(
-          onTap: () async {
-            // Verificar si el usuario es invitado
-            final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-            
-            // Solo navegar si NO es invitado
-            if (!isGuest && context.mounted) {
-              Navigator.pushNamed(context, '/courses');
-            }
-          },
+          onTap: () => Navigator.pushNamed(context, '/courses'),
           child: Container(
             decoration: BoxDecoration(
               color: Color(config.getBackgroundColorValue()),
@@ -276,19 +261,11 @@ class _CoursesSectionState extends State<CoursesSection> {
   // Construye un card para un curso en la lista horizontal
   Widget _buildCourseCard(Course course) {
     return GestureDetector(
-      onTap: () async {
-        // Verificar si el usuario es invitado
-        final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-        
-        // Solo navegar si NO es invitado
-        if (!isGuest && context.mounted) {
-          Navigator.pushNamed(
-            context, 
-            '/courses/detail',
-            arguments: course.id,
-          );
-        }
-      },
+      onTap: () => Navigator.pushNamed(
+        context, 
+        '/courses/detail',
+        arguments: course.id,
+      ),
       child: Container(
         width: 200,
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/group_card.dart';
 import '../../modals/create_group_modal.dart';
 import '../../services/permission_service.dart';
+import '../../widgets/skeletons/list_tab_content_skeleton.dart';
 
 class GroupsListScreen extends StatefulWidget {
   const GroupsListScreen({super.key});
@@ -158,7 +159,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
                         if (_canCreateGroup)
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
-                            tooltip: 'Criar Grupo',
+                            tooltip: 'Criar Connect',
                             onPressed: () {
                               // Acción para crear un nuevo grupo
                               showModalBottomSheet(
@@ -261,7 +262,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
               },
               backgroundColor: AppColors.primary,
               child: const Icon(Icons.add),
-              tooltip: 'Criar Grupo',
+              tooltip: 'Criar Connect',
             )
           : null, // Ocultar si no es pastor
     );
@@ -282,9 +283,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ListTabContentSkeleton();
         }
 
         try {
@@ -373,9 +372,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ListTabContentSkeleton();
         }
 
         final userGroups = snapshot.data!.docs.map((doc) => 

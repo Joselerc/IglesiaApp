@@ -17,6 +17,7 @@ import '../../theme/app_text_styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../main.dart' as main_app;
 import '../../cubits/navigation_cubit.dart';
+import '../../widgets/skeletons/calendar_screen_skeleton.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -512,9 +513,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: CalendarScreenSkeleton());
     }
     
     return Scaffold(

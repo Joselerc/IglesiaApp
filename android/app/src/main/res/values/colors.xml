@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Color principal de la iglesia para notificaciones -->
+    <color name="notification_color">#E94F1A</color>
+ 
+    <!-- Colores adicionales para la app -->
+    <color name="primary_color">#E94F1A</color>
+    <color name="primary_dark">#D44315</color>
+    <color name="accent_color">#FF7043</color>
+</resources> 

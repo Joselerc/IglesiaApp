@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart'; // <-- AÑADIR IMPORTACIÓN
 import '../widgets/circular_image_picker.dart';
 import '../models/user_model.dart';
 import '../models/profile_field.dart';
@@ -32,7 +33,11 @@ import '../services/role_service.dart'; // <-- Import correcto del servicio de r
 import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';
 import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
-import '../utils/guest_utils.dart'; // <-- Importar utilidades para usuarios invitados
+import '../widgets/skeletons/profile_screen_skeleton.dart';
+import '../widgets/skeletons/additional_fields_skeleton.dart';
+import './statistics/church_statistics_screen.dart'; // <-- IMPORTAR NUEVA PANTALLA
+import '../widgets/profile/profile_additional_fields_section.dart'; // <-- IMPORTAR NUEVO WIDGET
+import '../widgets/profile/profile_personal_information_section.dart'; // <-- AÑADIR IMPORT DEL NUEVO WIDGET
 
 
 class ProfileScreen extends StatefulWidget {
@@ -44,9 +49,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _surnameController = TextEditingController();
-  final _phoneController = TextEditingController();
   bool _isLoading = false;
   UserModel? _currentUser;
   final ProfileFieldsService _profileFieldsService = ProfileFieldsService();
@@ -56,17 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Variables para controlar si se muestran las opciones administrativas
   bool _hasAdminAccess = false; // Reemplaza a _isPastor
   
-  // Variables para el teléfono con código de país
-  String _phoneCountryCode = '+55'; // Código de marcación (ej: +55)
-  String _phoneCompleteNumber = '';
-  bool _isValidPhone = false;
-  String _isoCountryCode = 'BR'; // NUEVO: Código ISO (ej: BR)
-
-  // --- NUEVOS CAMPOS PARA PERFIL ---
-  DateTime? _birthDate;
-  String? _gender;
-  // --- FIN NUEVOS CAMPOS ---
-
   @override
   void initState() {
     super.initState();
@@ -78,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isLoading = true);
     
     try {
-      print('🔄 CARGANDO DATOS DE USUARIO');
+      print('🔄 CARGANDO DATOS DE USUARIO (ProfileScreen)');
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final userDoc = await FirebaseFirestore.instance
@@ -89,149 +80,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (userDoc.exists && mounted) {
           final userData = userDoc.data() as Map<String, dynamic>;
           
-          // Obtener los datos del teléfono
-          final phoneSimple = userData['phone'] as String? ?? '';
-          final phoneComplete = userData['phoneComplete'] as String? ?? '';
-          final phoneCountryCode = userData['phoneCountryCode'] as String? ?? '+55';
-          
-          // Log detallado de los datos cargados
-          print('📱 DATOS DE TELÉFONO CARGADOS DE FIRESTORE:');
-          print('- phone: "$phoneSimple"');
-          print('- phoneComplete: "$phoneComplete"');
-          print('- phoneCountryCode: "$phoneCountryCode"');
-          
-          // Leer ISO code directamente, con fallback a conversión para datos antiguos
-          String loadedIsoCode = userData['isoCountryCode'] as String? ?? '';
-          if (loadedIsoCode.isEmpty) {
-            print('⚠️ isoCountryCode no encontrado en Firestore, usando fallback desde phoneCountryCode: $phoneCountryCode');
-            loadedIsoCode = _getIsoCodeFromDialCode(phoneCountryCode);
-          } else {
-            print('🌍 Código ISO cargado desde Firestore: $loadedIsoCode');
-          }
-          
           setState(() {
             _currentUser = UserModel.fromMap(userData);
-            _nameController.text = _currentUser?.name ?? '';
-            _surnameController.text = _currentUser?.surname ?? '';
-            
-            // Asignar los valores del teléfono de manera segura
-            _phoneController.text = phoneSimple;
-            _phoneCompleteNumber = phoneComplete;
-            _phoneCountryCode = phoneCountryCode; // Guardamos el dial code leído
-            _isoCountryCode = loadedIsoCode; // Usar el código ISO cargado o convertido
-            _isValidPhone = phoneSimple.length >= 8;
-            
-            // Cargar nuevos campos
-            _birthDate = (userData['birthDate'] as Timestamp?)?.toDate();
-            _gender = userData['gender'] as String?;
-
-            // Log adicional después de asignar
-            print('📱 TELÉFONO INICIALIZADO EN UI:');
-            print('- _phoneController.text: "${_phoneController.text}"');
-            print('- _phoneCompleteNumber: "$_phoneCompleteNumber"');
-            print('- _phoneCountryCode: "$_phoneCountryCode"');
-            print('- _isValidPhone: $_isValidPhone');
+            print('PROFILE_SCREEN: _currentUser cargado. Otros campos manejados por widgets hijos.');
           });
         } else {
-          print('⚠️ DOCUMENTO DE USUARIO NO EXISTE O COMPONENT NO ESTÁ MONTADO');
+          print('⚠️ DOCUMENTO DE USUARIO NO EXISTE O COMPONENT NO ESTÁ MONTADO (ProfileScreen)');
         }
       } else {
-        print('⚠️ USUARIO NO AUTENTICADO');
+        print('⚠️ USUARIO NO AUTENTICADO (ProfileScreen)');
       }
     } catch (e) {
-      print('❌ ERROR AL CARGAR DATOS DEL USUARIO: $e');
+      print('❌ ERROR AL CARGAR DATOS DEL USUARIO (ProfileScreen): $e');
       print('Stack trace: ${StackTrace.current}');
     } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        // Obtener el teléfono con trim para eliminar espacios
-        final phoneNumber = _phoneController.text.trim();
-        
-        // Depuración más detallada
-        print('🔄 GUARDANDO PERFIL:');
-        print('- Usuario ID: ${user.uid}');
-        print('- Nombre: ${_nameController.text.trim()}');
-        print('- Apellido: ${_surnameController.text.trim()}');
-        print('- Teléfono: "$phoneNumber"');
-        
-        // Crear el mapa de datos a actualizar
-        final Map<String, dynamic> updatedData = {
-          'name': _nameController.text.trim(),
-          'surname': _surnameController.text.trim(),
-          'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
-        };
-        
-        // Añadir el teléfono solo si no está vacío
-        // Esto es importante: añadir explícitamente el teléfono aunque sea vacío
-        updatedData['phone'] = phoneNumber;
-        
-        // Guardar código ISO y código de marcación
-        if (phoneNumber.isNotEmpty) {
-          updatedData['isoCountryCode'] = _isoCountryCode; // GUARDAR ISO CODE
-          updatedData['phoneComplete'] = _phoneCompleteNumber;
-          updatedData['phoneCountryCode'] = _phoneCountryCode;
-        } else {
-          // Si no hay número, limpiar los campos relacionados
-          updatedData['isoCountryCode'] = '';
-          updatedData['phoneComplete'] = '';
-          updatedData['phoneCountryCode'] = '';
-        }
-        
-        // Intentar la actualización como operación separada
-        print('💾 Enviando actualización a Firestore...');
-        
-        // Usar set con merge para asegurar que el campo se actualice
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set(updatedData, SetOptions(merge: true));
-        
-        // Verificar que se guardó correctamente con una nueva consulta
-        final verificacionDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        
-        final datoVerificado = verificacionDoc.data()?['phone'] as String? ?? 'no encontrado';
-        print('✅ Verificación después de guardar:');
-        print('- Teléfono en DB: "$datoVerificado"');
-        
-        if (datoVerificado != phoneNumber) {
-          print('⚠️ ADVERTENCIA: El teléfono guardado no coincide con el enviado');
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Perfil actualizado correctamente'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      print('❌ ERROR AL GUARDAR PERFIL: $e');
-      print('Stack trace: ${StackTrace.current}');
-      
       if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al salvar: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+        setState(() => _isLoading = false);
       }
     }
-    setState(() => _isLoading = false);
   }
 
   // Verificar si el usuario tiene acceso administrativo basado en permisos
@@ -305,112 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Método simple para guardar solo información personal
-  Future<void> _guardarInformacionPersonal() async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
-
-      // Mostrar indicador de carga
-      setState(() => _isLoading = true);
-      
-      // Log inicial
-      print('🔄 INICIANDO GUARDADO DE INFORMACIÓN PERSONAL');
-      
-      // Obtener el número de teléfono limpio (sin espacios)
-      final String phoneNumber = _phoneController.text.trim();
-      
-      // Si no tenemos un número completo pero sí un número simple, construirlo
-      if (phoneNumber.isNotEmpty && (_phoneCompleteNumber.isEmpty || !_phoneCompleteNumber.contains(phoneNumber))) {
-        _phoneCompleteNumber = '$_phoneCountryCode$phoneNumber';
-        print('🔧 Reconstruyendo número completo: $_phoneCompleteNumber');
-      }
-      
-      // Log detallado
-      print('📱 GUARDANDO TELÉFONO:');
-      print('- Número simple: "$phoneNumber"');
-      print('- Número completo: "$_phoneCompleteNumber"');
-      print('- Código de país: "$_phoneCountryCode"');
-      
-      // Preparar datos para guardar
-      final Map<String, dynamic> datos = {
-        'name': _nameController.text.trim(),
-        'surname': _surnameController.text.trim(),
-        'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
-      };
-      
-      // Siempre guardar el teléfono, incluso si está vacío, para sobrescribir valores anteriores
-      datos['phone'] = phoneNumber;
-      
-      // Guardar código ISO y código de marcación
-      if (phoneNumber.isNotEmpty) {
-        datos['isoCountryCode'] = _isoCountryCode; // GUARDAR ISO CODE
-        datos['phoneComplete'] = _phoneCompleteNumber;
-        datos['phoneCountryCode'] = _phoneCountryCode;
-      } else {
-        // Si no hay número, limpiar los campos relacionados
-        datos['isoCountryCode'] = '';
-        datos['phoneComplete'] = '';
-        datos['phoneCountryCode'] = '';
-      }
-      
-      // Guardar nuevos campos
-      datos['birthDate'] = _birthDate != null ? Timestamp.fromDate(_birthDate!) : null;
-      datos['gender'] = _gender;
-      
-      print('📤 DATOS A GUARDAR:');
-      datos.forEach((key, value) {
-        print('- $key: "$value"');
-      });
-      
-      // Guardar en Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update(datos);
-      
-      // Verificar que se guardó correctamente
-      final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-      final docSnap = await docRef.get();
-      if (docSnap.exists) {
-        final userData = docSnap.data();
-        if (userData != null) {
-          print('✅ VERIFICACIÓN DESPUÉS DE GUARDAR:');
-          print('- phone: "${userData['phone']}"');
-          print('- phoneComplete: "${userData['phoneComplete']}"');
-          print('- phoneCountryCode: "${userData['phoneCountryCode']}"');
-          
-          // Verificar si coincide con lo que intentamos guardar
-          if (userData['phone'] != phoneNumber) {
-            print('⚠️ ERROR: El teléfono guardado no coincide con el enviado');
-          } else {
-            print('✅ ÉXITO: Teléfono guardado correctamente');
-          }
-        }
-      }
-      
-      // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Información personal actualizada'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      print('❌ ERROR AL GUARDAR INFORMACIÓN PERSONAL: $e');
-      print('Stack trace: ${StackTrace.current}');
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al salvar: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -436,65 +196,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser?.uid)
             .snapshots(),
-        builder: (context, snapshot) {
-          // Añadir comprobación robusta para snapshot y sus datos
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+        builder: (context, userSnapshot) {
+          if (userSnapshot.connectionState == ConnectionState.waiting || !userSnapshot.hasData || !userSnapshot.data!.exists) {
+            return const ProfileScreenSkeleton(); 
           }
-          if (!snapshot.hasData || snapshot.data == null || !snapshot.data!.exists) {
-            // Mostrar un estado de error o carga si no hay datos válidos
-            // Esto evita el error de null check
-            print("❌ PROFILE_SCREEN - Error: No se encontraron datos válidos para el usuario.");
-            // Podrías mostrar un mensaje de error más amigable aquí
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 50),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "No se pudieron cargar los datos del perfil.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 30),
-                    // Botón de Cerrar Sesión añadido aquí
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text("Logout", style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary, // Color naranja
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      ),
-                      onPressed: () {
-                        // Llamar al método de logout del AuthService
-                        // Asegúrate de que AuthService esté disponible vía Provider
-                        try {
-                          Provider.of<AuthService>(context, listen: false).forceSignOut();
-                          // Navegar a la pantalla de login después de logout (opcional pero recomendado)
-                          // Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-                        } catch (e) {
-                          print("Error al cerrar sesión: $e");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error al cerrar sesión: $e"))
-                          );
-                        }
-                      },
-                    ),
-                    // Puedes descomentar el botón de reintentar si quieres
-                    // const SizedBox(height: 10),
-                    // TextButton(onPressed: _loadUserData, child: Text("Reintentar")),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          // Si llegamos aquí, snapshot.data y snapshot.data!.data() son seguros de usar
-          final userData = snapshot.data!.data() as Map<String, dynamic>;
-          
+          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
           return Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -522,120 +228,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fieldName: 'photoUrl',
                               defaultIcon: const Icon(Icons.person, size: 60, color: Colors.white),
                               size: 100,
-                                                              isEditable: FirebaseAuth.instance.currentUser?.isAnonymous != true,
+                              isEditable: true,
                             ),
-                            // Botón de cámara solo para usuarios normales (no invitados)
-                            if (FirebaseAuth.instance.currentUser?.isAnonymous != true)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Simular el clic en la imagen principal
-                                    final imagePicker = ImagePicker();
-                                    imagePicker.pickImage(source: ImageSource.gallery);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[700],
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
-                                    ),
-                                    child: const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Simular el clic en la imagen principal
+                                  final imagePicker = ImagePicker();
+                                  imagePicker.pickImage(source: ImageSource.gallery);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[700],
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
                               ),
+                            ),
                           ],
                         ),
-                                                    const SizedBox(height: 16),
-                            Text(
-                              FirebaseAuth.instance.currentUser?.isAnonymous == true 
-                                ? 'Usuário Convidado' 
-                                : (userData['displayName'] ?? 'Complete seu perfil'),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              FirebaseAuth.instance.currentUser?.isAnonymous == true
-                                ? 'Acesso limitado'
-                                : (userData['email'] ?? ''),
-                                                        style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            
-                            // Banner informativo para usuarios invitados (ahora después del nombre y email)
-                            if (FirebaseAuth.instance.currentUser?.isAnonymous == true) ...[
-                              const SizedBox(height: 16),
-                              Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.orange.shade200)
-                                ),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.info_outline, color: Colors.orange.shade800, size: 20),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'Modo convidado ativo',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.orange.shade800,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Crie uma conta para acessar todas as funcionalidades.',
-                                      style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.orange.shade500,
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(vertical: 10),
-                                          minimumSize: const Size(double.infinity, 40),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.pushNamed(context, '/register');
-                                        },
-                                        child: const Text('Criar conta'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                        const SizedBox(height: 16),
+                        Text(
+                          userData['displayName'] ?? 'Completa tu perfil',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          userData['email'] ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ), // <<< Fin del contenedor azul claro
                   
                   const SizedBox(height: 24),
                   
-                  // Sección de información personal - NUEVO DISEÑO
-                  // Sección de información personal - NUEVO DISEÑO
-                  FirebaseAuth.instance.currentUser?.isAnonymous == true 
-                    ? const SizedBox.shrink() // No mostrar para usuarios invitados
-                    : Container(
+                  // --- NUEVA SECCIÓN DE INFORMACIÓN ADICIONAL ---
+                  // if (FirebaseAuth.instance.currentUser != null)
+                  //   ProfileAdditionalFieldsSection(userId: FirebaseAuth.instance.currentUser!.uid),
+                  
+                  // --- SECCIÓN DE INFORMACIÓN PERSONAL (AHORA UN WIDGET) ---
+                  if (FirebaseAuth.instance.currentUser != null)
+                    ProfilePersonalInformationSection(userId: FirebaseAuth.instance.currentUser!.uid),
+                  
+                  const SizedBox(height: 24), // Espacio entre secciones
+                  
+                  // --- SECCIÓN DE INFORMACIÓN ADICIONAL (WIDGET EXISTENTE) ---
+                  if (FirebaseAuth.instance.currentUser != null)
+                    ProfileAdditionalFieldsSection(userId: FirebaseAuth.instance.currentUser!.uid),
+
+                  // Sección de información personal - NUEVO DISEÑO (ELIMINAR ESTE BLOQUE)
+                  /*
+                  Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -1031,218 +689,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
+                  */
                   
                   const SizedBox(height: 24),
                   
-                  // Sección de información adicional - NUEVO DISEÑO
-                  FirebaseAuth.instance.currentUser?.isAnonymous == true
-                    ? const SizedBox.shrink() // No mostrar para usuarios invitados
-                    : StreamBuilder<List<ProfileFieldResponse>>(
-                    stream: _profileFieldsService.getUserResponses(
-                      FirebaseAuth.instance.currentUser!.uid,
-                    ),
-                    builder: (context, responsesSnapshot) {
-                      if (responsesSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final responses = responsesSnapshot.data ?? [];
-
-                      return StreamBuilder<List<ProfileField>>(
-                        stream: _profileFieldsService.getActiveProfileFields(),
-                        builder: (context, fieldsSnapshot) {
-                          if (fieldsSnapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-
-                          final fields = fieldsSnapshot.data ?? [];
-
-                          if (fields.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
-                          
-                          // Crear un map para almacenar controladores y valores para cada campo
-                          final Map<String, TextEditingController> controllers = {};
-                          final Map<String, dynamic> fieldValues = {};
-                          
-                          // Inicializar controladores con valores existentes
-                          for (var field in fields) {
-                            final response = responses.firstWhere(
-                              (r) => r.fieldId == field.id,
-                              orElse: () => ProfileFieldResponse(
-                                id: '',
-                                userId: FirebaseAuth.instance.currentUser!.uid,
-                                fieldId: field.id,
-                                value: '',
-                                updatedAt: DateTime.now(),
-                              ),
-                            );
-                            
-                            String initialValue = '';
-                            if (response.value != null && response.value != '') {
-                              if (field.type == 'date' && response.value is DateTime) {
-                                initialValue = '${response.value.day}/${response.value.month}/${response.value.year}';
-                              } else {
-                                initialValue = response.value.toString();
-                              }
-                            }
-                            
-                            controllers[field.id] = TextEditingController(text: initialValue);
-                            fieldValues[field.id] = response.value;
-                          }
-
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                // Header con estilo
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF9C27B0).withOpacity(0.08),
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Título con icono
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: const Color(0xFF9C27B0).withOpacity(0.2),
-                                                  spreadRadius: 1,
-                                                  blurRadius: 5,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.assignment_outlined,
-                                              color: Color(0xFF9C27B0),
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          const Text(
-                                            'Informação Adicional',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFF9C27B0),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                      const SizedBox(height: 12),
-                                      
-                                      // Botón de guardar en su propia línea
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: ElevatedButton.icon(
-                                          icon: const Icon(Icons.save, size: 14, color: Colors.white),
-                                          label: const Text(
-                                            'Salvar',
-                                            style: TextStyle(fontSize: 13),
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF9C27B0),
-                                            foregroundColor: Colors.white,
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                            elevation: 0,
-                                            minimumSize: const Size(85, 32),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          onPressed: () => _guardarInformacionAdicional(fields, controllers, fieldValues),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                
-                                // Contenido
-                                Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: fields.isEmpty
-                                    ? Center(
-                                        child: Column(
-                                          children: [
-                                            Icon(
-                                              Icons.info_outline,
-                                              size: 48,
-                                              color: Colors.grey[400],
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              'Não há informações adicionais para preencher',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 16,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          ...fields.map((field) {
-                                            // Construir un widget de entrada para cada campo con estilo mejorado
-                                            return Padding(
-                                              padding: const EdgeInsets.only(bottom: 16),
-                                              child: _buildFieldInput(
-                                                field, 
-                                                controllers[field.id]!,
-                                                fieldValues,
-                                                responses.firstWhere(
-                                                  (r) => r.fieldId == field.id,
-                                                  orElse: () => ProfileFieldResponse(
-                                                    id: '',
-                                                    userId: FirebaseAuth.instance.currentUser!.uid,
-                                                    fieldId: field.id,
-                                                    value: '',
-                                                    updatedAt: DateTime.now(),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ],
-                                      ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 24),
-
                   // Sección de Ministerios y Grupos - NUEVO DISEÑO
                   Container(
                     decoration: BoxDecoration(
@@ -1505,17 +955,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: Colors.transparent,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(12),
-                                              onTap: () async {
-                                                final user = FirebaseAuth.instance.currentUser;
-                                                if (user != null && user.isAnonymous) {
-                                                  // Si es usuario invitado, mostrar diálogo de restricción
-                                                  if (context.mounted) {
-                                                    await GuestUtils.showGuestRestrictedDialog(context);
-                                                  }
-                                                } else {
-                                                  // Si no es invitado, navegar normalmente
-                                                  Navigator.pushNamed(context, '/ministries');
-                                                }
+                                              onTap: () {
+                                                Navigator.pushNamed(context, '/ministries');
                                               },
                                               child: Center(
                                                 child: Row(
@@ -1617,17 +1058,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                               ),
-                                              onPressed: () async {
-                                                final user = FirebaseAuth.instance.currentUser;
-                                                if (user != null && user.isAnonymous) {
-                                                  // Si es usuario invitado, mostrar diálogo de restricción
-                                                  if (context.mounted) {
-                                                    await GuestUtils.showGuestRestrictedDialog(context);
-                                                  }
-                                                } else {
-                                                  // Si no es invitado, navegar normalmente
-                                                  Navigator.pushNamed(context, '/ministries');
-                                                }
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/ministries');
                                               },
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1757,17 +1189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: Colors.transparent,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(12),
-                                              onTap: () async {
-                                                final user = FirebaseAuth.instance.currentUser;
-                                                if (user != null && user.isAnonymous) {
-                                                  // Si es usuario invitado, mostrar diálogo de restricción
-                                                  if (context.mounted) {
-                                                    await GuestUtils.showGuestRestrictedDialog(context);
-                                                  }
-                                                } else {
-                                                  // Si no es invitado, navegar normalmente
-                                                  Navigator.pushNamed(context, '/groups');
-                                                }
+                                              onTap: () {
+                                                Navigator.pushNamed(context, '/groups');
                                               },
                                               child: Center(
                                                 child: Row(
@@ -1869,17 +1292,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                               ),
-                                              onPressed: () async {
-                                                final user = FirebaseAuth.instance.currentUser;
-                                                if (user != null && user.isAnonymous) {
-                                                  // Si es usuario invitado, mostrar diálogo de restricción
-                                                  if (context.mounted) {
-                                                    await GuestUtils.showGuestRestrictedDialog(context);
-                                                  }
-                                                } else {
-                                                  // Si no es invitado, navegar normalmente
-                                                  Navigator.pushNamed(context, '/groups');
-                                                }
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/groups');
                                               },
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1917,7 +1331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),                 
                   
                   // --- NUEVA SECCIÓN DE ADMINISTRACIÓN (Basada en permisos) ---
-                  if (_hasAdminAccess && FirebaseAuth.instance.currentUser?.isAnonymous != true) ...[
+                  if (_hasAdminAccess) ...[
                     const SizedBox(height: 24),
                     Container(
                       decoration: BoxDecoration(
@@ -2033,21 +1447,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildPermissionControlledTile(
                             permissionKey: 'assign_user_roles', // Permiso para pantalla antigua
                             icon: Icons.admin_panel_settings,
-                            title: 'Gerenciar Papéis',
-                            subtitle: 'Atribua papéis de pastor a outros usuários',
+                            title: 'Gerenciar Perfiles',
+                            subtitle: 'Atribua perfiles de pastor a outros usuários',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UserRoleManagementScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_roles', // Permiso para nueva pantalla
                             icon: Icons.assignment_ind_outlined, 
-                            title: 'Gerenciar Papéis (New)',
-                            subtitle: 'Criar/editar papéis e permissões',
+                            title: 'Criar/editar Perfiles',
+                            subtitle: 'Criar/editar perfiles e permissões',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageRolesScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_announcements',
                              icon: Icons.campaign, 
-                             title: 'Gerenciar Anúncios',
+                             title: 'Criar Anúncios',
                              subtitle: 'Crie e edite anúncios para a igreja',
                              onTap: () => _showCreateAnnouncementModal(context),
                            ),
@@ -2074,7 +1488,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildPermissionControlledTile(
                              permissionKey: 'create_group',
                              icon: Icons.group_add_outlined, 
-                             title: 'Criar Grupo',
+                             title: 'Criar Connect',
                              onTap: () => _showCreateGroupModal(context),
                            ),
                           _buildPermissionControlledTile(
@@ -2190,40 +1604,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              subtitle: 'Consultar detalhes de participação',
                              onTap: () => Navigator.pushNamed(context, '/admin/user-info'),
                            ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_church_statistics', // NUEVO PERMISO
+                             icon: Icons.bar_chart_rounded, // Icono para estadísticas generales
+                             title: 'Estatísticas da Igreja',
+                             subtitle: 'Visão geral dos membros e atividades',
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChurchStatisticsScreen())),
+                           ),
                         ],
                               );
                             },
                       ),
 
-                          // --- Subsección: Gestão MyKids ---
-                          const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
-                            child: Text('Gestão MyKids', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)), // Color distintivo para el título
-                          ),
-                          _buildPermissionControlledTile(
-                            permissionKey: 'manage_family_profiles', // Permiso específico
-                            icon: Icons.family_restroom_outlined, 
-                            title: 'Perfis Familiares',
-                            subtitle: 'Gerenciar perfis de pais e crianças',
-                            iconColor: Colors.teal.shade700, // Color del ícono
-                            onTap: () {
-                              // TODO: Navegar a la pantalla de gestión de perfiles familiares
-                              print('Navegar para Perfis Familiares');
-                            },
-                          ),
-                          _buildPermissionControlledTile(
-                            permissionKey: 'manage_checkin_rooms', // Permiso para administrar salas
-                            icon: Icons.meeting_room_outlined, 
-                            title: 'Gerenciar Salas e Check-in', // Título actualizado para reflejar la pantalla de admin
-                            subtitle: 'Administrar salas, check-in/out e assistência',
-                            iconColor: Colors.teal.shade700, // Mantener el color del ícono
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const KidsAdminScreen()));
-                            },
-                          ),
-                          // Aquí se pueden añadir más _buildPermissionControlledTile para otras funciones de MyKids
+                          // --- Subsección: Gestão MyKids --- (TEMPORALMENTE OCULTA)
+                          /*
+                          FutureBuilder<bool>(
+                            future: _hasAnyMyKidsPermission(), // Llama a la nueva función
+                            builder: (context, myKidsPermSnapshot) {
+                              if (myKidsPermSnapshot.connectionState == ConnectionState.waiting) {
+                                return const SizedBox(height: 20); // O un pequeño shimmer/loader
+                              }
+                              // No mostrar nada si hay error o no tiene explícitamente el permiso (myKidsPermSnapshot.data == false)
+                              // O si no es SuperUsuario (que ya se maneja en _hasAnyMyKidsPermission)
+                              if (myKidsPermSnapshot.hasError || !(myKidsPermSnapshot.data ?? false)) {
+                                return const SizedBox.shrink(); 
+                              }
 
+                              // Si tiene al menos un permiso de MyKids (o es SuperAdmin), mostrar la sección
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
+                                    child: Text('Gestão MyKids', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)),
+                                  ),
+                                  _buildPermissionControlledTile(
+                                    permissionKey: 'manage_family_profiles', 
+                                    icon: Icons.family_restroom_outlined, 
+                                    title: 'Perfis Familiares',
+                                    subtitle: 'Gerenciar perfis de pais e crianças',
+                                    iconColor: Colors.teal.shade700, 
+                                    onTap: () {
+                                      // TODO: Navegar a la pantalla de gestión de perfiles familiares
+                                      print('Navegar para Perfis Familiares');
+                                    },
+                                  ),
+                                  _buildPermissionControlledTile(
+                                    permissionKey: 'manage_checkin_rooms', 
+                                    icon: Icons.meeting_room_outlined, 
+                                    title: 'Gerenciar Salas e Check-in', 
+                                    subtitle: 'Administrar salas, check-in/out e assistência',
+                                    iconColor: Colors.teal.shade700, 
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const KidsAdminScreen()));
+                                    },
+                                  ),
+                                  // Aquí se pueden añadir más _buildPermissionControlledTile para otras funciones de MyKids
+                                ],
+                              );
+                            },
+                          ),
+                          */
                         ],
                     ),
                     ),
@@ -2234,12 +1676,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: Text(
-                        FirebaseAuth.instance.currentUser?.isAnonymous == true
-                          ? "Sair do modo convidado"
-                          : "Encerrar sessão", 
-                        style: const TextStyle(color: Colors.white)
-                      ),
+                      label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary, // Color naranja
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -2258,7 +1695,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                   
-                  // Botón de Diagnóstico (solo para administradores)
+                  // Botón de Diagnóstico (solo para administradores) - OCULTO
+                  /*
                   if (_hasAdminAccess) ...[
                     const SizedBox(height: 16),
                     Center(
@@ -2269,6 +1707,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+                  */
                   
                   const SizedBox(height: 20),
                   
@@ -2353,9 +1792,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _surnameController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
   
@@ -2754,247 +2190,156 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Método para construir los widgets de input para cada tipo de campo
   Widget _buildFieldInput(
     ProfileField field,
-    TextEditingController controller,
-    Map<String, dynamic> fieldValues,
-    ProfileFieldResponse response
+    TextEditingController controller, // Controller para el campo actual
+    Map<String, dynamic> fieldValues, // Mapa que almacena los valores de respuesta actuales
+    ProfileFieldResponse initialResponse // Para obtener el valor inicial si no está en fieldValues
   ) {
-    final Color primaryColor = const Color(0xFF9C27B0); // Color morado para la sección adicional
-    
+    final Color primaryColor = const Color(0xFF9C27B0); // Color para la sección adicional
+    // Usar el valor de fieldValues si existe; si no, el de la respuesta inicial de Firestore.
+    dynamic currentValue = fieldValues.containsKey(field.id) ? fieldValues[field.id] : initialResponse.value;
+
+    // Sincronizar el texto del controlador basado en currentValue
+    if (field.type == 'date') {
+      DateTime? dateValue;
+      if (currentValue is Timestamp) dateValue = currentValue.toDate();
+      else if (currentValue is DateTime) dateValue = currentValue;
+      // Solo actualizar el texto del controlador si es diferente, para evitar bucles con setState si se usa en onChanged
+      final formattedDateText = dateValue != null ? DateFormat('dd/MM/yyyy').format(dateValue) : '';
+      if (controller.text != formattedDateText) {
+          controller.text = formattedDateText;
+      }
+    } else if (field.type != 'select') { 
+      final currentControllerText = currentValue?.toString() ?? '';
+      if (controller.text != currentControllerText) {
+        controller.text = currentControllerText;
+      }
+    }
+
     switch (field.type) {
       case 'text':
       case 'email':
       case 'phone':
-        return TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: field.name,
-            labelStyle: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
-            helperText: field.description,
-            helperStyle: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: primaryColor, width: 2),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            prefixIcon: Container(
-              margin: const EdgeInsets.only(left: 12, right: 8),
-              child: Icon(
-                _getIconDataForFieldType(field.type),
-                color: primaryColor.withOpacity(0.7),
-              ),
-            ),
-            suffixIcon: field.isRequired
-                ? Tooltip(
-                    message: 'Campo obrigatório',
-                    child: Icon(
-                      Icons.star,
-                      size: 14,
-                      color: Colors.red[400],
-                    ),
-                  )
-                : null,
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          keyboardType: field.type == 'email'
-              ? TextInputType.emailAddress
-              : field.type == 'phone'
-                  ? TextInputType.phone
-                  : TextInputType.text,
-          onChanged: (value) {
-            fieldValues[field.id] = value;
-          },
-        );
-      
       case 'number':
         return TextFormField(
           controller: controller,
           decoration: InputDecoration(
             labelText: field.name,
-            labelStyle: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
+            labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
             helperText: field.description,
-            helperStyle: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: primaryColor, width: 2),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: primaryColor, width: 2)),
             filled: true,
             fillColor: Colors.grey[50],
-            prefixIcon: Container(
-              margin: const EdgeInsets.only(left: 12, right: 8),
-              child: Icon(
-                Icons.numbers,
-                color: primaryColor.withOpacity(0.7),
-              ),
-            ),
-            suffixIcon: field.isRequired
-                ? Tooltip(
-                    message: 'Campo obrigatório',
-                    child: Icon(
-                      Icons.star,
-                      size: 14,
-                      color: Colors.red[400],
-                    ),
-                  )
-                : null,
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            prefixIcon: Icon(_getIconDataForFieldType(field.type), color: primaryColor.withOpacity(0.7)),
+            suffixIcon: field.isRequired ? Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
           ),
-          keyboardType: TextInputType.number,
+          keyboardType: field.type == 'email' ? TextInputType.emailAddress :
+                        field.type == 'phone' ? TextInputType.phone :
+                        field.type == 'number' ? TextInputType.number :
+                        TextInputType.text,
+          validator: (value) {
+            if (field.isRequired && (value == null || value.isEmpty)) return 'Este campo é obrigatório';
+            return null;
+          },
           onChanged: (value) {
-            fieldValues[field.id] = int.tryParse(value) ?? value;
+            setState(() { 
+              if (field.type == 'number') {
+                fieldValues[field.id] = int.tryParse(value) ?? value;
+              } else {
+                fieldValues[field.id] = value;
+              }
+            });
           },
         );
       
       case 'date':
         return TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
+          controller: controller, 
+          readOnly: true,
+          decoration: InputDecoration( 
             labelText: field.name,
-            labelStyle: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
+            labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
             helperText: field.description,
-            helperStyle: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: primaryColor, width: 2),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: primaryColor, width: 2)),
             filled: true,
             fillColor: Colors.grey[50],
-            prefixIcon: Container(
-              margin: const EdgeInsets.only(left: 12, right: 8),
-              child: Icon(
-                Icons.calendar_today,
-                color: primaryColor.withOpacity(0.7),
-              ),
-            ),
-            suffixIcon: IconButton(
-              icon: const Icon(
-                Icons.calendar_month,
-                color: Color(0xFF9C27B0),
-              ),
-              onPressed: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                  builder: (context, child) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: ColorScheme.light(
-                          primary: primaryColor,
-                          onPrimary: Colors.white,
-                        ),
-                      ),
-                      child: child!,
-                    );
-                  },
-                );
-                if (date != null) {
-                  setState(() {
-                    controller.text = '${date.day}/${date.month}/${date.year}';
-                    fieldValues[field.id] = date;
-                  });
-                }
-              },
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            prefixIcon: Icon(Icons.calendar_today, color: primaryColor.withOpacity(0.7)),
+            suffixIcon: field.isRequired ? Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
           ),
-          readOnly: true,
+          onTap: () async {
+            DateTime initialPickerDate = DateTime.now();
+            if (fieldValues[field.id] is DateTime) {
+              initialPickerDate = fieldValues[field.id] as DateTime;
+            } else if (fieldValues[field.id] is Timestamp) {
+              initialPickerDate = (fieldValues[field.id] as Timestamp).toDate();
+            }
+
+            final date = await showDatePicker(
+              context: context,
+              initialDate: initialPickerDate,
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+              locale: const Locale('pt', 'BR'),
+              builder: (context, child) { 
+                return Theme(data: Theme.of(context).copyWith(colorScheme: ColorScheme.light(primary: primaryColor, onPrimary: Colors.white)), child: child!,);
+              },
+            );
+            if (date != null) {
+              setState(() { 
+                fieldValues[field.id] = date; 
+                controller.text = DateFormat('dd/MM/yyyy').format(date);
+              });
+            }
+          },
+          validator: (value) {
+            if (field.isRequired && fieldValues[field.id] == null) return 'Este campo é obrigatório';
+            return null;
+          },
         );
-      
+
       case 'select':
         final options = field.options ?? [];
+        String? currentSelectionInFieldValues = fieldValues[field.id] as String?;
+        if (currentSelectionInFieldValues != null && !options.contains(currentSelectionInFieldValues)) {
+          currentSelectionInFieldValues = null; 
+        }
+
         return SelectionFormField(
-          initialValue: response.value as String?,
+          key: ValueKey('profile_screen_select_${field.id}'),
+          initialValue: currentSelectionInFieldValues,
           label: field.name,
-          hint: 'Seleccione una opción',
+          hint: field.description ?? 'Seleccione una opción',
           options: options,
           isRequired: field.isRequired,
-          prefixIcon: Container(
-            margin: const EdgeInsets.only(left: 12, right: 8),
-            child: Icon(
-              Icons.list_alt,
-              color: primaryColor.withOpacity(0.7),
-            ),
-          ),
+          prefixIcon: Icon(Icons.list_alt, color: primaryColor.withOpacity(0.7)),
           backgroundColor: Colors.grey[50]!,
           borderRadius: 10,
           onChanged: (value) {
-            setState(() {
-              fieldValues[field.id] = value;
-              controller.text = value ?? '';
+            setState(() { 
+              fieldValues[field.id] = value; 
             });
           },
-          validator: field.isRequired 
-              ? (value) => value == null || value.isEmpty 
-                  ? 'Este campo es requerido' 
-                  : null
-              : null,
+          validator: field.isRequired ? (value) => value == null || value.isEmpty ? 'Este campo é obrigatório' : null : null,
         );
       
       default:
-        return const Text('Tipo de campo não suportado');
+        return Text('Tipo de campo não suportado: ${field.type}');
     }
   }
 
   // Método para obtener el ícono específico para cada tipo de campo
   IconData _getIconDataForFieldType(String type) {
     switch (type) {
-      case 'email':
-        return Icons.email;
-      case 'phone':
-        return Icons.phone;
-      case 'date':
-        return Icons.calendar_today;
-      case 'select':
-        return Icons.list;
-      case 'number':
-        return Icons.numbers;
+      case 'email': return Icons.email;
+      case 'phone': return Icons.phone;
+      case 'date': return Icons.calendar_today;
+      case 'select': return Icons.list;
+      case 'number': return Icons.numbers;
       case 'text':
-      default:
-        return Icons.text_fields;
+      default: return Icons.text_fields;
     }
   }
 
@@ -3255,6 +2600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<bool> _hasAnyReportPermission() async {
     // Lista de permisos relacionados con informes y estadísticas
     final reportPermissions = [
+      'view_church_statistics', // AÑADIR NUEVO PERMISO AQUÍ
       'manage_event_attendance',
       'view_ministry_stats',
       'view_group_stats',
@@ -3279,6 +2625,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
     
+    return false;
+  }
+
+  // NUEVA FUNCIÓN PARA VERIFICAR PERMISOS DE MYKIDS
+  Future<bool> _hasAnyMyKidsPermission() async {
+    final List<String> myKidsPermissions = [
+      'manage_family_profiles',
+      'manage_checkin_rooms',
+      // Añadir aquí cualquier otro permiso futuro de MyKids
+    ];
+    // Comprobar si es SuperAdmin primero, ya que tiene todos los permisos
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data()?['isSuperUser'] == true) {
+        return true;
+      }
+    }
+    // Verificar permisos individuales
+    for (final permission in myKidsPermissions) {
+      if (await _permissionService.hasPermission(permission)) {
+        return true;
+      }
+    }
     return false;
   }
 

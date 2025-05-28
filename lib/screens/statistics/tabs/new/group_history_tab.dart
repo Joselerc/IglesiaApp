@@ -1257,7 +1257,7 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                             ),
                             Expanded(
                               child: Text(
-                                'Solicitação aceita',
+                                'Solicitação aprovada',
                                 style: const TextStyle(
                                   fontSize: 12,
                                 ),

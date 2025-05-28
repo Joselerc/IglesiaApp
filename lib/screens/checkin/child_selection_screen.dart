@@ -32,17 +32,54 @@ class _ChildSelectionScreenState extends State<ChildSelectionScreen> {
 
   void _navigateToQrScanner() {
     if (_selectedChildIds.isEmpty) return;
-    print('Crianças selecionadas: $_selectedChildIds');
-    print('Navegando para QR Scanner...');
-    // Navegar a la pantalla del scanner real
+    print('Crianças selecionadas: $_selectedChildIds para family/visitor: ${widget.familyId}');
     Navigator.push(
       context, 
-      MaterialPageRoute(builder: (_) => QRScannerScreen(selectedChildIds: _selectedChildIds))
+      MaterialPageRoute(builder: (_) => QRScannerScreen(
+        selectedChildIds: _selectedChildIds,
+        familyOrVisitorId: widget.familyId,
+      ))
     );
     // Eliminar SnackBar de placeholder
     // ScaffoldMessenger.of(context).showSnackBar(
     //   SnackBar(content: Text('Próximo passo: Ler QR Code para ${_selectedChildIds.length} criança(s)')),
     // );
+  }
+
+  bool _isAgeInRange(int childAge, String? ageRangeString) {
+    if (ageRangeString == null) return false; // O true si quieres que coincida si no hay rango
+    ageRangeString = ageRangeString.toLowerCase();
+
+    if (ageRangeString.contains('berçário')) { // Asumir Berçário es 0-1 o 0-2
+      return childAge <= 1; // Ajustar según tu definición de Berçário
+    }
+    // Ejemplo para "Sala X a Y anos"
+    final RegExp ageRegExp = RegExp(r'(\d+)\s*a\s*(\d+)\s*anos');
+    if (ageRegExp.hasMatch(ageRangeString)) {
+      final match = ageRegExp.firstMatch(ageRangeString)!;
+      final minAge = int.parse(match.group(1)!);
+      final maxAge = int.parse(match.group(2)!);
+      return childAge >= minAge && childAge <= maxAge;
+    }
+    // Ejemplo para "Sala X anos"
+    final RegExp singleAgeRegExp = RegExp(r'sala\s*(\d+)\s*anos');
+    if (singleAgeRegExp.hasMatch(ageRangeString)) {
+      final match = singleAgeRegExp.firstMatch(ageRangeString)!;
+      final age = int.parse(match.group(1)!);
+      return childAge == age;
+    }
+    // Añadir más lógica para otros formatos de ageRangeString
+    return false; // No coincide con ningún formato conocido
+  }
+
+  int _calculateAgeFromTimestamp(Timestamp birthDateTs) {
+    final birth = birthDateTs.toDate();
+    final today = DateTime.now();
+    int age = today.year - birth.year;
+    if (today.month < birth.month || (today.month == birth.month && today.day < birth.day)) {
+      age--;
+    }
+    return age; // Devuelve solo el número de años
   }
 
   @override

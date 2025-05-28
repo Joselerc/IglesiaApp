@@ -71,7 +71,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         });
       }
     } catch (e) {
-      debugPrint('Error cargando estadísticas: $e');
+      debugPrint('Erro carregando estatísticas: $e');
     }
   }
 
@@ -115,7 +115,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         });
       }
     } catch (e) {
-      debugPrint('Error loading pending requests: $e');
+      debugPrint('Erro carregando solicitações pendentes: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -142,7 +142,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Solicitud aceptada correctamente'),
+            content: Text('Solicitação aceita corretamente'),
             backgroundColor: Colors.green,
           ),
         );
@@ -155,7 +155,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Erro: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -183,14 +183,14 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Solicitud rechazada'),
+          content: Text('Solicitação rejeitada'),
           backgroundColor: Colors.orange,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text('Erro: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -207,7 +207,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('No hay usuario autenticado');
+        throw Exception('Não há usuário autenticado');
       }
       
       // Obtener información del usuario actual (admin)
@@ -227,15 +227,15 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
           .get();
       
       if (!userDoc.exists) {
-        throw Exception('Usuario no encontrado');
+        throw Exception('Usuário não encontrado');
       }
       
       final userData = userDoc.data() as Map<String, dynamic>;
-      final userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
+      final userName = userData['name'] ?? userData['displayName'] ?? 'Usuário';
       final userEmail = userData['email'] ?? '';
       final userPhotoUrl = userData['photoUrl'] ?? '';
       
-      print('Añadiendo usuario: $userId - $userName - $userEmail');
+      print('Adicionando usuário: $userId - $userName - $userEmail');
       
       // Agregar el usuario al ministerio
       await _ministryService.addUserToMinistry(userId, widget.ministry.id);
@@ -264,8 +264,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       }
       
     } catch (e) {
-      print('Error al añadir usuario: $e');
-      throw Exception('Error al añadir usuario: $e');
+      print('Erro ao adicionar usuário: $e');
+      throw Exception('Erro ao adicionar usuário: $e');
     }
   }
 
@@ -279,8 +279,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
     // Obtener los IDs de miembros actuales para excluirlos
     final memberIds = widget.ministry.memberIds;
     
-    print('Ministerio miembros actuales: ${memberIds.length}');
-    print('IDs de miembros del ministerio: $memberIds');
+    print('Ministerio membros atuais: ${memberIds.length}');
+    print('IDs de membros do ministério: $memberIds');
     
     // Mostrar carga
     setState(() {
@@ -303,43 +303,44 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         final isMember = memberIds.contains(doc.id);
         
         if (isMember) {
-          print('Usuario ministerio ${doc.id} (${doc['name'] ?? 'sin nombre'}) es miembro');
+          print('Usuário ministério ${doc.id} (${doc['name'] ?? 'sem nome'}) é membro');
         }
         
         // Añadir todos los usuarios, pero marcar los que ya son miembros
         allUsers.add({
           'id': doc.id,
-          'name': doc['name'] ?? doc['displayName'] ?? 'Usuario sin nombre',
+          'name': doc['name'] ?? doc['displayName'] ?? 'Usuário sem nome',
           'email': doc['email'] ?? '',
           'photoUrl': doc['photoUrl'] ?? '',
           'isMember': isMember,
         });
       }
       
-      // Inicializar la lista filtrada con solo los usuarios que NO son miembros
-      filteredUsers = allUsers.where((user) => !(user['isMember'] as bool))
-          .toList()
-          .cast<Map<String, dynamic>>();
+      // Inicializar la lista filtrada con TODOS los usuarios al principio
+      filteredUsers = List<Map<String, dynamic>>.from(allUsers);
       
-      print('Total de usuarios: ${allUsers.length}');
-      print('Usuarios filtrados (no miembros): ${filteredUsers.length}');
+      print('Total de usuários: ${allUsers.length}');
+      print('Usuários filtrados (não membros): ${filteredUsers.length}');
       
       // Mostrar modal solo si el widget sigue montado
       if (mounted) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
           builder: (context) {
+            // Variables para búsqueda y filtrado fuera del StatefulBuilder
+            String searchQuery = '';
+            bool showOnlyNonMembers = false; // Cambiar a false por defecto
+            
+            // Inicializar la lista filtrada con TODOS los usuarios al principio
+            filteredUsers = List<Map<String, dynamic>>.from(allUsers);
+            
             return StatefulBuilder(
               builder: (context, setModalState) {
-                // Variables para búsqueda y filtrado
-                String searchQuery = '';
-                bool showOnlyNonMembers = true; // Por defecto, mostrar solo los que no son miembros
-                
                 // Función para filtrar usuarios
                 void filterUsers(String query) {
                   setModalState(() {
@@ -370,8 +371,13 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                 }
                 
                 return Container(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -402,9 +408,10 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        controller: TextEditingController(text: searchQuery),
                         onChanged: filterUsers,
                       ),
+                      
+                      const SizedBox(height: 8),
                       
                       // Opciones de filtro
                       Row(
@@ -414,12 +421,12 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             activeColor: AppColors.primary,
                             onChanged: (value) {
                               setModalState(() {
-                                showOnlyNonMembers = value ?? true;
+                                showOnlyNonMembers = value ?? false;
                                 filterUsers(searchQuery);
                               });
                             },
                           ),
-                          const Text('Mostrar solo usuarios que no son miembros'),
+                          const Text('Mostrar só usuários que não são membros'),
                         ],
                       ),
                       
@@ -442,93 +449,93 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                               ),
                             )
                           : ListView.builder(
-                            itemCount: filteredUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = filteredUsers[index];
-                              final isSelected = selectedUsers.contains(user['id']);
-                              final isMember = user['isMember'] as bool;
-                              
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
-                                      ? NetworkImage(user['photoUrl'])
-                                      : null,
-                                    child: user['photoUrl'] == null || user['photoUrl'].isEmpty
-                                      ? const Icon(Icons.person)
-                                      : null,
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          user['name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (isMember)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(color: AppColors.primary.withOpacity(0.5)),
-                                          ),
+                              itemCount: filteredUsers.length,
+                              itemBuilder: (context, index) {
+                                final user = filteredUsers[index];
+                                final isSelected = selectedUsers.contains(user['id']);
+                                final isMember = user['isMember'] as bool;
+                                
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
+                                        ? NetworkImage(user['photoUrl'])
+                                        : null,
+                                      child: user['photoUrl'] == null || user['photoUrl'].isEmpty
+                                        ? const Icon(Icons.person)
+                                        : null,
+                                    ),
+                                    title: Row(
+                                      children: [
+                                        Expanded(
                                           child: Text(
-                                            'Membro',
-                                            style: TextStyle(
-                                              color: AppColors.primary,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                            user['name'],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (isMember)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary.withOpacity(0.2),
+                                              borderRadius: BorderRadius.circular(10),
+                                              border: Border.all(color: AppColors.primary.withOpacity(0.5)),
+                                            ),
+                                            child: Text(
+                                              'Membro',
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
+                                      ],
+                                    ),
+                                    subtitle: Text(
+                                      user['email'],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    trailing: isMember
+                                      ? Icon(Icons.check_circle, color: AppColors.primary)
+                                      : Checkbox(
+                                          value: isSelected,
+                                          activeColor: AppColors.primary,
+                                          onChanged: (value) {
+                                            setModalState(() {
+                                              if (value == true) {
+                                                selectedUsers.add(user['id']);
+                                              } else {
+                                                selectedUsers.remove(user['id']);
+                                              }
+                                            });
+                                          },
                                         ),
-                                    ],
-                                  ),
-                                  subtitle: Text(
-                                    user['email'],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  trailing: isMember
-                                    ? Icon(Icons.check_circle, color: AppColors.primary)
-                                    : Checkbox(
-                                        value: isSelected,
-                                        activeColor: AppColors.primary,
-                                        onChanged: (value) {
+                                    onTap: isMember
+                                      ? null // No hacer nada si ya es miembro
+                                      : () {
                                           setModalState(() {
-                                            if (value == true) {
-                                              selectedUsers.add(user['id']);
-                                            } else {
+                                            if (isSelected) {
                                               selectedUsers.remove(user['id']);
+                                            } else {
+                                              selectedUsers.add(user['id']);
                                             }
                                           });
                                         },
-                                      ),
-                                  onTap: isMember
-                                    ? null // No hacer nada si ya es miembro
-                                    : () {
-                                        setModalState(() {
-                                          if (isSelected) {
-                                            selectedUsers.remove(user['id']);
-                                          } else {
-                                            selectedUsers.add(user['id']);
-                                          }
-                                        });
-                                      },
-                                  // Color gris claro de fondo para los que ya son miembros
-                                  tileColor: isMember ? Colors.grey[100] : null,
-                                ),
-                              );
-                            },
-                          ),
+                                    // Color gris claro de fondo para los que ya son miembros
+                                    tileColor: isMember ? Colors.grey[100] : null,
+                                  ),
+                                );
+                              },
+                            ),
                       ),
                       
                       // Botón de acción
                       Padding(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 16),
+                        padding: const EdgeInsets.only(top: 16),
                         child: ElevatedButton(
                           onPressed: selectedUsers.isEmpty
                             ? null
@@ -569,7 +576,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                     _loadStats();
                                   }
                                 } catch (e) {
-                                  print('Error al procesar la adición de usuarios: $e');
+                                  print('Erro ao processar a adição de usuários: $e');
                                   if (mounted) {
                                     setState(() {
                                       _isLoading = false;
@@ -577,7 +584,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                     
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Error: $e'),
+                                        content: Text('Erro: $e'),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -614,7 +621,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error ao carregar usuários: $e'),
+          content: Text('Erro ao carregar usuários: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -625,7 +632,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión de Miembros'),
+        title: const Text('Gestão de Membros'),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -647,7 +654,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                 _showStats = !_showStats;
               });
             },
-            tooltip: _showStats ? 'Ocultar estadísticas' : 'Ver estadísticas',
+            tooltip: _showStats ? 'Ocultar estatísticas' : 'Ver estatísticas',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -655,7 +662,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
               _loadPendingRequests();
               _loadStats();
             },
-            tooltip: 'Actualizar',
+            tooltip: 'Atualizar',
           ),
         ],
         bottom: TabBar(
@@ -665,8 +672,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
           unselectedLabelColor: Colors.white.withOpacity(0.7),
           tabs: const [
             Tab(text: 'Pendentes'),
-            Tab(text: 'Aceitadas'),
-            Tab(text: 'Rejeitadas'),
+            Tab(text: 'Aprovadas'),
+            Tab(text: 'Reprovadas'),
             Tab(text: 'Saídas'),
           ],
         ),
@@ -684,7 +691,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                     child: Column(
                       children: [
                         const Text(
-                          'Estadísticas de solicitudes',
+                          'Estatísticas de solicitações',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -701,13 +708,13 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                               Icons.people_outline,
                             ),
                             _buildStatCard(
-                              'Aceitas',
+                              'Aprovadas',
                               _acceptedRequests,
                               Colors.green,
                               Icons.check_circle_outline,
                             ),
                             _buildStatCard(
-                              'Rejeitadas',
+                              'Reprovadas',
                               _rejectedRequests,
                               Colors.orange,
                               Icons.cancel_outlined,
@@ -747,7 +754,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddUsersModal,
-        tooltip: 'Añadir usuarios',
+        tooltip: 'Adicionar usuários',
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.person_add),
       ),
@@ -809,7 +816,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '¡Todo al día!',
+                        'Tudo em dia!',
                         style: TextStyle(
                           color: Colors.grey[600],
                         ),
@@ -917,7 +924,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensaje:',
+                              'Mensagem:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -942,7 +949,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                               children: [
                         TextButton.icon(
                           icon: const Icon(Icons.cancel),
-                          label: const Text('Rechazar'),
+                          label: const Text('Rejeitar'),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
@@ -951,7 +958,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                         const SizedBox(width: 8),
                         ElevatedButton.icon(
                                   icon: const Icon(Icons.check_circle),
-                          label: const Text('Aceptar'),
+                          label: const Text('Aceitar'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -1002,7 +1009,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há solicitações ${status == 'accepted' ? 'aceitas' : 'rejeitadas'}',
+                  'Não há solicitações ${status == 'accepted' ? 'aprovadas' : 'rejeitadas'}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1065,7 +1072,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data['userName'] ?? 'Usuario',
+                                data['userName'] ?? 'Usuário',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -1098,7 +1105,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             ),
                           ),
                           child: Text(
-                            status == 'accepted' ? 'Aceptada' : 'Rechazada',
+                            status == 'accepted' ? 'Aceita' : 'Rejeitada',
                             style: TextStyle(
                               color: status == 'accepted' ? Colors.green[800] : Colors.orange[800],
                               fontSize: 11,
@@ -1171,7 +1178,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                   child: Text(
                                     isDirectAdd 
                                       ? 'Data: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}'
-                                      : '${status == 'accepted' ? 'Aceptado' : 'Rechazado'}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
+                                      : '${status == 'accepted' ? 'Aceito' : 'Rejeitado'}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: status == 'accepted' ? Colors.green[700] : Colors.orange[700],
@@ -1192,7 +1199,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      'Tiempo de respuesta: ${_formatDuration(responseTime)}',
+                                      'Tempo de resposta: ${_formatDuration(responseTime)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[700],
@@ -1216,7 +1223,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensaje:',
+                              'Mensagem:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1248,7 +1255,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Razón:',
+                              'Motivo:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1288,7 +1295,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
   
   String _formatDuration(Duration duration) {
     if (duration.inDays > 0) {
-      return '${duration.inDays} ${duration.inDays == 1 ? 'día' : 'días'}';
+      return '${duration.inDays} ${duration.inDays == 1 ? 'dia' : 'dias'}';
     } else if (duration.inHours > 0) {
       return '${duration.inHours} ${duration.inHours == 1 ? 'hora' : 'horas'}';
     } else if (duration.inMinutes > 0) {

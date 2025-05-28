@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_text_styles.dart';
 import '../../services/permission_service.dart';
 
 class AddVideoScreen extends StatefulWidget {
@@ -103,6 +102,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro: $e'),
@@ -134,9 +134,9 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -165,6 +165,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                       end: Alignment.bottomRight,
                       colors: [
                         AppColors.primary,
+                        // ignore: deprecated_member_use
                         AppColors.primary.withOpacity(0.8),
                       ],
                     ),
@@ -172,28 +173,38 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                   child: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
+                      child: Stack(
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const Text(
-                            'Adicionar Vídeo',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          // Botón de retroceso a la izquierda
+                          Positioned(
+                            left: 0,
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_back, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
-                          const Spacer(),
-                          if (_isLoading)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
+                          // Título centrado
+                          const Center(
+                            child: Text(
+                              'Adicionar Vídeo',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                strokeWidth: 3,
+                              ),
+                            ),
+                          ),
+                          // Indicador de carga a la derecha
+                          if (_isLoading)
+                            const Positioned(
+                              right: 0,
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
                               ),
                             ),
                         ],
@@ -211,14 +222,16 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
                             color: AppColors.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
+                            // ignore: deprecated_member_use
                             border: Border.all(color: AppColors.primary.withOpacity(0.2)),
                           ),
-                          child: Row(
+                          child: const Row(
                             children: [
                               Icon(Icons.info_outline, color: AppColors.primary, size: 24),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   'Compartilhe vídeos do YouTube com a comunidade. Preencha todos os campos.',
@@ -240,7 +253,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                           controller: _titleController,
                           decoration: InputDecoration(
                             labelText: 'Título do Vídeo',
-                            labelStyle: TextStyle(color: AppColors.textSecondary),
+                            labelStyle: const TextStyle(color: AppColors.textSecondary),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -251,11 +264,11 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.primary, width: 2),
+                              borderSide: const BorderSide(color: AppColors.primary, width: 2),
                             ),
                             filled: true,
                             fillColor: Colors.grey[50],
-                            prefixIcon: Icon(Icons.title, color: AppColors.primary),
+                            prefixIcon: const Icon(Icons.title, color: AppColors.primary),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -272,7 +285,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                           controller: _youtubeUrlController,
                           decoration: InputDecoration(
                             labelText: 'URL do YouTube',
-                            labelStyle: TextStyle(color: AppColors.textSecondary),
+                            labelStyle: const TextStyle(color: AppColors.textSecondary),
                             hintText: 'https://www.youtube.com/watch?v=...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -284,11 +297,11 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.primary, width: 2),
+                              borderSide: const BorderSide(color: AppColors.primary, width: 2),
                             ),
                             filled: true,
                             fillColor: Colors.grey[50],
-                            prefixIcon: Icon(Icons.link, color: AppColors.primary),
+                            prefixIcon: const Icon(Icons.link, color: AppColors.primary),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -313,7 +326,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                           controller: _descriptionController,
                           decoration: InputDecoration(
                             labelText: 'Descrição',
-                            labelStyle: TextStyle(color: AppColors.textSecondary),
+                            labelStyle: const TextStyle(color: AppColors.textSecondary),
                             alignLabelWithHint: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -325,11 +338,11 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.primary, width: 2),
+                              borderSide: const BorderSide(color: AppColors.primary, width: 2),
                             ),
                             filled: true,
                             fillColor: Colors.grey[50],
-                            prefixIcon: Icon(Icons.description, color: AppColors.primary),
+                            prefixIcon: const Icon(Icons.description, color: AppColors.primary),
                           ),
                           maxLines: 5,
                           validator: (value) {
@@ -374,7 +387,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                             controller: _thumbnailUrlController,
                             decoration: InputDecoration(
                               labelText: 'URL da Miniatura',
-                              labelStyle: TextStyle(color: AppColors.textSecondary),
+                              labelStyle: const TextStyle(color: AppColors.textSecondary),
                               hintText: 'https://example.com/image.jpg',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -386,11 +399,11 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: AppColors.primary, width: 2),
+                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
-                              prefixIcon: Icon(Icons.image, color: AppColors.primary),
+                              prefixIcon: const Icon(Icons.image, color: AppColors.primary),
                             ),
                             validator: (value) {
                               if (!_autoGenerateThumbnail && (value == null || value.isEmpty)) {
@@ -413,6 +426,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
+                                  // ignore: deprecated_member_use
                                   color: Colors.black.withOpacity(0.1),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
@@ -463,10 +477,10 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : Row(
+                                : const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(Icons.add_circle_outline, size: 22),
+                                    children: [
+                                      Icon(Icons.add_circle_outline, size: 22, color: Colors.white),
                                       SizedBox(width: 8),
                                       Text(
                                         'Adicionar Vídeo',

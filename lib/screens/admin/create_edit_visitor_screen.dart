@@ -187,10 +187,78 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
     }
   }
   
-  void _removeChild(int index) {
-    setState(() {
-      _associatedChildren.removeAt(index);
-    });
+  void _removeChild(int index) async {
+    if (index < 0 || index >= _associatedChildren.length) return;
+
+    final childToRemove = _associatedChildren[index];
+    final String childId = childToRemove.id;
+
+    // --- DIÁLOGO DE CONFIRMACIÓN ---
+    final bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, // El usuario debe tocar un botón
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Confirmar Eliminação'),
+          content: Text('Tem certeza que deseja remover permanentemente ${childToRemove.firstName} ${childToRemove.lastName} da lista de crianças deste visitante?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('CANCELAR'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // No eliminar
+              },
+            ),
+            TextButton(
+              child: Text('ELIMINAR', style: TextStyle(color: Colors.red.shade700)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // Sí eliminar
+              },
+            ),
+          ],
+        );
+      },
+    );
+    // --- FIN DIÁLOGO ---
+
+    if (confirmDelete == true) {
+      // Si se confirma, proceder con la eliminación (la lógica de Firestore ya estaba aquí)
+      setState(() {
+        _isSaving = true; // Mostrar indicador si la eliminación de Firestore toma tiempo
+      });
+      try {
+        // Eliminar de la lista local primero para actualización visual inmediata
+        setState(() {
+          _associatedChildren.removeAt(index);
+        });
+
+        // Eliminar de Firestore si tiene un ID persistente y no es temporal
+        if (childId.isNotEmpty && !childId.startsWith('temp_')) {
+          // Esta es la parte que elimina de la colección 'children'
+          // Si estos niños solo existen en el contexto del visitante y no se guardan 
+          // en 'children' hasta que se guarda el visitante, esta línea podría no ser necesaria aquí,
+          // sino solo al guardar el visitante (no añadirlo a la lista de niños a guardar).
+          // Pero si son niños que ya existen en 'children' y solo se desasocian,
+          // entonces la eliminación de 'children' debe ser una decisión de negocio separada.
+          // Por ahora, si tienen ID, asumimos que pueden existir en Firestore y se intenta borrar.
+          await FirebaseFirestore.instance.collection('children').doc(childId).delete();
+          print('Criança $childId potencialmente eliminada de Firestore (se existia).');
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${childToRemove.firstName} removido(a).'), backgroundColor: Colors.orange));
+        } else {
+          // Si solo estaba en la lista local (ej. recién añadido y visitante aún no guardado)
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${childToRemove.firstName} removido(a) da lista.'), backgroundColor: Colors.orange));
+        }
+
+      } catch (e) {
+        print("Erro ao remover criança de Firestore: $e");
+        // Reinsertar si falla y mostrar error
+        setState(() {
+          _associatedChildren.insert(index, childToRemove); 
+        });
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao remover ${childToRemove.firstName}: $e'), backgroundColor: Colors.red));
+      } finally {
+        if (mounted) setState(() => _isSaving = false);
+      }
+    }
   }
 
   // Modificar _handleCheckinForVisitor para que guarde si es necesario
@@ -574,14 +642,41 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
                         itemCount: _associatedChildren.length,
                         itemBuilder: (context, index) {
                           final child = _associatedChildren[index];
+                          
+                          // --- LÓGICA DE INICIALES MÁS ROBUSTA ---
+                          String initials = '?';
+                          if (child.firstName.isNotEmpty) {
+                            initials = child.firstName[0].toUpperCase();
+                            if (child.lastName.isNotEmpty) {
+                              initials += child.lastName[0].toUpperCase();
+                            } else {
+                              // Si solo hay nombre, usar las dos primeras letras si es posible
+                              if (child.firstName.length > 1) {
+                                initials = child.firstName.substring(0, 2).toUpperCase();
+                              } else {
+                                initials = child.firstName.toUpperCase(); // Solo una letra si el nombre es de una letra
+                              }
+                            }
+                          } else if (child.lastName.isNotEmpty) {
+                            // Si solo hay apellido (poco común, pero por si acaso)
+                             if (child.lastName.length > 1) {
+                                initials = child.lastName.substring(0, 2).toUpperCase();
+                              } else {
+                                initials = child.lastName.toUpperCase(); 
+                              }
+                          }
+                          // --- FIN LÓGICA DE INICIALES ---
+
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar( 
                                 backgroundImage: (child.photoUrl != null && child.photoUrl!.isNotEmpty) ? NetworkImage(child.photoUrl!) : null,
-                                child: (child.photoUrl == null || child.photoUrl!.isEmpty) ? Text('${child.firstName[0]}${child.lastName[0]}'.toUpperCase()) : null,
+                                child: (child.photoUrl == null || child.photoUrl!.isEmpty) 
+                                  ? Text(initials, style: AppTextStyles.subtitle1.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.secondary))
+                                  : null,
                               ),
-                              title: Text('${child.firstName} ${child.lastName}'),
+                              title: Text('${child.firstName} ${child.lastName}'.trim()), // Usar trim para el nombre completo
                               subtitle: Text('Idade: ${child.dateOfBirth != null ? DateTime.now().year - child.dateOfBirth.toDate().year : 'N/A'}'),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,

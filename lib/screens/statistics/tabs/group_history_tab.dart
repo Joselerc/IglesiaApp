@@ -815,9 +815,9 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                         ),
                       ],
                       if (status == 'accepted' && memberData['directAdd'] != true) ...[
-                        Row(
+                        const Row(
                           children: [
-                            const Text(
+                            Text(
                               'Modo: ',
                               style: TextStyle(
                                 fontSize: 12,
@@ -826,8 +826,8 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                             ),
                             Expanded(
                               child: Text(
-                                'Solicitação aceita',
-                                style: const TextStyle(
+                                'Solicitação aprovada',
+                                style: TextStyle(
                                   fontSize: 12,
                                 ),
                               ),

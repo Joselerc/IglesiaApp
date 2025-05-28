@@ -12,7 +12,6 @@ import '../widgets/common/app_button.dart';
 import 'package:church_app_br/screens/profile/additional_info_screen.dart';
 import '../widgets/home/announcements_section.dart';
 import '../widgets/home/cults_section.dart';
-import '../widgets/home/services_grid_section.dart';
 import '../widgets/home/events_section.dart';
 import '../widgets/home/counseling_section.dart';
 import '../widgets/home/custom_page_list_section.dart';
@@ -21,6 +20,12 @@ import '../widgets/home/courses_section.dart';
 import '../models/home_screen_section.dart';
 import '../widgets/home/live_stream_home_section.dart';
 import '../widgets/home/donations_section.dart';
+import '../widgets/skeletons/home_screen_skeleton.dart';
+import '../widgets/home/ministries_section.dart';
+import '../widgets/home/groups_section.dart';
+import '../widgets/home/private_prayer_section.dart';
+import '../widgets/home/public_prayer_section.dart';
+import 'dart:async';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,73 +41,41 @@ class _HomeScreenState extends State<HomeScreen> {
   User? _user;
   List<QueryDocumentSnapshot>? _requiredFields;
   List<DocumentSnapshot> _churchLocations = [];
-  bool _isGuestUser = false;
+  
+  // Añadir StreamSubscription para mejor gestión de memoria
+  StreamSubscription<DocumentSnapshot>? _userStreamSubscription;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('pt_BR');
     _user = FirebaseAuth.instance.currentUser;
-    _checkIfGuest();
     _checkProfileRequirements();
     _loadChurchLocations();
   }
 
-  Future<void> _checkIfGuest() async {
-    if (_user == null) return;
-    
-    // Verificar si es usuario anónimo
-    if (_user!.isAnonymous) {
-      setState(() {
-        _isGuestUser = true;
-      });
-      return;
-    }
-    
-    // Verificar también en Firestore
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_user!.uid)
-          .get();
-      
-      if (userDoc.exists) {
-        final userData = userDoc.data();
-        final bool isGuest = userData?['isGuest'] as bool? ?? false;
-        
-        setState(() {
-          _isGuestUser = isGuest;
-        });
-      }
-    } catch (e) {
-      debugPrint('❌ HOME_SCREEN - Error al verificar si es usuario invitado: $e');
-    }
+  @override
+  void dispose() {
+    // Cancelar suscripciones para evitar memory leaks
+    _userStreamSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkProfileRequirements() async {
     debugPrint('🔍 HOME_SCREEN - Iniciando verificación de requisitos de perfil');
     if (_user == null) {
       debugPrint('⚠️ HOME_SCREEN - Usuario nulo, no se puede verificar requisitos');
-      setState(() {
-        _shouldShowBanner = false;
-        _isBannerLoading = false;
-      });
-      return;
-    }
-
-    try {
-      // Verificar si el usuario es invitado
-      if (_user!.isAnonymous) {
-        debugPrint('ℹ️ HOME_SCREEN - Usuario es invitado, no se muestra banner de perfil');
+      if (mounted) { // Asegurar que el widget está montado
         setState(() {
           _shouldShowBanner = false;
           _isBannerLoading = false;
         });
-        return;
       }
-      
+      return;
+    }
+
+    try {
       debugPrint('🔍 HOME_SCREEN - Obteniendo datos del usuario: ${_user!.uid}');
-      // Obtener datos del usuario
       final userDoc = await FirebaseFirestore.instance
                   .collection('users')
           .doc(_user!.uid)
@@ -110,34 +83,50 @@ class _HomeScreenState extends State<HomeScreen> {
       
       if (!userDoc.exists) {
         debugPrint('⚠️ HOME_SCREEN - Documento de usuario no existe en Firestore');
-        setState(() {
-          _shouldShowBanner = false;
-          _isBannerLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _shouldShowBanner = false;
+            _isBannerLoading = false;
+          });
+        }
         return;
       }
       
       _userData = userDoc.data();
       debugPrint('✅ HOME_SCREEN - Datos de usuario obtenidos: ${_userData?.keys.toList()}');
-      
-      // Verificar si es usuario invitado mediante flag en Firestore
-      final bool isGuest = _userData?['isGuest'] as bool? ?? false;
-      if (isGuest) {
-        debugPrint('ℹ️ HOME_SCREEN - Usuario marcado como invitado en Firestore, no se muestra banner');
-        setState(() {
-          _shouldShowBanner = false;
-          _isBannerLoading = false;
-        });
-        return;
+
+      // --- Verificación de campos básicos ---
+      bool basicInfoMissing = false;
+      if (_userData != null) {
+        final nameMissing = _userData!['name'] == null || (_userData!['name'] as String).trim().isEmpty;
+        final surnameMissing = _userData!['surname'] == null || (_userData!['surname'] as String).trim().isEmpty;
+        // Para el teléfono, verificamos el campo 'phone' que suele ser el número local.
+        // Si tienes otra lógica (ej. 'phoneComplete'), ajústalo.
+        final phoneMissing = _userData!['phone'] == null || (_userData!['phone'] as String).trim().isEmpty;
+        final birthDateMissing = _userData!['birthDate'] == null;
+        final genderMissing = _userData!['gender'] == null || (_userData!['gender'] as String).trim().isEmpty;
+        
+        basicInfoMissing = nameMissing || surnameMissing || phoneMissing || birthDateMissing || genderMissing;
+        
+        debugPrint('ℹ️ HOME_SCREEN - Verificación campos básicos:');
+        debugPrint('  - Nome ausente: $nameMissing');
+        debugPrint('  - Sobrenome ausente: $surnameMissing');
+        debugPrint('  - Telefone ausente: $phoneMissing');
+        debugPrint('  - Data de Nascimento ausente: $birthDateMissing');
+        debugPrint('  - Gênero ausente: $genderMissing');
+        debugPrint('  ➡️ Informação básica ausente: $basicInfoMissing');
+      } else {
+        // Si _userData es null, asumimos que falta información básica crítica.
+        basicInfoMissing = true;
+        debugPrint('⚠️ HOME_SCREEN - _userData es null, se considera que falta información básica.');
       }
-      
-      // Verificar flags importantes para la lógica del banner
+      // --- Fin Verificación de campos básicos ---
+            
       final neverShowAgain = _userData?['neverShowBannerAgain'] as bool? ?? false;
       final hasSkippedBanner = _userData?['hasSkippedBanner'] as bool? ?? false;
       debugPrint('🚩 HOME_SCREEN - Flags importantes: neverShowAgain=$neverShowAgain, hasSkippedBanner=$hasSkippedBanner');
                 
-      // Verificar si hay campos de perfil requeridos
-      debugPrint('🔍 HOME_SCREEN - Buscando campos de perfil requeridos');
+      debugPrint('🔍 HOME_SCREEN - Buscando campos de perfil requeridos (adicionales)');
       final requiredFieldsQuery = await FirebaseFirestore.instance
                       .collection('profileFields')
                       .where('isActive', isEqualTo: true)
@@ -146,134 +135,99 @@ class _HomeScreenState extends State<HomeScreen> {
       
       _requiredFields = requiredFieldsQuery.docs;
       
-      if (_requiredFields!.isEmpty) {
-        debugPrint('ℹ️ HOME_SCREEN - No hay campos de perfil requeridos definidos');
-        setState(() {
-          _shouldShowBanner = false;
-          _isBannerLoading = false;
-        });
-        return;
-      }
-      
-      debugPrint('📋 HOME_SCREEN - Campos requeridos encontrados: ${_requiredFields!.length}');
-      for (final doc in _requiredFields!) {
-        final data = doc.data() as Map<String, dynamic>;
-        debugPrint('  - Campo: ${data['name'] ?? 'Sin nombre'} (ID: ${doc.id})');
-      }
-                    
-      // Verificar si el usuario ha completado los campos requeridos
-      debugPrint('🔍 HOME_SCREEN - Verificando si el usuario ha completado los campos requeridos');
-      final profileFieldsService = ProfileFieldsService();
-      final hasCompleted = await profileFieldsService.hasCompletedRequiredFields(_user!.uid);
-      debugPrint('✅ HOME_SCREEN - Resultado de hasCompletedRequiredFields: $hasCompleted');
-      
-      // Obtener todas las respuestas del usuario para depuración
-      final userResponses = await profileFieldsService.getUserResponses(_user!.uid).first;
-      debugPrint('📋 HOME_SCREEN - Respuestas del usuario: ${userResponses.length}');
-      for (final response in userResponses) {
-        debugPrint('  - Respuesta para ${response.fieldId}: ${response.value}');
+      // Si no hay campos ADICIONALES requeridos, 'hasCompletedAdditional' será true por defecto.
+      // La lógica de 'hasNewRequiredFields' seguirá funcionando independientemente.
+      bool hasCompletedAdditional = true; 
+      if (_requiredFields!.isNotEmpty) {
+        debugPrint('📋 HOME_SCREEN - Campos ADICIONALES requeridos encontrados: ${_requiredFields!.length}');
+        final profileFieldsService = ProfileFieldsService();
+        hasCompletedAdditional = await profileFieldsService.hasCompletedRequiredFields(_user!.uid);
+        debugPrint('✅ HOME_SCREEN - Resultado de hasCompletedRequiredFields (adicionales): $hasCompletedAdditional');
+      } else {
+        debugPrint('ℹ️ HOME_SCREEN - No hay campos de perfil ADICIONALES requeridos definidos.');
       }
                         
-      // Si el usuario ya completó los campos requeridos, no mostrar el banner
-      if (hasCompleted) {
-        debugPrint('✅ HOME_SCREEN - Usuario ha completado todos los campos requeridos');
-        setState(() {
-          _shouldShowBanner = false;
-          _isBannerLoading = false;
-        });
-        return;
-      } else {
-        debugPrint('⚠️ HOME_SCREEN - Usuario NO ha completado todos los campos requeridos');
-        
-        // Identificar qué campos faltan
-        for (final field in _requiredFields!) {
-          final fieldId = field.id;
-          final data = field.data() as Map<String, dynamic>;
-          final fieldName = data['name'] ?? 'Sin nombre';
-          
-          // Buscar respuesta para este campo, pero sin usar firstWhere que causa error
-          ProfileFieldResponse? response;
-          for (final r in userResponses) {
-            if (r.fieldId == fieldId) {
-              response = r;
-              break;
-            }
-          }
-          
-          if (response == null) {
-            debugPrint('  ❌ Falta respuesta para: $fieldName (ID: $fieldId)');
-          } else if (response.value == null || (response.value is String && (response.value as String).isEmpty)) {
-            debugPrint('  ❌ Respuesta vacía para: $fieldName (ID: $fieldId)');
-          } else {
-            debugPrint('  ✓ Respuesta válida para: $fieldName (ID: $fieldId): ${response.value}');
-          }
-        }
-      }
-      
-      // Verificar la última actualización de campos adicionales
       final lastUpdated = _userData?['additionalFieldsLastUpdated'] as Timestamp?;
       final lastFieldsUpdate = lastUpdated?.toDate();
-      debugPrint('🕒 HOME_SCREEN - Última actualización de campos: ${lastFieldsUpdate?.toIso8601String() ?? "nunca"}');
+      debugPrint('🕒 HOME_SCREEN - Última atualização de campos adicionais: ${lastFieldsUpdate?.toIso8601String() ?? "nunca"}');
                         
-      // Verificar la última vez que se mostró el banner
       final lastBannerShown = _userData?['lastBannerShown'] as Timestamp?;
       final lastShown = lastBannerShown?.toDate();
-      debugPrint('🕒 HOME_SCREEN - Última vez que se mostró el banner: ${lastShown?.toIso8601String() ?? "nunca"}');
+      debugPrint('🕒 HOME_SCREEN - Última vez que se mostrou o banner: ${lastShown?.toIso8601String() ?? "nunca"}');
                         
-      // Verificar si hay nuevos campos requeridos después de la última actualización
-      bool hasNewRequiredFields = false;
-      if (lastFieldsUpdate != null) {
-        for (final doc in _requiredFields!) {
-          // Usar data() para acceder a los campos seguros
-          final data = doc.data() as Map<String, dynamic>;
-          // Verificar si createdAt existe y es un Timestamp
-          if (data.containsKey('createdAt') && data['createdAt'] is Timestamp) {
-            final createdAt = (data['createdAt'] as Timestamp).toDate();
-            if (createdAt.isAfter(lastFieldsUpdate)) {
-              hasNewRequiredFields = true;
-              debugPrint('⚠️ HOME_SCREEN - Campo nuevo después de la última actualización: ${data['name'] ?? 'Sin nombre'}');
-              break;
+      bool hasNewRequiredFields = false; // Se refiere a campos ADICIONALES
+      if (_requiredFields!.isNotEmpty) { // Solo calcular si hay campos adicionales definidos
+        if (lastFieldsUpdate != null) {
+          for (final doc in _requiredFields!) {
+            final data = doc.data() as Map<String, dynamic>;
+            if (data.containsKey('createdAt') && data['createdAt'] is Timestamp) {
+              final createdAt = (data['createdAt'] as Timestamp).toDate();
+              if (createdAt.isAfter(lastFieldsUpdate)) {
+                hasNewRequiredFields = true;
+                debugPrint('⚠️ HOME_SCREEN - Campo ADICIONAL novo após a última atualização: ${data['name'] ?? 'Sem nome'}');
+                break;
+              }
             }
           }
+        } else {
+          // Si nunca ha actualizado campos Y hay campos adicionales requeridos, considerar que hay nuevos.
+          hasNewRequiredFields = true; 
+          debugPrint('ℹ️ HOME_SCREEN - Usuário nunca atualizou campos adicionais, considerando todos como novos (se houver).');
+        }
+      }
+                        
+      bool shouldShowBannerDecision = false;
+
+      if (neverShowAgain) {
+        // Si eligió no mostrar nunca más, solo se muestra si faltan básicos O hay nuevos adicionales.
+        shouldShowBannerDecision = basicInfoMissing || hasNewRequiredFields;
+        debugPrint('🔄 HOME_SCREEN - Usuário escolheu não mostrar nunca mais. Mostrar se (basicInfoMissing || hasNewRequiredFields): $shouldShowBannerDecision');
+      } else if (hasSkippedBanner && lastShown != null) {
+        final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
+        if (lastShown.isAfter(threeDaysAgo)) {
+          shouldShowBannerDecision = false;
+          debugPrint('🔄 HOME_SCREEN - Usuário omitiu temporariamente. Ainda dentro dos 3 dias. Ocultar banner.');
+        } else {
+          // Ya pasaron los 3 días. Mostrar si falta info básica O no ha completado adicionales O hay nuevos adicionales.
+          shouldShowBannerDecision = basicInfoMissing || !hasCompletedAdditional || hasNewRequiredFields;
+          debugPrint('🔄 HOME_SCREEN - Usuário omitiu temporariamente e já passaram 3 dias. Mostrar se (basicInfoMissing || !hasCompletedAdditional || hasNewRequiredFields): $shouldShowBannerDecision');
         }
       } else {
-        // Si nunca ha actualizado campos, considerar que hay nuevos campos
-        hasNewRequiredFields = true;
-        debugPrint('ℹ️ HOME_SCREEN - Usuario nunca ha actualizado campos, considerando todos como nuevos');
-      }
-                        
-      // Determinar si se debe mostrar el banner
-      bool shouldShow = false;
-                        
-      // Si el usuario eligió no mostrar nunca más, solo mostrar si hay nuevos campos
-      if (_userData?['neverShowBannerAgain'] == true) {
-        shouldShow = hasNewRequiredFields;
-        debugPrint('🔄 HOME_SCREEN - Usuario eligió no mostrar nunca más, pero hay nuevos campos: $hasNewRequiredFields');
-      } else if (_userData?['hasSkippedBanner'] == true && lastShown != null) {
-        // Si el usuario omitió temporalmente, verificar si han pasado 3 días
-        final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
-        final timeHasPassed = lastShown.isBefore(threeDaysAgo);
-        shouldShow = timeHasPassed || hasNewRequiredFields;
-        debugPrint('🔄 HOME_SCREEN - Usuario omitió temporalmente - mostrar por tiempo pasado: $timeHasPassed, o por nuevos campos: $hasNewRequiredFields');
-      } else {
-        // Si no ha omitido ni elegido no mostrar, siempre mostrar
-        shouldShow = true;
-        debugPrint('🔄 HOME_SCREEN - Mostrar banner porque el usuario no ha elegido omitirlo ni ocultarlo permanentemente');
+        // No "neverShow", no "skipped". Mostrar si falta info básica O no ha completado adicionales O hay nuevos adicionales.
+        shouldShowBannerDecision = basicInfoMissing || !hasCompletedAdditional || hasNewRequiredFields;
+        debugPrint('🔄 HOME_SCREEN - Sem skip/neverShow. Mostrar se (basicInfoMissing || !hasCompletedAdditional || hasNewRequiredFields): $shouldShowBannerDecision');
       }
       
-      debugPrint('🚩 HOME_SCREEN - Decisión final: mostrar banner = $shouldShow');
-      setState(() {
-        _shouldShowBanner = shouldShow;
-        _isBannerLoading = false;
-      });
+      // Anulación final: Si toda la info básica está completa, Y los adicionales requeridos están completos, Y no hay nuevos adicionales, no mostrar.
+      if (!basicInfoMissing && hasCompletedAdditional && !hasNewRequiredFields) {
+        shouldShowBannerDecision = false;
+        debugPrint('ℹ️ HOME_SCREEN - Perfil básico completo, adicionais completos e sem novos campos adicionais. Não mostrar banner.');
+      }
+
+      debugPrint('🚩 HOME_SCREEN - Decisão final: mostrar banner = $shouldShowBannerDecision');
+      if (mounted) {
+        final bool previousBannerState = _shouldShowBanner;
+        if (previousBannerState != shouldShowBannerDecision || _isBannerLoading) {
+          setState(() {
+            _shouldShowBanner = shouldShowBannerDecision;
+            _isBannerLoading = false;
+          });
+        } else if (_isBannerLoading) {
+           setState(() {
+             _isBannerLoading = false;
+           });
+        }
+      }
       
     } catch (e) {
       debugPrint('❌ HOME_SCREEN - Error al verificar campos requeridos: $e');
       debugPrint('📜 HOME_SCREEN - Stack trace: ${StackTrace.current}');
-      setState(() {
-        _shouldShowBanner = false;
-        _isBannerLoading = false;
-      });
+      if (mounted) { // Asegurar que el widget está montado
+        setState(() {
+          _shouldShowBanner = false;
+          _isBannerLoading = false;
+        });
+      }
     }
   }
 
@@ -298,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     // Configurar la barra de estado para que sea visible con color transparente
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: AppColors.background,
@@ -322,6 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.background,
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.05),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
@@ -333,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                     // Logo de la iglesia (sin recorte circular)
-                    Container(
+                    SizedBox(
                       height: 50,
                       width: 50,
                       child: Image.network(
@@ -404,8 +359,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasError) {
                       return Center(child: Text('Erro ao carregar seções: ${snapshot.error}'));
                     }
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando.
+                    if (snapshot.connectionState == ConnectionState.waiting || _isBannerLoading) {
+                      return const HomeScreenSkeleton();
                     }
                     // Ajuste: Permitir que no haya secciones sin mostrar error
                     // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -421,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     
                     // Filtrar secciones activas aquí por si acaso (aunque el query ya lo hace)
                     final activeSections = sections.where((s) => s.isActive).toList();
-                    print('🔍 HomeScreen: Secciones activas cargadas: ${activeSections.map((s) => s.type).toList()}'); // <-- DEBUG PRINT 1
+                    // <-- DEBUG PRINT 1
 
                     return ListView.separated(
                       // Aumentar padding inferior general
@@ -461,13 +417,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Mostrar Banner primero
                            if (index == 0) {
                               return AnimatedCrossFade(
-                                 firstChild: _isGuestUser
-                                   ? _buildGuestBanner()
-                                   : (_shouldShowBanner && _userData != null && !_isBannerLoading
-                                     ? _buildProfileRequirementsBanner()
-                                     : const SizedBox.shrink()),
+                                 firstChild: _shouldShowBanner && _userData != null && !_isBannerLoading
+                                   ? _buildProfileRequirementsBanner()
+                                   : const SizedBox.shrink(),
                                  secondChild: const SizedBox.shrink(),
-                                 crossFadeState: (_isGuestUser || (_shouldShowBanner && _userData != null && !_isBannerLoading))
+                                 crossFadeState: _shouldShowBanner && _userData != null && !_isBannerLoading
                                    ? CrossFadeState.showFirst
                                    : CrossFadeState.showSecond,
                                  duration: const Duration(milliseconds: 500),
@@ -479,12 +433,12 @@ class _HomeScreenState extends State<HomeScreen> {
                            
                            // Obtener la sección actual (ajustando índice por el banner)
                         final section = activeSections[index - 1];
-                        print('➡️ HomeScreen: Procesando sección tipo: ${section.type} con título: ${section.title}'); // <-- DEBUG PRINT 2
+                        // <-- DEBUG PRINT 2
 
                         // Switch para renderizar el widget adecuado
                         switch (section.type) {
                           case HomeScreenSectionType.liveStream:
-                            print('  🔴 Entrando al case liveStream'); // <-- DEBUG PRINT 3
+                    
                             // StreamBuilder anidado para la configuración del directo
                             return StreamBuilder<DocumentSnapshot>(
                               stream: FirebaseFirestore.instance.collection('app_config').doc('live_stream').snapshots(),
@@ -497,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                 // --- Leer configuración (solo isActive) ---
                                 final bool isLiveActive = liveConfig['isActive'] ?? false;
-                                print('    👀 Estado isActive leído de app_config/live_stream: $isLiveActive'); // <-- DEBUG PRINT 4
+                                // <-- DEBUG PRINT 4
                                 /* Eliminada lógica de horario
                                 final int minutesBefore = liveConfig['minutesBeforeStartToShow'] ?? 0;
                                 final DateTime now = DateTime.now();
@@ -516,17 +470,77 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                 // Finalmente, mostrar u ocultar basado solo en isActive
                                 return isLiveActive
-                                  ? LiveStreamHomeSection(configData: liveConfig)
+                                  ? LiveStreamHomeSection(configData: liveConfig, displayTitle: section.title)
                                   : const SizedBox.shrink();
                               },
                             );
                           case HomeScreenSectionType.announcements:
+                            // Verificar si debe ocultarse cuando está vacío
+                            if (section.hideWhenEmpty) {
+                              return StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('announcements')
+                                    .where('isActive', isEqualTo: true)
+                                    .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
+                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+                                    ))
+                                    .limit(1)
+                                    .snapshots(),
+                                builder: (context, announcementSnapshot) {
+                                  if (announcementSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Si no hay anuncios, ocultar la sección
+                                  if (!announcementSnapshot.hasData || announcementSnapshot.data!.docs.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Filtrar anuncios válidos para hoy
+                                  final now = DateTime.now();
+                                  final today = DateTime(now.year, now.month, now.day);
+                                  
+                                  final hasValidAnnouncements = announcementSnapshot.data!.docs.any((doc) {
+                                    final data = doc.data() as Map<String, dynamic>;
+                                    final startDate = (data['startDate'] as Timestamp?)?.toDate();
+                                    if (startDate == null) return true;
+                                    final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
+                                    return startDateOnly.compareTo(today) <= 0;
+                                  });
+                                  
+                                  return hasValidAnnouncements ? const AnnouncementsSection() : const SizedBox.shrink();
+                                },
+                              );
+                            }
                             return const AnnouncementsSection();
                           case HomeScreenSectionType.cults:
                             return const CultsSection();
                           case HomeScreenSectionType.servicesGrid:
-                            return const ServicesGridSection();
+                            return const SizedBox.shrink();
                           case HomeScreenSectionType.events:
+                            // Verificar si debe ocultarse cuando está vacío
+                            if (section.hideWhenEmpty) {
+                              return StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('events')
+                                    .where('isActive', isEqualTo: true)
+                                    .where('startDate', isGreaterThanOrEqualTo: Timestamp.now())
+                                    .limit(1)
+                                    .snapshots(),
+                                builder: (context, eventSnapshot) {
+                                  if (eventSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Si no hay eventos futuros, ocultar la sección
+                                  if (!eventSnapshot.hasData || eventSnapshot.data!.docs.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  return const EventsSection();
+                                },
+                              );
+                            }
                             return const EventsSection();
                           case HomeScreenSectionType.counseling:
                             return const CounselingSection();
@@ -554,6 +568,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                             );
+                          case HomeScreenSectionType.ministries:
+                            return MinistriesSection(displayTitle: section.title);
+                          case HomeScreenSectionType.groups:
+                            return GroupsSection(displayTitle: section.title);
+                          case HomeScreenSectionType.privatePrayer:
+                            return PrivatePrayerSection(displayTitle: section.title);
+                          case HomeScreenSectionType.publicPrayer:
+                            return PublicPrayerSection(displayTitle: section.title);
                           case HomeScreenSectionType.unknown:
                           default:
                       return Padding(
@@ -581,9 +603,11 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.warmSand,
         borderRadius: BorderRadius.circular(AppSpacing.md),
+        // ignore: deprecated_member_use
         border: Border.all(color: AppColors.primary.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             spreadRadius: 1,
@@ -599,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+                const Icon(Icons.info_outline, color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -624,6 +648,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Container(
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               border: Border(top: BorderSide(color: AppColors.primary.withOpacity(0.1), width: 1)),
             ),
             padding: const EdgeInsets.all(16),
@@ -733,7 +758,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white, // Fondo del modal
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: AdditionalInfoScreen(fromBanner: true), // Pasar fromBanner=true
+          child: const AdditionalInfoScreen(fromBanner: true), // Pasar fromBanner=true
         ),
       ),
     ).then((_) {
@@ -760,76 +785,5 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     return const Icon(Icons.person, color: Color(0xFF2F2F2F), size: 24);
-  }
-
-  Widget _buildGuestBanner() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutQuad,
-      margin: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      decoration: BoxDecoration(
-        color: AppColors.secondary.withOpacity(0.15), // Color diferente para distinguirlo
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: AppColors.secondary, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Modo Convidado',
-                    style: AppTextStyles.subtitle2.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              'Você está usando o aplicativo no modo convidado com funções limitadas.',
-              style: AppTextStyles.bodyText2.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.secondary.withOpacity(0.1), width: 1)),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Spacer(),
-                AppButton(
-                  text: 'Criar uma conta',
-                  onPressed: () => Navigator.of(context).pushNamed('/register'),
-                  isSmall: true,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

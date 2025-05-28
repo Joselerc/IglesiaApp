@@ -816,9 +816,9 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                         ),
                       ],
                       if (status == 'accepted' && memberData['directAdd'] != true) ...[
-                        Row(
+                        const Row(
                           children: [
-                            const Text(
+                            Text(
                               'Modo: ',
                               style: TextStyle(
                                 fontSize: 12,
@@ -827,8 +827,8 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                             ),
                             Expanded(
                               child: Text(
-                                'Solicitação aceita',
-                                style: const TextStyle(
+                                'Solicitação aprovada',
+                                style: TextStyle(
                                   fontSize: 12,
                                 ),
                               ),

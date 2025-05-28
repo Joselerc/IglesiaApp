@@ -8,14 +8,40 @@ import '../../theme/app_text_styles.dart';
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  // Variable para almacenar la imagen precargada  
+  final NetworkImage _logoImage = const NetworkImage(
+    'https://firebasestorage.googleapis.com/v0/b/churchappbr.firebasestorage.app/o/Logo%2FAmor%20em%20Movimento%20Logo.png?alt=media&token=0be077b4-14ef-4f6e-a680-9e15bfa3ba32'
+  );
+  
+  bool _isLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Precargar la imagen después de que el widget está completamente montado
+    precacheImage(_logoImage, context).then((_) {
+      if (mounted) {
+        setState(() {
+          _isLoaded = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // Configurar la barra de estado para que sea visible
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: AppColors.background,
@@ -34,7 +60,7 @@ class AuthWrapper extends StatelessWidget {
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness: Brightness.dark,
               ),
-              child: SafeArea(
+              child: const SafeArea(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -44,12 +70,12 @@ class AuthWrapper extends StatelessWidget {
                         size: 64,
                         color: AppColors.error,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         'Algo deu errado!',
                         style: AppTextStyles.headline3,
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         'Tente novamente mais tarde',
                         style: AppTextStyles.bodyText1,
@@ -75,13 +101,36 @@ class AuthWrapper extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(
-                        color: AppColors.primary,
+                      // Logo de la iglesia con imagen precargada
+                      Image(
+                        image: _logoImage,
+                        height: 150,
+                        fit: BoxFit.contain,
+                        // Si hay error o mientras carga, mostrar un contenedor del mismo tamaño
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 150,
+                            width: 150,
+                            color: Colors.transparent,
+                          );
+                        },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 30),
+                      const Text(
+                        'Bem-vindo',
+                        style: AppTextStyles.headline1,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
                       Text(
-                        'Carregando...',
-                        style: AppTextStyles.subtitle1,
+                        'Conectando você à sua comunidade',
+                        style: AppTextStyles.subtitle1.copyWith(color: AppColors.secondary),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 50),
+                      const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        strokeWidth: 3,
                       ),
                     ],
                   ),

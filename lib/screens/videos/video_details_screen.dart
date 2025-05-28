@@ -5,11 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/video.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_text_styles.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/services.dart';
-import '../../utils/guest_utils.dart';
 
 class VideoDetailsScreen extends StatefulWidget {
   final Video video;
@@ -45,8 +43,17 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
     )..addListener(_fullscreenListener);
     _checkIfLiked();
     
-    print('VideoDetails: Setting initial SystemUiMode.manual');
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    print('VideoDetails: Setting initial SystemUiMode with status bar visible');
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual, 
+      overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]
+    );
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
   }
 
   @override
@@ -55,7 +62,16 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
     _controller.removeListener(_fullscreenListener);
     _controller.dispose();
     print('VideoDetails: Restoring SystemUiMode and Orientations in dispose');
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual, 
+      overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]
+    );
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     // Restaurar orientación por si acaso salimos de forma abrupta
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -83,8 +99,17 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
         // Restaurar UI mode con un pequeño retraso
         print('VideoDetails: --> Scheduling SystemUiMode.manual restore (with delay)');
         Future.delayed(const Duration(milliseconds: 150), () {
-          print('VideoDetails: --> Delayed restore: Setting SystemUiMode.manual');
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+          print('VideoDetails: --> Delayed restore: Setting SystemUiMode.manual with overlays');
+          SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual, 
+            overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]
+          );
+          SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ));
         });
       } else {
         print('VideoDetails: Entering fullscreen - Attempting to set immersive UI mode');
@@ -105,13 +130,6 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
 
   Future<void> _toggleLike() async {
     final user = FirebaseAuth.instance.currentUser;
-    
-    // Verificar si el usuario es invitado
-    if (user != null && user.isAnonymous) {
-      await GuestUtils.showGuestRestrictedDialog(context);
-      return;
-    }
-    
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -179,13 +197,6 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
   }
 
   Future<void> _shareVideo() async {
-    // Verificar si el usuario es invitado
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null && user.isAnonymous) {
-      await GuestUtils.showGuestRestrictedDialog(context);
-      return;
-    }
-    
     await Share.share(
       '${widget.video.youtubeUrl}',
       subject: widget.video.title,
@@ -240,8 +251,17 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
                             handleColor: Colors.redAccent,
                           ),
                           onReady: () {
-                             print('VideoDetails: Normal Player onReady - Setting SystemUiMode.manual');
-                             SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+                             print('VideoDetails: Normal Player onReady - Setting SystemUiMode.manual with status bar');
+                             SystemChrome.setEnabledSystemUIMode(
+                               SystemUiMode.manual, 
+                               overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]
+                             );
+                             SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                               statusBarColor: Colors.transparent,
+                               statusBarIconBrightness: Brightness.dark,
+                               systemNavigationBarColor: Colors.white,
+                               systemNavigationBarIconBrightness: Brightness.dark,
+                             ));
                           },
                            onEnded: (metaData) {
                               print('VideoDetails: Normal Player onEnded');
@@ -419,11 +439,11 @@ class _VideoDetailsScreenState extends State<VideoDetailsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                const Row(
                                   children: [
                                     Icon(Icons.description, color: AppColors.primary),
-                                    const SizedBox(width: 8),
-                                    const Text(
+                                    SizedBox(width: 8),
+                                    Text(
                                       'Descrição',
                                       style: TextStyle(
                                         fontSize: 18,

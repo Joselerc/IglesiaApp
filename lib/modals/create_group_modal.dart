@@ -247,15 +247,15 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                               color: primaryColor.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.group_rounded,
                               color: primaryColor,
                               size: 24,
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            'Criar Grupo',
+                          const Text(
+                            'Criar Connect',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -289,7 +289,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Nombre del grupo
-                          Text(
+                          const Text(
                             'Nome do Grupo',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
@@ -410,7 +410,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           ),
                           
                           // Selección de administradores
-                          Text(
+                          const Text(
                             'Selecionar Administradores',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
@@ -435,7 +435,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                               _selectedAdmins.isEmpty 
                                 ? 'Adicionar administradores' 
                                 : '${_selectedAdmins.length} administradores selecionados',
-                              style: TextStyle(color: primaryColor),
+                              style: const TextStyle(color: primaryColor),
                             ),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -459,10 +459,10 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
+                                  const Row(
                                     children: [
                                       Icon(Icons.people, color: primaryColor, size: 20),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: 8),
                                       Text(
                                         'Administradores selecionados:',
                                         style: TextStyle(
@@ -597,12 +597,12 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             strokeWidth: 2,
                           ),
                         )
-                      : Row(
+                      : const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.check_circle_outline),
-                            const SizedBox(width: 8),
-                            const Text(
+                            Icon(Icons.check_circle_outline, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
                               'Criar Grupo',
                               style: TextStyle(
                                 fontSize: 16,
@@ -650,9 +650,9 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
       margin: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 20,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
@@ -888,7 +888,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check, color: Colors.white),
                   label: Text(_selectedAdmins.isEmpty 
                     ? 'Confirmar' 
                     : 'Selecionar (${_selectedAdmins.length})'),

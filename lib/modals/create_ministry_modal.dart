@@ -245,14 +245,14 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                                 color: AppColors.primary.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.church_rounded,
                                 color: AppColors.primary,
                                 size: 24,
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Text(
+                            const Text(
                               'Criar Ministério',
                               style: TextStyle(
                                 fontSize: 22,
@@ -595,12 +595,12 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               strokeWidth: 2,
                             ),
                           )
-                        : Row(
+                        : const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle_outline),
-                              const SizedBox(width: 8),
-                              const Text(
+                              Icon(Icons.check_circle_outline, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
                                 'Criar Ministério',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -648,9 +648,9 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
       margin: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 20,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
@@ -886,7 +886,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check, color: Colors.white),
                   label: Text(_selectedAdmins.isEmpty 
                     ? 'Confirmar' 
                     : 'Selecionar (${_selectedAdmins.length})'),

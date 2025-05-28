@@ -770,10 +770,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
   void _calculateStats() {
     // Verificar el contador de servicios
-    print('📊 STATS - Contador de servicios: $_totalServices');
+    print('📊 STATS - Contador de serviços: $_totalServices');
     
     // Verificar ministerios con asignaciones
-    print('📊 STATS - Ministerios en _workAssignmentsByMinistry:');
+    print('📊 STATS - Ministerios em _workAssignmentsByMinistry:');
     _workAssignmentsByMinistry.forEach((ministryId, assignments) {
       print('  - Ministerio $ministryId: ${assignments.length} asignaciones');
       
@@ -784,7 +784,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       );
       
       if (ministry.name == 'Cantores') {
-        print('🎵 STATS - CANTORES tiene ${assignments.length} asignaciones');
+        print('🎵 STATS - CANTORES tem ${assignments.length} asignaciones');
         for (var assignment in assignments) {
           print('    - Role: ${assignment.role}, Status: ${assignment.status}');
         }
@@ -806,7 +806,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     // Recopilar todas las fechas relevantes
     List<DateTime> allDates = [];
     
-    // Añadir fechas de servicios
+    // Añadir fechas de serviços
     _workAssignmentsByMinistry.forEach((_, assignments) {
       for (var assignment in assignments) {
         final timeSlot = _timeSlots[assignment.timeSlotId];
@@ -825,9 +825,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       }
     });
     
-    // Encontrar la fecha más reciente
+    // Encontrar la data mais recente
     if (allDates.isNotEmpty) {
-      allDates.sort((a, b) => b.compareTo(a)); // Ordenar de más reciente a más antigua
+      allDates.sort((a, b) => b.compareTo(a)); // Ordenar de mais recente a mais antigo
       _lastMinistryDate = allDates.first;
     } else {
       _lastMinistryDate = null;
@@ -837,6 +837,17 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return 'Não disponível';
     return DateFormat('dd/MM/yyyy').format(date);
+  }
+
+  // NUEVA FUNCIÓN PARA CALCULAR EDAD
+  String _calculateAge(DateTime birthDate) {
+    final currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+      age--;
+    }
+    return age.toString();
   }
 
   @override
@@ -899,7 +910,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       
                       // Grupos
                       Text(
-                        'Grupos',
+                        'Connect',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -916,6 +927,26 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   }
 
   Widget _buildUserInfoCard() {
+    List<Widget> infoRows = [];
+
+    // Teléfono
+    if (_user?.phone != null && _user!.phone!.isNotEmpty) {
+      infoRows.add(_buildInfoRow(icon: Icons.phone, text: _user!.phone!));
+    }
+    // Fecha de Nacimiento y Edad
+    if (_user?.birthDate != null) {
+      final birthDateTimestamp = _user!.birthDate as Timestamp?;
+      if (birthDateTimestamp != null) {
+        final birthDate = birthDateTimestamp.toDate();
+        final age = _calculateAge(birthDate);
+        infoRows.add(_buildInfoRow(icon: Icons.calendar_today, text: '${_formatDate(birthDate)} ($age anos)'));
+      }
+    }
+    // Género
+    if (_user?.gender != null && _user!.gender!.isNotEmpty) {
+      infoRows.add(_buildInfoRow(icon: Icons.person_outline, text: _user!.gender!));
+    }
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 8),
@@ -985,30 +1016,26 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               ],
             ),
           ),
-          // Teléfono como ListTile abajo (si existe)
-          if (_user?.phone != null)
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.grey.shade200,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: ListTile(
-                leading: Icon(Icons.phone, color: AppColors.primary.withOpacity(0.7)),
-                title: Text(
-                  _user!.phone!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-                dense: true,
-              ),
-            ),
+          // Filas de información construidas dinámicamente
+          ...infoRows,
         ],
+      ),
+    );
+  }
+
+  // Nuevo Helper para construir filas de información consistentes
+  Widget _buildInfoRow({required IconData icon, required String text}) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.primary.withOpacity(0.7)),
+        title: Text(
+          text,
+          style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+        ),
+        dense: true,
       ),
     );
   }
@@ -1442,9 +1469,13 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                   child: Icon(Icons.info_outline, color: Colors.grey.shade400, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'O usuário não pertence a nenhum grupo',
-                  style: TextStyle(color: Colors.grey),
+                Expanded(
+                  child: Text(
+                    'O usuário não pertence a nenhum Connect',
+                    style: const TextStyle(color: Colors.grey),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
               ],
             ),

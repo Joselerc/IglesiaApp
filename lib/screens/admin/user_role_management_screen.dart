@@ -231,7 +231,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Papéis de Usuários'),
+        title: const Text('Gerenciar Perfiles de Usuários'),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

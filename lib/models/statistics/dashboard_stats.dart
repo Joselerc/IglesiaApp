@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Modelo para almacenar las estadísticas generales mostradas en el dashboard
 class DashboardStats {

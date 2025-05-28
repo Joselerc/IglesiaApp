@@ -64,7 +64,7 @@ class PrivatePrayerCard extends StatelessWidget {
                         prayer.pastorResponse != null
                             ? 'Respondida'
                             : prayer.isAccepted
-                                ? 'Aceitada'
+                                ? 'Aprovada'
                                 : 'Pendente',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -76,7 +76,7 @@ class PrivatePrayerCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Enviada el ${DateFormat('dd MMM yyyy - HH:mm', 'es').format(prayer.createdAt)}',
+                        'Enviada em ${DateFormat('dd MMM yyyy - HH:mm').format(prayer.createdAt)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -99,7 +99,7 @@ class PrivatePrayerCard extends StatelessWidget {
                       prayer.pastorResponse != null 
                         ? 'Respondida'
                           : prayer.isAccepted 
-                            ? 'Aceitada'
+                            ? 'Aprovada'
                               : 'Pendente',
                     style: const TextStyle(
                         fontSize: 12,
@@ -243,7 +243,7 @@ class PrivatePrayerCard extends StatelessWidget {
                         if (prayer.respondedAt != null) ...[
                           const SizedBox(height: 8),
                       Text(
-                            'Respondido el ${DateFormat('dd MMM yyyy - HH:mm', 'es').format(prayer.respondedAt!)}',
+                            'Respondido em ${DateFormat('dd MMM yyyy - HH:mm').format(prayer.respondedAt!)}',
                         style: TextStyle(
                           fontSize: 12,
                               fontStyle: FontStyle.italic,

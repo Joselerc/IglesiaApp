@@ -9,6 +9,7 @@ import '../../services/prayer_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/skeletons/prayer_list_skeleton.dart';
 
 class PublicPrayerScreen extends StatefulWidget {
   const PublicPrayerScreen({super.key});
@@ -92,10 +93,10 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
         _lastVisibleDocument = snapshot.docs.last;
       }
     } catch (e) {
-      debugPrint('Error al cargar más oraciones: $e');
+      debugPrint('Erro ao carregar mais orações: $e');
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Error al cargar más: ${e.toString()}')),
+           SnackBar(content: Text('Erro ao carregar mais: ${e.toString()}')),
          );
       }
     } finally {
@@ -379,13 +380,13 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
               stream: _buildPrayersStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const PrayerListSkeleton();
                 }
                 
                 if (snapshot.hasError) {
-                  debugPrint('Error en StreamBuilder: ${snapshot.error}');
+                  debugPrint('Erro no StreamBuilder: ${snapshot.error}');
                   return Center(
-                    child: Text('Error al cargar oraciones: ${snapshot.error}'),
+                    child: Text('Erro ao carregar orações: ${snapshot.error}'),
                   );
                 }
                 

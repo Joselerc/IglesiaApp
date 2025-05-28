@@ -42,6 +42,11 @@ class _CultsScreenState extends State<CultsScreen> {
   final _countryController = TextEditingController();
   bool _saveThisLocation = false;
   
+  // Variables para mejorar el manejo de ubicaciones
+  List<DocumentSnapshot> _availableLocations = [];
+  bool _locationsLoaded = false;
+  String? _locationsError;
+  
   final PermissionService _permissionService = PermissionService();
   
   // Función auxiliar para crear TimeOfDay con valores seguros
@@ -81,8 +86,26 @@ class _CultsScreenState extends State<CultsScreen> {
     super.dispose();
   }
   
+  // Carga las ubicaciones disponibles una sola vez
+  Future<void> _loadAvailableLocations() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('churchLocations')
+          .orderBy('name')
+          .get();
+      
+      _availableLocations = snapshot.docs;
+      _locationsLoaded = true;
+      _locationsError = null;
+    } catch (e) {
+      _locationsError = e.toString();
+      _locationsLoaded = true;
+      _availableLocations = [];
+    }
+  }
+  
   // Muestra un diálogo para crear un nuevo culto
-  void _showCreateCultDialog() {
+  void _showCreateCultDialog() async {
     // Resetear valores por defecto
     _nameController.clear();
     _selectedDate = DateTime.now();
@@ -100,10 +123,18 @@ class _CultsScreenState extends State<CultsScreen> {
     _countryController.clear();
     _saveThisLocation = false;
     
+    // Resetear estado de ubicaciones
+    _locationsLoaded = false;
+    _locationsError = null;
+    _availableLocations = [];
+    
     // Inicializar de forma segura
     final now = DateTime.now();
     _startTime = TimeOfDay.fromDateTime(now);
     _endTime = _safeTimeOfDay(now.hour + 1, now.minute);
+    
+    // Cargar ubicaciones antes de mostrar el modal
+    await _loadAvailableLocations();
     
     showModalBottomSheet(
       context: context,
@@ -322,213 +353,8 @@ class _CultsScreenState extends State<CultsScreen> {
                 ),
                 const SizedBox(height: 8),
                 
-                // Opción para seleccionar ubicación existente
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('churchLocations')
-                      .orderBy('name')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    
-                    // Manejar errores
-                    if (snapshot.hasError) {
-                      debugPrint('Erro ao carregar localizações: ${snapshot.error}');
-                      // Mostrar mensaje de error y permitir crear nueva localización
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red[100]!),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.error_outline, color: Colors.red[700]),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Não foi possível carregar as localizações existentes. Você pode inserir uma nova localização abaixo.',
-                                    style: TextStyle(color: Colors.red[700]),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      );
-                    }
-                    
-                    final locations = snapshot.data?.docs ?? [];
-                    
-                    // Depurar para ver si llegan datos
-                    debugPrint('Localizações encontradas: ${locations.length}');
-                    for (var doc in locations) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      debugPrint('Localização: ${doc.id} - ${data['name']}');
-                    }
-                    
-                    // Si no hay ubicaciones, mostrar mensaje y permitir crear nueva
-                    if (locations.isEmpty) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue[100]!),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.info_outline, color: Colors.blue[700]),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Não há localizações salvas. Por favor, insira uma nova localização abaixo.',
-                                    style: TextStyle(color: Colors.blue[700]),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      );
-                    }
-                    
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DropdownButtonFormField<String>(
-                          value: _getDropdownInitialValue(),
-                          decoration: InputDecoration(
-                            labelText: 'Selecionar localização existente',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            suffixIcon: const Icon(Icons.location_on),
-                          ),
-                          hint: const Text('Escolha uma localização'),
-                          icon: const Icon(Icons.arrow_drop_down),
-                          isExpanded: true,
-                          items: [
-                            const DropdownMenuItem<String>(
-                              value: '',
-                              child: Text('Informar nova localização'),
-                            ),
-                            ...locations.map((doc) {
-                              final data = doc.data() as Map<String, dynamic>;
-                              final name = data['name'] ?? 'Sem nome';
-                              return DropdownMenuItem<String>(
-                                value: doc.id,
-                                child: Text(name),
-                              );
-                            }).toList(),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              if (value == null || value == '') {
-                                // Usuario quiere crear una nueva ubicación
-                                _selectedLocationId = null;
-                                _selectedLocationName = '';
-                                _locationNameController.clear();
-                                _streetController.clear();
-                                _numberController.clear();
-                                _complementController.clear();
-                                _neighborhoodController.clear();
-                                _cityController.clear();
-                                _stateController.clear();
-                                _postalCodeController.clear();
-                                _countryController.clear();
-                                
-                                // Forzar rebuild
-                                Future.microtask(() => setState(() {}));
-                              } else {
-                                _selectedLocationId = value;
-                                
-                                // Buscar ubicación seleccionada
-                                if (value != null) {
-                                  DocumentSnapshot? location;
-                                  for (var doc in locations) {
-                                    if (doc.id == value) {
-                                      location = doc;
-                                      break;
-                                    }
-                                  }
-                                  
-                                  if (location != null) {
-                                    final data = location.data() as Map<String, dynamic>;
-                                    _selectedLocationName = data['name'] ?? '';
-                                    _locationNameController.text = data['name'] ?? '';
-                                    _streetController.text = data['street'] ?? '';
-                                    _numberController.text = data['number'] ?? '';
-                                    _complementController.text = data['complement'] ?? '';
-                                    _neighborhoodController.text = data['neighborhood'] ?? '';
-                                    _cityController.text = data['city'] ?? '';
-                                    _stateController.text = data['state'] ?? '';
-                                    _postalCodeController.text = data['postalCode'] ?? '';
-                                    _countryController.text = data['country'] ?? '';
-                                    
-                                    // Forzar rebuild
-                                    Future.microtask(() => setState(() {}));
-                                  }
-                                }
-                              }
-                            });
-                          },
-                          isDense: false,
-                          menuMaxHeight: 300,
-                        ),
-                        const SizedBox(height: 16),
-                        if (_selectedLocationId != null)
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _selectedLocationId = null;
-                                _selectedLocationName = '';
-                                _locationNameController.clear();
-                                _streetController.clear();
-                                _numberController.clear();
-                                _complementController.clear();
-                                _neighborhoodController.clear();
-                                _cityController.clear();
-                                _stateController.clear();
-                                _postalCodeController.clear();
-                                _countryController.clear();
-                              });
-                            },
-                            icon: const Icon(Icons.add_location_alt),
-                            label: const Text('Criar nova localização'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.deepOrange,
-                              side: const BorderSide(color: Colors.deepOrange),
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-                      ],
-                    );
-                  },
-                ),
+                // Selector de ubicación mejorado
+                _buildLocationSelector(setState),
                 
                 // Campos de la ubicación
                 if (_selectedLocationId == null) 
@@ -898,6 +724,183 @@ class _CultsScreenState extends State<CultsScreen> {
         ),
       ),
     );
+  }
+  
+  // Construye el selector de ubicación mejorado
+  Widget _buildLocationSelector(StateSetter setState) {
+    // Mostrar indicador de carga si las ubicaciones no están cargadas
+    if (!_locationsLoaded) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text('Carregando localizações...'),
+          ],
+        ),
+      );
+    }
+
+    // Mostrar error si hubo problemas cargando ubicaciones
+    if (_locationsError != null) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.red[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.red[100]!),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red[700]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Erro ao carregar localizações. Você pode inserir uma nova localização abaixo.',
+                style: TextStyle(color: Colors.red[700]),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Mostrar mensaje si no hay ubicaciones
+    if (_availableLocations.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.blue[100]!),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.blue[700]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Não há localizações salvas. Por favor, insira uma nova localização abaixo.',
+                style: TextStyle(color: Colors.blue[700]),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Construir dropdown con ubicaciones disponibles
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<String>(
+          value: _selectedLocationId,
+          decoration: InputDecoration(
+            labelText: 'Selecionar localização existente',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            suffixIcon: const Icon(Icons.location_on),
+          ),
+          hint: const Text('Escolha uma localização'),
+          isExpanded: true,
+          items: [
+            const DropdownMenuItem<String>(
+              value: null,
+              child: Text('Informar nova localização'),
+            ),
+            ..._availableLocations.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final name = data['name'] ?? 'Sem nome';
+              return DropdownMenuItem<String>(
+                value: doc.id,
+                child: Text(name),
+              );
+            }).toList(),
+          ],
+          onChanged: (value) {
+            setState(() {
+              if (value == null) {
+                // Usuario quiere crear una nueva ubicación
+                _selectedLocationId = null;
+                _selectedLocationName = '';
+                _clearLocationFields();
+              } else {
+                _selectedLocationId = value;
+                _fillLocationFields(value);
+              }
+            });
+          },
+          menuMaxHeight: 300,
+        ),
+        const SizedBox(height: 16),
+        if (_selectedLocationId != null)
+          OutlinedButton.icon(
+            onPressed: () {
+              setState(() {
+                _selectedLocationId = null;
+                _selectedLocationName = '';
+                _clearLocationFields();
+              });
+            },
+            icon: const Icon(Icons.add_location_alt),
+            label: const Text('Criar nova localização'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.deepOrange,
+              side: const BorderSide(color: Colors.deepOrange),
+            ),
+          ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  // Limpia los campos de ubicación
+  void _clearLocationFields() {
+    _locationNameController.clear();
+    _streetController.clear();
+    _numberController.clear();
+    _complementController.clear();
+    _neighborhoodController.clear();
+    _cityController.clear();
+    _stateController.clear();
+    _postalCodeController.clear();
+    _countryController.clear();
+  }
+
+  // Llena los campos de ubicación con datos de una ubicación existente
+  void _fillLocationFields(String locationId) {
+    try {
+      final location = _availableLocations.firstWhere(
+        (doc) => doc.id == locationId,
+      );
+      
+      final data = location.data() as Map<String, dynamic>;
+      _selectedLocationName = data['name'] ?? '';
+      _locationNameController.text = data['name'] ?? '';
+      _streetController.text = data['street'] ?? '';
+      _numberController.text = data['number'] ?? '';
+      _complementController.text = data['complement'] ?? '';
+      _neighborhoodController.text = data['neighborhood'] ?? '';
+      _cityController.text = data['city'] ?? '';
+      _stateController.text = data['state'] ?? '';
+      _postalCodeController.text = data['postalCode'] ?? '';
+      _countryController.text = data['country'] ?? '';
+    } catch (e) {
+      // Si no se encuentra la ubicación, limpiar campos
+      _clearLocationFields();
+    }
   }
   
   // Convierte TimeOfDay a un valor double para comparaciones
@@ -1500,14 +1503,5 @@ class _CultsScreenState extends State<CultsScreen> {
     }
   }
 
-  String _getDropdownInitialValue() {
-    if (_selectedLocationId == null) {
-      return '';
-    } else if (_selectedLocationId!.isEmpty) {
-      return '';
-    } else {
-      return _selectedLocationId!;
-    }
-  }
 }
 

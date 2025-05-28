@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:dio/dio.dart';
 import '../models/notification.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -1090,6 +1093,7 @@ class NotificationService {
     print('🔔 NotificationService - Datos adicionales: $data');
     
     try {
+      // 1. Crear notificación en Firestore
       await createNotification(
         title: title,
         message: body,
@@ -1101,10 +1105,158 @@ class NotificationService {
         imageUrl: imageUrl,
         actionRoute: actionRoute,
       );
-      print('✅ NotificationService - Notificación creada exitosamente para: $userId');
+      
+      // 2. Enviar push notification real via FCM
+      await _sendPushNotification(
+        userIds: [userId],
+        title: title,
+        body: body,
+        data: data,
+        imageUrl: imageUrl,
+        actionRoute: actionRoute,
+      );
+      
+      print('✅ NotificationService - Notificación creada y enviada exitosamente para: $userId');
     } catch (e) {
       print('❌ Error al enviar notificación: $e');
       rethrow;
+    }
+  }
+
+  // Método para enviar notificaciones push masivas
+  Future<void> sendBulkNotifications({
+    required List<String> userIds,
+    required String title,
+    required String body,
+    Map<String, dynamic> data = const {},
+    String? imageUrl,
+    String? actionRoute,
+    NotificationType type = NotificationType.generic,
+  }) async {
+    try {
+      print('🔔 NotificationService - Enviando notificaciones masivas a ${userIds.length} usuarios');
+      
+      // 1. Crear notificaciones en Firestore en lotes
+      final batch = _firestore.batch();
+      for (final userId in userIds) {
+        final notification = AppNotification(
+          id: '',
+          title: title,
+          message: body,
+          createdAt: DateTime.now(),
+          type: type,
+          userId: userId,
+          senderId: _auth.currentUser?.uid ?? '',
+          isRead: false,
+          data: data,
+          imageUrl: imageUrl,
+          actionRoute: actionRoute,
+        );
+        
+        final docRef = _notificationsRef.doc();
+        batch.set(docRef, notification.toFirestore());
+      }
+      await batch.commit();
+      
+      // 2. Enviar push notifications reales
+      await _sendPushNotification(
+        userIds: userIds,
+        title: title,
+        body: body,
+        data: data,
+        imageUrl: imageUrl,
+        actionRoute: actionRoute,
+      );
+      
+      print('✅ NotificationService - Notificaciones masivas enviadas exitosamente');
+    } catch (e) {
+      print('❌ Error al enviar notificaciones masivas: $e');
+      rethrow;
+    }
+  }
+
+  // Método privado para enviar push notifications via Cloud Function
+  Future<void> _sendPushNotification({
+    required List<String> userIds,
+    required String title,
+    required String body,
+    Map<String, dynamic> data = const {},
+    String? imageUrl,
+    String? actionRoute,
+  }) async {
+    try {
+      // Solo enviar push notifications en producción o si está habilitado
+      if (kDebugMode && !const bool.fromEnvironment('ENABLE_PUSH_IN_DEBUG', defaultValue: false)) {
+        print('🔔 NotificationService - Push notifications deshabilitadas en debug');
+        return;
+      }
+      
+      final dio = Dio();
+      
+      // URL de la Cloud Function (ajustar según tu proyecto)
+      const cloudFunctionUrl = 'https://us-central1-churchappbr.cloudfunctions.net/sendPushNotification';
+      
+      final payload = {
+        'userIds': userIds,
+        'notification': {
+          'title': title,
+          'body': body,
+          if (imageUrl != null) 'imageUrl': imageUrl,
+        },
+        'data': {
+          ...data,
+          if (actionRoute != null) 'actionRoute': actionRoute,
+          'sentAt': DateTime.now().toIso8601String(),
+        },
+      };
+      
+      print('🔔 NotificationService - Enviando a Cloud Function: $cloudFunctionUrl');
+      print('🔔 NotificationService - Payload: ${payload.toString().substring(0, 200)}...');
+      
+      final response = await dio.post(
+        cloudFunctionUrl,
+        data: payload,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        print('✅ NotificationService - Push notifications enviadas: ${responseData['successCount']} exitosas');
+        if (responseData['failureCount'] > 0) {
+          print('⚠️ NotificationService - Fallos: ${responseData['failureCount']}');
+        }
+      } else {
+        print('❌ NotificationService - Error en Cloud Function: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ NotificationService - Error enviando push notification: $e');
+      // No relanzar el error para que no afecte la funcionalidad principal
+    }
+  }
+
+  // Método para suscribirse a topics (útil para notificaciones por categorías)
+  Future<void> subscribeToTopic(String topic) async {
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(topic);
+      print('✅ NotificationService - Suscrito al topic: $topic');
+    } catch (e) {
+      print('❌ NotificationService - Error suscribiéndose al topic $topic: $e');
+    }
+  }
+
+  // Método para desuscribirse de topics
+  Future<void> unsubscribeFromTopic(String topic) async {
+    try {
+      await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
+      print('✅ NotificationService - Desuscrito del topic: $topic');
+    } catch (e) {
+      print('❌ NotificationService - Error desuscribiéndose del topic $topic: $e');
     }
   }
 } 

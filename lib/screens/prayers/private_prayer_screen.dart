@@ -8,6 +8,7 @@ import 'widgets/private_prayer_card.dart';
 import 'modals/create_private_prayer_modal.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/skeletons/prayer_list_skeleton.dart';
 
 class PrivatePrayerScreen extends StatefulWidget {
   const PrivatePrayerScreen({super.key});
@@ -193,7 +194,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
       case 0:
         return 'Nenhuma oração pendente';
       case 1:
-        return 'Nenhuma oração aceita';
+        return 'Nenhuma oração aprovada';
       case 2:
         return 'Nenhuma oração respondida';
       default:
@@ -206,7 +207,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
       case 0:
         return 'Todos os seus pedidos de oração foram atendidos';
       case 1:
-        return 'Nenhuma oração foi aceita sem resposta';
+        return 'Nenhuma oração foi aprovada sem resposta';
       case 2:
         return 'Você ainda não recebeu respostas dos pastores';
       default:
@@ -254,7 +255,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                           onPressed: () => Navigator.pop(context),
                         ),
                         const Spacer(),
-                        Text(
+                        const Text(
                           'Minhas Orações Privadas',
                           style: TextStyle(
                             color: Colors.white,
@@ -297,7 +298,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                             children: [
                               Text(
                                 '($_pendingCount)',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -331,7 +332,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                               Container(
                                 width: 70,
                                 child: const Text(
-                                  'Aceitas',
+                                  'Aprovadas',
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -393,7 +394,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreatePrayerModal,
         backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
         tooltip: 'Solicitar oração',
       ),
     );
@@ -406,13 +407,10 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
         child: StreamBuilder<QuerySnapshot>(
           stream: _buildPrayersStream(tabIndex),
           builder: (context, snapshot) {
-            // PRIORIDAD 1: Mostrar indicador si está esperando activamente
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // Muestra un indicador centrado mientras carga inicialmente
-              return const Center(child: CircularProgressIndicator());
+            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+              return const PrayerListSkeleton();
             }
 
-            // PRIORIDAD 2: Manejar errores
             if (snapshot.hasError) {
               debugPrint('Error en StreamBuilder tab $tabIndex: ${snapshot.error}');
               return Center(
@@ -420,32 +418,22 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
               );
             }
 
-            // PRIORIDAD 3: Si no hay datos (ni siquiera lista vacía inicial)
-            // Esto es menos probable con Firestore streams pero es buena práctica
             if (!snapshot.hasData) {
-               // Podría mostrarse brevemente antes de la primera emisión
-               return const Center(child: Text('Cargando...'));
-               // O regresar el indicador de carga también
-               // return const Center(child: CircularProgressIndicator());
+              return const PrayerListSkeleton();
             }
 
-            // Ahora sabemos que snapshot.hasData es true
             final prayers = snapshot.data!.docs;
-            // _lastDocument = prayers.isNotEmpty ? prayers.last : null; // Esto ahora se maneja en el stream/loadMore
-
-            // PRIORIDAD 4: Mostrar estado vacío si la lista está vacía
             if (prayers.isEmpty) {
               return EmptyState(
                 icon: Icons.church,
                 title: _getEmptyStateTitle(tabIndex),
                 message: _getEmptyStateMessage(tabIndex),
-                buttonText: 'Solicitar oración',
+                buttonText: 'Solicitar oração',
                 onButtonPressed: _showCreatePrayerModal,
               );
             }
 
-            // PRIORIDAD 5: Mostrar la lista
-             final isLoading = _isLoadingMoreMap[tabIndex] ?? false;
+            final isLoading = _isLoadingMoreMap[tabIndex] ?? false;
             return RefreshIndicator(
               onRefresh: () async {
                  // Al refrescar, reseteamos el último documento para ESTA pestaña

@@ -250,41 +250,4 @@ class AuthService extends ChangeNotifier {
       return false;
     }
   }
-
-  // Método para verificar si el usuario actual es un invitado (anónimo)
-  Future<bool> isCurrentUserGuest() async {
-    try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return false;
-      
-      // Verificar primero si la cuenta es anónima según Firebase Auth
-      if (currentUser.isAnonymous) {
-        return true;
-      }
-      
-      // Como respaldo, también verificar en Firestore si está marcado como invitado
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-      
-      if (!userDoc.exists) return false;
-      
-      final userData = userDoc.data();
-      if (userData != null) {
-        // Verificar flag isGuest
-        final bool isGuest = userData['isGuest'] as bool? ?? false;
-        if (isGuest) return true;
-        
-        // También verificar si tiene el rol 'guest'
-        final String role = userData['role'] as String? ?? '';
-        if (role == 'guest') return true;
-      }
-      
-      return false;
-    } catch (e) {
-      debugPrint('❌ AUTH_SERVICE - Error al verificar si es usuario invitado: $e');
-      return false;
-    }
-  }
 }

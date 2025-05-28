@@ -77,15 +77,18 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                             icon: const Icon(Icons.arrow_back, color: Colors.white),
                             onPressed: () => Navigator.pop(context),
                           ),
-                          const Text(
-                            'Seções de Vídeos',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          Expanded(
+                            child: Center(
+                              child: const Text(
+                                'Seções de Vídeos',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                          const Spacer(),
                           IconButton(
                             icon: Icon(_isReordering ? Icons.done : Icons.reorder, color: Colors.white),
                             tooltip: _isReordering ? 'Salvar ordem' : 'Reordenar seções',

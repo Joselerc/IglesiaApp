@@ -34,7 +34,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
   final Map<String, List<String>> _permissionCategories = {
     'Administração Geral': [
       'manage_roles', 'assign_user_roles', 'manage_users', 
-      'view_user_details', 
+      'view_user_list', 'view_user_details', 
       'send_push_notifications',
     ],
     'Configuração Home': [
@@ -58,12 +58,73 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
     ],
     'Relatórios e Estatísticas': [
       'view_ministry_stats', 'view_group_stats', 'view_schedule_stats',
-      'view_course_stats',
+      'view_course_stats', 'view_church_statistics', 'view_cult_stats',
+      'view_work_stats',
+    ],
+    'MyKids (Gestão Infantil)': [
+      'manage_family_profiles', 'manage_checkin_rooms',
     ],
     'Outros': [
         'manage_profile_fields', // Movido aquí o crear categoría "Perfil"
     ]
     // Asegúrate de que todos los 46 permisos estén en alguna categoría
+  };
+
+  // --- Mapa de Traducciones para Permisos ---
+  final Map<String, String> _permissionTranslations = {
+    // Administração Geral
+    'manage_roles': 'Gerenciar Papéis',
+    'assign_user_roles': 'Atribuir Papéis a Usuários',
+    'manage_users': 'Gerenciar Usuários',
+    'view_user_list': 'Ver Lista de Usuários',
+    'view_user_details': 'Ver Detalhes de Usuários',
+    'send_push_notifications': 'Enviar Notificações Push',
+    
+    // Configuração Home
+    'manage_home_sections': 'Gerenciar Seções da Tela Inicial',
+    'manage_pages': 'Gerenciar Páginas',
+    'manage_donations_config': 'Configurar Doações',
+    'manage_livestream_config': 'Configurar Transmissões ao Vivo',
+    
+    // Conteúdo e Eventos
+    'manage_announcements': 'Gerenciar Anúncios',
+    'manage_videos': 'Gerenciar Vídeos',
+    'manage_cults': 'Gerenciar Cultos',
+    'manage_event_tickets': 'Gerenciar Ingressos de Eventos',
+    'manage_event_attendance': 'Gerenciar Presença em Eventos',
+    'create_events': 'Criar Eventos',
+    'delete_events': 'Excluir Eventos',
+    'manage_courses': 'Gerenciar Cursos',
+    
+    // Comunidade (Grupos)
+    'create_group': 'Criar Connect',
+    'delete_group': 'Excluir Connect',
+    
+    // Comunidade (Ministérios)
+    'create_ministry': 'Criar Ministérios',
+    'delete_ministry': 'Excluir Ministérios',
+    
+    // Aconselhamento e Oração
+    'manage_counseling_availability': 'Gerenciar Disponibilidade para Aconselhamento',
+    'manage_counseling_requests': 'Gerenciar Solicitações de Aconselhamento',
+    'manage_private_prayers': 'Gerenciar Orações Privadas',
+    'assign_cult_to_prayer': 'Atribuir Culto à Oração',
+    
+    // Relatórios e Estatísticas
+    'view_ministry_stats': 'Ver Estatísticas de Ministérios',
+    'view_group_stats': 'Ver Estatísticas de Grupos',
+    'view_schedule_stats': 'Ver Estatísticas de Escalas',
+    'view_course_stats': 'Ver Estatísticas de Cursos',
+    'view_church_statistics': 'Ver Estatísticas da Igreja',
+    'view_cult_stats': 'Ver Estatísticas de Cultos',
+    'view_work_stats': 'Ver Estatísticas de Trabalho',
+    
+    // MyKids (Gestão Infantil)
+    'manage_family_profiles': 'Gerenciar Perfis Familiares',
+    'manage_checkin_rooms': 'Gerenciar Salas e Check-in',
+    
+    // Outros
+    'manage_profile_fields': 'Gerenciar Campos de Perfil',
   };
 
   // Obtener lista plana de todos los permisos
@@ -174,7 +235,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Papel' : 'Criar Novo Papel'),
+        title: Text(_isEditing ? 'Editar Perfil' : 'Criar Novo Perfil'),
          backgroundColor: AppColors.primary, 
          foregroundColor: Colors.white,
       ),
@@ -261,6 +322,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                              return SmoothPermissionSwitch(
                                permission: permission,
                                initialValue: _selectedPermissions[permission] ?? false,
+                               permissionTranslations: _permissionTranslations,
                                onChanged: (value) {
                                  _updatePermission(permission, value);
                                },
@@ -335,12 +397,14 @@ class SmoothPermissionSwitch extends StatefulWidget {
   final String permission;
   final bool initialValue;
   final ValueChanged<bool> onChanged;
+  final Map<String, String> permissionTranslations;
 
   const SmoothPermissionSwitch({
     Key? key,
     required this.permission,
     required this.initialValue,
     required this.onChanged,
+    required this.permissionTranslations,
   }) : super(key: key);
 
   @override
@@ -401,9 +465,16 @@ class _SmoothPermissionSwitchState extends State<SmoothPermissionSwitch> with Si
     });
   }
 
+  String _getPermissionTranslation(String permission) {
+    // Buscar la traducción en el mapa, si no existe usar el método anterior como fallback
+    return widget.permissionTranslations[permission] ?? 
+           permission.replaceAll('_', ' ').capitalizeFirstLetter();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final permissionText = widget.permission.replaceAll('_', ' ').capitalizeFirstLetter();
+    // Buscar la traducción en el mapa, si no existe usar el método anterior como fallback
+    final permissionText = _getPermissionTranslation(widget.permission);
     
     return Material(
       color: Colors.transparent,

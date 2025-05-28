@@ -40,8 +40,8 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
   RecurrenceType _type = RecurrenceType.single;
   RecurrenceFrequency _frequency = RecurrenceFrequency.weekly;
   int _interval = 1;
-  RecurrenceEndType _endType = RecurrenceEndType.never;
-  int _occurrences = 1;
+  RecurrenceEndType _endType = RecurrenceEndType.afterOccurrences; // Cambiado de never a afterOccurrences
+  int _occurrences = 5; // Valor por defecto más razonable
   DateTime? _endDate;
 
   void _showRecurrenceModal() {
@@ -49,7 +49,11 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: StatefulBuilder(
         builder: (context, setModalState) => Container(
           height: MediaQuery.of(context).size.height * 0.9,
           decoration: const BoxDecoration(
@@ -119,8 +123,47 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Texto explicativo
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: Colors.blue[700],
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'O número indica o intervalo de repetição. Por exemplo: "2 Semanalmente" significa que o evento se repetirá a cada 2 semanas.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue[700],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Label más claro
+                    Text(
+                      'Repetir a cada:',
+                      style: AppTextStyles.bodyText2.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
                     // Intervalo y tipo de frecuencia
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: 70,
@@ -147,6 +190,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             onChanged: (value) {
                               setModalState(() {
                                 _interval = int.tryParse(value) ?? 1;
+                                if (_interval < 1) _interval = 1;
                               });
                             },
                           ),
@@ -175,19 +219,19 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             items: [
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.daily,
-                                child: Text('Diariamente'),
+                                child: Text(_interval > 1 ? 'dias' : 'dia'),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.weekly,
-                                child: Text('Semanalmente'),
+                                child: Text(_interval > 1 ? 'semanas' : 'semana'),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.monthly,
-                                child: Text('Mensalmente'),
+                                child: Text(_interval > 1 ? 'meses' : 'mês'),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.yearly,
-                                child: Text('Anualmente'),
+                                child: Text(_interval > 1 ? 'anos' : 'ano'),
                               ),
                             ],
                             onChanged: (value) {
@@ -198,6 +242,27 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                           ),
                         ),
                       ],
+                    ),
+                    
+                    // Mostrar resumen de la configuración
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Text(
+                        _getIntervalDescription(),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -254,7 +319,8 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                       ),
                       child: Column(
                         children: [
-                          // Nunca termina
+                          // Nunca termina - OCULTADO TEMPORALMENTE
+                          /*
                           Container(
                             decoration: BoxDecoration(
                               color: _endType == RecurrenceEndType.never
@@ -286,6 +352,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                           ),
                           
                           const SizedBox(height: 8),
+                          */
                           
                           // Después de X ocurrencias
                           Container(
@@ -489,6 +556,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -542,6 +610,27 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
         result += _endDate != null 
             ? ', até ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
             : ', até data específica';
+        break;
+    }
+    
+    return result;
+  }
+
+  String _getIntervalDescription() {
+    String result = 'Repete ';
+    
+    switch (_frequency) {
+      case RecurrenceFrequency.daily:
+        result += _interval > 1 ? 'a cada $_interval dias' : 'diariamente';
+        break;
+      case RecurrenceFrequency.weekly:
+        result += _interval > 1 ? 'a cada $_interval semanas' : 'semanalmente';
+        break;
+      case RecurrenceFrequency.monthly:
+        result += _interval > 1 ? 'a cada $_interval meses' : 'mensalmente';
+        break;
+      case RecurrenceFrequency.yearly:
+        result += _interval > 1 ? 'a cada $_interval anos' : 'anualmente';
         break;
     }
     

@@ -167,60 +167,140 @@ class _CreateEventModalState extends State<CreateEventModal> {
         }
       }
       
-      final event = EventModel(
-        id: '', 
-        title: _eventData['title'],
-        category: _eventData['category'],
-        description: _eventData['description'],
-        imageUrl: _eventData['imageUrl'] ?? '',
-        createdAt: DateTime.now(),
-        createdBy: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid),
-        eventType: _eventData['eventType'],
-        startDate: DateTime(
-          _eventData['startDate'].year,
-          _eventData['startDate'].month,
-          _eventData['startDate'].day,
-          _eventData['startTime'].hour,
-          _eventData['startTime'].minute,
-        ),
-        endDate: DateTime(
-          _eventData['endDate'].year,
-          _eventData['endDate'].month,
-          _eventData['endDate'].day,
-          _eventData['endTime'].hour,
-          _eventData['endTime'].minute,
-        ),
-        url: _eventData['url'],
-        country: _eventData['country'],
-        postalCode: _eventData['postalCode'],
-        state: _eventData['state'],
-        city: _eventData['city'],
-        neighborhood: _eventData['neighborhood'],
-        street: _eventData['street'],
-        number: _eventData['number'],
-        complement: _eventData['complement'],
-        churchLocationId: _eventData['churchLocationId'],
-        isRecurrent: _eventData['isRecurrent'] ?? false,
-        recurrenceType: _eventData['frequency'],
-        recurrenceInterval: _eventData['interval'],
-        recurrenceEndType: _eventData['endType'],
-        recurrenceCount: _eventData['occurrences'],
-        recurrenceEndDate: _eventData['endDate'],
+      // Preparar la fecha/hora inicial del evento
+      final baseStartDate = DateTime(
+        _eventData['startDate'].year,
+        _eventData['startDate'].month,
+        _eventData['startDate'].day,
+        _eventData['startTime'].hour,
+        _eventData['startTime'].minute,
       );
-
-      // Crear el evento en Firestore
-      final docRef = await FirebaseFirestore.instance
-          .collection('events')
-          .add(event.toMap());
       
-      if (mounted) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Evento criado com sucesso'),
-            backgroundColor: Colors.green,
-          ),
+      final baseEndDate = DateTime(
+        _eventData['endDate'].year,
+        _eventData['endDate'].month,
+        _eventData['endDate'].day,
+        _eventData['endTime'].hour,
+        _eventData['endTime'].minute,
+      );
+      
+      // Si el evento es recurrente, generar múltiples eventos
+      if (_eventData['isRecurrent'] == true) {
+        final List<Map<String, dynamic>> eventsList = _generateRecurringEvents(
+          baseStartDate: baseStartDate,
+          baseEndDate: baseEndDate,
+          frequency: _eventData['frequency'],
+          interval: _eventData['interval'] ?? 1,
+          endType: _eventData['endType'],
+          occurrences: _eventData['occurrences'] ?? 1,
+          endDate: _eventData['endDate'],
         );
+        
+        // Crear todos los eventos en un batch
+        final batch = FirebaseFirestore.instance.batch();
+        int eventCount = 0;
+        
+        for (final eventData in eventsList) {
+          final event = EventModel(
+            id: '', 
+            title: _eventData['title'],
+            category: _eventData['category'],
+            description: _eventData['description'],
+            imageUrl: _eventData['imageUrl'] ?? '',
+            createdAt: DateTime.now(),
+            createdBy: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid),
+            eventType: _eventData['eventType'],
+            startDate: eventData['startDate'],
+            endDate: eventData['endDate'],
+            url: _eventData['url'],
+            country: _eventData['country'],
+            postalCode: _eventData['postalCode'],
+            state: _eventData['state'],
+            city: _eventData['city'],
+            neighborhood: _eventData['neighborhood'],
+            street: _eventData['street'],
+            number: _eventData['number'],
+            complement: _eventData['complement'],
+            churchLocationId: _eventData['churchLocationId'],
+            isRecurrent: false, // Los eventos individuales no se marcan como recurrentes
+            recurrenceType: null,
+            recurrenceInterval: null,
+            recurrenceEndType: null,
+            recurrenceCount: null,
+            recurrenceEndDate: null,
+          );
+          
+          final docRef = FirebaseFirestore.instance.collection('events').doc();
+          batch.set(docRef, event.toMap());
+          eventCount++;
+          
+          // Firestore tiene un límite de 500 operaciones por batch
+          if (eventCount >= 500) {
+            await batch.commit();
+            batch.set(FirebaseFirestore.instance.collection('events').doc(), {}); // Reiniciar batch
+            eventCount = 0;
+          }
+        }
+        
+        // Commit del batch final
+        if (eventCount > 0) {
+          await batch.commit();
+        }
+        
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${eventsList.length} eventos criados com sucesso'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        // Evento único (no recurrente)
+        final event = EventModel(
+          id: '', 
+          title: _eventData['title'],
+          category: _eventData['category'],
+          description: _eventData['description'],
+          imageUrl: _eventData['imageUrl'] ?? '',
+          createdAt: DateTime.now(),
+          createdBy: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid),
+          eventType: _eventData['eventType'],
+          startDate: baseStartDate,
+          endDate: baseEndDate,
+          url: _eventData['url'],
+          country: _eventData['country'],
+          postalCode: _eventData['postalCode'],
+          state: _eventData['state'],
+          city: _eventData['city'],
+          neighborhood: _eventData['neighborhood'],
+          street: _eventData['street'],
+          number: _eventData['number'],
+          complement: _eventData['complement'],
+          churchLocationId: _eventData['churchLocationId'],
+          isRecurrent: false,
+          recurrenceType: null,
+          recurrenceInterval: null,
+          recurrenceEndType: null,
+          recurrenceCount: null,
+          recurrenceEndDate: null,
+        );
+
+        // Crear el evento en Firestore
+        await FirebaseFirestore.instance
+            .collection('events')
+            .add(event.toMap());
+        
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Evento criado com sucesso'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -235,6 +315,98 @@ class _CreateEventModalState extends State<CreateEventModal> {
         );
       }
     }
+  }
+  
+  // Método para generar las fechas de eventos recurrentes
+  List<Map<String, dynamic>> _generateRecurringEvents({
+    required DateTime baseStartDate,
+    required DateTime baseEndDate,
+    required String frequency,
+    required int interval,
+    required String endType,
+    int? occurrences,
+    DateTime? endDate,
+  }) {
+    final List<Map<String, dynamic>> events = [];
+    DateTime currentStartDate = baseStartDate;
+    DateTime currentEndDate = baseEndDate;
+    int count = 0;
+    
+    // Límite de seguridad para evitar bucles infinitos
+    const int maxEvents = 365;
+    
+    while (events.length < maxEvents) {
+      // Agregar el evento actual
+      events.add({
+        'startDate': currentStartDate,
+        'endDate': currentEndDate,
+      });
+      
+      count++;
+      
+      // Verificar condiciones de parada
+      if (endType == 'afterOccurrences' && occurrences != null && count >= occurrences) {
+        break;
+      }
+      
+      if (endType == 'onDate' && endDate != null && currentStartDate.isAfter(endDate)) {
+        // Eliminar el último evento si excede la fecha de fin
+        events.removeLast();
+        break;
+      }
+      
+      // Calcular la próxima fecha
+      switch (frequency) {
+        case 'daily':
+          currentStartDate = currentStartDate.add(Duration(days: interval));
+          currentEndDate = currentEndDate.add(Duration(days: interval));
+          break;
+        case 'weekly':
+          currentStartDate = currentStartDate.add(Duration(days: 7 * interval));
+          currentEndDate = currentEndDate.add(Duration(days: 7 * interval));
+          break;
+        case 'monthly':
+          // Para meses, necesitamos considerar la variación en días
+          currentStartDate = DateTime(
+            currentStartDate.year,
+            currentStartDate.month + interval,
+            currentStartDate.day,
+            currentStartDate.hour,
+            currentStartDate.minute,
+          );
+          currentEndDate = DateTime(
+            currentEndDate.year,
+            currentEndDate.month + interval,
+            currentEndDate.day,
+            currentEndDate.hour,
+            currentEndDate.minute,
+          );
+          break;
+        case 'yearly':
+          currentStartDate = DateTime(
+            currentStartDate.year + interval,
+            currentStartDate.month,
+            currentStartDate.day,
+            currentStartDate.hour,
+            currentStartDate.minute,
+          );
+          currentEndDate = DateTime(
+            currentEndDate.year + interval,
+            currentEndDate.month,
+            currentEndDate.day,
+            currentEndDate.hour,
+            currentEndDate.minute,
+          );
+          break;
+      }
+      
+      // Para eventos que nunca terminan, limitamos a 1 año de eventos
+      if (endType == 'never' && currentStartDate.isAfter(baseStartDate.add(const Duration(days: 365)))) {
+        break;
+      }
+    }
+    
+    return events;
   }
 
   @override

@@ -41,27 +41,10 @@ class ProfileFieldsService {
       throw Exception('Usuario no autenticado');
     }
 
-    // Verificar si el usuario es pastor
-    final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    final userData = userDoc.data();
-    if (userData == null || userData['role'] != 'pastor') {
-      throw Exception('Solo los pastores pueden crear campos de perfil');
-    }
+    // Los permisos ya se verifican en la pantalla ProfileFieldsAdminScreen
+    // antes de llamar a este método.
 
-    // Asegurar que las opciones sean válidas para campos de selección
-    Map<String, dynamic> fieldData = field.toMap();
-    
-    if (field.type == 'select' && field.options != null) {
-      // Convertir las opciones a un mapa con índices como claves
-      // para evitar duplicados y garantizar valores únicos
-      final Map<String, String> optionsMap = {};
-      for (int i = 0; i < field.options!.length; i++) {
-        optionsMap[i.toString()] = field.options![i];
-      }
-      fieldData['options'] = optionsMap;
-    }
-
-    await _firestore.collection('profileFields').add(fieldData);
+    await _firestore.collection('profileFields').add(field.toMap());
   }
 
   // Actualizar un campo de perfil
@@ -71,30 +54,12 @@ class ProfileFieldsService {
       throw Exception('Usuario no autenticado');
     }
 
-    // Verificar si el usuario es pastor
-    final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    final userData = userDoc.data();
-    if (userData == null || userData['role'] != 'pastor') {
-      throw Exception('Solo los pastores pueden actualizar campos de perfil');
-    }
-
-    // Asegurar que las opciones sean válidas para campos de selección
-    Map<String, dynamic> fieldData = field.toMap();
-    
-    if (field.type == 'select' && field.options != null) {
-      // Convertir las opciones a un mapa con índices como claves
-      // para evitar duplicados y garantizar valores únicos
-      final Map<String, String> optionsMap = {};
-      for (int i = 0; i < field.options!.length; i++) {
-        optionsMap[i.toString()] = field.options![i];
-      }
-      fieldData['options'] = optionsMap;
-    }
+    // Los permisos ya se verifican en la pantalla ProfileFieldsAdminScreen
 
     await _firestore
         .collection('profileFields')
         .doc(field.id)
-        .update(fieldData);
+        .update(field.toMap());
   }
 
   // Eliminar un campo de perfil
@@ -104,12 +69,7 @@ class ProfileFieldsService {
       throw Exception('Usuario no autenticado');
     }
 
-    // Verificar si el usuario es pastor
-    final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    final userData = userDoc.data();
-    if (userData == null || userData['role'] != 'pastor') {
-      throw Exception('Solo los pastores pueden eliminar campos de perfil');
-    }
+    // Los permisos ya se verifican en la pantalla ProfileFieldsAdminScreen
 
     await _firestore.collection('profileFields').doc(fieldId).delete();
   }

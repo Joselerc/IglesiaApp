@@ -5,6 +5,7 @@ class KidRoomModel {
   final String name;
   final int? capacity;
   final bool isActive;
+  final bool repeatWeekly;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
 
@@ -13,6 +14,7 @@ class KidRoomModel {
     required this.name,
     this.capacity,
     this.isActive = true,
+    this.repeatWeekly = false,
     required this.createdAt,
     this.updatedAt,
   });
@@ -24,6 +26,7 @@ class KidRoomModel {
       name: data['name'] ?? '',
       capacity: data['capacity'] as int?,
       isActive: data['isActive'] ?? true,
+      repeatWeekly: data['repeatWeekly'] ?? false,
       createdAt: data['createdAt'] ?? Timestamp.now(),
       updatedAt: data['updatedAt'] as Timestamp?,
     );
@@ -34,6 +37,7 @@ class KidRoomModel {
       'name': name,
       'capacity': capacity,
       'isActive': isActive,
+      'repeatWeekly': repeatWeekly,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };

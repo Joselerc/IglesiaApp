@@ -163,11 +163,11 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => FractionallySizedBox(
+      builder: (context) => const FractionallySizedBox(
         heightFactor: 0.9,
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: const CreatePredefinedMessageModal(),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          child: CreatePredefinedMessageModal(),
         ),
       ),
     );
@@ -435,7 +435,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               children: [
                 if (isPending)
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.check),
+                    icon: const Icon(Icons.check, color: Colors.white),
                     label: const Text('Aceitar'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -450,7 +450,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                   )
                 else
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.reply),
+                    icon: const Icon(Icons.reply, color: Colors.white),
                     label: const Text('Responder'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -555,6 +555,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
     return FutureBuilder<bool>(
       future: _permissionService.hasPermission('manage_private_prayers'),
       builder: (context, permissionSnapshot) {
+        
         if (permissionSnapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
@@ -617,9 +618,9 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               ),
               foregroundColor: Colors.white,
             ),
-            body: Center(
+            body: const Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -658,17 +659,17 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               unselectedLabelColor: Colors.white.withOpacity(0.8),
               controller: _tabController,
               indicatorColor: Colors.white,
-              tabs: [
+              tabs: const [
                 Tab(
-                  icon: const Icon(Icons.watch_later_outlined),
+                  icon: Icon(Icons.watch_later_outlined),
                   text: 'Pendentes',
                 ),
                 Tab(
-                  icon: const Icon(Icons.check_circle_outline),
-                  text: 'Aceitas',
+                  icon: Icon(Icons.check_circle_outline),
+                  text: 'Aprovadas',
                 ),
                 Tab(
-                  icon: const Icon(Icons.chat_outlined),
+                  icon: Icon(Icons.chat_outlined),
                   text: 'Respondidas',
                 ),
               ],
@@ -733,7 +734,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                   Icons.watch_later_outlined,
                                 ),
                                 _buildStatCard(
-                                  'Aceitas',
+                                  'Aprovadas',
                                   _stats['accepted'] ?? 0,
                                   Colors.green,
                                   Icons.check_circle_outline,
@@ -801,7 +802,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       Icon(Icons.mark_chat_unread_outlined, size: 64, color: Colors.grey[400]),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'Não há orações aceitas sem resposta',
+                                        'Não há orações aprovadas sem resposta',
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.grey[600],

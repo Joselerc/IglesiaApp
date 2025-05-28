@@ -11,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/ministry_card.dart';
 import '../../modals/create_ministry_modal.dart';
 import '../../services/permission_service.dart';
+import '../../widgets/skeletons/list_tab_content_skeleton.dart';
 
 class MinistriesListScreen extends StatefulWidget {
   const MinistriesListScreen({super.key});
@@ -296,9 +297,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ListTabContentSkeleton();
         }
 
         try {
@@ -363,9 +362,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ListTabContentSkeleton();
         }
 
         final allMinistries = snapshot.data ?? [];

@@ -1,3 +1,5 @@
+// TODO: Eliminar este archivo, ya no se usa
+
 import 'package:flutter/material.dart';
 import '../../screens/ministries/ministries_list_screen.dart';
 import '../../screens/groups/groups_list_screen.dart';
@@ -6,7 +8,6 @@ import '../../screens/prayers/private_prayer_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/app_card.dart';
-import '../../utils/guest_utils.dart';
 
 class ServicesGridSection extends StatelessWidget {
   const ServicesGridSection({super.key});
@@ -38,19 +39,13 @@ class ServicesGridSection extends StatelessWidget {
                   Expanded(
                     child: AppCard(
                       padding: const EdgeInsets.all(16),
-                      onTap: () async {
-                        // Verificar si es usuario invitado
-                        final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-                        
-                        // Solo navegar si NO es invitado
-                        if (!isGuest && context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MinistriesListScreen(),
-                            ),
-                          );
-                        }
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MinistriesListScreen(),
+                          ),
+                        );
                       },
                       child: _buildServiceItem(
                         icon: Icons.people_outline,
@@ -59,23 +54,17 @@ class ServicesGridSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Grupos (Connect)
+                  // Grupos
                   Expanded(
                     child: AppCard(
                       padding: const EdgeInsets.all(16),
-                      onTap: () async {
-                        // Verificar si es usuario invitado
-                        final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-                        
-                        // Solo navegar si NO es invitado
-                        if (!isGuest && context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const GroupsListScreen(),
-                            ),
-                          );
-                        }
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const GroupsListScreen(),
+                          ),
+                        );
                       },
                       child: _buildServiceItem(
                         icon: Icons.group_outlined,
@@ -93,19 +82,13 @@ class ServicesGridSection extends StatelessWidget {
                   Expanded(
                     child: AppCard(
                       padding: const EdgeInsets.all(16),
-                      onTap: () async {
-                        // Verificar si es usuario invitado
-                        final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-                        
-                        // Solo navegar si NO es invitado
-                        if (!isGuest && context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PrivatePrayerScreen(),
-                            ),
-                          );
-                        }
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PrivatePrayerScreen(),
+                          ),
+                        );
                       },
                       child: _buildServiceItem(
                         icon: Icons.lock_person_outlined,
@@ -118,19 +101,13 @@ class ServicesGridSection extends StatelessWidget {
                   Expanded(
                     child: AppCard(
                       padding: const EdgeInsets.all(16),
-                      onTap: () async {
-                        // Verificar si es usuario invitado
-                        final isGuest = await GuestUtils.checkGuestAndShowDialog(context);
-                        
-                        // Solo navegar si NO es invitado
-                        if (!isGuest && context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PublicPrayerScreen(),
-                            ),
-                          );
-                        }
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PublicPrayerScreen(),
+                          ),
+                        );
                       },
                       child: _buildServiceItem(
                         icon: Icons.campaign_outlined,

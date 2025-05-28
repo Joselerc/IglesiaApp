@@ -69,7 +69,7 @@ class _PrayerCardState extends State<PrayerCard> {
         });
       }
     } catch (e) {
-      print('Error cargando datos del autor: $e');
+      print('Error cargando dados do autor: $e');
       if (mounted) {
         setState(() => _isLoadingAuthor = false); // Marcar como no cargando incluso si hay error
       }
@@ -116,8 +116,8 @@ class _PrayerCardState extends State<PrayerCard> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Desasignar oración'),
-          content: const Text('¿Estás seguro de que deseas desasignar esta oración del culto?'),
+          title: const Text('Desatribuir oração'),
+          content: const Text('Tem certeza que deseja desatribuir esta oração do culto?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -125,7 +125,7 @@ class _PrayerCardState extends State<PrayerCard> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Desasignar', style: TextStyle(color: Colors.red)),
+              child: const Text('Desatribuir', style: TextStyle(color: Colors.red)),
             ),
           ],
         ),
@@ -146,19 +146,19 @@ class _PrayerCardState extends State<PrayerCard> {
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Oración desasignada correctamente')),
+            const SnackBar(content: Text('Oração desatribuída corretamente')),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error al desasignar la oración')),
+            const SnackBar(content: Text('Erro ao desatribuir a oração')),
           );
         }
       }
     } catch (e) {
-      print('Error al desasignar oración: $e');
+      print('Erro ao desatribuir oração: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Erro: $e')),
         );
       }
     } finally {
@@ -202,7 +202,7 @@ class _PrayerCardState extends State<PrayerCard> {
                 
                 // Indicador de oración asignada a culto (sin cambios)
                 if (widget.prayer.isAssignedToCult)
-                  _buildStatusChip(Icons.church, 'Asignada', Colors.blue),
+                  _buildStatusChip(Icons.church, 'Atribuída', Colors.blue),
                 
                 // Indicador de oración aceptada (sin cambios)
                 // if (widget.prayer.isAccepted)
@@ -218,7 +218,7 @@ class _PrayerCardState extends State<PrayerCard> {
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 12),
               child: Text(
-                timeago.format(widget.prayer.createdAt, locale: 'es'),
+                timeago.format(widget.prayer.createdAt, locale: 'pt_BR'),
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 12,
@@ -313,7 +313,7 @@ class _PrayerCardState extends State<PrayerCard> {
   Widget _buildAuthorName() {
     if (widget.prayer.isAnonymous) {
       return const Text(
-        'Anónimo',
+        'Anônimo',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF616161)),
       );
     }
@@ -327,7 +327,7 @@ class _PrayerCardState extends State<PrayerCard> {
          ),
        );
     }
-    final username = _authorData?['displayName'] ?? _authorData?['name'] ?? 'Usuario';
+    final username = _authorData?['displayName'] ?? _authorData?['name'] ?? 'Usuário';
     return Text(
       username,
       style: const TextStyle(
@@ -370,45 +370,43 @@ class _PrayerCardState extends State<PrayerCard> {
     return PopupMenuButton<String>(
        icon: const Icon(Icons.more_vert, color: Colors.grey),
        padding: EdgeInsets.zero, // Reducir padding si es necesario
-       tooltip: 'Opções', // pt-BR
+       tooltip: 'Opções',
        onSelected: (value) async {
          if (value == 'delete') {
            // Mostrar confirmación antes de eliminar
            final confirmed = await showDialog<bool>(
              context: context,
              builder: (context) => AlertDialog(
-               title: const Text('Excluir Oração'), // pt-BR
-               content: const Text('Tem certeza que deseja excluir esta oração? Esta ação não pode ser desfeita.'), // pt-BR
+               title: const Text('Excluir Oração'),
+               content: const Text('Tem certeza que deseja excluir esta oração? Esta ação não pode ser desfeita.'),
                actions: [
                  TextButton(
                    onPressed: () => Navigator.pop(context, false),
-                   child: const Text('Cancelar'), // pt-BR
+                   child: const Text('Cancelar'),
                  ),
                  TextButton(
                    onPressed: () => Navigator.pop(context, true),
-                   child: const Text('Excluir', style: TextStyle(color: Colors.red)), // pt-BR
+                   child: const Text('Excluir', style: TextStyle(color: Colors.red)),
                  ),
                ],
              ),
-           ) ?? false; // Asegurar que no sea null
+           ) ?? false;
 
-           if (confirmed && mounted) { // Verificar mounted después de await
+           if (confirmed && mounted) {
              try {
                await FirebaseFirestore.instance
                    .collection('prayers')
                    .doc(widget.prayer.id)
                    .delete();
-                // Mostrar SnackBar solo si sigue montado
                 if (mounted) {
                    ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text('Oração excluída com sucesso')), // pt-BR
+                     const SnackBar(content: Text('Oração excluída com sucesso')),
                    );
                  }
              } catch (e) {
-                // Mostrar SnackBar solo si sigue montado
                 if (mounted) { 
                  ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text('Erro ao excluir oração: $e')), // pt-BR
+                   SnackBar(content: Text('Erro ao excluir oração: $e')),
                  );
                }
              }
@@ -433,7 +431,7 @@ class _PrayerCardState extends State<PrayerCard> {
                   children: [
                     Icon(Icons.delete_outline, color: Colors.red, size: 20),
                     SizedBox(width: 8),
-                    Text('Excluir', style: TextStyle(color: Colors.red)), // pt-BR
+                    Text('Excluir', style: TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
@@ -450,7 +448,7 @@ class _PrayerCardState extends State<PrayerCard> {
                   children: [
                     Icon(Icons.church_outlined, color: Colors.blue, size: 20),
                     SizedBox(width: 8),
-                    Text('Asignar a culto', style: TextStyle(color: Colors.blue)), // pt-BR
+                    Text('Atribuir ao culto', style: TextStyle(color: Colors.blue)),
                   ],
                 ),
               ),
@@ -461,7 +459,7 @@ class _PrayerCardState extends State<PrayerCard> {
                   children: [
                     Icon(Icons.remove_circle_outline, color: Colors.orange, size: 20),
                     SizedBox(width: 8),
-                    Text('Desasignar de culto', style: TextStyle(color: Colors.orange)), // pt-BR
+                    Text('Desatribuir do culto', style: TextStyle(color: Colors.orange)),
                   ],
                 ),
               ),
@@ -485,7 +483,7 @@ class _PrayerCardState extends State<PrayerCard> {
              const SizedBox(width: 8),
              Expanded(
                child: Text(
-                 'Asignada al culto: ${widget.prayer.cultName}',
+                 'Atribuída ao culto: ${widget.prayer.cultName}',
                  style: TextStyle(
                    fontSize: 13,
                    color: Colors.blue[800],
@@ -543,7 +541,7 @@ class _PrayerCardState extends State<PrayerCard> {
   Future<void> _handleVote(User? currentUser, bool isUpvote) async {
     if (currentUser == null) { // Añadir verificación de login
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debes iniciar sesión para votar')),
+        const SnackBar(content: Text('Você deve fazer login para votar')),
       );
       return;
     }
@@ -599,10 +597,10 @@ class _PrayerCardState extends State<PrayerCard> {
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         DocumentSnapshot prayerSnapshot = await transaction.get(prayerRef);
         if (!prayerSnapshot.exists) {
-          throw Exception('La oración ya no existe.');
+          throw Exception('A oração não existe mais.');
         }
         
-        // Recalcular cambios basados en datos reales de Firestore para la transacción
+        // Recalcular cambios basados en dados reais de Firestore para a transação
         final prayerData = prayerSnapshot.data() as Map<String, dynamic>;
         final List<dynamic> upVotedByList = List.from(prayerData['upVotedBy'] ?? []);
         final List<dynamic> downVotedByList = List.from(prayerData['downVotedBy'] ?? []);
@@ -653,7 +651,7 @@ class _PrayerCardState extends State<PrayerCard> {
            _currentUserHasDownvoted = initialHasDownvoted;
          });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al registrar el voto: $e')),
+          SnackBar(content: Text('Erro ao registrar o voto: $e')),
         );
       }
     }

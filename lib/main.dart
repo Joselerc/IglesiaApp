@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +28,7 @@ import 'screens/courses/course_detail_screen.dart';
 import 'screens/courses/lesson_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
+import 'services/fcm_service.dart';
 import 'services/event_service.dart';
 import 'services/work_schedule_service.dart';
 import 'cubits/navigation_cubit.dart';
@@ -49,9 +52,9 @@ import 'screens/videos/manage_sections_screen.dart';
 import 'screens/work_invites/work_services_screen.dart';
 import 'screens/admin/user_info_screen.dart';
 import 'screens/design_reference_screen.dart';
-import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/profile_screen.dart';
 import 'theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/admin/manage_pages_screen.dart';
@@ -70,17 +73,38 @@ final NavigationCubit navigationCubit = NavigationCubit();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Agregar un listener al NavigationCubit para depuración
-  navigationCubit.stream.listen((state) {
-    debugPrint('🧭 NAVIGATION_CUBIT - Estado cambiado a: $state');
-  });
+  // Configurar manejo global de errores
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (kDebugMode) {
+      // En debug, mostrar errores completos
+      FlutterError.presentError(details);
+    } else {
+      // En producción, log simplificado
+      debugPrint('Flutter Error: ${details.exception}');
+      // Aquí podrías enviar a un servicio de crash reporting como Firebase Crashlytics
+    }
+  };
+  
+  // Agregar un listener al NavigationCubit para depuración (solo en debug)
+  if (kDebugMode) {
+    navigationCubit.stream.listen((state) {
+      debugPrint('🧭 NAVIGATION_CUBIT - Estado cambiado a: $state');
+    });
+  }
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
+  // Configurar manejador de mensajes en background para FCM
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  
   // Crear e inicializar el servicio de notificaciones
   final notificationService = NotificationService();
+  
+  // Inicializar FCM Service
+  final fcmService = FCMService();
+  await fcmService.initialize();
   
   // Inicializar los datos de localización para formateo de fechas
   await initializeDateFormatting('pt_BR', null);
@@ -90,11 +114,13 @@ void main() async {
   timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages());
   timeago.setDefaultLocale('pt_BR');
   
-  // Migrar datos existentes
-  try {
-    await WorkScheduleService().migrateExistingInvitations();
-  } catch (e) {
-    debugPrint('Error al migrar datos: $e');
+  // Migrar datos existentes (solo en debug para evitar delays en producción)
+  if (kDebugMode) {
+    try {
+      await WorkScheduleService().migrateExistingInvitations();
+    } catch (e) {
+      debugPrint('Error al migrar datos: $e');
+    }
   }
   
   runApp(
@@ -106,6 +132,8 @@ void main() async {
         ),
         // Proporcionar NotificationService como un singleton
         Provider<NotificationService>.value(value: notificationService),
+        // Proporcionar FCMService como un singleton
+        Provider<FCMService>.value(value: fcmService),
       ],
       child: const MyApp(),
     ),
@@ -127,7 +155,7 @@ class MyApp extends StatelessWidget {
         title: 'Church App',
         navigatorKey: EventService.navigatorKey,
         theme: AppTheme.lightTheme,
-        home: const SplashScreen(),
+        home: const AuthWrapper(),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -143,6 +171,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const MainScreen(),
+          '/profile_screen': (context) => const ProfileScreen(),
           '/admin/profile-fields': (context) => const ProfileFieldsAdminScreen(),
           '/profile/additional-info': (context) => AdditionalInfoScreen(
             fromBanner: (ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?)?['fromBanner'] as bool? ?? false,

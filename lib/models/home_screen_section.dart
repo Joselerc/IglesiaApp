@@ -11,6 +11,10 @@ enum HomeScreenSectionType {
   liveStream,
   donations,
   courses, // Nueva sección de Cursos Online
+  ministries,
+  groups,
+  privatePrayer,
+  publicPrayer,
   unknown // Para manejo de errores o tipos futuros
 }
 
@@ -21,6 +25,7 @@ class HomeScreenSection {
   final int order;
   final bool isActive;
   final List<String>? pageIds; // Solo para customPageList
+  final bool hideWhenEmpty; // Para eventos y anuncios: ocultar cuando no hay contenido
   // final String? layout; // Posible campo futuro para layout (list, grid, carousel)
 
   HomeScreenSection({
@@ -30,6 +35,7 @@ class HomeScreenSection {
     required this.order,
     this.isActive = true,
     this.pageIds,
+    this.hideWhenEmpty = false, // Por defecto no ocultar
     // this.layout,
   });
 
@@ -51,6 +57,7 @@ class HomeScreenSection {
       order: data['order'] ?? 999, // Orden alto por defecto si no existe
       isActive: data['isActive'] ?? true, // Activo por defecto
       pageIds: parsedPageIds,
+      hideWhenEmpty: data['hideWhenEmpty'] ?? false, // Por defecto no ocultar
       // layout: data['layout'] as String?,
     );
   }
@@ -61,15 +68,16 @@ class HomeScreenSection {
       'type': _sectionTypeToString(type), // Convierte enum a string
       'order': order,
       'isActive': isActive,
+      'hideWhenEmpty': hideWhenEmpty,
       if (pageIds != null) 'pageIds': pageIds,
       // if (layout != null) 'layout': layout,
       // Considera añadir 'createdAt', 'updatedAt' si es necesario
     };
   }
 
-  // Helper para convertir String de Firestore a Enum
-  static HomeScreenSectionType _stringToSectionType(String? typeString) {
-    switch (typeString) {
+  // Helper para convertir string a Enum desde Firestore
+  static HomeScreenSectionType _stringToSectionType(String? type) {
+    switch (type) {
       case 'announcements': return HomeScreenSectionType.announcements;
       case 'cults': return HomeScreenSectionType.cults;
       case 'servicesGrid': return HomeScreenSectionType.servicesGrid;
@@ -80,6 +88,10 @@ class HomeScreenSection {
       case 'liveStream': return HomeScreenSectionType.liveStream;
       case 'donations': return HomeScreenSectionType.donations;
       case 'courses': return HomeScreenSectionType.courses;
+      case 'ministries': return HomeScreenSectionType.ministries;
+      case 'groups': return HomeScreenSectionType.groups;
+      case 'privatePrayer': return HomeScreenSectionType.privatePrayer;
+      case 'publicPrayer': return HomeScreenSectionType.publicPrayer;
       default: return HomeScreenSectionType.unknown;
     }
   }
@@ -97,6 +109,10 @@ class HomeScreenSection {
       case HomeScreenSectionType.liveStream: return 'liveStream';
       case HomeScreenSectionType.donations: return 'donations';
       case HomeScreenSectionType.courses: return 'courses';
+      case HomeScreenSectionType.ministries: return 'ministries';
+      case HomeScreenSectionType.groups: return 'groups';
+      case HomeScreenSectionType.privatePrayer: return 'privatePrayer';
+      case HomeScreenSectionType.publicPrayer: return 'publicPrayer';
       default: return 'unknown';
     }
   }

@@ -636,7 +636,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                     'isMinistryAssignment': isMinistryAssignment,
                   });
                 } catch (e) {
-                  debugPrint('Error al procesar rol: $e');
+                  debugPrint('Erro ao processar função: $e');
                 }
               }
               
@@ -1241,7 +1241,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                 debugPrint('La invitación no coincide con la franja horaria: ${doc.id}');
                 return null;
               } catch (e) {
-                debugPrint('Error al procesar invitación: $e');
+                debugPrint('Erro ao processar convite: $e');
                 return null;
               }
             })
@@ -1304,7 +1304,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                   userName = userData['displayName'] ?? userData['name'] ?? 'Usuario';
                   debugPrint('Usuario encontrado: $userName');
                 } else if (userSnapshot.hasError) {
-                  debugPrint('Error al obtener usuario: ${userSnapshot.error}');
+                  debugPrint('Erro ao obter usuário: ${userSnapshot.error}');
                 } else if (!userSnapshot.hasData) {
                   debugPrint('No se encontró el usuario con ID: $userIdString');
                 }
@@ -1327,8 +1327,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                     return await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Eliminar Invitación'),
-                        content: Text('¿Estás seguro que deseas eliminar la invitación enviada a "$userName"?'),
+                        title: const Text('Excluir Convite'),
+                        content: Text('Tem certeza que deseja excluir o convite enviado para "$userName"?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -1336,7 +1336,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
@@ -1372,7 +1372,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red, size: 20),
                               onPressed: () => _confirmDeleteInvite(inviteId, userName),
-                              tooltip: 'Eliminar invitación',
+                              tooltip: 'Excluir convite',
                             ),
                         ],
                       ),
@@ -1435,8 +1435,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Ministerio'),
-        content: Text('¿Estás seguro que deseas eliminar el ministerio "$ministryName" de esta franja horaria? Se eliminarán todas las asignaciones asociadas.'),
+        title: const Text('Excluir Ministério'),
+        content: Text('Tem certeza que deseja excluir o ministério "$ministryName" desta faixa horária? Todas as atribuições associadas serão excluídas.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1444,7 +1444,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1468,7 +1468,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Eliminando ministerio...'),
+              Text('Excluindo ministério...'),
             ],
           ),
         ),
@@ -1477,15 +1477,15 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       // Normalizar ID - asumiendo que un método _normalizeId está disponible en este archivo
       // Si no está disponible, deberás añadirlo
       final String ministryIdStr = _normalizeId(ministryId);
-      debugPrint('Eliminando ministerio con ID normalizado: $ministryIdStr');
+      debugPrint('Excluindo ministério com ID normalizado: $ministryIdStr');
       
-      // Eliminar asignaciones de trabajo
+      // Excluir atribuições de trabalho
       await WorkScheduleService().deleteWorkAssignmentsByMinistry(
         timeSlotId: widget.timeSlot.id,
         ministryId: ministryIdStr,
       );
       
-      // Eliminar todas las invitaciones para este ministerio
+      // Excluir todos os convites para este ministério
       await WorkScheduleService().deleteInvitationsForMinistryAndRole(
         timeSlotId: widget.timeSlot.id,
         ministryId: ministryIdStr,
@@ -1500,7 +1500,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ministerio "$ministryName" eliminado exitosamente'),
+          content: Text('Ministério "$ministryName" excluído com sucesso'),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
         ),
@@ -1510,7 +1510,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       setState(() {});
       
     } catch (e) {
-      debugPrint('Error al eliminar ministerio: $e');
+      debugPrint('Erro ao excluir ministério: $e');
       
       // Cerrar diálogo de carga y mostrar error
       if (!mounted) return;
@@ -1519,7 +1519,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar ministerio: $e'),
+          content: Text('Erro ao excluir ministério: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -1549,8 +1549,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Asignación'),
-        content: Text('¿Estás seguro que deseas eliminar la asignación de "$userName"?'),
+        title: const Text('Excluir Atribuição'),
+        content: Text('Tem certeza que deseja excluir a atribuição de "$userName"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1569,7 +1569,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     await _deleteAssignment(assignmentId, userName);
   }
   
-  // Método para eliminar una asignación
+  // Método para excluir uma atribuição
   Future<void> _deleteAssignment(String assignmentId, String userName) async {
     try {
       // Mostrar indicador de carga
@@ -1582,13 +1582,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Eliminando asignación...'),
+              Text('Excluindo atribuição...'),
             ],
           ),
         ),
       );
       
-      // Eliminar la asignación
+      // Excluir a atribuição
       await WorkScheduleService().deleteWorkAssignment(assignmentId);
       
       // Cerrar diálogo de carga y mostrar mensaje de éxito
@@ -1597,7 +1597,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Asignación de "$userName" eliminada exitosamente'),
+            content: Text('Atribuição de "$userName" excluída com sucesso'),
             backgroundColor: Colors.green,
           ),
         );
@@ -1609,7 +1609,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al eliminar asignación: $e'),
+            content: Text('Erro ao excluir atribuição: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1622,8 +1622,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Invitación'),
-        content: Text('¿Estás seguro que deseas eliminar la invitación para "$userName"?'),
+        title: const Text('Excluir Convite'),
+        content: Text('Tem certeza que deseja excluir o convite para "$userName"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1656,15 +1656,15 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invitación para "$userName" eliminada'),
+          content: Text('Convite para "$userName" excluído'),
           backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
-      debugPrint('Error al eliminar invitación: $e');
+      debugPrint('Erro ao excluir convite: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar invitación: $e'),
+          content: Text('Erro ao excluir convite: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -1679,7 +1679,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar capacidad para "$roleName"'),
+        title: Text('Editar capacidade para "$roleName"'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1688,14 +1688,14 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               controller: capacityController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Capacidad',
+                labelText: 'Capacidade',
                 border: OutlineInputBorder(),
-                helperText: 'Número máximo de personas para este rol',
+                helperText: 'Número máximo de pessoas para esta função',
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Personas asignadas actualmente: $currentAssigned',
+              'Pessoas atribuídas atualmente: $currentAssigned',
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -1715,7 +1715,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               if (newCapacity == null || newCapacity <= 0) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Por favor ingresa un número válido mayor a cero'),
+                    content: Text('Por favor insira um número válido maior que zero'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1725,7 +1725,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               if (newCapacity < currentAssigned) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('La capacidad no puede ser menor que el número de personas asignadas'),
+                    content: Text('A capacidade não pode ser menor que o número de pessoas atribuídas'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1734,7 +1734,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               
               Navigator.pop(context, newCapacity);
             },
-            child: const Text('Guardar'),
+            child: const Text('Salvar'),
           ),
         ],
       ),
@@ -1753,7 +1753,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('Actualizando capacidad...'),
+                Text('Atualizando capacidade...'),
               ],
             ),
           ),
@@ -1773,7 +1773,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Capacidad del rol "$roleName" actualizada exitosamente'),
+              content: Text('Capacidade da função "$roleName" atualizada com sucesso'),
               backgroundColor: Colors.green,
             ),
           );
@@ -1785,7 +1785,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al actualizar capacidad: $e'),
+              content: Text('Erro ao atualizar capacidade: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1799,8 +1799,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Rol'),
-        content: Text('¿Estás seguro que deseas eliminar el rol "$roleName"? Se eliminarán todas las asignaciones asociadas.'),
+        title: const Text('Excluir Função'),
+        content: Text('Tem certeza que deseja excluir a função "$roleName"? Todas as atribuições associadas serão excluídas.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1819,7 +1819,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     _deleteRole(roleId, roleName);
   }
   
-  // Método para eliminar un rol
+  // Método para excluir uma função
   Future<void> _deleteRole(String roleId, String roleName) async {
     // Mostrar indicador de carga
     showDialog(
@@ -1831,7 +1831,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Eliminando rol...'),
+            Text('Excluindo função...'),
           ],
         ),
       ),
@@ -1849,7 +1849,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             .get();
         
         if (!roleDoc.exists) {
-          throw Exception('El rol no existe');
+          throw Exception('A função não existe');
         }
         
         final roleData = roleDoc.data()!;
@@ -1867,12 +1867,12 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         }
         
         if (ministryId == null || ministryId.isEmpty) {
-          throw Exception('No se pudo determinar el ID del ministerio');
+          throw Exception('Não foi possível determinar o ID do ministério');
         }
         
-        debugPrint('Eliminando rol: $roleName (ID: $roleId) del ministerio: $ministryId');
+        debugPrint('Excluindo função: $roleName (ID: $roleId) do ministério: $ministryId');
       } catch (e) {
-        debugPrint('Error al obtener información del rol: $e');
+        debugPrint('Erro ao obter informações da função: $e');
         // Si falla la obtención de información, intentamos la eliminación de todas formas
         // con la información mínima que tenemos
       }
@@ -1886,14 +1886,14 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               'isActive': false,
               'deletedAt': Timestamp.now(),
             });
-        debugPrint('Rol marcado como inactivo correctamente');
+        debugPrint('Função marcada como inativa corretamente');
       } catch (e) {
-        debugPrint('Error al marcar rol como inactivo: $e');
+                  debugPrint('Erro ao marcar função como inativa: $e');
         if (mounted) {
           Navigator.pop(context); // Cerrar diálogo de carga
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al eliminar rol: $e'),
+              content: Text('Erro ao excluir função: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1912,41 +1912,41 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               .where('isActive', isEqualTo: true)
               .get();
           
-          debugPrint('Encontradas ${assignmentsSnapshot.docs.length} asignaciones a eliminar');
+          debugPrint('Encontradas ${assignmentsSnapshot.docs.length} atribuições a excluir');
           
           if (assignmentsSnapshot.docs.isNotEmpty) {
-            // Eliminar todas las asignaciones
-            final batch = FirebaseFirestore.instance.batch();
-            for (var doc in assignmentsSnapshot.docs) {
-              batch.update(doc.reference, {
-                'isActive': false,
-                'status': 'cancelled',
-                'deletedAt': Timestamp.now(),
-              });
-            }
-            
-            try {
-              await batch.commit();
-              debugPrint('Asignaciones eliminadas correctamente');
-            } catch (e) {
-              debugPrint('Error al eliminar asignaciones: $e');
-              // Continuamos incluso si esta operación falla
-            }
+                    // Excluir todas as atribuições
+        final batch = FirebaseFirestore.instance.batch();
+        for (var doc in assignmentsSnapshot.docs) {
+          batch.update(doc.reference, {
+            'isActive': false,
+            'status': 'cancelled',
+            'deletedAt': Timestamp.now(),
+          });
+        }
+        
+        try {
+          await batch.commit();
+          debugPrint('Atribuições excluídas corretamente');
+        } catch (e) {
+          debugPrint('Erro ao excluir atribuições: $e');
+          // Continuamos incluso si esta operación falla
+        }
           }
           
-          // Eliminar invitaciones - se maneja internamente los errores
+          // Excluir convites - se maneja internamente os erros
           try {
             await WorkScheduleService().deleteInvitationsForMinistryAndRole(
               timeSlotId: widget.timeSlot.id,
               ministryId: ministryId,
             );
-            debugPrint('Invitaciones eliminadas correctamente');
+            debugPrint('Convites excluídos corretamente');
           } catch (e) {
-            debugPrint('Error al eliminar invitaciones: $e');
+            debugPrint('Erro ao excluir convites: $e');
             // Continuamos incluso si esta operación falla
           }
         } catch (e) {
-          debugPrint('Error en operaciones secundarias de eliminación: $e');
+          debugPrint('Erro em operações secundárias de exclusão: $e');
           // Continuamos porque ya marcamos el rol como inactivo
         }
       }
@@ -1957,7 +1957,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Rol "$roleName" eliminado exitosamente'),
+            content: Text('Função "$roleName" excluída com sucesso'),
             backgroundColor: Colors.green,
           ),
         );
@@ -1972,7 +1972,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al eliminar rol: $e'),
+            content: Text('Erro ao excluir função: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -2598,7 +2598,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Papel: $roleName',
+                                        'Função: $roleName',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,

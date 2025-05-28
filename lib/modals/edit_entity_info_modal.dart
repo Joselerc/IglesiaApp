@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:flutter_quill/flutter_quill.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/loading_indicator.dart';
@@ -169,7 +169,6 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
   // ... (Getters _collectionPath, _entityTypeName, _adminFieldName)
   String get _collectionPath => widget.entityType == EntityType.ministry ? 'ministries' : 'groups';
   String get _entityTypeName => widget.entityType == EntityType.ministry ? 'Ministério' : 'Grupo';
-  String get _adminFieldName => widget.entityType == EntityType.ministry ? 'ministrieAdmin' : 'groupAdmin';
 
   @override
   void initState() {

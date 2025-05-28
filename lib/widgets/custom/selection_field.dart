@@ -22,7 +22,7 @@ class SelectionField extends StatefulWidget {
   /// Indica si el campo es obligatorio
   final bool isRequired;
   
-  /// Color del borde cuando hay error
+  /// Color del borde cuando hay error (usado si el FormField padre lo indica, o internamente si se decide)
   final Color errorColor;
   
   /// Color del borde normal
@@ -52,9 +52,9 @@ class SelectionField extends StatefulWidget {
     this.onChanged,
     this.isRequired = false,
     this.errorColor = Colors.red,
-    this.borderColor = Colors.grey,
-    this.borderRadius = 8.0,
-    this.backgroundColor = Colors.white,
+    this.borderColor = const Color(0xFFE0E0E0), // Colors.grey[300]
+    this.borderRadius = 10.0, // Consistente con tus otros campos
+    this.backgroundColor = const Color(0xFFFAFAFA), // Colors.grey[50]
     this.prefixIcon,
     this.dropdownIcon = Icons.arrow_drop_down,
     this.itemLabelBuilder,
@@ -65,58 +65,26 @@ class SelectionField extends StatefulWidget {
 }
 
 class _SelectionFieldState extends State<SelectionField> {
-  late TextEditingController _controller;
-  // Mantener una copia local del valor seleccionado
+  // Ya no se necesita _controller aquí si el valor se maneja por FormField
   String? _selectedValue;
   
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.value;
-    _initializeController();
-    print('SelectionField - initState para ${widget.label}, value=${widget.value}, _selectedValue=$_selectedValue');
+    // print('SelectionField - initState para ${widget.label}, value=${widget.value}, _selectedValue=$_selectedValue');
   }
   
   @override
   void didUpdateWidget(SelectionField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    // Solo actualizar el valor y controlador si el valor realmente cambió y es no nulo
-    if (widget.value != oldWidget.value && widget.value != null) {
-      print('SelectionField - didUpdateWidget: valor cambió de ${oldWidget.value} a ${widget.value}');
-      if (widget.options.contains(widget.value)) {
-        _selectedValue = widget.value;
-        _updateControllerText();
+    if (widget.value != oldWidget.value) {
+      // print('SelectionField - didUpdateWidget: valor cambió de ${oldWidget.value} a ${widget.value}');
+      // Solo actualiza _selectedValue si el nuevo widget.value está en las opciones o es null
+      if (widget.value == null || widget.options.contains(widget.value)) {
+         _selectedValue = widget.value;
       }
     }
-  }
-  
-  void _updateControllerText() {
-    // Usar el valor seleccionado si existe y es válido
-    if (_selectedValue != null && widget.options.contains(_selectedValue)) {
-      final displayText = _getDisplayLabel(_selectedValue!);
-      if (_controller.text != displayText) {
-        _controller.text = displayText;
-        print('SelectionField - _updateControllerText: actualizado a "$displayText"');
-      }
-    }
-  }
-  
-  void _initializeController() {
-    // Priorizar el valor seleccionado localmente sobre el valor del widget
-    final valueToUse = _selectedValue ?? widget.value;
-    
-    // Comprobar si el valor es válido (existe en las opciones)
-    final isValueValid = valueToUse != null && widget.options.contains(valueToUse);
-    final displayText = isValueValid ? _getDisplayLabel(valueToUse) : '';
-    _controller = TextEditingController(text: displayText);
-    print('SelectionField - _initializeController: isValueValid=$isValueValid, valueToUse=$valueToUse, displayText="$displayText"');
-  }
-  
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
   
   // Obtiene la etiqueta a mostrar para un valor
@@ -126,122 +94,116 @@ class _SelectionFieldState extends State<SelectionField> {
 
   @override
   Widget build(BuildContext context) {
-    // Priorizar el valor seleccionado localmente sobre el valor del widget
-    final valueToUse = _selectedValue ?? widget.value;
-    
-    // Comprobar si el valor es válido (existe en las opciones)
-    final isValueValid = valueToUse != null && widget.options.contains(valueToUse);
-    final hasError = widget.isRequired && (valueToUse == null || valueToUse.isEmpty);
-    final theme = Theme.of(context);
-    
-    print('SelectionField - build: label=${widget.label}, valueToUse=$valueToUse, isValueValid=$isValueValid');
-    print('SelectionField - build: controllerText="${_controller.text}"');
-    
-    // Asegurarse de que el controlador tenga el texto correcto
-    if (isValueValid && _controller.text != _getDisplayLabel(valueToUse)) {
-      print('SelectionField - build: actualizando controlador, texto anterior="${_controller.text}", nuevo="${_getDisplayLabel(valueToUse)}"');
-      _controller.text = _getDisplayLabel(valueToUse);
+    // El color primario para el estado activo/con valor puede venir del Theme general
+    // o ser específico de la sección (como el morado de "Informação Adicional")
+    // Por ahora, usaremos el primaryColor del Theme, pero podría necesitar ser un parámetro.
+    final ThemeData theme = Theme.of(context);
+    final Color activeColor = theme.primaryColor; // Color para borde y label cuando hay valor
+
+    final currentValue = _selectedValue;
+    final bool isValueSelected = currentValue != null && currentValue.isNotEmpty && widget.options.contains(currentValue);
+
+    Color currentBorderColor;
+    double borderWidth;
+    Color currentLabelColor;
+    EdgeInsets contentPadding;
+
+    if (isValueSelected) {
+      currentBorderColor = activeColor;
+      borderWidth = 2.0; // Borde más grueso cuando está activo/con valor
+      currentLabelColor = activeColor;
+      // Padding cuando la etiqueta está "flotando" y hay valor
+      contentPadding = const EdgeInsets.fromLTRB(12, 20, 12, 12); // Ajustar top para dejar espacio al label
+    } else {
+      currentBorderColor = widget.borderColor;
+      borderWidth = 1.0;
+      currentLabelColor = Colors.grey[600]!;
+      // Padding cuando la etiqueta está "dentro" o es placeholder
+      contentPadding = const EdgeInsets.symmetric(vertical: 16, horizontal: 12);
     }
-    
+
     return GestureDetector(
       onTap: widget.onChanged == null ? null : () => _showSelectionDialog(context),
       child: Container(
-        width: double.infinity,
         decoration: BoxDecoration(
           color: widget.backgroundColor,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: Border.all(
-            color: hasError 
-                ? widget.errorColor 
-                : isValueValid 
-                    ? theme.primaryColor.withOpacity(0.5) 
-                    : Colors.grey[300]!,
-            width: isValueValid ? 1.5 : 1.0,
+            color: currentBorderColor,
+            width: borderWidth,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            // Etiqueta flotante
+            // Contenido principal (prefixIcon, valor/placeholder, dropdownIcon)
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
+              padding: contentPadding,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    widget.label,
-                    style: TextStyle(
-                      color: isValueValid ? theme.primaryColor : Colors.grey[600],
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  if (widget.isRequired)
+                  if (widget.prefixIcon != null)
                     Padding(
-                      padding: const EdgeInsets.only(left: 2),
-                      child: Icon(
-                        Icons.star,
-                        size: 10,
-                        color: Colors.red[400],
-                      ),
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: widget.prefixIcon!,
                     ),
-                ],
-              ),
-            ),
-            // Valor seleccionado o placeholder
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Row(
-                children: [
-                  if (widget.prefixIcon != null) ...[
-                    widget.prefixIcon!,
-                    const SizedBox(width: 12),
-                  ],
                   Expanded(
                     child: Text(
-                      isValueValid ? _getDisplayLabel(valueToUse) : 'Seleccione una opción',
+                      isValueSelected ? _getDisplayLabel(currentValue!) : (widget.hint ?? 'Selecione uma opção'),
                       style: TextStyle(
-                        color: isValueValid ? Colors.black87 : Colors.grey[400],
                         fontSize: 16,
-                        fontWeight: isValueValid ? FontWeight.w500 : FontWeight.normal,
-                        fontStyle: isValueValid ? FontStyle.normal : FontStyle.italic,
+                        color: isValueSelected ? Colors.black87 : Colors.grey[600],
+                        fontWeight: isValueSelected ? FontWeight.w500 : FontWeight.normal,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8), // Espacio antes del icono del dropdown
                   Icon(
                     widget.dropdownIcon,
-                    color: hasError ? widget.errorColor : Colors.grey[600],
+                    color: Colors.grey[700], // Icono del dropdown siempre gris
                     size: 24,
                   ),
                 ],
               ),
             ),
-            // Mensaje de error si es requerido y no tiene valor
-            if (hasError)
-              Padding(
-                padding: const EdgeInsets.only(left: 16, bottom: 8),
-                child: Text(
-                  'Este campo es requerido',
-                  style: TextStyle(
-                    color: widget.errorColor,
-                    fontSize: 12,
-                  ),
+            // Etiqueta posicionada (simulando etiqueta flotante)
+            Positioned(
+              left: widget.prefixIcon != null ? 44 : 12, // Ajustar si hay prefixIcon
+              top: isValueSelected ? 6 : (contentPadding.top + contentPadding.bottom - 12) / 2, // Centrar si no hay valor, arriba si hay valor
+              child: Container(
+                color: widget.backgroundColor, // Para que la etiqueta "corte" el borde
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontSize: isValueSelected ? 12 : 16, // Más pequeño cuando flota
+                        color: currentLabelColor,
+                        fontWeight: FontWeight.w500, // Siempre w500 para el label
+                      ),
+                    ),
+                    if (widget.isRequired)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2.0),
+                        child: Icon(Icons.star, size: 10, color: Colors.red[400]),
+                      ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // Muestra el diálogo de selección con la lista de opciones
-  Future<void> _showSelectionDialog(BuildContext context) async {
-    print('SelectionField - _showSelectionDialog: mostrando diálogo para ${widget.label}');
-    
+  Future<void> _showSelectionDialog(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
-    
-    final result = await showDialog<String>(
+
+    return showDialog<String>(
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
@@ -253,7 +215,6 @@ class _SelectionFieldState extends State<SelectionField> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Título del diálogo
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: Text(
@@ -265,10 +226,8 @@ class _SelectionFieldState extends State<SelectionField> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
-              // Lista de opciones
               SizedBox(
-                height: widget.options.length > 6 
+                height: widget.options.length > 6
                     ? MediaQuery.of(context).size.height * 0.4
                     : null,
                 child: ListView.builder(
@@ -277,7 +236,7 @@ class _SelectionFieldState extends State<SelectionField> {
                   itemBuilder: (context, index) {
                     final option = widget.options[index];
                     final isSelected = _selectedValue == option;
-                    
+
                     return ListTile(
                       title: Text(
                         _getDisplayLabel(option),
@@ -295,8 +254,6 @@ class _SelectionFieldState extends State<SelectionField> {
                   },
                 ),
               ),
-              
-              // Botón de cancelar
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: TextButton(
@@ -311,32 +268,11 @@ class _SelectionFieldState extends State<SelectionField> {
           ),
         ),
       ),
-    );
-    
-    print('SelectionField - _showSelectionDialog: resultado del diálogo: $result');
-    
-    if (result != null && widget.onChanged != null) {
-      try {
-        // Actualizar el valor local y el controlador inmediatamente
-        setState(() {
-          _selectedValue = result;
-          _controller.text = _getDisplayLabel(result);
-          print('SelectionField - selección actualizada: _selectedValue=$_selectedValue, controlador="${_controller.text}"');
-        });
-        
-        // Llamar al callback
-        print('SelectionField - llamando onChanged con valor: $result');
+    ).then((result) {
+      if (result != null && widget.onChanged != null) {
         widget.onChanged!(result);
-      } catch (e) {
-        print('Error al actualizar selección: $e');
-        // Intentar recuperar
-        Future.microtask(() {
-          if (mounted) {
-            widget.onChanged!(result);
-          }
-        });
       }
-    }
+    });
   }
 }
 
@@ -354,67 +290,42 @@ class SelectionFormField extends FormField<String> {
     this.onChanged,
     bool isRequired = false,
     String? Function(String?)? validator,
-    Color errorColor = Colors.red,
-    Color borderColor = Colors.grey,
-    double borderRadius = 8.0,
-    Color backgroundColor = Colors.white,
     Widget? prefixIcon,
     IconData dropdownIcon = Icons.arrow_drop_down,
+    Color errorColor = Colors.red,
+    Color borderColor = const Color(0xFFE0E0E0), // Colors.grey[300]
+    double borderRadius = 10.0,
+    Color backgroundColor = const Color(0xFFFAFAFA), // Colors.grey[50]
   }) : super(
     initialValue: initialValue,
-    validator: validator ?? (isRequired 
-        ? (value) => (value == null || value.isEmpty) 
-            ? 'Este campo es requerido' 
+    validator: validator ?? (isRequired
+        ? (value) => (value == null || value.isEmpty)
+            ? 'Este campo es requerido'
             : null
         : null),
     builder: (FormFieldState<String> field) {
-      final _SelectionFormFieldState state = field as _SelectionFormFieldState;
-      
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SelectionField(
-            label: label,
-            hint: hint,
-            value: state.value,
-            options: options,
-            onChanged: state.didChange,
-            isRequired: isRequired,
-            errorColor: field.hasError ? errorColor : errorColor,
-            borderColor: borderColor,
-            borderRadius: borderRadius,
-            backgroundColor: backgroundColor,
-            prefixIcon: prefixIcon,
-            dropdownIcon: dropdownIcon,
-          ),
-          if (field.hasError && field.errorText != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 4),
-              child: Text(
-                field.errorText!,
-                style: TextStyle(
-                  color: errorColor,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-        ],
+      return SelectionField(
+        label: label,
+        hint: hint, // Pasar el hint
+        value: field.value,
+        options: options,
+        onChanged: (String? newValue) {
+          field.didChange(newValue);
+          if (onChanged != null) {
+            onChanged(newValue);
+          }
+        },
+        isRequired: isRequired,
+        errorColor: errorColor,
+        borderColor: field.hasError ? errorColor : borderColor, // Usar errorColor si FormField tiene error
+        borderRadius: borderRadius,
+        backgroundColor: backgroundColor,
+        prefixIcon: prefixIcon,
+        dropdownIcon: dropdownIcon,
       );
     },
   );
   
   @override
-  FormFieldState<String> createState() => _SelectionFormFieldState();
-}
-
-class _SelectionFormFieldState extends FormFieldState<String> {
-  @override
-  void didChange(String? value) {
-    super.didChange(value);
-    final SelectionFormField widgetField = widget as SelectionFormField;
-    if (widgetField.onChanged != null) {
-      widgetField.onChanged!(value);
-    }
-  }
+  FormFieldState<String> createState() => FormFieldState<String>();
 } 

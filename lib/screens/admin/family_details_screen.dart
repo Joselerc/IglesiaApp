@@ -57,6 +57,66 @@ class _FamilyDetailsScreenState extends State<FamilyDetailsScreen> {
     );
   }
 
+  Future<void> _confirmDeleteChild(ChildModel childToDelete) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Eliminar Criança'),
+          content: Text('Tem certeza que deseja remover permanentemente ${childToDelete.firstName} ${childToDelete.lastName} da família?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('CANCELAR'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+            ),
+            TextButton(
+              child: Text('ELIMINAR', style: TextStyle(color: Colors.red.shade700)),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      if (!mounted) return;
+      // Podríamos mostrar un indicador de carga aquí si la operación es larga
+      // setState(() => _isDeletingChild = true); 
+      try {
+        WriteBatch batch = FirebaseFirestore.instance.batch();
+
+        // 1. Eliminar de la colección 'children'
+        DocumentReference childRef = FirebaseFirestore.instance.collection('children').doc(childToDelete.id);
+        batch.delete(childRef);
+
+        // 2. Eliminar de childIds en la familia
+        DocumentReference familyRef = FirebaseFirestore.instance.collection('families').doc(widget.familyId);
+        batch.update(familyRef, {
+          'childIds': FieldValue.arrayRemove([childToDelete.id])
+        });
+        
+        // TODO: Considerar eliminar también los CheckinRecords asociados a este childId si es necesario.
+
+        await batch.commit();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${childToDelete.firstName} removido(a) com sucesso.'), backgroundColor: Colors.green),
+          );
+        }
+      } catch (e) {
+        print("Erro ao eliminar criança: $e");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao remover ${childToDelete.firstName}: $e'), backgroundColor: Colors.red),
+          );
+        }
+      } finally {
+        // if (mounted) setState(() => _isDeletingChild = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,24 +349,29 @@ class _FamilyDetailsScreenState extends State<FamilyDetailsScreen> {
             return Card(
               elevation: 1,
               margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: (child.photoUrl != null && child.photoUrl!.isNotEmpty)
-                      ? NetworkImage(child.photoUrl!)
-                      : null,
-                  child: (child.photoUrl == null || child.photoUrl!.isEmpty)
-                      ? Text(_getInitials('${child.firstName} ${child.lastName}'))
-                      : null,
-                ),
-                title: Text('${child.firstName} ${child.lastName}'),
-                subtitle: Text(_calculateAge(child.dateOfBirth)), // Mostrar edad
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              child: InkWell(
+                onLongPress: () {
+                  _confirmDeleteChild(child);
+                },
                 onTap: () {
                   print('Ver/Editar criança: ${child.id} da família ${widget.familyId}');
                   Navigator.push(context, MaterialPageRoute(builder: (_) => 
-                    ChildDetailsScreen(childId: child.id, familyId: widget.familyId) // Pasar familyId
+                    ChildDetailsScreen(childId: child.id, familyId: widget.familyId)
                   ));
                 },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: (child.photoUrl != null && child.photoUrl!.isNotEmpty)
+                        ? NetworkImage(child.photoUrl!)
+                        : null,
+                    child: (child.photoUrl == null || child.photoUrl!.isEmpty)
+                        ? Text(_getInitials('${child.firstName} ${child.lastName}'))
+                        : null,
+                  ),
+                  title: Text('${child.firstName} ${child.lastName}'),
+                  subtitle: Text(_calculateAge(child.dateOfBirth)), // Mostrar edad
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                ),
               ),
             );
           },

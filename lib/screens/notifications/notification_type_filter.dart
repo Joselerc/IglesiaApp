@@ -71,7 +71,7 @@ class NotificationTypeFilter extends StatelessWidget {
                   _buildFilterTile(
                     context,
                     NotificationType.ministryJoinRequestAccepted,
-                    'Solicitações aceitas',
+                    'Solicitações aprovadas',
                   ),
                   _buildFilterTile(
                     context,
@@ -110,7 +110,7 @@ class NotificationTypeFilter extends StatelessWidget {
                   _buildFilterTile(
                     context,
                     NotificationType.groupJoinRequestAccepted,
-                    'Solicitações aceitas',
+                    'Solicitações aprovadas',
                   ),
                   _buildFilterTile(
                     context,
@@ -144,7 +144,7 @@ class NotificationTypeFilter extends StatelessWidget {
                   _buildFilterTile(
                     context,
                     NotificationType.publicPrayerAccepted,
-                    'Orações públicas aceitas',
+                    'Orações públicas aprovadas',
                   ),
                   const Divider(),
                   

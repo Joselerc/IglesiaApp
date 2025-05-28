@@ -882,7 +882,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
       shrinkWrap: true,
       children: [
         Text(
-          'Detalhes da Consulta',
+          'Detalhes do Aconselhamento',
           style: AppTextStyles.subtitle1.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -891,7 +891,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
         
         // Motivo de la consulta
         Text(
-          'Motivo da Consulta',
+          'Motivo do Aconselhamento',
           style: AppTextStyles.subtitle2.copyWith(
             fontWeight: FontWeight.w600,
           ),

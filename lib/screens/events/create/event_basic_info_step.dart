@@ -481,7 +481,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Adicione as informações básicas sobre o seu evento. Uma imagem atraente e um bom título atrairão mais participantes.',
+                          'Adicione as informações básicas sobre o seu evento.',
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 14,
@@ -710,7 +710,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Icon(Icons.arrow_forward, size: 20),
+                          : const Icon(Icons.arrow_forward, size: 20, color: Colors.white),
                       label: const Text(
                         'Avançar',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

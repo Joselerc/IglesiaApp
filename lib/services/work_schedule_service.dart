@@ -903,7 +903,7 @@ class WorkScheduleService {
       );
     } catch (e) {
       debugPrint('Error al responder a invitación: $e');
-      throw Exception('Error al responder a invitación: $e');
+              throw Exception('Erro ao responder ao convite: $e');
     }
   }
 

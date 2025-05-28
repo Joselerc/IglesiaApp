@@ -6,7 +6,9 @@ class CheckinRecordModel {
   final String id;
   final String childId;
   final String familyId;
-  final String roomId;
+  final String? scheduledRoomId;
+  final String? scheduledRoomDescription;
+  final String? childAgeRangeAtCheckin;
   final Timestamp checkinTime;
   final Timestamp? checkoutTime;
   final CheckinStatus status; // checkedIn, checkedOut
@@ -15,7 +17,7 @@ class CheckinRecordModel {
   final String? checkinPhotoUrl; // Foto tomada al hacer check-in
   final String? checkoutPhotoUrl; // Foto tomada al hacer check-out
   final String? pickupGuardianName; // Nombre del adulto que recoge (si es diferente o visitante)
-  final String? labelNumber; // Número de etiqueta impresa
+  final int? labelNumber; // Número de etiqueta impresa
   final bool privacyPolicyAccepted; // Si se aceptaron las políticas
   final bool isVisitor;
   final String? visitorGuardianName;
@@ -26,7 +28,9 @@ class CheckinRecordModel {
     required this.id,
     required this.childId,
     required this.familyId,
-    required this.roomId,
+    this.scheduledRoomId,
+    this.scheduledRoomDescription,
+    this.childAgeRangeAtCheckin,
     required this.checkinTime,
     this.checkoutTime,
     required this.status,
@@ -48,17 +52,22 @@ class CheckinRecordModel {
     return CheckinRecordModel(
       id: doc.id,
       childId: data['childId'] ?? '',
-      familyId: data['familyId'] ?? '', // Podría ser nulo para visitantes puros
-      roomId: data['roomId'] ?? '',
+      familyId: data['familyId'] ?? '',
+      scheduledRoomId: data['scheduledRoomId'] as String?,
+      scheduledRoomDescription: data['scheduledRoomDescription'] as String?,
+      childAgeRangeAtCheckin: data['childAgeRangeAtCheckin'] as String?,
       checkinTime: data['checkinTime'] ?? Timestamp.now(),
       checkoutTime: data['checkoutTime'] as Timestamp?,
-      status: _statusFromString(data['status'] ?? 'checkedOut'),
+      status: CheckinStatus.values.firstWhere(
+        (e) => e.toString().split('.').last == (data['status'] ?? 'checkedIn'),
+        orElse: () => CheckinStatus.checkedIn,
+      ),
       checkedInByUserId: data['checkedInByUserId'] as String?,
       checkedOutByUserId: data['checkedOutByUserId'] as String?,
       checkinPhotoUrl: data['checkinPhotoUrl'] as String?,
       checkoutPhotoUrl: data['checkoutPhotoUrl'] as String?,
       pickupGuardianName: data['pickupGuardianName'] as String?,
-      labelNumber: data['labelNumber'] as String?,
+      labelNumber: data['labelNumber'] as int?,
       privacyPolicyAccepted: data['privacyPolicyAccepted'] ?? false,
       isVisitor: data['isVisitor'] ?? false,
       visitorGuardianName: data['visitorGuardianName'] as String?,
@@ -71,10 +80,12 @@ class CheckinRecordModel {
     return {
       'childId': childId,
       'familyId': familyId,
-      'roomId': roomId,
+      'scheduledRoomId': scheduledRoomId,
+      'scheduledRoomDescription': scheduledRoomDescription,
+      'childAgeRangeAtCheckin': childAgeRangeAtCheckin,
       'checkinTime': checkinTime,
       'checkoutTime': checkoutTime,
-      'status': status.toString().split('.').last, // Guarda como string
+      'status': status.toString().split('.').last,
       'checkedInByUserId': checkedInByUserId,
       'checkedOutByUserId': checkedOutByUserId,
       'checkinPhotoUrl': checkinPhotoUrl,
@@ -89,15 +100,12 @@ class CheckinRecordModel {
     };
   }
 
-  static CheckinStatus _statusFromString(String status) {
-    switch (status) {
-      case 'checkedIn':
-        return CheckinStatus.checkedIn;
-      case 'visitor': // Aunque el check-in de visitante también es checkedIn, puede tener un estado diferente
-        return CheckinStatus.visitor;
-      case 'checkedOut':
-      default:
-        return CheckinStatus.checkedOut;
+  static CheckinStatus _statusFromString(String statusStr) {
+    switch (statusStr.toLowerCase()) {
+      case 'checkedin': return CheckinStatus.checkedIn;
+      case 'checkedout': return CheckinStatus.checkedOut;
+      case 'visitor': return CheckinStatus.visitor;
+      default: return CheckinStatus.checkedOut; // O un estado por defecto más apropiado
     }
   }
 }

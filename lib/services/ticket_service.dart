@@ -31,7 +31,7 @@ class TicketService {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuario no autenticado');
+        throw Exception('Usuário não autenticado');
       }
       
       // Verificar si el usuario tiene permiso para crear tickets
@@ -40,7 +40,7 @@ class TicketService {
       
       if (!isPastor && !hasPermission) {
         print('DEBUG: createTicket - Usuario sin permiso para crear tickets');
-        throw Exception('No tienes permiso para crear tickets');
+        throw Exception('Você não tem permissão para criar tickets');
       }
 
       // Asegurarse de que el creador se establezca correctamente
@@ -85,7 +85,7 @@ class TicketService {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuario no autenticado');
+        throw Exception('Usuário não autenticado');
       }
 
       // Primero verificamos si el usuario es quien creó el ticket
@@ -96,7 +96,7 @@ class TicketService {
           .get();
           
       if (!ticketDoc.exists) {
-        throw Exception('El ticket no existe');
+        throw Exception('O ticket não existe');
       }
 
       final ticketData = ticketDoc.data() as Map<String, dynamic>;
@@ -113,7 +113,7 @@ class TicketService {
           createdBy == currentUser.uid;
       
       if (!permitirEliminacion) {
-        throw Exception('No tienes permiso para eliminar este ticket');
+        throw Exception('Você não tem permissão para excluir este ticket');
       }
 
       // Verificamos si hay registros para este ticket
@@ -124,7 +124,7 @@ class TicketService {
           .get();
       
       if (registrations.docs.isNotEmpty) {
-        throw Exception('No se puede eliminar el ticket porque ya hay usuarios registrados');
+        throw Exception('Não é possível excluir o ticket porque já há usuários registrados');
       }
 
       // Si todo está bien, eliminamos el ticket
@@ -146,7 +146,7 @@ class TicketService {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuario no autenticado');
+        throw Exception('Usuário não autenticado');
       }
 
       // Verificar si el registro existe y pertenece al usuario actual
@@ -157,17 +157,17 @@ class TicketService {
           .get();
           
       if (!registrationDoc.exists) {
-        throw Exception('El registro no existe');
+        throw Exception('O registro não existe');
       }
 
       final registrationData = registrationDoc.data() as Map<String, dynamic>;
       if (registrationData['userId'] != currentUser.uid) {
-        throw Exception('No tienes permiso para eliminar este registro');
+        throw Exception('Você não tem permissão para excluir este registro');
       }
 
       // Si el registro ya fue utilizado, no permitir eliminarlo
       if (registrationData['isUsed'] == true) {
-        throw Exception('No se puede eliminar un registro que ya ha sido utilizado');
+        throw Exception('Não é possível excluir um registro que já foi utilizado');
       }
 
       // Si todo está bien, eliminamos el registro
@@ -195,7 +195,7 @@ class TicketService {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuario no autenticado');
+        throw Exception('Usuário não autenticado');
       }
 
       // Obtener información del ticket
@@ -206,7 +206,7 @@ class TicketService {
           .get();
           
       if (!ticketDoc.exists) {
-        throw Exception('El ticket seleccionado no existe');
+        throw Exception('O ticket selecionado não existe');
       }
       
       final ticketData = ticketDoc.data() as Map<String, dynamic>;
@@ -226,7 +226,7 @@ class TicketService {
         final int maxQuantity = ticket.quantity ?? 0;
         
         if (currentCount >= maxQuantity) {
-          throw Exception('Ya no hay entradas disponibles para este tipo de ticket');
+          throw Exception('Não há mais ingressos disponíveis para este tipo de ticket');
         }
       }
       
@@ -235,7 +235,7 @@ class TicketService {
       
       if (!ticket.useEventDateAsDeadline && ticket.registrationDeadline != null) {
         if (now.isAfter(ticket.registrationDeadline!)) {
-          throw Exception('El plazo para registrarse a este ticket ha expirado');
+          throw Exception('O prazo para se registrar neste ticket expirou');
         }
       }
       
@@ -247,7 +247,7 @@ class TicketService {
           if (eventData['startDate'] != null) {
             final eventDate = (eventData['startDate'] as Timestamp).toDate();
             if (now.isAfter(eventDate)) {
-              throw Exception('El evento ya ha comenzado, no es posible registrarse');
+              throw Exception('O evento já começou, não é possível se registrar');
             }
           }
         }
@@ -292,8 +292,8 @@ class TicketService {
         }
         
         if (!hasAccess) {
-          throw Exception('No tienes acceso a este tipo de entrada. ' +
-              'Esta entrada es exclusiva para: ${ticket.accessRestrictionDisplay}');
+          throw Exception('Você não tem acesso a este tipo de ingresso. ' +
+              'Este ingresso é exclusivo para: ${ticket.accessRestrictionDisplay}');
         }
       }
       
@@ -306,7 +306,7 @@ class TicketService {
           .get();
       
       if (existingRegistrations.docs.isNotEmpty) {
-        throw Exception('Ya estás registrado para este ticket');
+        throw Exception('Você já está registrado para este ticket');
       }
       
       // Verificar límite de entradas por usuario
@@ -322,7 +322,7 @@ class TicketService {
         final int currentUserCount = userRegistrationCount.count ?? 0;
         
         if (currentUserCount >= ticket.ticketsPerUser) {
-          throw Exception('Has alcanzado el límite de ${ticket.ticketsPerUser} entrada(s) para este evento');
+          throw Exception('Você atingiu o limite de ${ticket.ticketsPerUser} ingresso(s) para este evento');
         }
       }
 

@@ -1205,7 +1205,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
           }
           
           return AlertDialog(
-            title: const Text('Configuração de Consultas'),
+            title: const Text('Configuração de Aconselhamento'),
             content: SizedBox(
               width: double.maxFinite,
               child: Column(
@@ -1214,7 +1214,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                 children: [
                   // Duración de la cita
                   const Text(
-                    'Duração da Consulta',
+                    'Duração do Aconselhamento',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -1222,7 +1222,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Configure quanto tempo durará cada consulta',
+                    'Configure quanto tempo durará cada Aconselhamento',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,

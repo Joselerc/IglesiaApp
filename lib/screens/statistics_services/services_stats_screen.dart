@@ -83,6 +83,10 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+    
+    // Inicializar con loading true para mostrar skeleton desde el inicio
+    _isLoading = true;
+    
     _loadStatistics();
     _loadMinistries();
     _loadUsersStats();
@@ -121,14 +125,12 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   }
   
   Future<void> _loadUsersStats() async {
-    if (_usersLoaded && _usersStats.isNotEmpty) {
-      // Si ya tenemos datos cargados, no mostramos el indicador de carga
-      return;
+    // Solo mostrar loading si no tenemos datos previos
+    if (!_usersLoaded) {
+      setState(() {
+        _isLoading = true;
+      });
     }
-    
-    setState(() {
-      _isLoading = true;
-    });
     
     try {
       final stats = await _userStatsService.generateUserStats(
@@ -141,19 +143,23 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
       // Ordenar los resultados
       _sortUsersStats(stats);
       
-      setState(() {
-        _usersStats = stats;
-        // Inicializar la lista filtrada con todos los usuarios
-        _filteredUsersStats = List.from(stats);
-        _isLoading = false;
-        _usersLoaded = true; // Marcamos que los usuarios ya están cargados
-        _localSearchQuery = ''; // Resetear la búsqueda local cuando se cargan nuevos datos
-      });
+      if (mounted) {
+        setState(() {
+          _usersStats = stats;
+          // Inicializar la lista filtrada con todos los usuarios
+          _filteredUsersStats = List.from(stats);
+          _isLoading = false;
+          _usersLoaded = true; // Marcamos que los usuarios ya están cargados
+          _localSearchQuery = ''; // Resetear la búsqueda local cuando se cargan nuevos datos
+        });
+      }
     } catch (e) {
       debugPrint('Error al cargar estadísticas de usuarios: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
   
@@ -256,14 +262,12 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   }
 
   Future<void> _loadStatistics() async {
-    if (_servicesLoaded && _services.isNotEmpty) {
-      // Si ya tenemos datos cargados, no mostramos el indicador de carga
-      return;
+    // Solo mostrar loading si no tenemos datos previos
+    if (!_servicesLoaded) {
+      setState(() {
+        _isLoading = true;
+      });
     }
-    
-    setState(() {
-      _isLoading = true;
-    });
 
     try {
       // Variables para estadísticas globales
@@ -328,23 +332,27 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
       _sortServices(services);
       
       // Actualizar estado
-      setState(() {
-        _totalInvitations = totalInvitations;
-        _acceptedInvitations = acceptedInvitations;
-        _rejectedInvitations = rejectedInvitations;
-        _totalAttendances = totalAttendances;
-        _totalAbsences = totalAbsences;
-        _services = services;
-        _filteredServices = List.from(services); // Inicializar la lista filtrada
-        _localServiceSearchQuery = ''; // Resetear la búsqueda local
-        _isLoading = false;
-        _servicesLoaded = true; // Marcamos que los servicios ya están cargados
-      });
+      if (mounted) {
+        setState(() {
+          _totalInvitations = totalInvitations;
+          _acceptedInvitations = acceptedInvitations;
+          _rejectedInvitations = rejectedInvitations;
+          _totalAttendances = totalAttendances;
+          _totalAbsences = totalAbsences;
+          _services = services;
+          _filteredServices = List.from(services); // Inicializar la lista filtrada
+          _localServiceSearchQuery = ''; // Resetear la búsqueda local
+          _isLoading = false;
+          _servicesLoaded = true; // Marcamos que los servicios ya están cargados
+        });
+      }
     } catch (e) {
       print('Error al cargar estadísticas: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
   
@@ -693,9 +701,9 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -728,720 +736,724 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   
   // Tab de servicios
   Widget _buildServicesTab() {
-    // Si estamos cambiando de pestaña y los datos ya están cargados, no mostramos el loader
-    final showLoader = _isLoading && !_servicesLoaded;
+    // Mostrar loading simple sin skeleton
+    if (_isLoading && _services.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     
-    return showLoader
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
+    return Column(
+      children: [
+        // Filtro de fecha (área fija)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Filtrar por data',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      if (_isDateFilterActive)
+                        TextButton.icon(
+                          onPressed: _clearDateFilter,
+                          icon: const Icon(Icons.clear, size: 16),
+                          label: const Text('Limpar filtro'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red[700],
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _startDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              locale: const Locale('pt', 'BR'),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            
+                            if (selectedDate != null) {
+                              _updateDateFilter(selectedDate, _endDate);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[400]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _startDate != null
+                                      ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                      : 'Data inicial',
+                                  style: TextStyle(
+                                    color: _startDate != null
+                                        ? Colors.black87
+                                        : Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _endDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              locale: const Locale('pt', 'BR'),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            
+                            if (selectedDate != null) {
+                              _updateDateFilter(_startDate, selectedDate);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[400]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _endDate != null
+                                      ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                      : 'Data final',
+                                  style: TextStyle(
+                                    color: _endDate != null
+                                        ? Colors.black87
+                                        : Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        
+        // Contenido desplazable (resumen global, opciones de ordenación y lista de servicios)
+        Expanded(
+          child: ListView(
             children: [
-              // Filtro de fecha (área fija)
+              // Barra de búsqueda en tiempo real para servicios
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Filtrar por data',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            if (_isDateFilterActive)
-                              TextButton.icon(
-                                onPressed: _clearDateFilter,
-                                icon: const Icon(Icons.clear, size: 16),
-                                label: const Text('Limpar filtro'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red[700],
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _startDate ?? DateTime.now(),
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime.now(),
-                                    locale: const Locale('pt', 'BR'),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColors.primary,
-                                            onPrimary: Colors.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  
-                                  if (selectedDate != null) {
-                                    _updateDateFilter(selectedDate, _endDate);
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[400]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _startDate != null
-                                            ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                            : 'Data inicial',
-                                        style: TextStyle(
-                                          color: _startDate != null
-                                              ? Colors.black87
-                                              : Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _endDate ?? DateTime.now(),
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime.now(),
-                                    locale: const Locale('pt', 'BR'),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColors.primary,
-                                            onPrimary: Colors.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  
-                                  if (selectedDate != null) {
-                                    _updateDateFilter(_startDate, selectedDate);
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[400]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _endDate != null
-                                            ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                            : 'Data final',
-                                        style: TextStyle(
-                                          color: _endDate != null
-                                              ? Colors.black87
-                                              : Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Buscar servicio...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    suffixIcon: _localServiceSearchQuery.isNotEmpty 
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _filterServicesLocally('');
+                              FocusScope.of(context).unfocus();
+                            },
+                          )
+                        : null,
                   ),
+                  onChanged: _filterServicesLocally,
                 ),
               ),
+          
+              // Resumo global
+              _buildSummaryCard(),
               
-              // Contenido desplazable (resumen global, opciones de ordenación y lista de servicios)
-              Expanded(
-                child: ListView(
-                  children: [
-                    // Barra de búsqueda en tiempo real para servicios
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar servicio...',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: AppColors.primary),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                          suffixIcon: _localServiceSearchQuery.isNotEmpty 
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    _filterServicesLocally('');
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                )
-                              : null,
+              // Ordenación
+              _buildSortOptions(),
+              
+              // Lista de servicios
+              _filteredServices.isEmpty
+                  ? SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.search_off, size: 64, color: Colors.grey[300]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Nenhum serviço encontrado',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tente com outro filtro de busca',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
-                        onChanged: _filterServicesLocally,
                       ),
-                    ),
-                
-                    // Resumo global
-                    _buildSummaryCard(),
-                    
-                    // Ordenación
-                    _buildSortOptions(),
-                    
-                    // Lista de servicios
-                    _filteredServices.isEmpty
-                        ? SizedBox(
-                            height: 200,
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _filteredServices.length,
+                      itemBuilder: (context, index) {
+                        final service = _filteredServices[index];
+                        
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                            child: ExpansionTile(
+                              title: Text(
+                                service['name'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.search_off, size: 64, color: Colors.grey[300]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Nenhum serviço encontrado',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Tente com outro filtro de busca',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Creado: ${DateFormat('dd/MM/yyyy').format(service['createdAt'])}',
+                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ),
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _filteredServices.length,
-                            itemBuilder: (context, index) {
-                              final service = _filteredServices[index];
-                              
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 16),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Theme(
-                                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                                  child: ExpansionTile(
-                                    title: Text(
-                                      service['name'],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Creado: ${DateFormat('dd/MM/yyyy').format(service['createdAt'])}',
-                                              style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[100],
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        '${service['cultsCount']} cultos',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue[800],
-                                        ),
-                                      ),
-                                    ),
+                                child: Text(
+                                  '${service['cultsCount']} cultos',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[800],
+                                  ),
+                                ),
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            if (service['description'] != null && service['description'].isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.only(bottom: 16),
-                                                child: Text(
-                                                  service['description'],
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                              ),
-                                            
-                                            const Text(
-                                              'Estatísticas',
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      if (service['description'] != null && service['description'].isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 16),
+                                          child: Text(
+                                            service['description'],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black87,
                                             ),
-                                            const SizedBox(height: 8),
-                                            
-                                            // Estadísticas de invitaciones
-                                            _buildStatRow(
-                                              'Convites enviados', 
-                                              service['totalInvitations'], 
-                                              Colors.blue,
-                                              onTap: () => _showUsersList(service, 'invitations'),
-                                            ),
-                                            _buildStatRow(
-                                              'Convites aceitos', 
-                                              service['acceptedInvitations'], 
-                                              Colors.green,
-                                              onTap: () => _showUsersList(service, 'accepted'),
-                                            ),
-                                            _buildStatRow(
-                                              'Convites rejeitados', 
-                                              service['rejectedInvitations'], 
-                                              Colors.red,
-                                              onTap: () => _showUsersList(service, 'rejected'),
-                                            ),
-                                            
-                                            const Divider(height: 16),
-                                            
-                                            // Estadísticas de asistencia
-                                            _buildStatRow(
-                                              'Total presenças', 
-                                              service['totalAttendances'], 
-                                              Colors.green,
-                                              onTap: () => _showUsersList(service, 'attendances'),
-                                            ),
-                                            _buildStatRow(
-                                              'Total ausências', 
-                                              service['totalAbsences'], 
-                                              Colors.orange,
-                                              onTap: () => _showUsersList(service, 'absences'),
-                                            ),
-                                            
-                                            const SizedBox(height: 16),
-                                            Center(
-                                              child: OutlinedButton.icon(
-                                                onPressed: () {
-                                                  _navigateToCultsList(service);
-                                                },
-                                                icon: const Icon(Icons.visibility),
-                                                label: const Text('Ver cultos'),
-                                                style: OutlinedButton.styleFrom(
-                                                  foregroundColor: AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                          ),
+                                        ),
+                                      
+                                      const Text(
+                                        'Estatísticas',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      
+                                      // Estadísticas de invitaciones
+                                      _buildStatRow(
+                                        'Convites enviados', 
+                                        service['totalInvitations'], 
+                                        Colors.blue,
+                                        onTap: () => _showUsersList(service, 'invitations'),
+                                      ),
+                                      _buildStatRow(
+                                        'Convites aceitos', 
+                                        service['acceptedInvitations'], 
+                                        Colors.green,
+                                        onTap: () => _showUsersList(service, 'accepted'),
+                                      ),
+                                      _buildStatRow(
+                                        'Convites rejeitados', 
+                                        service['rejectedInvitations'], 
+                                        Colors.red,
+                                        onTap: () => _showUsersList(service, 'rejected'),
+                                      ),
+                                      
+                                      const Divider(height: 16),
+                                      
+                                      // Estadísticas de asistencia
+                                      _buildStatRow(
+                                        'Total presenças', 
+                                        service['totalAttendances'], 
+                                        Colors.green,
+                                        onTap: () => _showUsersList(service, 'attendances'),
+                                      ),
+                                      _buildStatRow(
+                                        'Total ausências', 
+                                        service['totalAbsences'], 
+                                        Colors.orange,
+                                        onTap: () => _showUsersList(service, 'absences'),
+                                      ),
+                                      
+                                      const SizedBox(height: 16),
+                                      Center(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            _navigateToCultsList(service);
+                                          },
+                                          icon: const Icon(Icons.visibility),
+                                          label: const Text('Ver cultos'),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AppColors.primary,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              );
-                            },
+                              ],
+                            ),
                           ),
-                  ],
-                ),
-              ),
+                        );
+                      },
+                    ),
             ],
-          );
+          ),
+        ),
+      ],
+    );
   }
   
   // Tab de usuarios
   Widget _buildUsersTab() {
-    // Si estamos cambiando de pestaña y los datos ya están cargados, no mostramos el loader
-    final showLoader = _isLoading && !_usersLoaded;
+    // Mostrar loading simple sin skeleton
+    if (_isLoading && _usersStats.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     
-    return showLoader
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-            children: [
-              // Filtro de fecha (área fija) - reutilizamos el mismo de servicios
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+    return Column(
+      children: [
+        // Filtro de fecha (área fija) - reutilizamos el mismo de servicios
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Filtrar por data',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      if (_isDateFilterActive)
+                        TextButton.icon(
+                          onPressed: _clearDateFilter,
+                          icon: const Icon(Icons.clear, size: 16),
+                          label: const Text('Limpar filtro'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red[700],
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                    ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _startDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              locale: const Locale('pt', 'BR'),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            
+                            if (selectedDate != null) {
+                              _updateDateFilter(selectedDate, _endDate);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[400]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _startDate != null
+                                      ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                      : 'Data inicial',
+                                  style: TextStyle(
+                                    color: _startDate != null
+                                        ? Colors.black87
+                                        : Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _endDate ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              locale: const Locale('pt', 'BR'),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            
+                            if (selectedDate != null) {
+                              _updateDateFilter(_startDate, selectedDate);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[400]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _endDate != null
+                                      ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                      : 'Data final',
+                                  style: TextStyle(
+                                    color: _endDate != null
+                                        ? Colors.black87
+                                        : Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        
+        // Contenido desplazable (filtros y lista de usuarios)
+        Expanded(
+          child: ListView(
+            children: [
+              // Selector de ministerio
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: InkWell(
+                  onTap: _showMinistrySelector,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[50],
+                    ),
+                    child: Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Filtrar por data',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            if (_isDateFilterActive)
-                              TextButton.icon(
-                                onPressed: _clearDateFilter,
-                                icon: const Icon(Icons.clear, size: 16),
-                                label: const Text('Limpar filtro'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red[700],
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  visualDensity: VisualDensity.compact,
+                        const Icon(Icons.group, color: AppColors.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Ministério',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                          ],
+                              Text(
+                                _selectedMinistryName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _startDate ?? DateTime.now(),
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime.now(),
-                                    locale: const Locale('pt', 'BR'),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColors.primary,
-                                            onPrimary: Colors.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  
-                                  if (selectedDate != null) {
-                                    _updateDateFilter(selectedDate, _endDate);
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[400]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _startDate != null
-                                            ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                            : 'Data inicial',
-                                        style: TextStyle(
-                                          color: _startDate != null
-                                              ? Colors.black87
-                                              : Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final selectedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: _endDate ?? DateTime.now(),
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime.now(),
-                                    locale: const Locale('pt', 'BR'),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColors.primary,
-                                            onPrimary: Colors.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  
-                                  if (selectedDate != null) {
-                                    _updateDateFilter(_startDate, selectedDate);
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[400]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _endDate != null
-                                            ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                            : 'Data final',
-                                        style: TextStyle(
-                                          color: _endDate != null
-                                              ? Colors.black87
-                                              : Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
                       ],
                     ),
                   ),
                 ),
               ),
               
-              // Contenido desplazable (filtros y lista de usuarios)
-              Expanded(
-                child: ListView(
-                  children: [
-                    // Selector de ministerio
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: InkWell(
-                        onTap: _showMinistrySelector,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey[50],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.group, color: AppColors.primary),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Ministério',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    Text(
-                                      _selectedMinistryName,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-                            ],
-                          ),
-                        ),
-                      ),
+              // Barra de búsqueda en tiempo real
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Buscar usuario...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    
-                    // Barra de búsqueda en tiempo real
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar usuario...',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: AppColors.primary),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        onChanged: _filterUsersLocally,
-                      ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    
-                    // Opciones de ordenación
-                    _buildUserSortOptions(),
-                    
-                    // Lista de usuarios
-                    _filteredUsersStats.isEmpty
-                        ? SizedBox(
-                            height: 300,
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.people_outline, size: 64, color: Colors.grey[300]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Nenhum usuário encontrado',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Tente com outro ministério ou filtro de data',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              // Mensaje informativo si hay usuarios pero todas las estadísticas son cero
-                              if (_isDateFilterActive && 
-                                  _filteredUsersStats.every((stat) => 
-                                      stat.totalInvitations == 0 && 
-                                      stat.totalAttendances == 0 && 
-                                      stat.totalAbsences == 0))
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 16),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.orange.shade300),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.info_outline, color: Colors.orange.shade700),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Não há dados para o período selecionado. Mostrando usuários com estatísticas em zero.',
-                                          style: TextStyle(color: Colors.orange.shade800),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              // Lista de usuarios
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                itemCount: _filteredUsersStats.length,
-                                itemBuilder: (context, index) => _buildUserCard(_filteredUsersStats[index]),
-                              ),
-                            ],
-                          ),
-                  ],
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onChanged: _filterUsersLocally,
                 ),
               ),
+              
+              // Opciones de ordenación
+              _buildUserSortOptions(),
+              
+              // Lista de usuarios
+              _filteredUsersStats.isEmpty
+                  ? SizedBox(
+                      height: 300,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.people_outline, size: 64, color: Colors.grey[300]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Nenhum usuário encontrado',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tente com outro ministério ou filtro de data',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        // Mensaje informativo si hay usuarios pero todas las estadísticas son cero
+                        if (_isDateFilterActive && 
+                            _filteredUsersStats.every((stat) => 
+                                stat.totalInvitations == 0 && 
+                                stat.totalAttendances == 0 && 
+                                stat.totalAbsences == 0))
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.orange.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.orange.shade700),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Não há dados para o período selecionado. Mostrando usuários com estatísticas em zero.',
+                                    style: TextStyle(color: Colors.orange.shade800),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Lista de usuarios
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          itemCount: _filteredUsersStats.length,
+                          itemBuilder: (context, index) => _buildUserCard(_filteredUsersStats[index]),
+                        ),
+                      ],
+                    ),
             ],
-          );
+          ),
+        ),
+      ],
+    );
   }
   
   Widget _buildUserSortOptions() {
@@ -1528,7 +1540,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                 bottom: BorderSide(color: Colors.grey[200]!),
               ),
             ),
-            child: Text(
+            child: const Text(
               'Selecione um Ministério',
               style: TextStyle(
                 fontSize: 18,
@@ -1587,7 +1599,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                   child: stats.userPhotoUrl.isEmpty
                       ? Text(
                           stats.userName.isNotEmpty ? stats.userName[0].toUpperCase() : '?',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                         )
                       : null,
                 ),

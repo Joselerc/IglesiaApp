@@ -133,6 +133,32 @@ class AppTextField extends StatelessWidget {
       );
     }
     
+    // Validador mejorado con sanitización
+    String? Function(String?)? enhancedValidator;
+    if (validator != null) {
+      enhancedValidator = (value) {
+        // Sanitizar entrada básica
+        final sanitizedValue = value?.trim();
+        
+        // Validaciones de seguridad básicas
+        if (sanitizedValue != null && sanitizedValue.isNotEmpty) {
+          // Prevenir inyección de scripts básica
+          if (sanitizedValue.contains('<script') || 
+              sanitizedValue.contains('javascript:') ||
+              sanitizedValue.contains('data:text/html')) {
+            return 'Conteúdo não permitido detectado';
+          }
+          
+          // Validación de longitud máxima
+          if (maxLength != null && sanitizedValue.length > maxLength!) {
+            return 'Máximo $maxLength caracteres permitidos';
+          }
+        }
+        
+        return validator!(sanitizedValue);
+      };
+    }
+    
     // Construir campo según el tipo
     return TextFormField(
       controller: controller,
@@ -141,7 +167,7 @@ class AppTextField extends StatelessWidget {
       obscureText: isPassword,
       maxLength: maxLength,
       maxLines: isMultiline ? (maxLines ?? 5) : (isPassword ? 1 : maxLines),
-      validator: validator,
+      validator: enhancedValidator,
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
       inputFormatters: inputFormatters,

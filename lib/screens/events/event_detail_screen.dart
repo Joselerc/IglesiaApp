@@ -1635,7 +1635,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 Icon(Icons.check_circle, size: 16, color: Colors.green.shade800),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Ya estás registrado',
+                                  'Já cadastrado',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,

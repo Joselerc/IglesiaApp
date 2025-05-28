@@ -26,16 +26,13 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
   final _instructorNameController = TextEditingController();
   
   CourseStatus _selectedStatus = CourseStatus.draft;
-  bool _isFeatured = false;
   bool _commentsEnabled = true;
   bool _isLoading = false;
   bool _isUploading = false;
   double _uploadProgress = 0.0;
   
   File? _imageFile;
-  File? _cardImageFile;
   String? _imageUrl;
-  String? _cardImageUrl;
   
   bool get _isEditing => widget.course != null;
   String get _userId => FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -51,10 +48,8 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
       _categoryController.text = widget.course!.category;
       _instructorNameController.text = widget.course!.instructorName;
       _selectedStatus = widget.course!.status;
-      _isFeatured = widget.course!.isFeatured;
       _commentsEnabled = widget.course!.commentsEnabled;
       _imageUrl = widget.course!.imageUrl;
-      _cardImageUrl = widget.course!.cardImageUrl;
     } else {
       // Preencher nome do instrutor com o nome do usuário atual
       _instructorNameController.text = _userDisplayName;
@@ -70,17 +65,13 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage(bool isCardImage) async {
+  Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     
     if (pickedFile != null) {
       setState(() {
-        if (isCardImage) {
-          _cardImageFile = File(pickedFile.path);
-        } else {
-          _imageFile = File(pickedFile.path);
-        }
+        _imageFile = File(pickedFile.path);
       });
     }
   }
@@ -91,32 +82,20 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
     setState(() => _isLoading = true);
     
     try {
-      // Preparar imagens se foram selecionadas
-      if (_isEditing) {
-        if (_imageFile != null) {
-          setState(() {
-            _isUploading = true;
-            _uploadProgress = 0.0;
-          });
-          
-          _imageUrl = await _courseService.uploadCourseImage(
-            _imageFile!,
-            widget.course!.id,
-            isCardImage: false,
-          );
-          
-          setState(() => _uploadProgress = 0.5);
-        }
+      // Preparar imagem se foi selecionada
+      if (_isEditing && _imageFile != null) {
+        setState(() {
+          _isUploading = true;
+          _uploadProgress = 0.0;
+        });
         
-        if (_cardImageFile != null) {
-          _cardImageUrl = await _courseService.uploadCourseImage(
-            _cardImageFile!,
-            widget.course!.id,
-            isCardImage: true,
-          );
-          
-          setState(() => _uploadProgress = 1.0);
-        }
+        _imageUrl = await _courseService.uploadCourseImage(
+          _imageFile!,
+          widget.course!.id,
+          isCardImage: false,
+        );
+        
+        setState(() => _uploadProgress = 1.0);
       }
       
       // Crear objeto Course
@@ -125,18 +104,18 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         imageUrl: _imageUrl ?? '',
-        cardImageUrl: _cardImageUrl,
+        cardImageUrl: null, // Eliminado completamente
         instructorId: _isEditing ? widget.course!.instructorId : _userId,
         instructorName: _instructorNameController.text.trim(),
         category: _categoryController.text.trim(),
-        totalDuration: _isEditing ? widget.course!.totalDuration : 0, // Se calculará automáticamente
+        totalDuration: _isEditing ? widget.course!.totalDuration : 0,
         status: _selectedStatus,
         createdAt: _isEditing ? widget.course!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
         publishedAt: _selectedStatus == CourseStatus.published 
             ? (_isEditing ? widget.course!.publishedAt : DateTime.now()) 
             : null,
-        isFeatured: _isFeatured,
+        isFeatured: false, // Eliminado la funcionalidad
         commentsEnabled: _commentsEnabled,
         enrolledUsers: _isEditing ? widget.course!.enrolledUsers : [],
         totalModules: _isEditing ? widget.course!.totalModules : 0,
@@ -160,7 +139,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
       } else {
         final newCourseId = await _courseService.createCourse(course);
         
-        // Hacer upload de las imágenes con el ID recién-creado
+        // Hacer upload de la imagen con el ID recién-creado
         if (_imageFile != null) {
           setState(() {
             _isUploading = true;
@@ -173,7 +152,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
             isCardImage: false,
           );
           
-          setState(() => _uploadProgress = 0.5);
+          setState(() => _uploadProgress = 1.0);
           
           // Actualizar el curso con la URL de la imagen
           if (imageUrl != null) {
@@ -181,26 +160,6 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
               course.copyWith(
                 id: newCourseId,
                 imageUrl: imageUrl,
-              ),
-            );
-          }
-        }
-        
-        if (_cardImageFile != null) {
-          final cardImageUrl = await _courseService.uploadCourseImage(
-            _cardImageFile!,
-            newCourseId,
-            isCardImage: true,
-          );
-          
-          setState(() => _uploadProgress = 1.0);
-          
-          // Actualizar el curso con la URL de la imagen del card
-          if (cardImageUrl != null) {
-            await _courseService.updateCourse(
-              course.copyWith(
-                id: newCourseId,
-                cardImageUrl: cardImageUrl,
               ),
             );
           }
@@ -276,239 +235,233 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(_isEditing ? 'Editar Curso' : 'Criar Novo Curso'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: _isLoading
           ? _buildLoadingIndicator()
           : Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 children: [
-                  // Título do curso
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título do Curso',
-                      hintText: 'Ex: Fundamentos da Bíblia',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'O título é obrigatório';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Descrição
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
-                      hintText: 'Descreva o conteúdo do curso...',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 4,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'A descrição é obrigatória';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Imagem de capa
-                  _buildImagePicker(
-                    title: 'Imagem de Capa',
-                    description: 'Esta imagem será exibida na página de detalhes do curso',
-                    imageFile: _imageFile,
-                    imageUrl: _imageUrl,
-                    onPick: () => _pickImage(false),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Imagem do card
-                  _buildImagePicker(
-                    title: 'Imagem do Card (Opcional)',
-                    description: 'Esta imagem será exibida no card do curso na página inicial',
-                    imageFile: _cardImageFile,
-                    imageUrl: _cardImageUrl,
-                    onPick: () => _pickImage(true),
-                    isOptional: true,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Categoria
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Categoria',
-                      hintText: 'Ex: Teologia',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'A categoria é obrigatória';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Instrutor
-                  TextFormField(
-                    controller: _instructorNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome do Instrutor',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'O nome do instrutor é obrigatório';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Status
-                  DropdownButtonFormField<CourseStatus>(
-                    value: _selectedStatus,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Status',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                    ),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                    dropdownColor: Colors.white,
-                    items: [
-                      DropdownMenuItem<CourseStatus>(
-                        value: CourseStatus.published,
-                        child: const Text('Publicado'),
+                  // Header informativo
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primary.withOpacity(0.1),
+                          AppColors.primary.withOpacity(0.05),
+                        ],
                       ),
-                      DropdownMenuItem<CourseStatus>(
-                        value: CourseStatus.draft,
-                        child: const Text('Rascunho'),
-                      ),
-                      DropdownMenuItem<CourseStatus>(
-                        value: CourseStatus.upcoming,
-                        child: const Text('Em breve'),
-                      ),
-                      DropdownMenuItem<CourseStatus>(
-                        value: CourseStatus.archived,
-                        child: const Text('Arquivado'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedStatus = value;
-                        });
-                      }
-                    },
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.school,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isEditing ? 'Editar Curso' : 'Criar Novo Curso',
+                                style: AppTextStyles.subtitle1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Preencha as informações do curso para disponibilizá-lo aos alunos',
+                                style: AppTextStyles.bodyText2.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  
                   const SizedBox(height: 24),
                   
-                  // Opções adicionais
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  // Card principal do formulário
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Título do curso
+                          _buildFormField(
+                            label: 'Título do Curso',
+                            controller: _titleController,
+                            hint: 'Ex: Fundamentos da Bíblia',
+                            icon: Icons.title,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'O título é obrigatório';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Descrição
+                          _buildFormField(
+                            label: 'Descrição',
+                            controller: _descriptionController,
+                            hint: 'Descreva o conteúdo e objetivos do curso...',
+                            icon: Icons.description,
+                            maxLines: 4,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'A descrição é obrigatória';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Imagem de capa melhorada
+                          _buildImageSection(),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Categoria
+                          _buildFormField(
+                            label: 'Categoria',
+                            controller: _categoryController,
+                            hint: 'Ex: Teologia, Discipulado, Liderança',
+                            icon: Icons.category,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'A categoria é obrigatória';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Instrutor
+                          _buildFormField(
+                            label: 'Nome do Instrutor',
+                            controller: _instructorNameController,
+                            hint: 'Nome completo do instrutor',
+                            icon: Icons.person,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'O nome do instrutor é obrigatório';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Status
+                          _buildStatusDropdown(),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Permitir comentários (fora de opciones adicionales)
+                          _buildCommentsSwitch(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Botón salvar
+                  SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _saveCourse,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(_isEditing ? Icons.update : Icons.add_circle_outline),
+                          const SizedBox(width: 8),
                           Text(
-                            'Opções Adicionais',
-                            style: AppTextStyles.subtitle1.copyWith(
+                            _isEditing ? 'Atualizar Curso' : 'Criar Curso',
+                            style: const TextStyle(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          // Switch: Destacar na página inicial
-                          SwitchListTile(
-                            title: const Text('Destacar na Página Inicial'),
-                            subtitle: const Text('O curso aparecerá em destaque na seção de cursos'),
-                            value: _isFeatured,
-                            onChanged: (value) {
-                              setState(() {
-                                _isFeatured = value;
-                              });
-                            },
-                          ),
-                          
-                          // Switch: Permitir comentários
-                          SwitchListTile(
-                            title: const Text('Permitir Comentários'),
-                            subtitle: const Text('Os alunos poderão comentar nas lições'),
-                            value: _commentsEnabled,
-                            onChanged: (value) {
-                              setState(() {
-                                _commentsEnabled = value;
-                              });
-                            },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  
-                  // Botón salvar
-                  ElevatedButton(
-                    onPressed: _saveCourse,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      _isEditing ? 'Atualizar Curso' : 'Criar Curso',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                   
                   // Nota sobre la duración
-                  if (_isEditing)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'A duração total do curso é calculada automaticamente com base na duração das lições.',
-                                style: TextStyle(color: Colors.blue[700], fontSize: 14),
-                              ),
+                  if (_isEditing) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'A duração total do curso é calculada automaticamente com base na duração das lições.',
+                              style: TextStyle(color: Colors.blue[700], fontSize: 14),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
+                  ],
                   
                   // Botón para administrar módulos (solo para cursos existentes)
                   if (_isEditing) ...[
@@ -530,139 +483,298 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         minimumSize: const Size(double.infinity, 50),
+                        side: BorderSide(color: AppColors.primary),
+                        foregroundColor: AppColors.primary,
                       ),
                     ),
                   ],
                   
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildImagePicker({
-    required String title,
-    required String description,
-    required File? imageFile,
-    required String? imageUrl,
-    required VoidCallback onPick,
-    bool isOptional = false,
+  Widget _buildFormField({
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    int maxLines = 1,
+    String? Function(String?)? validator,
   }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.subtitle2.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, color: AppColors.primary),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Imagem de Capa',
+          style: AppTextStyles.subtitle2.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Esta imagem será exibida na página de detalhes do curso',
+          style: AppTextStyles.bodyText2.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.grey[300]!,
+                style: BorderStyle.solid,
+                width: 2,
+              ),
+            ),
+            child: _imageFile != null || _imageUrl != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: _imageFile != null
+                                  ? FileImage(_imageFile!)
+                                  : NetworkImage(_imageUrl!) as ImageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        // Overlay para indicar que es clickeable
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Toque para alterar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.add_photo_alternate,
+                          size: 40,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Toque para adicionar uma imagem',
+                        style: AppTextStyles.subtitle2.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Recomendado: 16:9 (1920x1080px)',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Status do Curso',
+          style: AppTextStyles.subtitle2.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<CourseStatus>(
+          value: _selectedStatus,
+          isExpanded: true,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.visibility, color: AppColors.primary),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+          dropdownColor: Colors.white,
+          items: [
+            DropdownMenuItem<CourseStatus>(
+              value: CourseStatus.published,
+              child: const Text('Publicado'),
+            ),
+            DropdownMenuItem<CourseStatus>(
+              value: CourseStatus.draft,
+              child: const Text('Rascunho'),
+            ),
+            DropdownMenuItem<CourseStatus>(
+              value: CourseStatus.upcoming,
+              child: const Text('Em breve'),
+            ),
+            DropdownMenuItem<CourseStatus>(
+              value: CourseStatus.archived,
+              child: const Text('Arquivado'),
+            ),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _selectedStatus = value;
+              });
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCommentsSwitch() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
+        border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.subtitle1.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (isOptional)
-                Text(
-                  ' (Opcional)',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-            ],
+          Icon(
+            Icons.comment,
+            color: AppColors.primary,
+            size: 24,
           ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: AppTextStyles.bodyText2.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 16),
-          
-          // Previsualização da imagem
-          if (imageFile != null || imageUrl != null)
-            AspectRatio(
-              aspectRatio: 16/9,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: imageFile != null
-                        ? FileImage(imageFile)
-                        : NetworkImage(imageUrl!) as ImageProvider,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            )
-          else
-            Column(
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AspectRatio(
-                  aspectRatio: 16/9,
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.image,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-                    ),
+                Text(
+                  'Permitir Comentários',
+                  style: AppTextStyles.subtitle2.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Os alunos poderão comentar nas lições',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
             ),
-          const SizedBox(height: 8),
-          // Recomendación para proporción de imagen
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 14, color: Colors.grey[600]),
-              const SizedBox(width: 4),
-              Text(
-                'Recomendado: Imagem com proporção 16:9',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
           ),
-          const SizedBox(height: 8),
-          
-          // Botão para selecionar imagem
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton.icon(
-                onPressed: onPick,
-                icon: const Icon(Icons.add_photo_alternate),
-                label: Text(
-                  imageFile != null || imageUrl != null
-                      ? 'Trocar Imagem'
-                      : 'Selecionar Imagem',
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary,
-                  elevation: 0,
-                  side: BorderSide(color: AppColors.primary),
-                ),
-              ),
-            ],
+          Switch(
+            value: _commentsEnabled,
+            onChanged: (value) {
+              setState(() {
+                _commentsEnabled = value;
+              });
+            },
+            activeColor: AppColors.primary,
           ),
         ],
       ),

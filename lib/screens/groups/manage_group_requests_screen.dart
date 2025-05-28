@@ -70,7 +70,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
       });
       }
     } catch (e) {
-      debugPrint('Error cargando estadísticas: $e');
+      debugPrint('Error cargando estatísticas: $e');
     }
     }
 
@@ -146,7 +146,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Solicitud aceptada correctamente'),
+            content: Text('Solicitação aceita corretamente'),
             backgroundColor: Colors.green,
           ),
         );
@@ -159,7 +159,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Erro: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -184,7 +184,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Solicitud rechazada'),
+            content: Text('Solicitação rejeitada'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -197,7 +197,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Erro: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -209,7 +209,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('No hay usuario autenticado');
+        throw Exception('Não há usuário autenticado');
       }
       
       // Obtener información del usuario actual (admin)
@@ -229,11 +229,11 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
           .get();
       
       if (!userDoc.exists) {
-        throw Exception('Usuario no encontrado');
+        throw Exception('Usuário não encontrado');
       }
       
       final userData = userDoc.data() as Map<String, dynamic>;
-      final userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
+      final userName = userData['name'] ?? userData['displayName'] ?? 'Usuário';
       final userEmail = userData['email'] ?? '';
       final userPhotoUrl = userData['photoUrl'] ?? '';
       
@@ -264,8 +264,8 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
       }
       
     } catch (e) {
-      print('Error al añadir usuario: $e');
-      throw Exception('Error al añadir usuario: $e');
+      print('Erro ao adicionar usuário: $e');
+      throw Exception('Erro ao adicionar usuário: $e');
     }
   }
 
@@ -279,8 +279,8 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
     // Obtener los IDs de miembros actuales para excluirlos
     final memberIds = widget.group.memberIds;
     
-    print('Miembros actuales: ${memberIds.length}');
-    print('IDs de miembros: $memberIds');
+    print('Membros atuais: ${memberIds.length}');
+    print('IDs de membros: $memberIds');
     
     // Mostrar indicador de carga
     setState(() {
@@ -304,24 +304,24 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         final isMember = memberIds.contains(doc.id);
         
         if (isMember) {
-          print('Usuario ${doc.id} (${doc['name'] ?? 'sin nombre'}) es miembro');
+          print('Usuário ${doc.id} (${doc['name'] ?? 'sem nome'}) é membro');
         }
         
         // Añadir todos los usuarios, pero marcar los que ya son miembros
         allUsers.add({
           'id': doc.id,
-          'name': doc['name'] ?? doc['displayName'] ?? 'Usuario sin nombre',
+          'name': doc['name'] ?? doc['displayName'] ?? 'Usuário sem nome',
           'email': doc['email'] ?? '',
           'photoUrl': doc['photoUrl'] ?? '',
           'isMember': isMember,
         });
       }
       
-      // Inicializar la lista filtrada con solo los usuarios que NO son miembros
-      filteredUsers = allUsers.where((user) => !(user['isMember'] as bool)).toList();
+      // Inicializar la lista filtrada con TODOS los usuarios al principio
+      filteredUsers = List<Map<String, dynamic>>.from(allUsers);
       
-      print('Total de usuarios: ${allUsers.length}');
-      print('Usuarios filtrados (no miembros): ${filteredUsers.length}');
+      print('Total de usuários: ${allUsers.length}');
+      print('Usuários filtrados (não membros): ${filteredUsers.length}');
       
       // Verificar que el widget siga montado antes de mostrar el modal
       if (!mounted) return;
@@ -333,11 +333,15 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
+        // Variables para mantener el estado de búsqueda y filtrado
+        String searchQuery = '';
+        bool showOnlyNonMembers = false; // Cambiar a false por defecto
+        
+        // Inicializar la lista filtrada con TODOS los usuarios al principio
+        filteredUsers = List<Map<String, dynamic>>.from(allUsers);
+        
         return StatefulBuilder(
             builder: (context, setModalState) {
-            // Variable para mantener el estado de búsqueda entre reconstrucciones
-            String searchQuery = '';
-              bool showOnlyNonMembers = true; // Por defecto, mostrar solo los que no son miembros
             
             // Función para filtrar usuarios
             void filterUsers(String query) {
@@ -362,22 +366,27 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                     filteredUsers = baseList;
                   }
                   
-                  print('Filtrados: ${filteredUsers.length} usuarios (solo no miembros: $showOnlyNonMembers)');
+                  print('Filtrados: ${filteredUsers.length} usuários (só não membros: $showOnlyNonMembers)');
               });
             }
             
             return Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
+              height: MediaQuery.of(context).size.height * 0.8,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                    // Cabecera y botón de cerrar
+                  // Cabecera y botón de cerrar
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                          'Adicionar usuários',
+                        'Adicionar usuários',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -389,73 +398,74 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                       ),
                     ],
                   ),
-                    
-                    // Campo de búsqueda
+                  
+                  // Campo de búsqueda
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search),
-                        hintText: 'Buscar usuários...',
+                      hintText: 'Buscar usuários...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                      controller: TextEditingController(text: searchQuery),
                     onChanged: filterUsers,
                   ),
-                    
-                    // Opciones de filtro
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: showOnlyNonMembers,
-                          activeColor: Colors.green,
-                          onChanged: (value) {
-                            setModalState(() {
-                              showOnlyNonMembers = value ?? true;
-                              filterUsers(searchQuery);
-                            });
-                          },
-                        ),
-                        const Text('Mostrar solo usuarios que no son miembros'),
-                      ],
-                    ),
-                    
-                    // Contador de seleccionados
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Opciones de filtro
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: showOnlyNonMembers,
+                        activeColor: Colors.green,
+                        onChanged: (value) {
+                          setModalState(() {
+                            showOnlyNonMembers = value ?? false;
+                            filterUsers(searchQuery);
+                          });
+                        },
+                      ),
+                      const Text('Mostrar só usuários que não são membros'),
+                    ],
+                  ),
+                  
+                  // Contador de seleccionados
                   Text(
-                      'Usuários selecionados: ${selectedUsers.length}',
+                    'Usuários selecionados: ${selectedUsers.length}',
                     style: TextStyle(
-                        color: Colors.green[700],
-                        fontWeight: FontWeight.bold,
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                    
-                    // Lista de usuarios
+                  
+                  // Lista de usuarios
                   Expanded(
-                      child: filteredUsers.isEmpty
-                        ? Center(
-                            child: Text('Nenhum usuário encontrado',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          )
-                        : ListView.builder(
-                      itemCount: filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = filteredUsers[index];
-                        final isSelected = selectedUsers.contains(user['id']);
+                    child: filteredUsers.isEmpty
+                      ? Center(
+                          child: Text('Nenhum usuário encontrado',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = filteredUsers[index];
+                            final isSelected = selectedUsers.contains(user['id']);
                             final isMember = user['isMember'] as bool;
-                        
+                            
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 4),
                               child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
-                                ? NetworkImage(user['photoUrl'])
-                                : null,
-                            child: user['photoUrl'] == null || user['photoUrl'].isEmpty
-                                ? const Icon(Icons.person)
-                                : null,
-                          ),
+                                leading: CircleAvatar(
+                                  backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
+                                      ? NetworkImage(user['photoUrl'])
+                                      : null,
+                                  child: user['photoUrl'] == null || user['photoUrl'].isEmpty
+                                      ? const Icon(Icons.person)
+                                      : null,
+                                ),
                                 title: Row(
                                   children: [
                                     Expanded(
@@ -492,47 +502,47 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                 trailing: isMember
                                   ? const Icon(Icons.check_circle, color: Colors.green)
                                   : Checkbox(
-                            value: isSelected,
+                                      value: isSelected,
                                       activeColor: Colors.green,
-                            onChanged: (value) {
+                                      onChanged: (value) {
                                         setModalState(() {
-                                if (value == true) {
-                                  selectedUsers.add(user['id']);
-                                } else {
-                                  selectedUsers.remove(user['id']);
-                                }
-                              });
-                            },
-                          ),
+                                          if (value == true) {
+                                            selectedUsers.add(user['id']);
+                                          } else {
+                                            selectedUsers.remove(user['id']);
+                                          }
+                                        });
+                                      },
+                                    ),
                                 onTap: isMember
                                   ? null // No hacer nada si ya es miembro
                                   : () {
                                       setModalState(() {
-                              if (isSelected) {
-                                selectedUsers.remove(user['id']);
-                              } else {
-                                selectedUsers.add(user['id']);
-                              }
-                            });
-                          },
+                                        if (isSelected) {
+                                          selectedUsers.remove(user['id']);
+                                        } else {
+                                          selectedUsers.add(user['id']);
+                                        }
+                                      });
+                                    },
                                 // Color gris claro de fondo para los que ya son miembros
                                 tileColor: isMember ? Colors.grey[100] : null,
                               ),
-                        );
-                      },
-                    ),
+                            );
+                          },
+                        ),
                   ),
-                    
-                    // Botón de acción
-                    Padding(
-                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 16),
-                      child: ElevatedButton(
-                    onPressed: selectedUsers.isEmpty
-                        ? null
-                        : () async {
-                            // Cerrar el modal
-                            Navigator.pop(context);
-                            
+                  
+                  // Botón de acción
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: ElevatedButton(
+                      onPressed: selectedUsers.isEmpty
+                          ? null
+                          : () async {
+                              // Cerrar el modal
+                              Navigator.pop(context);
+                              
                               // Verificar si el widget sigue montado
                               if (!mounted) return;
                               
@@ -542,20 +552,20 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                               });
                               
                               try {
-                            // Añadir usuarios seleccionados al grupo
-                            for (var userId in selectedUsers) {
+                                // Añadir usuarios seleccionados al grupo
+                                for (var userId in selectedUsers) {
                                   if (mounted) { // Verificar antes de cada operación
-                              await _addUserToGroup(userId);
+                                    await _addUserToGroup(userId);
                                   }
-                            }
+                                }
                                 
                                 if (mounted) {
                                   setState(() {
                                     _isLoading = false;
                                   });
-                            
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
                                       content: Text('${selectedUsers.length} usuários adicionados ao grupo'),
                                       backgroundColor: Colors.green,
                                     ),
@@ -566,7 +576,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                   _loadStats();
                                 }
                               } catch (e) {
-                                print('Error al procesar la adición de usuarios: $e');
+                                print('Erro ao processar a adição de usuários: $e');
                                 if (mounted) {
                                   setState(() {
                                     _isLoading = false;
@@ -574,24 +584,24 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                   
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Error: $e'),
+                                      content: Text('Erro: $e'),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
                                 }
                               }
                             },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 2,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text('Adicionar usuários selecionados'),
+                        elevation: 2,
                       ),
+                      child: const Text('Adicionar usuários selecionados'),
+                    ),
                   ),
                 ],
               ),
@@ -615,7 +625,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error ao carregar usuários: $e'),
+            content: Text('Erro ao carregar usuários: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -627,7 +637,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión de Miembros'),
+        title: const Text('Gestão de Membros'),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -649,7 +659,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                 _showStats = !_showStats;
               });
             },
-            tooltip: _showStats ? 'Ocultar estadísticas' : 'Ver estadísticas',
+            tooltip: _showStats ? 'Ocultar estatísticas' : 'Ver estatísticas',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -657,7 +667,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
               _loadRequests();
               _loadStats();
             },
-            tooltip: 'Actualizar',
+            tooltip: 'Atualizar',
           ),
         ],
         bottom: TabBar(
@@ -667,8 +677,8 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
           unselectedLabelColor: Colors.white.withOpacity(0.7),
           tabs: const [
             Tab(text: 'Pendentes'),
-            Tab(text: 'Aceitadas'),
-            Tab(text: 'Rejeitadas'),
+            Tab(text: 'Aprovadas'),
+            Tab(text: 'Reprovadas'),
             Tab(text: 'Saídas'),
           ],
         ),
@@ -677,7 +687,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Panel de estadísticas (visible/oculto)
+                // Panel de estatísticas (visible/oculto)
                 if (_showStats)
                   Container(
                     width: double.infinity,
@@ -686,7 +696,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                     child: Column(
                       children: [
                         const Text(
-                          'Estadísticas de solicitudes',
+                          'Estatísticas de solicitações',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -703,13 +713,13 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                               Icons.people_outline,
                             ),
                             _buildStatCard(
-                              'Aceitas',
+                              'Aprovadas',
                               _acceptedRequests,
                               Colors.green,
                               Icons.check_circle_outline,
                             ),
                             _buildStatCard(
-                              'Rejeitadas',
+                              'Reprovadas',
                               _rejectedRequests,
                               Colors.orange,
                               Icons.cancel_outlined,
@@ -749,7 +759,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddUserModal,
-        tooltip: 'Añadir usuarios',
+        tooltip: 'Adicionar usuários',
         backgroundColor: Colors.green,
         child: const Icon(Icons.person_add),
       ),
@@ -811,7 +821,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
             ),
             const SizedBox(height: 8),
             Text(
-              '¡Todo al día!',
+              'Tudo em dia!',
               style: TextStyle(
                 color: Colors.grey[600],
               ),
@@ -919,7 +929,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensaje:',
+                              'Mensagem:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -944,7 +954,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                       children: [
                         TextButton.icon(
                           icon: const Icon(Icons.cancel),
-                          label: const Text('Rechazar'),
+                          label: const Text('Rejeitar'),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
@@ -953,7 +963,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         const SizedBox(width: 8),
                         ElevatedButton.icon(
                           icon: const Icon(Icons.check_circle),
-                          label: const Text('Aceptar'),
+                          label: const Text('Aceitar'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -1004,7 +1014,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há solicitações ${status == 'accepted' ? 'aceptadas' : 'rejeitadas'}',
+                  'Não há solicitações ${status == 'accepted' ? 'aceitas' : 'rejeitadas'}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1100,7 +1110,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                             ),
                           ),
                           child: Text(
-                            status == 'accepted' ? 'Aceptada' : 'Rechazada',
+                            status == 'accepted' ? 'Aceita' : 'Rejeitada',
                             style: TextStyle(
                               color: status == 'accepted' ? Colors.green[800] : Colors.orange[800],
                               fontSize: 11,
@@ -1173,7 +1183,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                   child: Text(
                                     isDirectAdd 
                                       ? 'Data: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}'
-                                      : '${status == 'accepted' ? 'Aceptado' : 'Rechazado'}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
+                                      : '${status == 'accepted' ? 'Aceito' : 'Rejeitado'}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: status == 'accepted' ? Colors.green[700] : Colors.orange[700],
@@ -1194,7 +1204,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      'Tiempo de respuesta: ${_formatDuration(responseTime)}',
+                                      'Tempo de resposta: ${_formatDuration(responseTime)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[700],
@@ -1218,7 +1228,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensaje:',
+                              'Mensagem:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1250,7 +1260,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Razón:',
+                              'Motivo:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1579,7 +1589,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
   
   String _formatDuration(Duration duration) {
     if (duration.inDays > 0) {
-      return '${duration.inDays} ${duration.inDays == 1 ? 'día' : 'días'}';
+      return '${duration.inDays} ${duration.inDays == 1 ? 'dia' : 'dias'}';
     } else if (duration.inHours > 0) {
       return '${duration.inHours} ${duration.inHours == 1 ? 'hora' : 'horas'}';
     } else if (duration.inMinutes > 0) {

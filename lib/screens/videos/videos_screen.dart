@@ -8,6 +8,10 @@ import '../../screens/videos/manage_sections_screen.dart';
 import '../../screens/videos/add_video_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/skeletons/videos_screen_skeleton.dart';
+import '../../widgets/skeletons/video_section_skeleton.dart';
+import '../../widgets/home/favorite_videos_section.dart';
+import '../../widgets/videos/video_card_widget.dart';
 
 class VideosScreen extends StatefulWidget {
   const VideosScreen({super.key});
@@ -18,23 +22,34 @@ class VideosScreen extends StatefulWidget {
 
 class _VideosScreenState extends State<VideosScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool _isLoadingMore = false;
   final int _limit = 10;
-  bool _showFavorites = false;
   bool _isPastor = false;
+  bool _showFavoritesSection = false;
+  bool _isScreenSetupComplete = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _checkForFavorites();
-    _checkPastorStatus();
+    _performInitialScreenSetup();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _performInitialScreenSetup() async {
+    await Future.wait([
+      _checkPastorStatus(),
+      _checkIfFavoritesSectionShouldBeShown(),
+    ]);
+    if (mounted) {
+      setState(() {
+        _isScreenSetupComplete = true;
+      });
+    }
   }
 
   Future<void> _checkPastorStatus() async {
@@ -47,36 +62,34 @@ class _VideosScreenState extends State<VideosScreen> {
       
       if (userDoc.exists && mounted) {
         final userData = userDoc.data() as Map<String, dynamic>;
-        setState(() {
-          _isPastor = userData['role'] == 'pastor';
-        });
+        _isPastor = userData['role'] == 'pastor';
       }
     }
   }
 
-  Future<void> _checkForFavorites() async {
+  Future<void> _checkIfFavoritesSectionShouldBeShown() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        final videosSnapshot = await FirebaseFirestore.instance
+        final favoritesQuery = await FirebaseFirestore.instance
             .collection('videos')
             .where('likedByUsers', arrayContains: user.uid)
+            .limit(1)
             .get();
         
-        if (mounted) {
-          setState(() {
-            _showFavorites = videosSnapshot.docs.isNotEmpty;
-          });
-        }
+        _showFavoritesSection = favoritesQuery.docs.isNotEmpty;
+
       } catch (e) {
-        print('Erro ao verificar favoritos: $e');
+        print('Erro ao verificar existência de favoritos: $e');
+        _showFavoritesSection = false;
       }
+    } else {
+      _showFavoritesSection = false;
     }
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8 &&
-        !_isLoadingMore) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
       _loadMoreVideos();
     }
   }
@@ -87,6 +100,8 @@ class _VideosScreenState extends State<VideosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -173,7 +188,7 @@ class _VideosScreenState extends State<VideosScreen> {
                           ),
                         ).then((_) {
                           setState(() {});
-                          _checkForFavorites();
+                          _checkIfFavoritesSectionShouldBeShown();
                         });
                       },
                       tooltip: 'Gerenciar seções',
@@ -182,143 +197,80 @@ class _VideosScreenState extends State<VideosScreen> {
               ),
             ];
           },
-          body: RefreshIndicator(
-            onRefresh: () async {
-              await _checkForFavorites();
-              setState(() {});
-            },
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.only(bottom: 35),
-              children: [
-                // Sección de últimos vídeos
-                _buildSection(
-                  title: 'Vídeos Recentes',
-                  icon: Icons.new_releases,
-                  stream: FirebaseFirestore.instance
-                      .collection('videos')
-                      .orderBy('uploadDate', descending: true)
-                      .limit(_limit)
-                      .snapshots(),
-                ),
-                
-                // Sección de favoritos (si hay)
-                if (_showFavorites && FirebaseAuth.instance.currentUser != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          body: !_isScreenSetupComplete 
+              ? const VideosScreenSkeleton()
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _isScreenSetupComplete = false;
+                    });
+                    await _performInitialScreenSetup();
+                  },
+                  child: ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(bottom: 35),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                        child: Row(
-                          children: [
-                            Icon(Icons.favorite, color: Colors.red[400], size: 24),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Meus Favoritos',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                      _buildSection(
+                        title: 'Vídeos Recentes',
+                        icon: Icons.new_releases,
+                        stream: FirebaseFirestore.instance
+                            .collection('videos')
+                            .orderBy('uploadDate', descending: true)
+                            .limit(_limit)
+                            .snapshots(),
                       ),
-                      SizedBox(
-                        height: 200,
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('videos')
-                              .where('likedByUsers', arrayContains: FirebaseAuth.instance.currentUser!.uid)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            
-                            if (snapshot.hasError) {
-                              return Center(child: Text('Erro: ${snapshot.error}'));
-                            }
-                            
-                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                              return Center(
-                                child: Text('Nenhum vídeo favorito',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            final videos = snapshot.data!.docs
-                                .map((doc) => Video.fromFirestore(doc))
-                                .toList();
-                            
-                            return ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: videos.length,
-                              itemBuilder: (context, index) {
-                                return _buildVideoCard(videos[index]);
-                              },
+                      
+                      if (currentUser != null && _showFavoritesSection)
+                        FavoriteVideosSection(userId: currentUser.uid),
+                      
+                      StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('videoSections')
+                            .orderBy('order')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const VideosScreenSkeleton();
+                          }
+                          if (snapshot.hasError) {
+                            print('Error en StreamBuilder de Secciones Personalizadas: ${snapshot.error}');
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Center(child: Text('Erro ao carregar seções: ${snapshot.error}')),
                             );
-                          },
-                        ),
+                          }
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return const SizedBox.shrink();
+                          }
+                          final sections = snapshot.data!.docs
+                              .map((doc) => VideoSection.fromFirestore(doc))
+                              .toList();
+                          return Column(
+                            children: sections.map((section) {
+                              if (section.type == 'custom') {
+                                return _buildCustomSection(section);
+                              } else if (section.type == 'latest') {
+                                return _buildSection(
+                                  title: section.title,
+                                  icon: Icons.new_releases,
+                                  stream: FirebaseFirestore.instance
+                                      .collection('videos')
+                                      .orderBy('uploadDate', descending: true)
+                                      .limit(10)
+                                      .snapshots(),
+                                );
+                              } else if (section.type == 'favorites') {
+                                return const SizedBox.shrink();
+                              }
+                              return const SizedBox.shrink();
+                            }).toList(),
+                          );
+                        },
                       ),
+                      const SizedBox(height: 5),
                     ],
                   ),
-              
-                // Secciones personalizadas
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('videoSections')
-                      .orderBy('order')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox.shrink();
-                    }
-                    
-                    final sections = snapshot.data!.docs
-                        .map((doc) => VideoSection.fromFirestore(doc))
-                        .toList();
-                    
-                    return Column(
-                      children: sections.map((section) {
-                        if (section.type == 'custom') {
-                          return _buildCustomSection(section);
-                        } else if (section.type == 'latest') {
-                          return _buildSection(
-                            title: section.title,
-                            icon: Icons.new_releases,
-                            stream: FirebaseFirestore.instance
-                                .collection('videos')
-                                .orderBy('uploadDate', descending: true)
-                                .limit(10)
-                                .snapshots(),
-                          );
-                        } else if (section.type == 'favorites') {
-                          return _buildSection(
-                            title: section.title,
-                            icon: Icons.thumb_up,
-                            stream: FirebaseFirestore.instance
-                                .collection('videos')
-                                .orderBy('likes', descending: true)
-                                .limit(10)
-                                .snapshots(),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      }).toList(),
-                    );
-                  },
                 ),
-                
-                // Espacio adicional al final
-                const SizedBox(height: 5),
-              ],
-            ),
-          ),
         ),
       ),
       floatingActionButton: _isPastor ? FloatingActionButton.extended(
@@ -368,18 +320,17 @@ class _VideosScreenState extends State<VideosScreen> {
           child: StreamBuilder<QuerySnapshot>(
             stream: stream,
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const VideoSectionSkeleton(showTitle: false, itemCount: 3);
               }
-
-              final videos = snapshot.data!.docs
-                  .map((doc) => Video.fromFirestore(doc))
-                  .toList();
-
-              if (videos.isEmpty) {
+              if (snapshot.hasError) {
+                print('Error en StreamBuilder de _buildSection: ${snapshot.error}');
+                return Center(child: Text('Erro na seção: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Text(
-                    'Nenhum vídeo disponível',
+                    'Nenhum vídeo disponível nesta seção',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -388,13 +339,16 @@ class _VideosScreenState extends State<VideosScreen> {
                   ),
                 );
               }
+              final videos = snapshot.data!.docs
+                  .map((doc) => Video.fromFirestore(doc))
+                  .toList();
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: videos.length,
                 itemBuilder: (context, index) {
-                  return _buildVideoCard(videos[index]);
+                  return VideoCardWidget(video: videos[index]);
                 },
               );
             },
@@ -440,20 +394,19 @@ class _VideosScreenState extends State<VideosScreen> {
                 .where(FieldPath.documentId, whereIn: section.videoIds)
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const VideoSectionSkeleton(showTitle: false, itemCount: 2);
               }
-
-              final videos = snapshot.data!.docs
-                  .map((doc) => Video.fromFirestore(doc))
-                  .toList();
-
-              if (videos.isEmpty) {
+              if (snapshot.hasError) {
+                print('Error en StreamBuilder de _buildCustomSection: ${snapshot.error}');
+                return Center(child: Text('Erro na seção customizada: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      'Nenhum vídeo disponível',
+                      'Nenhum vídeo nesta seção personalizada',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w500,
@@ -462,8 +415,10 @@ class _VideosScreenState extends State<VideosScreen> {
                   ),
                 );
               }
+              final videos = snapshot.data!.docs
+                  .map((doc) => Video.fromFirestore(doc))
+                  .toList();
 
-              // Ordenar videos según el orden en videoIds
               videos.sort((a, b) {
                 final indexA = section.videoIds.indexOf(a.id);
                 final indexB = section.videoIds.indexOf(b.id);
@@ -475,7 +430,7 @@ class _VideosScreenState extends State<VideosScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: videos.length,
                 itemBuilder: (context, index) {
-                  return _buildVideoCard(videos[index]);
+                  return VideoCardWidget(video: videos[index]);
                 },
               );
             },
@@ -483,117 +438,5 @@ class _VideosScreenState extends State<VideosScreen> {
         ),
       ],
     );
-  }
-
-  Widget _buildVideoCard(Video video) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16, bottom: 2),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VideoDetailsScreen(video: video),
-            ),
-          );
-        },
-        child: SizedBox(
-          width: 240,
-          child: Card(
-            margin: EdgeInsets.zero,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Image.network(
-                        video.thumbnailUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[300],
-                            child: const Center(
-                              child: Icon(Icons.error, size: 32, color: Colors.white54),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.play_arrow, color: Colors.white, size: 16),
-                            const SizedBox(width: 4),
-                            const Text(
-                              'YouTube',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        video.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today, size: 12, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatDate(video.uploadDate),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }
