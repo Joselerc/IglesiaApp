@@ -1,7 +1,7 @@
 {
   "projects": {
-    "churchappbr": "churchappbr",
-    "default": "churchappbr"
+    "default": "igreja-amor-em-movimento",
+    "prod": "igreja-amor-em-movimento"
   },
   "targets": {},
   "etags": {}

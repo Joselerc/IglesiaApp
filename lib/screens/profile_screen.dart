@@ -28,7 +28,7 @@ import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
 import 'admin/manage_donations_screen.dart'; // <-- Import añadido
 import 'admin/create_edit_role_screen.dart'; // <-- Import añadido
 import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
-import 'package:church_app_br/services/permission_service.dart'; // <-- Import PermissionService
+import 'package:igreja_amor_em_movimento/services/permission_service.dart'; // <-- Import PermissionService
 import '../services/role_service.dart'; // <-- Import correcto del servicio de roles
 import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';

@@ -20,10 +20,9 @@ class GroupsListScreen extends StatefulWidget {
   State<GroupsListScreen> createState() => _GroupsListScreenState();
 }
 
-class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerProviderStateMixin {
+class _GroupsListScreenState extends State<GroupsListScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-  late TabController _tabController;
   final GroupService _groupService = GroupService();
   final PermissionService _permissionService = PermissionService();
   
@@ -33,7 +32,6 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     // Verificamos el permiso del usuario al iniciar
     _checkCreatePermission();
   }
@@ -50,7 +48,6 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
   
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -134,67 +131,43 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
             ),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                children: [
-                  // Barra superior con botones
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const Spacer(),
-                        Text(
-                          'Grupos',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                        ),
-                        const Spacer(),
-                        // Mostrar el botón de añadir solo si es pastor
-                        if (_canCreateGroup)
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
-                            tooltip: 'Criar Connect',
-                            onPressed: () {
-                              // Acción para crear un nuevo grupo
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => const CreateGroupModal(),
-                              );
-                            },
-                          )
-                        else
-                          // Placeholder para mantener el espaciado
-                          const SizedBox(width: 48),
-                      ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                  ),
-                  
-                  // Pestañas con más espacio horizontal
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white.withOpacity(0.7),
-                      labelStyle: AppTextStyles.subtitle2.copyWith(
-                        fontWeight: FontWeight.w600,
+                    const Spacer(),
+                    Text(
+                      'Grupos',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
                       ),
-                      tabs: const [
-                        Text('Todos'),
-                        Text('Meus Grupos'),
-                      ],
                     ),
-                  ),
-                ],
+                    const Spacer(),
+                    // Mostrar el botón de añadir solo si es pastor
+                    if (_canCreateGroup)
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
+                        tooltip: 'Criar Connect',
+                        onPressed: () {
+                          // Acción para crear un nuevo grupo
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => const CreateGroupModal(),
+                          );
+                        },
+                      )
+                    else
+                      // Placeholder para mantener el espaciado
+                      const SizedBox(width: 48),
+                  ],
+                ),
               ),
             ),
           ),
@@ -234,17 +207,71 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
             ),
           ),
           
-          // Contenido de las pestañas
+          // Contenido principal
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Pestaña "Todos los Grupos"
-                _buildAllGroupsTab(userId),
-                
-                // Pestaña "Mis Grupos"
-                _buildMyGroupsTab(userId),
-              ],
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('groups').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro: ${snapshot.error}',
+                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const ListTabContentSkeleton();
+                }
+
+                try {
+                  final allGroups = snapshot.data!.docs.map((doc) => 
+                    Group.fromFirestore(doc)
+                  ).toList();
+                  
+                  final filteredGroups = _filterGroups(allGroups);
+
+                  if (filteredGroups.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Nenhum grupo encontrado',
+                            style: AppTextStyles.subtitle1.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: filteredGroups.length,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    itemBuilder: (context, index) {
+                      final group = filteredGroups[index];
+                      
+                      return GroupCard(
+                        group: group,
+                        userId: userId,
+                        onActionPressed: _handleGroupAction,
+                      );
+                    },
+                  );
+                } catch (e) {
+                  return Center(
+                    child: Text(
+                      'Erro ao processar dados: ${e.toString()}',
+                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
@@ -265,178 +292,6 @@ class _GroupsListScreenState extends State<GroupsListScreen> with SingleTickerPr
               tooltip: 'Criar Connect',
             )
           : null, // Ocultar si no es pastor
-    );
-  }
-  
-  // Construye la pestaña de todos los grupos
-  Widget _buildAllGroupsTab(String userId) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('groups').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Erro: ${snapshot.error}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const ListTabContentSkeleton();
-        }
-
-        try {
-          final allGroups = snapshot.data!.docs.map((doc) => 
-            Group.fromFirestore(doc)
-          ).toList();
-          
-          final filteredGroups = _filterGroups(allGroups);
-
-          if (filteredGroups.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Você não pertence a nenhum grupo',
-                    style: AppTextStyles.subtitle1.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: filteredGroups.length,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            itemBuilder: (context, index) {
-              final group = filteredGroups[index];
-              
-              return GroupCard(
-                group: group,
-                userId: userId,
-                onActionPressed: _handleGroupAction,
-              );
-            },
-          );
-        } catch (e) {
-          return Center(
-            child: Text(
-              'Erro ao processar dados: ${e.toString()}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-      },
-    );
-  }
-  
-  // Construye la pestaña de mis grupos
-  Widget _buildMyGroupsTab(String userId) {
-    if (userId.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.account_circle, size: 64, color: AppColors.mutedGray),
-            const SizedBox(height: 16),
-            Text(
-              'Você deve estar logado para ver seus grupos',
-              style: AppTextStyles.subtitle1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('groups')
-          .where('members', arrayContains: FirebaseFirestore.instance.collection('users').doc(userId))
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Erro: ${snapshot.error}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const ListTabContentSkeleton();
-        }
-
-        final userGroups = snapshot.data!.docs.map((doc) => 
-          Group.fromFirestore(doc)
-        ).toList();
-        
-        final filteredUserGroups = _filterGroups(userGroups);
-
-        if (filteredUserGroups.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
-                const SizedBox(height: 16),
-                Text(
-                  'Você não pertence a nenhum grupo',
-                  style: AppTextStyles.subtitle1.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _tabController.animateTo(0); // Ir a la pestaña de todos los grupos
-                  },
-                  icon: const Icon(Icons.search),
-                  label: const Text('Buscar grupos'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: filteredUserGroups.length,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          itemBuilder: (context, index) {
-            final group = filteredUserGroups[index];
-            
-            return GroupCard(
-              group: group,
-              userId: userId,
-              onActionPressed: (group) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupFeedScreen(group: group),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
     );
   }
 } 

@@ -25,25 +25,38 @@ class FCMService {
     try {
       debugPrint('🔔 FCM_SERVICE - Inicializando Firebase Cloud Messaging...');
 
-      // 1. Solicitar permisos
-      await _requestPermissions();
-
-      // 2. Configurar notificaciones locales
+      // 1. Configurar notificaciones locales (sin solicitar permisos)
       await _setupLocalNotifications();
 
-      // 3. Obtener token FCM
-      await _getAndSaveToken();
-
-      // 4. Configurar listeners
+      // 2. Configurar listeners
       _setupMessageHandlers();
 
-      // 5. Configurar refresh de token
+      // 3. Configurar refresh de token
       _setupTokenRefresh();
 
       _isInitialized = true;
-      debugPrint('✅ FCM_SERVICE - Inicialización completada');
+      debugPrint('✅ FCM_SERVICE - Inicialización básica completada');
+      
+      // Los permisos y token se solicitarán después del login
     } catch (e) {
       debugPrint('❌ FCM_SERVICE - Error en inicialización: $e');
+    }
+  }
+  
+  /// Solicitar permisos y obtener token (llamar después del login)
+  Future<void> initializePermissionsAndToken() async {
+    try {
+      debugPrint('🔔 FCM_SERVICE - Solicitando permisos y token...');
+      
+      // 1. Solicitar permisos
+      await _requestPermissions();
+      
+      // 2. Obtener token FCM
+      await _getAndSaveToken();
+      
+      debugPrint('✅ FCM_SERVICE - Permisos y token obtenidos');
+    } catch (e) {
+      debugPrint('❌ FCM_SERVICE - Error obteniendo permisos/token: $e');
     }
   }
 
@@ -78,9 +91,9 @@ class FCMService {
     try {
       const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
       );
 
       const initSettings = InitializationSettings(

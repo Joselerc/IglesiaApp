@@ -20,7 +20,7 @@ class MinistriesListScreen extends StatefulWidget {
   State<MinistriesListScreen> createState() => _MinistriesListScreenState();
 }
 
-class _MinistriesListScreenState extends State<MinistriesListScreen> with SingleTickerProviderStateMixin {
+class _MinistriesListScreenState extends State<MinistriesListScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _searchController = TextEditingController();
@@ -29,16 +29,12 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
   final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   
-  // Controlador para las pestañas
-  late TabController _tabController;
-  
   // Estado para saber si el usuario puede crear ministerios
   bool _canCreateMinistry = false;
   
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     // Verificar el permiso específico
     _checkCreatePermission();
   }
@@ -55,7 +51,6 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
   
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     _nameController.dispose();
     _descriptionController.dispose();
@@ -150,66 +145,42 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
             ),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                children: [
-                  // Barra superior con botones
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const Spacer(),
-                        Text(
-                          'Ministérios',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                        ),
-                        const Spacer(),
-                        // Mostrar el botón de añadir solo si es pastor
-                        if (_canCreateMinistry) 
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
-                            tooltip: 'Criar Ministério',
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => const CreateMinistryModal(),
-                              );
-                            },
-                          )
-                        else
-                          // Placeholder para mantener el espaciado si el botón no se muestra
-                          const SizedBox(width: 48), 
-                      ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                  ),
-                  
-                  // Pestañas con más espacio horizontal
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white.withOpacity(0.7),
-                      labelStyle: AppTextStyles.subtitle2.copyWith(
-                        fontWeight: FontWeight.w600,
+                    const Spacer(),
+                    Text(
+                      'Ministérios',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
                       ),
-                      tabs: const [
-                        Text('Todos'),
-                        Text('Meus Ministérios'),
-                      ],
                     ),
-                  ),
-                ],
+                    const Spacer(),
+                    // Mostrar el botón de añadir solo si es pastor
+                    if (_canCreateMinistry) 
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
+                        tooltip: 'Criar Ministério',
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => const CreateMinistryModal(),
+                          );
+                        },
+                      )
+                    else
+                      // Placeholder para mantener el espaciado si el botón no se muestra
+                      const SizedBox(width: 48), 
+                  ],
+                ),
               ),
             ),
           ),
@@ -249,17 +220,68 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
             ),
           ),
           
-          // Contenido de las pestañas
+          // Contenido principal
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Pestaña "Todos los Ministerios"
-                _buildAllMinistriesTab(userId),
-                
-                // Pestaña "Mis Ministerios"
-                _buildMyMinistriesTab(userId),
-              ],
+            child: StreamBuilder<List<Ministry>>(
+              stream: _ministryService.getMinistries(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro: ${snapshot.error}',
+                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const ListTabContentSkeleton();
+                }
+
+                try {
+                  final ministries = snapshot.data ?? [];
+                  final filteredMinistries = _filterMinistries(ministries);
+
+                  if (filteredMinistries.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Nenhum ministério encontrado',
+                            style: AppTextStyles.subtitle1.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: filteredMinistries.length,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    itemBuilder: (context, index) {
+                      final ministry = filteredMinistries[index];
+
+                      return MinistryCard(
+                        ministry: ministry,
+                        userId: userId,
+                        onActionPressed: _handleMinistryAction,
+                      );
+                    },
+                  );
+                } catch (e) {
+                  return Center(
+                    child: Text(
+                      'Erro ao processar dados: ${e.toString()}',
+                      style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
@@ -281,153 +303,4 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> with Single
           : null, // Ocultar si no es pastor
     );
   }
-  
-  // Construye la pestaña de todos los ministerios
-  Widget _buildAllMinistriesTab(String userId) {
-    return StreamBuilder<List<Ministry>>(
-      stream: _ministryService.getMinistries(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Erro: ${snapshot.error}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const ListTabContentSkeleton();
-        }
-
-        try {
-          final ministries = snapshot.data ?? [];
-          final filteredMinistries = _filterMinistries(ministries);
-
-          if (filteredMinistries.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Nenhum ministério encontrado',
-                    style: AppTextStyles.subtitle1.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: filteredMinistries.length,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            itemBuilder: (context, index) {
-              final ministry = filteredMinistries[index];
-
-              return MinistryCard(
-                ministry: ministry,
-                userId: userId,
-                onActionPressed: _handleMinistryAction,
-              );
-            },
-          );
-        } catch (e) {
-          return Center(
-            child: Text(
-              'Erro ao processar dados: ${e.toString()}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-      },
-    );
-  }
-  
-  // Construye la pestaña de mis ministerios
-  Widget _buildMyMinistriesTab(String userId) {
-    return StreamBuilder<List<Ministry>>(
-      stream: _ministryService.getMinistries(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Erro: ${snapshot.error}',
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
-            ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const ListTabContentSkeleton();
-        }
-
-        final allMinistries = snapshot.data ?? [];
-        final userMinistries = allMinistries.where(
-          (ministry) => ministry.isMember(userId) || ministry.isAdmin(userId)
-        ).toList();
-        
-        final filteredUserMinistries = _filterMinistries(userMinistries);
-
-        if (filteredUserMinistries.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.group_off, size: 64, color: AppColors.mutedGray),
-                const SizedBox(height: 16),
-                Text(
-                  'Você não é membro de nenhum ministério',
-                  style: AppTextStyles.subtitle1.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _tabController.animateTo(0); // Ir a la pestaña de todos los ministerios
-                  },
-                  icon: const Icon(Icons.search),
-                  label: const Text('Buscar ministérios'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: filteredUserMinistries.length,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          itemBuilder: (context, index) {
-            final ministry = filteredUserMinistries[index];
-                        
-            return MinistryCard(
-              ministry: ministry,
-              userId: userId,
-              onActionPressed: (ministry) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MinistryFeedScreen(ministry: ministry),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-} 
+}

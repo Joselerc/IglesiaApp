@@ -9,7 +9,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/common/app_button.dart';
-import 'package:church_app_br/screens/profile/additional_info_screen.dart';
+import 'package:igreja_amor_em_movimento/screens/profile/additional_info_screen.dart';
 import '../widgets/home/announcements_section.dart';
 import '../widgets/home/cults_section.dart';
 import '../widgets/home/events_section.dart';

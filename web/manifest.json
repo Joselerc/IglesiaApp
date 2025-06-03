@@ -1,6 +1,6 @@
 {
-    "name": "church_app_br",
-    "short_name": "church_app_br",
+    "name": "Igreja Amor em Movimento",
+"short_name": "Igreja Amor",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

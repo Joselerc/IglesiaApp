@@ -16,10 +16,13 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
   
-  // Constructor
+  // Constructor normal
   NotificationService() {
     _initNotifications();
   }
+  
+  // Constructor sin auto-inicialización
+  NotificationService.withoutAutoInit();
   
   // Inicializar notificaciones locales
   Future<void> _initNotifications() async {

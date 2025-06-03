@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:church_app_br/models/course_lesson.dart';
-import 'package:church_app_br/services/course_service.dart';
-import 'package:church_app_br/theme/app_colors.dart';
-import 'package:church_app_br/theme/app_text_styles.dart';
+import 'package:igreja_amor_em_movimento/models/course_lesson.dart';
+import 'package:igreja_amor_em_movimento/services/course_service.dart';
+import 'package:igreja_amor_em_movimento/theme/app_colors.dart';
+import 'package:igreja_amor_em_movimento/theme/app_text_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ManageLessonMaterialsScreen extends StatefulWidget {

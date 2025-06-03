@@ -26,7 +26,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -50,19 +53,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAKeYInFDBBZNpthEd0Rt9K9zVTuN7cjb4',
-    appId: '1:845718278055:android:d02110a13c868c42873082',
-    messagingSenderId: '845718278055',
-    projectId: 'churchappbr',
-    storageBucket: 'churchappbr.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCB03hpKvge5z6HOfAHYc3bbOGNSS72Fhg',
-    appId: '1:845718278055:ios:125f89c9490280bb873082',
-    messagingSenderId: '845718278055',
-    projectId: 'churchappbr',
-    storageBucket: 'churchappbr.firebasestorage.app',
-    iosBundleId: 'com.example.churchAppBr',
+    apiKey: 'AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU',
+    appId: '1:1039506776024:android:ca92f3c5f6eab01c341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
   );
 }

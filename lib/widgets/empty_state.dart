@@ -51,9 +51,10 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: onButtonPressed,
-                icon: const Icon(Icons.add),
-                label: Text(buttonText!),
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: Text(buttonText!, style: const TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

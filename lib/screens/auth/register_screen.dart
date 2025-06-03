@@ -37,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     
     // Configurar la barra de estado para que sea visible con color transparente
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: AppColors.background,
@@ -57,24 +57,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Obtenemos el roleId por defecto para nuevos usuarios
-      final RoleService roleService = RoleService();
-      final String? defaultRoleId = await roleService.getDefaultRoleId();
-      
       // Criar usuário no Firebase Auth
       final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
       
-      // Obtener el nombre del rol si tenemos un ID
+      // Usar rol por defecto simple sin consultar base de datos
       String roleName = 'member'; // Valor por defecto
-      if (defaultRoleId != null) {
-        final defaultRole = await roleService.getRoleById(defaultRoleId);
-        if (defaultRole != null) {
-          roleName = defaultRole.name;
-        }
-      }
       
       // Crear documento en Firestore
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
@@ -83,7 +73,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'role': roleName, // Nombre del rol por defecto
-        'roleId': defaultRoleId, // ID del rol para el nuevo sistema
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'photoUrl': '',
         'createdAt': DateTime.now(),
@@ -115,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Luego mostramos un mensaje de bienvenida
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Bienvenido! Completa tu perfil para aprovechar todas las funciones.'),
+            content: Text('Bem-vindo! Complete seu perfil para aproveitar todas as funções.'),
             duration: Duration(seconds: 5),
           ),
         );
@@ -193,13 +182,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 24),
                   
                   // Título da página
-                  Text(
+                  const Text(
                     'Criar uma nova conta',
                     style: AppTextStyles.headline2,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'Preencha seus dados para se cadastrar',
                     style: AppTextStyles.bodyText2,
                     textAlign: TextAlign.center,
@@ -336,7 +325,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         'Já tem uma conta?',
                         style: AppTextStyles.bodyText2,
                       ),

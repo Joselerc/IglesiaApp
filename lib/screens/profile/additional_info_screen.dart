@@ -85,55 +85,53 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
       // 2. Cargar campos de perfil adicionales (tu lógica existente)
       _fields = await _profileFieldsService.getActiveProfileFields().first;
-      if (_fields.isEmpty) {
-        if (mounted) setState(() => _isInitializing = false);
-        return;
-      }
+      
+      if (_fields.isNotEmpty) {
+        final responsesFromFirestore = await _profileFieldsService.getUserResponses(user.uid).first;
 
-      final responsesFromFirestore = await _profileFieldsService.getUserResponses(user.uid).first;
+        for (final field in _fields) {
+          String initialTextForController = '';
+          dynamic currentFieldValue;
 
-      for (final field in _fields) {
-        String initialTextForController = '';
-        dynamic currentFieldValue;
+          final firestoreResponseDoc = responsesFromFirestore.firstWhere(
+            (r) => r.fieldId == field.id,
+            orElse: () => ProfileFieldResponse(id: '', userId: user.uid, fieldId: field.id, value: null, updatedAt: DateTime.now()),
+          );
 
-        final firestoreResponseDoc = responsesFromFirestore.firstWhere(
-          (r) => r.fieldId == field.id,
-          orElse: () => ProfileFieldResponse(id: '', userId: user.uid, fieldId: field.id, value: null, updatedAt: DateTime.now()),
-        );
-
-        if (firestoreResponseDoc.value != null) {
-          currentFieldValue = firestoreResponseDoc.value;
-        }
-
-        final temporarySavedValue = await _loadTemporaryResponse(field.id);
-        if (temporarySavedValue != null) {
-            currentFieldValue = temporarySavedValue;
-        }
-        
-        if (field.type == 'select') {
-          final options = field.options ?? [];
-          if (currentFieldValue != null && options.contains(currentFieldValue.toString())) {
-            initialTextForController = currentFieldValue.toString();
-            _responses[field.id] = currentFieldValue.toString();
-          } else {
-            initialTextForController = '';
-            _responses[field.id] = null; 
+          if (firestoreResponseDoc.value != null) {
+            currentFieldValue = firestoreResponseDoc.value;
           }
-        } else if (field.type == 'date' && currentFieldValue is Timestamp) {
-            final dtValue = currentFieldValue.toDate();
-            initialTextForController = DateFormat('yyyy-MM-dd').format(dtValue);
-            _responses[field.id] = dtValue;
-        } else if (field.type == 'date' && currentFieldValue is DateTime) {
-          initialTextForController = DateFormat('yyyy-MM-dd').format(currentFieldValue);
-          _responses[field.id] = currentFieldValue;
-        } else if (currentFieldValue != null) {
-          initialTextForController = currentFieldValue.toString();
-          _responses[field.id] = currentFieldValue;
-        } else {
-            _responses[field.id] = null;
-        }
 
-        _controllers[field.id] = TextEditingController(text: initialTextForController);
+          final temporarySavedValue = await _loadTemporaryResponse(field.id);
+          if (temporarySavedValue != null) {
+              currentFieldValue = temporarySavedValue;
+          }
+          
+          if (field.type == 'select') {
+            final options = field.options ?? [];
+            if (currentFieldValue != null && options.contains(currentFieldValue.toString())) {
+              initialTextForController = currentFieldValue.toString();
+              _responses[field.id] = currentFieldValue.toString();
+            } else {
+              initialTextForController = '';
+              _responses[field.id] = null; 
+            }
+          } else if (field.type == 'date' && currentFieldValue is Timestamp) {
+              final dtValue = currentFieldValue.toDate();
+              initialTextForController = DateFormat('yyyy-MM-dd').format(dtValue);
+              _responses[field.id] = dtValue;
+          } else if (field.type == 'date' && currentFieldValue is DateTime) {
+            initialTextForController = DateFormat('yyyy-MM-dd').format(currentFieldValue);
+            _responses[field.id] = currentFieldValue;
+          } else if (currentFieldValue != null) {
+            initialTextForController = currentFieldValue.toString();
+            _responses[field.id] = currentFieldValue;
+          } else {
+              _responses[field.id] = null;
+          }
+
+          _controllers[field.id] = TextEditingController(text: initialTextForController);
+        }
       }
     } catch (e) {
       debugPrint("Error inicializando campos y respuestas: $e");
@@ -188,7 +186,17 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_fields.isEmpty && !_isInitializing) {
+    // Verificar si hay campos básicos sin completar
+    final hasIncompleteBasicFields = !_isBasicFieldComplete('name') || 
+                                    !_isBasicFieldComplete('surname') || 
+                                    !_isBasicFieldComplete('birthDate') || 
+                                    !_isBasicFieldComplete('gender') || 
+                                    !_isBasicFieldComplete('phone');
+
+    // Solo mostrar el mensaje de "no hay campos adicionales" si:
+    // 1. No hay campos adicionales configurados
+    // 2. Y todos los campos básicos están completos
+    if (_fields.isEmpty && !_isInitializing && !hasIncompleteBasicFields) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

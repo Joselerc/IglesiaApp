@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/notification_service.dart';
 import '../../services/simple_notification_service.dart';
 import '../../services/permission_service.dart';
+import '../../services/cloud_functions_service.dart';
 import '../../models/ministry.dart';
 import '../../models/group.dart';
 import '../../models/notification.dart';
@@ -23,6 +24,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
   final _messageController = TextEditingController();
   final NotificationService _notificationService = NotificationService();
   final SimpleNotificationService _simpleNotificationService = SimpleNotificationService();
+  final CloudFunctionsService _cloudFunctionsService = CloudFunctionsService();
   final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   
@@ -232,22 +234,27 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
     }
   }
   
-  void _showSuccessSnackbar(int recipientCount) {
+  void _showSuccessSnackbar(int recipientCount, {int failureCount = 0}) {
     if (!mounted) return;
+    
+    String message = 'Notificação enviada a $recipientCount usuários';
+    if (failureCount > 0) {
+      message += ' ($failureCount falharam)';
+    }
     
     final snackBar = SnackBar(
       content: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Text(
-          'Notificación enviada a $recipientCount usuarios',
+          message,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
       ),
-      backgroundColor: Colors.green,
-      duration: const Duration(seconds: 3),
+      backgroundColor: failureCount > 0 ? Colors.orange : Colors.green,
+      duration: const Duration(seconds: 4),
       behavior: SnackBarBehavior.fixed,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(0),
@@ -352,27 +359,43 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
         return;
       }
       
-      // Enviar notificaciones a cada usuario
+      print('📤 Enviando notificación push via Cloud Function...');
+      
+      // Usar Cloud Function para enviar las notificaciones
+      final result = await _cloudFunctionsService.sendPushNotifications(
+        userIds: targetUserIds,
+        title: title,
+        body: message,
+        customData: {
+          'type': 'custom_push',
+          'sender': currentUserId,
+        },
+      );
+      
+      print('✅ Cloud Function completada: ${result['successCount']} exitosas, ${result['failureCount']} fallidas');
+      
+      // También crear las notificaciones en Firestore para el historial
+      // (Esto se puede hacer en paralelo con las push notifications)
       for (final userId in targetUserIds) {
-        print('📤 Enviando notificación a: $userId');
-        print('🔄 ¿Es el pastor?: ${userId == currentUserId}');
-        
-        await _notificationService.sendNotification(
+        await _notificationService.createNotification(
           userId: userId,
           title: title,
-          body: message,
+          message: message,
+          type: NotificationType.custom,
+          senderId: currentUserId,
           data: {
             'type': 'custom_push',
             'sender': currentUserId,
           },
         );
-        
-        print('✅ Notificación enviada a: $userId');
       }
       
       if (mounted) {
         // Mostrar snackbar de éxito con el número de destinatarios
-        _showSuccessSnackbar(targetUserIds.length);
+        _showSuccessSnackbar(
+          result['successCount'] ?? targetUserIds.length,
+          failureCount: result['failureCount'] ?? 0,
+        );
         
         // Limpiar formulario
         _titleController.clear();
@@ -383,7 +406,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al enviar: $e'),
+            content: Text('Error al enviar: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );

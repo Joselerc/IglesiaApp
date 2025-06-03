@@ -579,8 +579,8 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
               height: 54,
               child: ElevatedButton.icon(
                 onPressed: () => _showCreatePrayerModal(context),
-                icon: const Icon(Icons.add, size: 24),
-                label: Text(
+                icon: const Icon(Icons.add, size: 24, color: Colors.white),
+                label: const Text(
                   'Pedir oração',
                   style: TextStyle(
                     fontSize: 16,

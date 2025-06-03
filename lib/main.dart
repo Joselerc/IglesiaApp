@@ -29,8 +29,10 @@ import 'screens/courses/lesson_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'services/fcm_service.dart';
+import 'services/cloud_functions_service.dart';
 import 'services/event_service.dart';
 import 'services/work_schedule_service.dart';
+import 'services/performance_service.dart';
 import 'cubits/navigation_cubit.dart';
 import 'screens/auth/auth_wrapper.dart';
 import 'firebase_options.dart';
@@ -66,11 +68,15 @@ import 'screens/admin/course_progress_stats_screen.dart';
 import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
 
 void main() async {
+  // Iniciar medición de tiempo de inicio
+  PerformanceService.startMeasurement('app_startup');
+  
   WidgetsFlutterBinding.ensureInitialized();
   
   // Configurar manejo global de errores
@@ -96,15 +102,38 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
+  // Inicializar FlutterDownloader con manejo de errores
+  try {
+    await FlutterDownloader.initialize(
+      debug: kDebugMode, // Solo mostrar logs en debug
+      ignoreSsl: false, // Mantener seguridad SSL
+    );
+    if (kDebugMode) {
+      debugPrint('✅ FlutterDownloader inicializado correctamente');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('⚠️ Error al inicializar FlutterDownloader: $e');
+    }
+    // Continuar sin FlutterDownloader si falla la inicialización
+  }
+  
   // Configurar manejador de mensajes en background para FCM
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   
-  // Crear e inicializar el servicio de notificaciones
-  final notificationService = NotificationService();
-  
-  // Inicializar FCM Service
+  // Inicializar FCM Service PRIMERO
   final fcmService = FCMService();
   await fcmService.initialize();
+  
+  // Crear el servicio de notificaciones SIN inicializar automáticamente
+  final notificationService = NotificationService.withoutAutoInit();
+  
+  // Inicializar Cloud Functions Service
+  final cloudFunctionsService = CloudFunctionsService();
+  // Configurar emulador en desarrollo (opcional)
+  if (kDebugMode) {
+    // cloudFunctionsService.configureEmulator(); // Descomentar si usas emulador
+  }
   
   // Inicializar los datos de localización para formateo de fechas
   await initializeDateFormatting('pt_BR', null);
@@ -123,6 +152,9 @@ void main() async {
     }
   }
   
+  // Completar medición de tiempo de inicio
+  PerformanceService.stopMeasurement('app_startup');
+  
   runApp(
     MultiProvider(
       providers: [
@@ -134,6 +166,8 @@ void main() async {
         Provider<NotificationService>.value(value: notificationService),
         // Proporcionar FCMService como un singleton
         Provider<FCMService>.value(value: fcmService),
+        // Proporcionar CloudFunctionsService como un singleton
+        Provider<CloudFunctionsService>.value(value: cloudFunctionsService),
       ],
       child: const MyApp(),
     ),

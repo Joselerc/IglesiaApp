@@ -428,7 +428,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                 icon: Icons.church,
                 title: _getEmptyStateTitle(tabIndex),
                 message: _getEmptyStateMessage(tabIndex),
-                buttonText: 'Solicitar oração',
+                buttonText: 'Pedir oração',
                 onButtonPressed: _showCreatePrayerModal,
               );
             }

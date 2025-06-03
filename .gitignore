@@ -43,3 +43,27 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase and sensitive config files
+google-services.json
+firebase_options.json
+churchapp-functions/churchappbr-da5d73c5cdcc.json
+.firebaserc
+
+# Node modules and package locks for Firebase Functions
+node_modules/
+package-lock.json
+functions/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini

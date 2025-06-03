@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "845718278055",
-    "project_id": "churchappbr",
-    "storage_bucket": "churchappbr.firebasestorage.app"
+    "project_number": "1039506776024",
+    "project_id": "igreja-amor-em-movimento",
+    "storage_bucket": "igreja-amor-em-movimento.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:845718278055:android:d02110a13c868c42873082",
+        "mobilesdk_app_id": "1:1039506776024:android:ca92f3c5f6eab01c341cad",
         "android_client_info": {
-          "package_name": "com.example.church_app_br"
+          "package_name": "com.igrejamoremovimento.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAKeYInFDBBZNpthEd0Rt9K9zVTuN7cjb4"
+          "current_key": "AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU"
         }
       ],
       "services": {

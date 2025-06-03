@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_media_downloader/flutter_media_downloader.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
@@ -10,7 +10,6 @@ import 'dart:io';
 class ImageViewerScreen extends StatelessWidget {
   final String imageUrl;
   final String fileName;
-  final MediaDownload _mediaDownloader = MediaDownload();
 
   ImageViewerScreen({
     Key? key,
@@ -20,13 +19,13 @@ class ImageViewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verificar si la URL es válida
+    // Verificar se a URL é válida
     bool isValidUrl = false;
     try {
       final uri = Uri.parse(imageUrl);
       isValidUrl = uri.isAbsolute && (uri.scheme == 'http' || uri.scheme == 'https');
     } catch (e) {
-      print('URL inválida en ImageViewerScreen: $imageUrl');
+      print('URL inválida no ImageViewerScreen: $imageUrl');
     }
 
     if (!isValidUrl) {
@@ -47,12 +46,12 @@ class ImageViewerScreen extends StatelessWidget {
               Icon(Icons.broken_image, size: 80, color: Colors.white.withOpacity(0.7)),
               const SizedBox(height: 16),
               Text(
-                'No se pudo cargar la imagen',
+                'Não foi possível carregar a imagem',
                 style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 18),
               ),
               const SizedBox(height: 8),
               Text(
-                'La URL de la imagen no es válida',
+                'A URL da imagem não é válida',
                 style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
               ),
             ],
@@ -74,12 +73,12 @@ class ImageViewerScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: () => _downloadImage(context),
-            tooltip: 'Descargar',
+            tooltip: 'Baixar',
           ),
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () => _shareImage(context),
-            tooltip: 'Compartir',
+            tooltip: 'Compartilhar',
           ),
         ],
       ),
@@ -104,7 +103,7 @@ class ImageViewerScreen extends StatelessWidget {
                 Icon(Icons.broken_image, size: 80, color: Colors.white.withOpacity(0.7)),
                 const SizedBox(height: 16),
                 Text(
-                  'No se pudo cargar la imagen',
+                  'Não foi possível carregar a imagem',
                   style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 18),
                 ),
               ],
@@ -116,25 +115,25 @@ class ImageViewerScreen extends StatelessWidget {
   }
 
   Future<void> _shareImage(BuildContext context) async {
-    // Verificar si la URL es válida
+    // Verificar se a URL é válida
     bool isValidUrl = false;
     try {
       final uri = Uri.parse(imageUrl);
       isValidUrl = uri.isAbsolute && (uri.scheme == 'http' || uri.scheme == 'https');
     } catch (e) {
-      print('URL inválida en _shareImage: $imageUrl');
+      print('URL inválida no _shareImage: $imageUrl');
     }
 
     if (!isValidUrl) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se puede compartir: URL de imagen inválida')),
+        const SnackBar(content: Text('Não é possível compartilhar: URL da imagem inválida')),
       );
       return;
     }
 
     try {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preparando imagen para compartir...')),
+        const SnackBar(content: Text('Preparando imagem para compartilhar...')),
       );
       
       final http.Response response = await http.get(Uri.parse(imageUrl));
@@ -147,11 +146,11 @@ class ImageViewerScreen extends StatelessWidget {
       
       await Share.shareXFiles(
         [XFile(tempPath)],
-        text: 'Imagen compartida desde Church App',
+        text: 'Imagem compartilhada da Igreja Amor em Movimento',
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al compartir: $e')),
+        SnackBar(content: Text('Erro ao compartilhar: $e')),
       );
     }
   }
@@ -163,12 +162,12 @@ class ImageViewerScreen extends StatelessWidget {
       final uri = Uri.parse(imageUrl);
       isValidUrl = uri.isAbsolute && (uri.scheme == 'http' || uri.scheme == 'https');
     } catch (e) {
-      print('URL inválida en _downloadImage: $imageUrl');
+      print('URL inválida no _downloadImage: $imageUrl');
     }
 
     if (!isValidUrl) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se puede descargar: URL de imagen inválida')),
+        const SnackBar(content: Text('Não é possível baixar: URL da imagem inválida')),
       );
       return;
     }
@@ -176,8 +175,8 @@ class ImageViewerScreen extends StatelessWidget {
     final shouldDownload = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Descargar imagen'),
-        content: Text('¿Quieres descargar "$fileName"?'),
+        title: const Text('Baixar imagem'),
+        content: Text('Deseja baixar "$fileName"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -185,7 +184,7 @@ class ImageViewerScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Descargar'),
+            child: const Text('Baixar'),
           ),
         ],
       ),
@@ -196,46 +195,45 @@ class ImageViewerScreen extends StatelessWidget {
     }
     
     try {
-      await Permission.storage.request();
+      // Solicitar permissões de armazenamento
+      final status = await Permission.storage.request();
+      if (status != PermissionStatus.granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permissões de armazenamento necessárias')),
+        );
+        return;
+      }
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Iniciando descarga...')),
+        const SnackBar(content: Text('Iniciando download...')),
       );
       
-      try {
-        await _mediaDownloader.downloadMedia(
-          context,
-          imageUrl,
-        );
-        
+      // Obter diretório de downloads
+      final Directory? downloadsDir = await getExternalStorageDirectory();
+      if (downloadsDir == null) {
+        throw Exception('Não foi possível acessar o diretório de downloads');
+      }
+      
+      // Usar flutter_downloader para baixar
+      final taskId = await FlutterDownloader.enqueue(
+        url: imageUrl,
+        savedDir: downloadsDir.path,
+        fileName: fileName,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+      
+      if (taskId != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Imagen descargada correctamente')),
+          const SnackBar(content: Text('Download iniciado')),
         );
-      } catch (e) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permisos necesarios'),
-            content: const Text('No se pudo descargar. Por favor, concede permisos de almacenamiento manualmente en la configuración.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await openAppSettings();
-                },
-                child: const Text('Abrir configuración'),
-              ),
-            ],
-          ),
-        );
+      } else {
+        throw Exception('Não foi possível iniciar o download');
       }
     } catch (e) {
+      debugPrint('Erro ao baixar imagem: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al procesar la descarga: $e')),
+        SnackBar(content: Text('Erro ao baixar: Funcionalidade temporariamente indisponível')),
       );
     }
   }
