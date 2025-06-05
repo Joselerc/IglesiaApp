@@ -109,7 +109,7 @@ class AppTheme {
       ),
       
       // Estilo de Card
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 1,
         shape: RoundedRectangleBorder(
@@ -143,7 +143,7 @@ class AppTheme {
       ),
       
       // Estilos de dialogo
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.white,
         elevation: 8,
         shape: RoundedRectangleBorder(
@@ -154,7 +154,7 @@ class AppTheme {
       ),
       
       // Estilo de Tab
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondary,
         indicatorColor: AppColors.primary,
