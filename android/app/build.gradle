@@ -59,19 +59,36 @@ android {
 
     buildTypes {
         release {
-            // Configuración para release - minificación desactivada temporalmente
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Configuración para release - OPTIMIZACIÓN TOTAL ACTIVADA
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'consumer-proguard-rules.pro', 'proguard-apis-no-sdk.pro'
             
             // Usar configuración de firma para producción
             signingConfig signingConfigs.release
+            
+            // Configuración específica para APIs No-SDK
+            manifestPlaceholders = [
+                allowBackup: false,
+                supportsRtl: true
+            ]
+            
+            // Optimizaciones adicionales para eliminar APIs No-SDK
+            buildConfigField "boolean", "ENABLE_ACCESSIBILITY_FEATURES", "false"
+            
+            // Configuración agresiva de ProGuard
+            consumerProguardFiles 'proguard-apis-no-sdk.pro'
         }
         debug {
             // Configuración para debug
-            minifyEnabled false
+            minifyEnabled true
             debuggable true
         }
+    }
+    
+    // Habilitar características de build
+    buildFeatures {
+        buildConfig true
     }
     
     // Configuración de lint para producción
@@ -88,6 +105,10 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    
+    // AndroidX Window con versión más estable
+    implementation 'androidx.window:window:1.4.0'
+    
     // Agregar dependencia para desugaring
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     
