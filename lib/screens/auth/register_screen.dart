@@ -9,6 +9,7 @@ import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_text_field.dart';
+import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../services/role_service.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
@@ -170,11 +171,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo da igreja
+                  // Logo da igreja optimizado - carga instantánea
                   const SizedBox(height: 24),
-                  Center(
-                    child: Image.network(
-                      'https://firebasestorage.googleapis.com/v0/b/churchappbr.firebasestorage.app/o/Logo%2Flogoaem.png?alt=media&token=6cbd3bba-fc29-47f6-8cd6-d7ba2fd8ea0f',
+                  const Center(
+                    child: ChurchLogo(
                       height: 80,
                       fit: BoxFit.contain,
                     ),

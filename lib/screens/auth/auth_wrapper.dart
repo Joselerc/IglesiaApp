@@ -5,6 +5,7 @@ import 'package:igreja_amor_em_movimento/screens/auth/login_screen.dart';
 import 'package:igreja_amor_em_movimento/screens/main_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 
@@ -16,38 +17,32 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  // Variable para almacenar la imagen precargada  
-  final NetworkImage _logoImage = const NetworkImage(
-    'https://firebasestorage.googleapis.com/v0/b/churchappbr.firebasestorage.app/o/Logo%2FAmor%20em%20Movimento%20Logo.png?alt=media&token=0be077b4-14ef-4f6e-a680-9e15bfa3ba32'
-  );
+  // Sistema UI configurado una sola vez
+  static bool _systemUIConfigured = false;
   
-  bool _isLoaded = false;
-
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    
-    // Precargar la imagen después de que el widget está completamente montado
-    precacheImage(_logoImage, context).then((_) {
-      if (mounted) {
-        setState(() {
-          _isLoaded = true;
-        });
-      }
-    });
+  void initState() {
+    super.initState();
+    _configureSystemUI();
+  }
+  
+  void _configureSystemUI() {
+    if (!_systemUIConfigured) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: AppColors.background,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      );
+      _systemUIConfigured = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Configurar la barra de estado para que sea visible
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: AppColors.background,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
+    // Sistema UI ya configurado en initState - no necesario repetir
     
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
@@ -101,19 +96,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo de la iglesia con imagen precargada
-                      Image(
-                        image: _logoImage,
+                      // Logo de la iglesia optimizado
+                      const ChurchLogo(
                         height: 150,
                         fit: BoxFit.contain,
-                        // Si hay error o mientras carga, mostrar un contenedor del mismo tamaño
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 150,
-                            width: 150,
-                            color: Colors.transparent,
-                          );
-                        },
                       ),
                       const SizedBox(height: 30),
                       const Text(

@@ -59,10 +59,10 @@ android {
 
     buildTypes {
         release {
-            // Configuración para release - OPTIMIZACIÓN TOTAL ACTIVADA
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'consumer-proguard-rules.pro', 'proguard-apis-no-sdk.pro'
+            // Configuración para release - MINIFICACIÓN TEMPORALMENTE DESACTIVADA
+            minifyEnabled false
+            shrinkResources false
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'consumer-proguard-rules.pro', 'proguard-apis-no-sdk.pro'
             
             // Usar configuración de firma para producción
             signingConfig signingConfigs.release
@@ -77,11 +77,11 @@ android {
             buildConfigField "boolean", "ENABLE_ACCESSIBILITY_FEATURES", "false"
             
             // Configuración agresiva de ProGuard
-            consumerProguardFiles 'proguard-apis-no-sdk.pro'
+            // consumerProguardFiles 'proguard-apis-no-sdk.pro'
         }
         debug {
             // Configuración para debug
-            minifyEnabled true
+            minifyEnabled false
             debuggable true
         }
     }

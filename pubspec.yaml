@@ -127,6 +127,7 @@ flutter:
     - assets/images/announcements/
     - assets/images/events/
     - assets/images/logo/
+    - assets/images/logoaem.png  # Logo principal de la iglesia
     - assets/bible/
 
   # An image asset can refer to one or more resolution-specific "variants", see

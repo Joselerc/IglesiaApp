@@ -9,6 +9,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/common/app_button.dart';
+import '../widgets/common/church_logo.dart'; // Logo optimizado
 import 'package:igreja_amor_em_movimento/screens/profile/additional_info_screen.dart';
 import '../widgets/home/announcements_section.dart';
 import '../widgets/home/cults_section.dart';
@@ -287,26 +288,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                    // Logo de la iglesia (sin recorte circular)
-                    SizedBox(
+                    // Logo de la iglesia optimizado
+                    const ChurchLogo(
                       height: 50,
-                      width: 50,
-                      child: Image.network(
-                        'https://firebasestorage.googleapis.com/v0/b/churchappbr.firebasestorage.app/o/Logo%2Flogoaem-min.png?alt=media&token=87b1f9ef-41ec-4226-b02b-4413beef869a',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFE94F1A),
-                            ),
-                            child: const Icon(
-                              Icons.church,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          );
-                        },
-                      ),
+                      fit: BoxFit.contain,
                     ),
                     const SizedBox(width: 16),
                     // Nombre de la iglesia con el mismo estilo que los títulos de sección
