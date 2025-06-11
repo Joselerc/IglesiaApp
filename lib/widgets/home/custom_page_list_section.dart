@@ -64,8 +64,48 @@ class CustomPageListSection extends StatelessWidget {
                 );
               }
 
+              // Cambiar el indicador de carga para mantener la altura
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: SizedBox(width: 30, height: 30, child: CircularProgressIndicator(strokeWidth: 2)));
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: 3, // Mostrar 3 placeholders
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: cardWidth,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: AppCard(
+                        padding: EdgeInsets.zero,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(AppSpacing.md),
+                                    topRight: Radius.circular(AppSpacing.md),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              child: Container(
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

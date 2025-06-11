@@ -45,6 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
   
   // Añadir StreamSubscription para mejor gestión de memoria
   StreamSubscription<DocumentSnapshot>? _userStreamSubscription;
+  
+  // Pre-carga de verificaciones para secciones customPageList
+  Map<String, bool> _customPageListVisibility = {};
+  bool _isPreloadingCustomPages = true;
 
   @override
   void initState() {
@@ -53,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _user = FirebaseAuth.instance.currentUser;
     _checkProfileRequirements();
     _loadChurchLocations();
+    _preloadCustomPageSections();
   }
 
   @override
@@ -248,6 +253,52 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint('❌ HOME_SCREEN - Error al cargar localizaciones: $e');
     }
   }
+  
+  Future<void> _preloadCustomPageSections() async {
+    try {
+      debugPrint('🔄 HOME_SCREEN - Pre-cargando secciones customPageList...');
+      
+      // Obtener todas las secciones activas de tipo customPageList con hideWhenEmpty = true
+      final sectionsQuery = await FirebaseFirestore.instance
+          .collection('homeScreenSections')
+          .where('isActive', isEqualTo: true)
+          .where('type', isEqualTo: 'customPageList')
+          .where('hideWhenEmpty', isEqualTo: true)
+          .get();
+      
+      final Map<String, bool> visibilityMap = {};
+      
+      // Para cada sección, verificar si tiene páginas válidas
+      for (var doc in sectionsQuery.docs) {
+        final section = HomeScreenSection.fromFirestore(doc);
+        final pageIds = section.pageIds ?? [];
+        
+        if (pageIds.isEmpty) {
+          visibilityMap[section.id] = false;
+        } else {
+          // Verificar si al menos una página existe
+          final hasPages = await _checkIfAnyPageExists(pageIds);
+          visibilityMap[section.id] = hasPages;
+        }
+      }
+      
+      if (mounted) {
+        setState(() {
+          _customPageListVisibility = visibilityMap;
+          _isPreloadingCustomPages = false;
+        });
+      }
+      
+      debugPrint('✅ HOME_SCREEN - Pre-carga completada: ${visibilityMap.length} secciones verificadas');
+    } catch (e) {
+      debugPrint('❌ HOME_SCREEN - Error al pre-cargar secciones: $e');
+      if (mounted) {
+        setState(() {
+          _isPreloadingCustomPages = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -344,8 +395,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasError) {
                       return Center(child: Text('Erro ao carregar seções: ${snapshot.error}'));
                     }
-                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando.
-                    if (snapshot.connectionState == ConnectionState.waiting || _isBannerLoading) {
+                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando O si se están pre-cargando páginas.
+                    if (snapshot.connectionState == ConnectionState.waiting || _isBannerLoading || _isPreloadingCustomPages) {
                       return const HomeScreenSkeleton();
                     }
                     // Ajuste: Permitir que no haya secciones sin mostrar error
@@ -473,7 +524,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .snapshots(),
                                 builder: (context, announcementSnapshot) {
                                   if (announcementSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
+                                    // Mostrar placeholder mientras carga
+                                    return const AnnouncementsSection();
                                   }
                                   
                                   // Si no hay anuncios, ocultar la sección
@@ -504,12 +556,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               return StreamBuilder<QuerySnapshot>(
                                 stream: FirebaseFirestore.instance
                                     .collection('cults')
-                                    .where('isActive', isEqualTo: true)
+                                    .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
+                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+                                    ))
                                     .limit(1)
                                     .snapshots(),
                                 builder: (context, cultSnapshot) {
                                   if (cultSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
+                                    // Mostrar la sección mientras verifica
+                                    return const CultsSection();
                                   }
                                   
                                   // Si no hay cultos, ocultar la sección
@@ -536,7 +591,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .snapshots(),
                                 builder: (context, eventSnapshot) {
                                   if (eventSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
+                                    // Mostrar la sección mientras verifica
+                                    return const EventsSection();
                                   }
                                   
                                   // Si no hay eventos futuros, ocultar la sección
@@ -560,24 +616,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return const SizedBox.shrink();
                               }
                               
-                              // Verificar si al menos una página existe y está activa
-                              return FutureBuilder<bool>(
-                                future: _checkIfAnyPageExists(pageIds),
-                                builder: (context, pageSnapshot) {
-                                  if (pageSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  // Si no hay páginas válidas, ocultar la sección
-                                  if (!pageSnapshot.hasData || !pageSnapshot.data!) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  return CustomPageListSection(
-                                    title: section.title,
-                                    pageIds: pageIds,
-                                  );
-                                },
+                              // Usar la información pre-cargada
+                              final isVisible = _customPageListVisibility[section.id] ?? false;
+                              
+                              if (!isVisible) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              return CustomPageListSection(
+                                title: section.title,
+                                pageIds: pageIds,
                               );
                             }
                             return CustomPageListSection(
@@ -590,12 +638,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               return StreamBuilder<QuerySnapshot>(
                                 stream: FirebaseFirestore.instance
                                     .collection('videos')
-                                    .where('isActive', isEqualTo: true)
                                     .limit(1)
                                     .snapshots(),
                                 builder: (context, videoSnapshot) {
                                   if (videoSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
+                                    // Mostrar la sección mientras verifica
+                                    return const VideosSection();
                                   }
                                   
                                   // Si no hay videos, ocultar la sección

@@ -32,9 +32,37 @@ class _CoursesSectionState extends State<CoursesSection> {
     return FutureBuilder<CourseSectionConfig>(
       future: _configFuture,
       builder: (context, configSnapshot) {
-        // Mientras carga la configuración
+        // Mientras carga la configuración, mostrar un placeholder con altura fija
         if (configSnapshot.connectionState == ConnectionState.waiting) {
-          return const ShimmerLoading(height: 200);
+          return Container(
+            height: 320, // Altura estimada de la sección completa
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Placeholder para el título
+                Container(
+                  height: 24,
+                  width: 150,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                // Placeholder para el card principal
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         // Se a error ou não ha dados
