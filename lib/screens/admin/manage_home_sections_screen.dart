@@ -259,26 +259,26 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Seção: ${_getSectionDisplayTitle(section)}',
-                style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Ocultar seção quando não houver conteúdo:',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      hideWhenEmpty 
-                        ? 'A seção será ocultada quando não houver ${section.type == HomeScreenSectionType.events ? "eventos" : "anúncios"} para exibir.'
-                        : 'A seção será sempre exibida, mesmo sem conteúdo.',
-                      style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
+                              Text(
+                  'Seção: ${_getSectionDisplayTitle(section)}',
+                  style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Ocultar seção quando não houver conteúdo:',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        hideWhenEmpty 
+                          ? 'A seção será ocultada quando não houver ${_getContentTypeText(section.type)} para exibir.'
+                          : 'A seção será sempre exibida, mesmo sem conteúdo.',
+                        style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
+                      ),
                     ),
-                  ),
                   const SizedBox(width: 16),
                   _CustomSwitch(
                     value: hideWhenEmpty,
@@ -411,12 +411,15 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                            ),
                          ],
                        ),
-                       subtitle: Column(
+                                                  subtitle: Column(
                          crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
                            Text(_getSectionTypeDisplay(section.type)),
                            if (section.type == HomeScreenSectionType.events || 
-                               section.type == HomeScreenSectionType.announcements) ...[
+                               section.type == HomeScreenSectionType.announcements ||
+                               section.type == HomeScreenSectionType.cults ||
+                               section.type == HomeScreenSectionType.videos ||
+                               section.type == HomeScreenSectionType.customPageList) ...[
                              const SizedBox(height: 4),
                              Row(
                                children: [
@@ -630,6 +633,24 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         return 'Lista de Páginas';
       default:
         return type.toString().split('.').last;
+    }
+  }
+
+  // Función helper para obtener el texto del tipo de contenido para visibilidad condicional
+  String _getContentTypeText(HomeScreenSectionType type) {
+    switch (type) {
+      case HomeScreenSectionType.events:
+        return 'eventos';
+      case HomeScreenSectionType.announcements:
+        return 'anúncios';
+      case HomeScreenSectionType.cults:
+        return 'cultos programados';
+      case HomeScreenSectionType.videos:
+        return 'vídeos';
+      case HomeScreenSectionType.customPageList:
+        return 'páginas';
+      default:
+        return 'conteúdo';
     }
   }
 }

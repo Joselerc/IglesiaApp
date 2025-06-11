@@ -38,6 +38,7 @@ import '../widgets/skeletons/additional_fields_skeleton.dart';
 import './statistics/church_statistics_screen.dart'; // <-- IMPORTAR NUEVA PANTALLA
 import '../widgets/profile/profile_additional_fields_section.dart'; // <-- IMPORTAR NUEVO WIDGET
 import '../widgets/profile/profile_personal_information_section.dart'; // <-- AÑADIR IMPORT DEL NUEVO WIDGET
+import 'events/events_page.dart'; // <-- IMPORT PARA GERENCIAR EVENTOS
 
 
 class ProfileScreen extends StatefulWidget {
@@ -1464,6 +1465,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              title: 'Criar Anúncios',
                              subtitle: 'Crie e edite anúncios para a igreja',
                              onTap: () => _showCreateAnnouncementModal(context),
+                           ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'create_events',
+                             icon: Icons.event, 
+                             title: 'Gerenciar Eventos',
+                             subtitle: 'Criar e gerenciar eventos da igreja',
+                             onTap: () => Navigator.push(
+                               context,
+                               MaterialPageRoute(builder: (context) => const EventsPage()),
+                             ),
                            ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_videos',

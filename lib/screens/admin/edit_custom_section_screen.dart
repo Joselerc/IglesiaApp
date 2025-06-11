@@ -92,6 +92,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
       'type': 'customPageList',
       'isActive': _isEditing ? widget.section!.isActive : false, 
       'pageIds': pageRefs, // <-- Usar la lista de referencias
+      'hideWhenEmpty': _isEditing ? (widget.section!.hideWhenEmpty) : true, // Por defecto true para customPageList
     };
 
     try {

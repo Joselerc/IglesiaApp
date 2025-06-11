@@ -394,51 +394,12 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                                       fontSize: 16,
                                     ),
                                   ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        userEmail,
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Papel atual: ',
-                                            style: TextStyle(
-                                              color: Colors.grey.shade700,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: userRoleId == 'pastor'
-                                                  ? Colors.blue.withOpacity(0.1)
-                                                  : Colors.grey.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              _getRoleName(userRoleId),
-                                              style: TextStyle(
-                                                color: userRoleId == 'pastor'
-                                                    ? Colors.blue.shade700
-                                                    : Colors.grey.shade700,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                  subtitle: Text(
+                                    userEmail,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                   trailing: isCurrentUser
                                       ? const Tooltip(
@@ -473,13 +434,16 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    Container(
-                                                      constraints: const BoxConstraints(maxWidth: 100),
-                                                      child: Text(
-                                                        _getRoleName(userRoleId),
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
+                                                    Flexible(
+                                                      child: Container(
+                                                        constraints: const BoxConstraints(maxWidth: 120),
+                                                        child: Text(
+                                                          _getRoleName(userRoleId),
+                                                          overflow: TextOverflow.ellipsis,
+                                                          maxLines: 1,
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),

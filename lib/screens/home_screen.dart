@@ -499,6 +499,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             return const AnnouncementsSection();
                           case HomeScreenSectionType.cults:
+                            // Verificar si debe ocultarse cuando está vacío
+                            if (section.hideWhenEmpty) {
+                              return StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('cults')
+                                    .where('isActive', isEqualTo: true)
+                                    .limit(1)
+                                    .snapshots(),
+                                builder: (context, cultSnapshot) {
+                                  if (cultSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Si no hay cultos, ocultar la sección
+                                  if (!cultSnapshot.hasData || cultSnapshot.data!.docs.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  return const CultsSection();
+                                },
+                              );
+                            }
                             return const CultsSection();
                           case HomeScreenSectionType.servicesGrid:
                             return const SizedBox.shrink();
@@ -530,11 +552,61 @@ class _HomeScreenState extends State<HomeScreen> {
                           case HomeScreenSectionType.counseling:
                             return const CounselingSection();
                           case HomeScreenSectionType.customPageList:
+                            // Verificar si debe ocultarse cuando está vacío
+                            if (section.hideWhenEmpty) {
+                              // Verificar si tiene páginas configuradas
+                              final pageIds = section.pageIds ?? [];
+                              if (pageIds.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              // Verificar si al menos una página existe y está activa
+                              return FutureBuilder<bool>(
+                                future: _checkIfAnyPageExists(pageIds),
+                                builder: (context, pageSnapshot) {
+                                  if (pageSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Si no hay páginas válidas, ocultar la sección
+                                  if (!pageSnapshot.hasData || !pageSnapshot.data!) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  return CustomPageListSection(
+                                    title: section.title,
+                                    pageIds: pageIds,
+                                  );
+                                },
+                              );
+                            }
                             return CustomPageListSection(
                               title: section.title,
                               pageIds: section.pageIds ?? [],
                             );
                           case HomeScreenSectionType.videos:
+                            // Verificar si debe ocultarse cuando está vacío
+                            if (section.hideWhenEmpty) {
+                              return StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('videos')
+                                    .where('isActive', isEqualTo: true)
+                                    .limit(1)
+                                    .snapshots(),
+                                builder: (context, videoSnapshot) {
+                                  if (videoSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  // Si no hay videos, ocultar la sección
+                                  if (!videoSnapshot.hasData || videoSnapshot.data!.docs.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  
+                                  return const VideosSection();
+                                },
+                              );
+                            }
                             return const VideosSection();
                           case HomeScreenSectionType.courses:
                             return CoursesSection(title: section.title);
@@ -751,6 +823,40 @@ class _HomeScreenState extends State<HomeScreen> {
       // para actualizar el banner si es necesario.
       _checkProfileRequirements();
     });
+  }
+
+  // Método para verificar si alguna página existe en la lista de pageIds
+  Future<bool> _checkIfAnyPageExists(List<dynamic> pageIds) async {
+    try {
+      // Convertir pageIds a strings si son DocumentReferences
+      final List<String> pageIdStrings = pageIds.map((id) {
+        if (id is DocumentReference) {
+          return id.id;
+        }
+        return id.toString();
+      }).toList();
+      
+      if (pageIdStrings.isEmpty) {
+        return false;
+      }
+      
+      // Verificar si al menos una página existe
+      for (String pageId in pageIdStrings) {
+        final doc = await FirebaseFirestore.instance
+            .collection('pageContent')
+            .doc(pageId)
+            .get();
+        
+        if (doc.exists) {
+          return true; // Al menos una página existe
+        }
+      }
+      
+      return false; // Ninguna página existe
+    } catch (e) {
+      print('Error al verificar páginas: $e');
+      return false;
+    }
   }
 
   Widget _buildUserAvatar(Map<String, dynamic> userData) {
