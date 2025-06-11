@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _user = FirebaseAuth.instance.currentUser;
     _checkProfileRequirements();
     _loadChurchLocations();
-    _preloadCustomPageSections();
+    // _preloadCustomPageSections(); // Comentado temporalmente
   }
 
   @override
@@ -395,8 +395,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasError) {
                       return Center(child: Text('Erro ao carregar seções: ${snapshot.error}'));
                     }
-                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando O si se están pre-cargando páginas.
-                    if (snapshot.connectionState == ConnectionState.waiting || _isBannerLoading || _isPreloadingCustomPages) {
+                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando.
+                    if (snapshot.connectionState == ConnectionState.waiting || _isBannerLoading) {
                       return const HomeScreenSkeleton();
                     }
                     // Ajuste: Permitir que no haya secciones sin mostrar error
@@ -418,6 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     return ListView.separated(
                       // Aumentar padding inferior general
                       padding: const EdgeInsets.only(top: 8, bottom: 48), // <-- Aumentado bottom padding
+                      physics: const ClampingScrollPhysics(), // Solo cambiar physics a ClampingScrollPhysics
                       itemCount: activeSections.length + 1,
                       separatorBuilder: (context, index) {
                         if (index == 0) return const SizedBox.shrink(); // No hay separador antes del banner
@@ -511,150 +512,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                             );
                           case HomeScreenSectionType.announcements:
-                            // Verificar si debe ocultarse cuando está vacío
-                            if (section.hideWhenEmpty) {
-                              return StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('announcements')
-                                    .where('isActive', isEqualTo: true)
-                                    .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
-                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-                                    ))
-                                    .limit(1)
-                                    .snapshots(),
-                                builder: (context, announcementSnapshot) {
-                                  if (announcementSnapshot.connectionState == ConnectionState.waiting) {
-                                    // Mostrar placeholder mientras carga
-                                    return const AnnouncementsSection();
-                                  }
-                                  
-                                  // Si no hay anuncios, ocultar la sección
-                                  if (!announcementSnapshot.hasData || announcementSnapshot.data!.docs.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  // Filtrar anuncios válidos para hoy
-                                  final now = DateTime.now();
-                                  final today = DateTime(now.year, now.month, now.day);
-                                  
-                                  final hasValidAnnouncements = announcementSnapshot.data!.docs.any((doc) {
-                                    final data = doc.data() as Map<String, dynamic>;
-                                    final startDate = (data['startDate'] as Timestamp?)?.toDate();
-                                    if (startDate == null) return true;
-                                    final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
-                                    return startDateOnly.compareTo(today) <= 0;
-                                  });
-                                  
-                                  return hasValidAnnouncements ? const AnnouncementsSection() : const SizedBox.shrink();
-                                },
-                              );
-                            }
                             return const AnnouncementsSection();
                           case HomeScreenSectionType.cults:
-                            // Verificar si debe ocultarse cuando está vacío
-                            if (section.hideWhenEmpty) {
-                              return StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('cults')
-                                    .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
-                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-                                    ))
-                                    .limit(1)
-                                    .snapshots(),
-                                builder: (context, cultSnapshot) {
-                                  if (cultSnapshot.connectionState == ConnectionState.waiting) {
-                                    // Mostrar la sección mientras verifica
-                                    return const CultsSection();
-                                  }
-                                  
-                                  // Si no hay cultos, ocultar la sección
-                                  if (!cultSnapshot.hasData || cultSnapshot.data!.docs.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  return const CultsSection();
-                                },
-                              );
-                            }
                             return const CultsSection();
                           case HomeScreenSectionType.servicesGrid:
                             return const SizedBox.shrink();
                           case HomeScreenSectionType.events:
-                            // Verificar si debe ocultarse cuando está vacío
-                            if (section.hideWhenEmpty) {
-                              return StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('events')
-                                    .where('isActive', isEqualTo: true)
-                                    .where('startDate', isGreaterThanOrEqualTo: Timestamp.now())
-                                    .limit(1)
-                                    .snapshots(),
-                                builder: (context, eventSnapshot) {
-                                  if (eventSnapshot.connectionState == ConnectionState.waiting) {
-                                    // Mostrar la sección mientras verifica
-                                    return const EventsSection();
-                                  }
-                                  
-                                  // Si no hay eventos futuros, ocultar la sección
-                                  if (!eventSnapshot.hasData || eventSnapshot.data!.docs.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  return const EventsSection();
-                                },
-                              );
-                            }
                             return const EventsSection();
                           case HomeScreenSectionType.counseling:
                             return const CounselingSection();
                           case HomeScreenSectionType.customPageList:
-                            // Verificar si debe ocultarse cuando está vacío
-                            if (section.hideWhenEmpty) {
-                              // Verificar si tiene páginas configuradas
-                              final pageIds = section.pageIds ?? [];
-                              if (pageIds.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-                              
-                              // Usar la información pre-cargada
-                              final isVisible = _customPageListVisibility[section.id] ?? false;
-                              
-                              if (!isVisible) {
-                                return const SizedBox.shrink();
-                              }
-                              
-                              return CustomPageListSection(
-                                title: section.title,
-                                pageIds: pageIds,
-                              );
-                            }
                             return CustomPageListSection(
                               title: section.title,
                               pageIds: section.pageIds ?? [],
                             );
                           case HomeScreenSectionType.videos:
-                            // Verificar si debe ocultarse cuando está vacío
-                            if (section.hideWhenEmpty) {
-                              return StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('videos')
-                                    .limit(1)
-                                    .snapshots(),
-                                builder: (context, videoSnapshot) {
-                                  if (videoSnapshot.connectionState == ConnectionState.waiting) {
-                                    // Mostrar la sección mientras verifica
-                                    return const VideosSection();
-                                  }
-                                  
-                                  // Si no hay videos, ocultar la sección
-                                  if (!videoSnapshot.hasData || videoSnapshot.data!.docs.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  
-                                  return const VideosSection();
-                                },
-                              );
-                            }
                             return const VideosSection();
                           case HomeScreenSectionType.courses:
                             return CoursesSection(title: section.title);
