@@ -686,7 +686,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             .update({
                               'hasSkippedBanner': true,
                               'lastBannerShown': FieldValue.serverTimestamp(),
-                              'bannerSkipCount': FieldValue.increment(1),
+                              'bannerSkipCount': FieldValue.increment(1), 
                             });
                       },
                       style: TextButton.styleFrom(
