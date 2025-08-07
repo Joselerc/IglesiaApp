@@ -6,7 +6,7 @@
 - ✅ Keystore generado: `android/igreja-amor-em-movimento.jks`
 - ✅ `key.properties` configurado
 - ✅ APK firmado generado exitosamente (125.3MB)
-- ✅ Application ID: `com.igrejamoremovimento.app`
+- ✅ Application ID: `com.igrejamoremovimento.igreja`
 
 ### 📦 **Build Configuration**
 - ✅ Release build funcional

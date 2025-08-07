@@ -8,10 +8,10 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.igrejamoremovimento.app
+        bundle_identifier: com.igrejamoremovimento.igreja
       vars:
         APP_ID: 6670887373 # Your App Store Connect app ID
-        BUNDLE_ID: "com.igrejamoremovimento.app"
+        BUNDLE_ID: "com.igrejamoremovimento.igreja"
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
       flutter: stable
@@ -66,7 +66,7 @@ workflows:
       android_signing:
         - keystore_reference
       vars:
-        PACKAGE_NAME: "com.igrejamoremovimento.app"
+        PACKAGE_NAME: "com.igrejamoremovimento.igreja"
       flutter: stable
       java: 11
     scripts:

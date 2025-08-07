@@ -1,4 +1,4 @@
-package com.igrejamoremovimento.app
+package com.igrejamoremovimento.igreja
 
 import io.flutter.embedding.android.FlutterActivity
  
