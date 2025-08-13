@@ -26,10 +26,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -59,4 +56,14 @@ class DefaultFirebaseOptions {
     projectId: 'igreja-amor-em-movimento',
     storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
   );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCGTdnIZ5m-zROkgb67iIL3AzXaBJFSbRQ',
+    appId: '1:1039506776024:ios:0feee15e891f5eef341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
+    iosBundleId: 'com.igrejamoremovimento.igreja',
+  );
+
 }
