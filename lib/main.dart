@@ -68,8 +68,7 @@ import 'screens/admin/course_progress_stats_screen.dart';
 import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'dart:io'; // Para Platform.isIOS
+import 'dart:io'; // Para Platform checks
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -103,27 +102,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Inicializar FlutterDownloader con manejo de errores
-  // TEMPORAL: Deshabilitar en iOS hasta arreglar crash
-  try {
-    if (!Platform.isIOS) {
-      await FlutterDownloader.initialize(
-        debug: kDebugMode, // Solo mostrar logs en debug
-        ignoreSsl: false, // Mantener seguridad SSL
-      );
-      if (kDebugMode) {
-        debugPrint('✅ FlutterDownloader inicializado correctamente');
-      }
-    } else {
-      if (kDebugMode) {
-        debugPrint('⚠️ FlutterDownloader deshabilitado temporalmente en iOS');
-      }
-    }
-  } catch (e) {
-    if (kDebugMode) {
-      debugPrint('⚠️ Error al inicializar FlutterDownloader: $e');
-    }
-    // Continuar sin FlutterDownloader si falla la inicialización
+  // FlutterDownloader eliminado - reemplazado por Dio para compatibilidad iOS 18.6+
+  if (kDebugMode) {
+    debugPrint('✅ Usando Dio para downloads - compatible iOS/Android');
   }
   
   // Configurar manejador de mensajes en background para FCM

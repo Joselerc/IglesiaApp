@@ -499,7 +499,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                                               backgroundColor: AppColors.primary.withOpacity(0.1),
                                               backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
                                               child: photoUrl.isEmpty 
-                                                  ? Text(name[0].toUpperCase(), style: TextStyle(color: AppColors.primary))
+                                                  ? Text(name.isNotEmpty ? name[0].toUpperCase() : 'U', style: TextStyle(color: AppColors.primary))
                                                   : null,
                                             ),
                                             title: Text(name, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -815,7 +815,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                               : Colors.grey.withOpacity(0.2),
                           backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
                           child: photoUrl.isEmpty 
-                              ? Text(name[0].toUpperCase(), 
+                              ? Text(name.isNotEmpty ? name[0].toUpperCase() : 'U', 
                                   style: TextStyle(color: isSelected ? widget.primaryColor : Colors.grey[700]))
                               : null,
                         ),
