@@ -214,6 +214,11 @@ class ImageViewerScreen extends StatelessWidget {
         throw Exception('Não foi possível acessar o diretório de downloads');
       }
       
+      // Verificar si FlutterDownloader está disponible (no en iOS por ahora)
+      if (Platform.isIOS) {
+        throw Exception('Download temporariamente indisponível no iOS');
+      }
+      
       // Usar flutter_downloader para baixar
       final taskId = await FlutterDownloader.enqueue(
         url: imageUrl,

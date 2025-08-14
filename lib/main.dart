@@ -69,6 +69,7 @@ import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'dart:io'; // Para Platform.isIOS
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -103,13 +104,20 @@ void main() async {
   );
   
   // Inicializar FlutterDownloader con manejo de errores
+  // TEMPORAL: Deshabilitar en iOS hasta arreglar crash
   try {
-    await FlutterDownloader.initialize(
-      debug: kDebugMode, // Solo mostrar logs en debug
-      ignoreSsl: false, // Mantener seguridad SSL
-    );
-    if (kDebugMode) {
-      debugPrint('✅ FlutterDownloader inicializado correctamente');
+    if (!Platform.isIOS) {
+      await FlutterDownloader.initialize(
+        debug: kDebugMode, // Solo mostrar logs en debug
+        ignoreSsl: false, // Mantener seguridad SSL
+      );
+      if (kDebugMode) {
+        debugPrint('✅ FlutterDownloader inicializado correctamente');
+      }
+    } else {
+      if (kDebugMode) {
+        debugPrint('⚠️ FlutterDownloader deshabilitado temporalmente en iOS');
+      }
     }
   } catch (e) {
     if (kDebugMode) {
