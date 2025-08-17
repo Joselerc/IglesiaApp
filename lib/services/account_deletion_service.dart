@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -221,31 +222,44 @@ class AccountDeletionService {
 
       debugPrint('✅ Conta eliminada com sucesso');
 
-      // Esperar menos tiempo y forzar navegación inmediata
-      await Future.delayed(const Duration(milliseconds: 200));
-
-      // Verificar si el contexto sigue montado y forzar navegación INMEDIATA
-      if (context.mounted) {
-        debugPrint('🔄 Forzando navegación a AuthWrapper...');
-        
-        // Forzar navegación directa SIN mostrar SnackBar (para evitar conflictos)
-        try {
-          // Usar el Navigator raíz para limpiar completamente la pila
-          Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-            '/', // Ruta principal que debería ir al AuthWrapper
-            (route) => false, // Eliminar todas las rutas anteriores
+      debugPrint('🔄 Conta eliminada com sucesso - forçando reinício da app...');
+      
+      // Esperar un momento mínimo para que Firebase procese
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // SOLUCIÓN RADICAL: Cerrar la app completamente
+      // Esto fuerza al usuario a volver a abrirla, y al no haber usuario autenticado,
+      // irá automáticamente al AuthWrapper/Login
+      try {
+        if (context.mounted) {
+          // Mostrar mensaje muy breve antes de cerrar
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Conta eliminada! Reabra o aplicativo'),
+              backgroundColor: Colors.green,
+              duration: Duration(milliseconds: 1500),
+            ),
           );
-          debugPrint('✅ Navegación forzada exitosa');
-        } catch (navError) {
-          debugPrint('❌ Error en navegación: $navError');
-          // Como backup, intentar con Navigator normal
+          
+          // Esperar que se vea el mensaje
+          await Future.delayed(const Duration(milliseconds: 1500));
+        }
+        
+        // Cerrar la aplicación usando SystemNavigator
+        debugPrint('🔄 Cerrando aplicación...');
+        SystemNavigator.pop();
+        
+      } catch (e) {
+        debugPrint('❌ Error al cerrar app: $e');
+        // Fallback: intentar navegación normal
+        if (context.mounted) {
           try {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login', // Ruta de backup al login
+            Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+              '/',
               (route) => false,
             );
-          } catch (backupError) {
-            debugPrint('❌ Error en navegación backup: $backupError');
+          } catch (navError) {
+            debugPrint('❌ Error en navegación fallback: $navError');
           }
         }
       }
