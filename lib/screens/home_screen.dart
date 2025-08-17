@@ -629,89 +629,167 @@ class _HomeScreenState extends State<HomeScreen> {
               border: Border(top: BorderSide(color: AppColors.primary.withOpacity(0.1), width: 1)),
             ),
             padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Verificar cuántas veces ha omitido el banner
-                Builder(
-                  builder: (context) {
-                    final skipCount = _userData?['bannerSkipCount'] as int? ?? 0;
-                    
-                    // Si ha omitido 3 o más veces, mostrar "No mostrar nunca más"
-                    if (skipCount >= 3) {
-                      return TextButton(
-                        onPressed: () async {
-                          // Animar la desaparición antes de actualizar Firestore
-                          if (mounted) {
-                            setState(() {
-                              _shouldShowBanner = false;
-                            });
-                          }
-                          
-                          await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(_user!.uid)
-                              .update({
-                                'neverShowBannerAgain': true,
-                              });
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Detectar si es una pantalla pequeña (menor a 350px de ancho)
+                final isSmallScreen = constraints.maxWidth < 350;
+                
+                if (isSmallScreen) {
+                  // En pantallas pequeñas, usar Column para apilar verticalmente
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Botón principal centrado
+                      AppButton(
+                        text: 'Completar agora',
+                        onPressed: () {
+                          _showAdditionalInfoModal(context);
                         },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          'Não mostrar mais',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      );
-                    }
-                    
-                    return TextButton(
-                      onPressed: () async {
-                        // Animar la desaparición antes de actualizar Firestore
-                        if (mounted) {
-                          setState(() {
-                            _shouldShowBanner = false;
-                          });
-                        }
-                        
-                        // Actualizar el contador de saltos y la fecha de la última vez que se mostró
-                        // SOLO ocultamos el banner temporalmente, no establecemos 'neverShowBannerAgain'
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(_user!.uid)
-                            .update({
-                              'hasSkippedBanner': true,
-                              'lastBannerShown': FieldValue.serverTimestamp(),
-                              'bannerSkipCount': FieldValue.increment(1), 
-                            });
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        isSmall: false, // Usar tamaño normal para mejor visibilidad
                       ),
-                      child: Text(
-                        'Pular por enquanto',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
+                      const SizedBox(height: 8),
+                      // Botón secundario centrado
+                      Builder(
+                        builder: (context) {
+                          final skipCount = _userData?['bannerSkipCount'] as int? ?? 0;
+                          
+                          return Center(
+                            child: TextButton(
+                              onPressed: () async {
+                                if (mounted) {
+                                  setState(() {
+                                    _shouldShowBanner = false;
+                                  });
+                                }
+                                
+                                if (skipCount >= 3) {
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(_user!.uid)
+                                      .update({
+                                        'neverShowBannerAgain': true,
+                                      });
+                                } else {
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(_user!.uid)
+                                      .update({
+                                        'hasSkippedBanner': true,
+                                        'lastBannerShown': FieldValue.serverTimestamp(),
+                                        'bannerSkipCount': FieldValue.increment(1), 
+                                      });
+                                }
+                              },
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                skipCount >= 3 ? 'Não mostrar mais' : 'Pular por enquanto',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  // En pantallas normales, usar Row como antes
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Verificar cuántas veces ha omitido el banner
+                      Flexible(
+                        child: Builder(
+                          builder: (context) {
+                            final skipCount = _userData?['bannerSkipCount'] as int? ?? 0;
+                            
+                            // Si ha omitido 3 o más veces, mostrar "No mostrar nunca más"
+                            if (skipCount >= 3) {
+                              return TextButton(
+                                onPressed: () async {
+                                  // Animar la desaparición antes de actualizar Firestore
+                                  if (mounted) {
+                                    setState(() {
+                                      _shouldShowBanner = false;
+                                    });
+                                  }
+                                  
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(_user!.uid)
+                                      .update({
+                                        'neverShowBannerAgain': true,
+                                      });
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  'Não mostrar mais',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }
+                            
+                            return TextButton(
+                              onPressed: () async {
+                                // Animar la desaparición antes de actualizar Firestore
+                                if (mounted) {
+                                  setState(() {
+                                    _shouldShowBanner = false;
+                                  });
+                                }
+                                
+                                // Actualizar el contador de saltos y la fecha de la última vez que se mostró
+                                // SOLO ocultamos el banner temporalmente, no establecemos 'neverShowBannerAgain'
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(_user!.uid)
+                                    .update({
+                                      'hasSkippedBanner': true,
+                                      'lastBannerShown': FieldValue.serverTimestamp(),
+                                      'bannerSkipCount': FieldValue.increment(1), 
+                                    });
+                              },
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                'Pular por enquanto',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    );
-                  },
-                ),
-                AppButton(
-                  text: 'Completar agora',
-                  onPressed: () {
-                    // Muestra el modal para completar la información adicional
-                    _showAdditionalInfoModal(context);
-                  },
-                  isSmall: true,
-                ),
-              ],
+                      const SizedBox(width: 8), // Espacio entre botones
+                      AppButton(
+                        text: 'Completar agora',
+                        onPressed: () {
+                          // Muestra el modal para completar la información adicional
+                          _showAdditionalInfoModal(context);
+                        },
+                        isSmall: true,
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
           ),
         ],

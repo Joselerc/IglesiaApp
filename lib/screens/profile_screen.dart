@@ -30,6 +30,7 @@ import 'admin/create_edit_role_screen.dart'; // <-- Import añadido
 import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
 import 'package:igreja_amor_em_movimento/services/permission_service.dart'; // <-- Import PermissionService
 import '../services/role_service.dart'; // <-- Import correcto del servicio de roles
+import '../services/account_deletion_service.dart'; // <-- Import del servicio de eliminación de cuenta
 import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';
 import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
@@ -191,6 +192,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_remove),
+            tooltip: 'Eliminar Conta',
+            onPressed: () => AccountDeletionService.showDeleteAccountConfirmation(context),
+          ),
+        ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
