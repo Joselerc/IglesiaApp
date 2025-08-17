@@ -221,30 +221,32 @@ class AccountDeletionService {
 
       debugPrint('✅ Conta eliminada com sucesso');
 
-      // Esperar un momento para que Firebase procese la eliminación
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Esperar menos tiempo y forzar navegación inmediata
+      await Future.delayed(const Duration(milliseconds: 200));
 
-      // Verificar si el contexto sigue montado y forzar navegación
+      // Verificar si el contexto sigue montado y forzar navegación INMEDIATA
       if (context.mounted) {
-        // Mostrar mensaje de éxito
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Conta eliminada com sucesso'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        // Esperar un poco más para que el usuario vea el mensaje
-        await Future.delayed(const Duration(milliseconds: 1000));
-
-        // Forzar navegación directa al login/auth wrapper
-        if (context.mounted) {
-          // Limpiar toda la pila de navegación y ir a auth
-          Navigator.of(context).pushNamedAndRemoveUntil(
+        debugPrint('🔄 Forzando navegación a AuthWrapper...');
+        
+        // Forzar navegación directa SIN mostrar SnackBar (para evitar conflictos)
+        try {
+          // Usar el Navigator raíz para limpiar completamente la pila
+          Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
             '/', // Ruta principal que debería ir al AuthWrapper
             (route) => false, // Eliminar todas las rutas anteriores
           );
+          debugPrint('✅ Navegación forzada exitosa');
+        } catch (navError) {
+          debugPrint('❌ Error en navegación: $navError');
+          // Como backup, intentar con Navigator normal
+          try {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login', // Ruta de backup al login
+              (route) => false,
+            );
+          } catch (backupError) {
+            debugPrint('❌ Error en navegación backup: $backupError');
+          }
         }
       }
 
