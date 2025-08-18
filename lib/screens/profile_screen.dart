@@ -1695,7 +1695,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text("Cerrar Sesión", style: TextStyle(color: Colors.white)),
+                      label: const Text("Fechar Sessão", style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary, // Color naranja
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -1707,7 +1707,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         } catch (e) {
                           print("Error al cerrar sesión: $e");
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error al cerrar sesión: $e"))
+                            SnackBar(content: Text("Erro ao Fazer Logout: $e"))
                           );
                         }
                                 },
