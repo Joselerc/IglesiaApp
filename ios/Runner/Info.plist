@@ -3,7 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>pt_BR</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>pt_BR</string>
+		<string>es_ES</string>
+		<string>es_MX</string>
+		<string>es_AR</string>
+		<string>es_CO</string>
+		<string>en_US</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Amor Em Movimento</string>
 	<key>CFBundleExecutable</key>

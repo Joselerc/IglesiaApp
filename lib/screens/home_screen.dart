@@ -801,24 +801,34 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showAdditionalInfoModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Permite que el modal use más altura
-      backgroundColor: Colors.transparent, // Fondo transparente para usar el del contenido
-      builder: (context) => DraggableScrollableSheet( // Permite desplazar y ajustar altura
-        initialChildSize: 0.8, // Altura inicial (80%)
-        minChildSize: 0.5, // Altura mínima
-        maxChildSize: 0.9, // Altura máxima
+      isScrollControlled: true,
+      backgroundColor: Colors.white, // Cambio: fondo blanco directo para iOS
+      enableDrag: true,
+      isDismissible: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer, // Importante para iOS
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95, // Aumentado para mejor uso del espacio
         expand: false,
-        builder: (_, controller) => Container(
+        snap: true, // Permite snap a posiciones específicas
+        snapSizes: const [0.5, 0.8, 0.95], // Posiciones de snap
+        builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
-            color: Colors.white, // Fondo del modal
+            color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: const AdditionalInfoScreen(fromBanner: true), // Pasar fromBanner=true
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: const AdditionalInfoScreen(fromBanner: true),
+          ),
         ),
       ),
     ).then((_) {
       // Cuando el modal se cierre, volver a verificar los requisitos del perfil
-      // para actualizar el banner si es necesario.
       _checkProfileRequirements();
     });
   }

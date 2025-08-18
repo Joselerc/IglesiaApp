@@ -222,114 +222,129 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       );
     }
     
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Column(
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(3),
+    return Container(
+      color: Colors.white, // Asegurar fondo blanco
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Column(
+          children: [
+            // Handle del modal
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(3),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(
-              'Informações Adicionais',
-              style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary),
-              textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Informações Adicionais',
+                style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary),
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Stack(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          'Por favor, complete as seguintes informações:',
-                          style: AppTextStyles.bodyText1,
+            const Divider(height: 1, indent: 16, endIndent: 16),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Stack(
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Por favor, complete as seguintes informações:',
+                            style: AppTextStyles.bodyText1,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16), // Espacio antes de los campos básicos
+                        const SizedBox(height: 16), // Espacio antes de los campos básicos
 
-                      // --- CAMPOS BÁSICOS (si no están completos) ---
-                      if (!_isBasicFieldComplete('name')) 
-                        _buildBasicTextField(_nameController, 'Nome', 'Digite seu nome', Icons.person),
-                      if (!_isBasicFieldComplete('surname')) 
-                        _buildBasicTextField(_surnameController, 'Sobrenome', 'Digite seu sobrenome', Icons.person_outline),
-                      if (!_isBasicFieldComplete('birthDate')) 
-                        _buildBirthDateField(),
-                      if (!_isBasicFieldComplete('gender')) 
-                        _buildGenderField(),
-                      if (!_isBasicFieldComplete('phone')) 
-                        _buildPhoneField(),
-                      
-                      // Separador si se muestran campos básicos Y hay campos adicionales
-                      if ((!_isBasicFieldComplete('name') || !_isBasicFieldComplete('surname') || !_isBasicFieldComplete('birthDate') || !_isBasicFieldComplete('gender') || !_isBasicFieldComplete('phone')) && _fields.isNotEmpty)
-                        Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            Text('Outras Informações', style: AppTextStyles.subtitle1.copyWith(color: AppColors.textSecondary)),
-                            const Divider(height: 24),
-                          ],
-                        ),
-                      
-                      // --- CAMPOS ADICIONALES (como ya los tenías) ---
-                      ..._fields.map((field) {
-                        if (!_controllers.containsKey(field.id)) {
-                           _controllers[field.id] = TextEditingController();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _buildFieldInput(field, user.uid), 
-                        );
-                      }).toList(),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
-                if (_isLoading)
-                  Container(
-                    color: Colors.black.withOpacity(0.3),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0 + MediaQuery.of(context).padding.bottom),
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : () => _saveResponses(user.uid),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _isLoading
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                  : const Text(
-                      'Salvar Informações',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        // --- CAMPOS BÁSICOS (si no están completos) ---
+                        if (!_isBasicFieldComplete('name')) 
+                          _buildBasicTextField(_nameController, 'Nome', 'Digite seu nome', Icons.person),
+                        if (!_isBasicFieldComplete('surname')) 
+                          _buildBasicTextField(_surnameController, 'Sobrenome', 'Digite seu sobrenome', Icons.person_outline),
+                        if (!_isBasicFieldComplete('birthDate')) 
+                          _buildBirthDateField(),
+                        if (!_isBasicFieldComplete('gender')) 
+                          _buildGenderField(),
+                        if (!_isBasicFieldComplete('phone')) 
+                          _buildPhoneField(),
+                        
+                        // Separador si se muestran campos básicos Y hay campos adicionales
+                        if ((!_isBasicFieldComplete('name') || !_isBasicFieldComplete('surname') || !_isBasicFieldComplete('birthDate') || !_isBasicFieldComplete('gender') || !_isBasicFieldComplete('phone')) && _fields.isNotEmpty)
+                          Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              Text('Outras Informações', style: AppTextStyles.subtitle1.copyWith(color: AppColors.textSecondary)),
+                              const Divider(height: 24),
+                            ],
+                          ),
+                        
+                        // --- CAMPOS ADICIONALES (como ya los tenías) ---
+                        ..._fields.map((field) {
+                          if (!_controllers.containsKey(field.id)) {
+                             _controllers[field.id] = TextEditingController();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildFieldInput(field, user.uid), 
+                          );
+                        }).toList(),
+                        const SizedBox(height: 80), // Espacio extra para el botón
+                      ],
                     ),
+                  ),
+                  if (_isLoading)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+            // Botón fijo en la parte inferior
+            Container(
+              padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0 + MediaQuery.of(context).padding.bottom),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : () => _saveResponses(user.uid),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                    : const Text(
+                        'Salvar Informações',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -187,6 +187,11 @@ class MyApp extends StatelessWidget {
         ],
         supportedLocales: const [
           Locale('pt', 'BR'),  // Português (Brasil)
+          Locale('es', 'ES'),  // Español (España)
+          Locale('es', 'MX'),  // Español (México)
+          Locale('es', 'AR'),  // Español (Argentina)
+          Locale('es', 'CO'),  // Español (Colombia)
+          Locale('en', 'US'),  // English (US)
         ],
         locale: const Locale('pt', 'BR'),
         routes: {
