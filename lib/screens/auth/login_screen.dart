@@ -13,6 +13,7 @@ import '../../widgets/common/app_text_field.dart';
 import '../../widgets/common/church_logo.dart'; // Nuevo widget de logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
+import '../../modals/forgot_password_modal.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -211,6 +212,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showForgotPasswordModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ForgotPasswordModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obter o serviço de autenticação
@@ -307,14 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
-                        // Futura implementação para recuperar senha
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Esta função estará disponível em breve'),
-                          ),
-                        );
-                      },
+                      onPressed: _showForgotPasswordModal,
                       child: Text(
                         'Esqueceu sua senha?',
                         style: AppTextStyles.bodyText2.copyWith(color: AppColors.primary),
