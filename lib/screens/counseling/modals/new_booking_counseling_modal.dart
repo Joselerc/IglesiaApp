@@ -871,15 +871,15 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
     );
   }
 
-  // Método específico para el formulario de detalles
-  Widget _buildScrollableDetailsForm() {
+  // Widget para el formulario de detalles (ya no es un ListView para evitar conflictos de scroll)
+  Widget _buildDetailsForm() {
     // Si el teléfono está vacío, intentar cargarlo nuevamente
     if (_phoneController.text.isEmpty) {
       _loadUserPhone();
     }
     
-    return ListView(
-      shrinkWrap: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Detalhes do Aconselhamento',
@@ -911,7 +911,6 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
             ),
           ),
           maxLines: 3,
-          onTap: () => _scrollToFocusedInput(_reasonController),
           style: AppTextStyles.bodyText2,
         ),
         const SizedBox(height: 16),
@@ -938,11 +937,10 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
               borderSide: BorderSide(color: AppColors.primary),
             ),
             suffixIcon: _isValidPhone(_phoneController.text) 
-                ? Icon(Icons.check_circle, color: Colors.green, size: 20)
+                ? const Icon(Icons.check_circle, color: Colors.green, size: 20)
                 : null,
           ),
           keyboardType: TextInputType.phone,
-          onTap: () => _scrollToFocusedInput(_phoneController),
           onChanged: (value) {
             setState(() {});
           },
@@ -1042,6 +1040,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
   }
 
   // Método para hacer scroll al campo que tiene foco cuando aparece el teclado
+  /*
   void _scrollToFocusedInput(TextEditingController controller) {
     // Dar tiempo para que el teclado se muestre
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -1055,6 +1054,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
       );
     });
   }
+  */
 
   // Función para validar formato de teléfono
   bool _isValidPhone(String phone) {
@@ -1065,149 +1065,154 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
   
   @override
   Widget build(BuildContext context) {
-    // Obtener el padding inferior del sistema
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-
-    return Container(
-      // Añadir padding inferior al contenedor principal
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
-      height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Encabezado
-          Row(
-            children: [
-              Text(
-                'Solicitar Aconselhamento',
-                style: AppTextStyles.headline3.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
           ),
-          
-          // Indicador de pasos
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Encabezado
+            Row(
               children: [
-                _buildStepIndicator(0, 'Pastor', _selectedPastorRef != null),
-                _buildStepConnector(),
-                _buildStepIndicator(1, 'Data', _selectedDay != null),
-                _buildStepConnector(),
-                _buildStepIndicator(2, 'Horário', _selectedTimeSlot != null),
-                _buildStepConnector(),
-                _buildStepIndicator(3, 'Detalhes', false),
+                Text(
+                  'Solicitar Aconselhamento',
+                  style: AppTextStyles.headline3.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
-          ),
-          
-          const Divider(),
-          const SizedBox(height: 16),
-          
-          // Contenido principal basado en el paso actual
-          Expanded(
-            child: _isLoadingAvailability 
-              ? Center(child: CircularProgressIndicator(color: AppColors.primary))
-              : _currentStep == 3
-                ? _buildScrollableDetailsForm()
-                : SingleChildScrollView(
-                    child: AnimatedSwitcher(
+            
+            // Indicador de pasos
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                children: [
+                  _buildStepIndicator(0, 'Pastor', _selectedPastorRef != null),
+                  _buildStepConnector(),
+                  _buildStepIndicator(1, 'Data', _selectedDay != null),
+                  _buildStepConnector(),
+                  _buildStepIndicator(2, 'Horário', _selectedTimeSlot != null),
+                  _buildStepConnector(),
+                  _buildStepIndicator(3, 'Detalhes', false),
+                ],
+              ),
+            ),
+            
+            const Divider(),
+            const SizedBox(height: 16),
+            
+            // Contenido principal basado en el paso actual
+            Expanded(
+              child: SingleChildScrollView(
+                child: _isLoadingAvailability 
+                  ? Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  : AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: [
                         _buildPastorSelection(),
                         _buildCalendarSelection(),
                         _buildTimeSlotSelection(),
-                        Container(), 
+                        _buildDetailsForm(), 
                       ][_currentStep],
                     ),
-                  ),
-          ),
-          
-          // Botones de navegación
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (_currentStep > 0)
-                OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _currentStep--;
-                    });
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Botones de navegación
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
+                  OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _currentStep--;
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: BorderSide(color: AppColors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: const Text('Anterior'),
                   ),
-                  child: const Text('Anterior'),
-                ),
-              const Spacer(),
-              if (_currentStep < 3)
-                ElevatedButton(
-                  onPressed: _canAdvanceToNextStep() 
-                      ? () {
-                          setState(() {
-                            _currentStep++;
-                            
-                            // Si estamos avanzando al paso de detalles, verificar que el teléfono esté cargado
-                            if (_currentStep == 3 && _phoneController.text.isEmpty) {
-                              _loadUserPhone(); // Cargar teléfono nuevamente por si falló la primera vez
-                            }
-                          });
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                const Spacer(),
+                if (_currentStep < 3)
+                  ElevatedButton(
+                    onPressed: _canAdvanceToNextStep() 
+                        ? () {
+                            setState(() {
+                              _currentStep++;
+                              
+                              // Si estamos avanzando al paso de detalles, verificar que el teléfono esté cargado
+                              if (_currentStep == 3 && _phoneController.text.isEmpty) {
+                                _loadUserPhone(); // Cargar teléfono nuevamente por si falló la primera vez
+                              }
+                            });
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  child: const Text('Próximo'),
-                )
-              else
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _bookAppointment,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                    child: const Text('Próximo'),
+                  )
+                else
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _bookAppointment,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text('Solicitar Consulta'),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text('Solicitar Consulta'),
-                ),
-            ],
-          ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
