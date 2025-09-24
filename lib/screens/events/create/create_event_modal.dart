@@ -417,9 +417,9 @@ class _CreateEventModalState extends State<CreateEventModal> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Criar Evento',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),

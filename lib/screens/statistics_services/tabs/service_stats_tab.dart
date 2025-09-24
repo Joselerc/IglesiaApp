@@ -44,7 +44,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
   @override
   void didUpdateWidget(ServiceStatsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Recargar datos si cambian los filtros
+    // Recarregar dados se os filtros mudarem
     if (oldWidget.startDate != widget.startDate ||
         oldWidget.endDate != widget.endDate ||
         oldWidget.searchQuery != widget.searchQuery) {
@@ -58,30 +58,30 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
     });
 
     try {
-      // Obtener todos los servicios
+      // Obter todos os serviços
       var query = FirebaseFirestore.instance.collection('services');
       final servicesSnapshot = await query.get();
 
-      // Convertir los resultados a nuestra estructura de datos local
+      // Converter os resultados para nossa estrutura de dados local
       List<Map<String, dynamic>> services = [];
       
       for (var doc in servicesSnapshot.docs) {
         final serviceData = doc.data();
         
-        // Aplicar filtro de búsqueda si existe
+        // Aplicar filtro de busca se existir
         if (widget.searchQuery.isNotEmpty &&
             !serviceData['name'].toString().toLowerCase().contains(widget.searchQuery.toLowerCase())) {
           continue;
         }
 
-        // Obtener invitaciones para este servicio
+        // Obter convites para este serviço
         final invitationsQuery = await FirebaseFirestore.instance
             .collection('work_invites')
             .where('entityType', isEqualTo: 'service')
             .where('entityId', isEqualTo: doc.id)
             .get();
 
-        // Aplicar filtro de fecha si existe
+        // Aplicar filtro de data se existir
         final invitations = invitationsQuery.docs.where((inviteDoc) {
           if (widget.startDate == null || widget.endDate == null) return true;
           
@@ -92,7 +92,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                  createdAt.isBefore(widget.endDate!);
         }).toList();
 
-        // Contar invitaciones por estado
+        // Contar convites por estado
         final totalInvitations = invitations.length;
         final acceptedInvitations = invitations
             .where((inviteDoc) => inviteDoc.data()['status'] == 'accepted' || inviteDoc.data()['status'] == 'confirmed')
@@ -101,7 +101,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
             .where((inviteDoc) => inviteDoc.data()['status'] == 'rejected' || inviteDoc.data()['isRejected'] == true)
             .length;
 
-        // Obtener cultos para este servicio
+        // Obter cultos para este serviço
         final cultsQuery = await FirebaseFirestore.instance
             .collection('cults')
             .where('serviceId', isEqualTo: FirebaseFirestore.instance.collection('services').doc(doc.id))
@@ -117,7 +117,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                  cultDate.isBefore(widget.endDate!);
         }).toList();
 
-        // Obtener franjas horarias para todos los cultos
+        // Obter faixas de horário para todos os cultos
         List<String> timeSlotIds = [];
         for (var cultDoc in cults) {
           final timeSlotsQuery = await FirebaseFirestore.instance
@@ -129,7 +129,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
           timeSlotIds.addAll(timeSlotsQuery.docs.map((doc) => doc.id).toList());
         }
 
-        // Obtener asignaciones para todas las franjas horarias
+        // Obter atribuições para todas as faixas de horário
         int totalAttendances = 0;
         int totalAbsences = 0;
 
@@ -149,10 +149,10 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
               .length;
         }
 
-        // Guardar los datos del servicio con sus estadísticas
+        // Salvar os dados do serviço com suas estatísticas
         services.add({
           'id': doc.id,
-          'name': serviceData['name'] ?? 'Servicio sin nombre',
+          'name': serviceData['name'] ?? 'Serviço sem nome',
           'description': serviceData['description'] ?? '',
           'createdAt': (serviceData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
           'totalInvitations': totalInvitations,
@@ -164,7 +164,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
         });
       }
 
-      // Ordenar los servicios
+      // Ordenar os serviços
       _sortServices(services);
 
       setState(() {
@@ -172,7 +172,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error al cargar servicios: $e');
+      print('Erro ao carregar serviços: $e');
       setState(() {
         _isLoading = false;
       });
@@ -225,7 +225,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
     if (_services.isEmpty) {
       return const Center(
         child: Text(
-          'No se encontraron servicios',
+          'Nenhum serviço encontrado',
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
@@ -264,7 +264,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                           const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
                           const SizedBox(width: 4),
                           Text(
-                            'Creado: ${DateFormat('dd/MM/yyyy').format(service['createdAt'])}',
+                            'Criado: ${DateFormat('dd/MM/yyyy').format(service['createdAt'])}',
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
@@ -305,7 +305,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                             ),
                           
                           const Text(
-                            'Estadísticas',
+                            'Estatísticas',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -313,33 +313,33 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                           ),
                           const SizedBox(height: 8),
                           
-                          // Estadísticas de invitaciones
+                          // Estatísticas de convites
                           _buildStatRow(
-                            'Invitaciones enviadas', 
+                            'Convites enviados', 
                             service['totalInvitations'], 
                             Colors.blue
                           ),
                           _buildStatRow(
-                            'Invitaciones aceptadas', 
+                            'Convites aceitos', 
                             service['acceptedInvitations'], 
                             Colors.green
                           ),
                           _buildStatRow(
-                            'Invitaciones rechazadas', 
+                            'Convites rejeitados', 
                             service['rejectedInvitations'], 
                             Colors.red
                           ),
                           
                           const Divider(height: 16),
                           
-                          // Estadísticas de asistencia
+                          // Estatísticas de presença
                           _buildStatRow(
-                            'Total asistencias', 
+                            'Total de presenças', 
                             service['totalAttendances'], 
                             Colors.green
                           ),
                           _buildStatRow(
-                            'Total ausencias', 
+                            'Total de ausências', 
                             service['totalAbsences'], 
                             Colors.orange
                           ),
@@ -355,7 +355,7 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
                                       title: Text('Cultos de ${service['name']}'),
                                     ),
                                     body: const Center(
-                                      child: Text('Implementación pendiente'),
+                                      child: Text('Implementação pendente'),
                                     ),
                                   ),
                                 ),
@@ -391,10 +391,10 @@ class _ServiceStatsTabState extends State<ServiceStatsTab> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 8),
-          _buildSortButton('Nombre', 'name'),
-          _buildSortButton('Fecha', 'createdAt'),
-          _buildSortButton('Invitaciones', 'invitations'),
-          _buildSortButton('Asistencias', 'attendances'),
+          _buildSortButton('Nome', 'name'),
+          _buildSortButton('Data', 'createdAt'),
+          _buildSortButton('Convites', 'invitations'),
+          _buildSortButton('Presenças', 'attendances'),
         ],
       ),
     );

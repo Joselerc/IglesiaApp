@@ -37,7 +37,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
   @override
   void didUpdateWidget(ServiceCultsStatsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Recargar datos si cambian los filtros
+    // Recarregar dados se os filtros mudarem
     if (oldWidget.startDate != widget.startDate ||
         oldWidget.endDate != widget.endDate ||
         oldWidget.searchQuery != widget.searchQuery) {
@@ -53,11 +53,11 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
           .get();
       
       List<String> services = [''];
-      Map<String, String> serviceNames = {'': 'Todos los servicios'};
+      Map<String, String> serviceNames = {'': 'Todos os serviços'};
       
       for (var doc in servicesSnapshot.docs) {
         services.add(doc.id);
-        serviceNames[doc.id] = doc.data()['name'] ?? 'Servicio sin nombre';
+        serviceNames[doc.id] = doc.data()['name'] ?? 'Serviço sem nome';
       }
       
       setState(() {
@@ -65,7 +65,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
         _serviceNames = serviceNames;
       });
     } catch (e) {
-      print('Error al cargar servicios: $e');
+      print('Erro ao carregar serviços: $e');
     }
   }
 
@@ -80,12 +80,12 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
       // Consulta base
       Query query = FirebaseFirestore.instance.collection('cults');
       
-      // Filtrar por servicio si se ha seleccionado uno
+      // Filtrar por serviço se um foi selecionado
       if (_selectedService.isNotEmpty) {
         query = query.where('serviceId', isEqualTo: FirebaseFirestore.instance.collection('services').doc(_selectedService));
       }
       
-      // Filtrar por fecha si se han seleccionado fechas
+      // Filtrar por data se datas foram selecionadas
       if (widget.startDate != null) {
         query = query.where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(widget.startDate!));
       }
@@ -94,50 +94,50 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
         query = query.where('date', isLessThanOrEqualTo: Timestamp.fromDate(widget.endDate!));
       }
       
-      // Ordenar por fecha
+      // Ordenar por data
       query = query.orderBy('date', descending: true);
       
       cultsSnapshot = await query.get();
       
-      // Procesar los resultados
+      // Processar os resultados
       List<Map<String, dynamic>> cults = [];
       
       for (var doc in cultsSnapshot.docs) {
         final cultData = doc.data() as Map<String, dynamic>;
         
-        // Aplicar filtro de búsqueda si existe
+        // Aplicar filtro de busca se existir
         if (widget.searchQuery.isNotEmpty &&
             !cultData['name'].toString().toLowerCase().contains(widget.searchQuery.toLowerCase())) {
           continue;
         }
         
-        // Obtener nombre del servicio
-        String serviceName = 'Servicio desconocido';
+        // Obter nome do serviço
+        String serviceName = 'Serviço desconhecido';
         String serviceId = '';
         
         if (cultData['serviceId'] is DocumentReference) {
           serviceId = cultData['serviceId'].id;
-          serviceName = _serviceNames[serviceId] ?? 'Servicio desconocido';
+          serviceName = _serviceNames[serviceId] ?? 'Serviço desconhecido';
         }
         
-        // Obtener franjas horarias para este culto
+        // Obter faixas de horário para este culto
         final timeSlotsQuery = await FirebaseFirestore.instance
             .collection('time_slots')
             .where('entityId', isEqualTo: doc.id)
             .where('entityType', isEqualTo: 'cult')
             .get();
         
-        // Obtener IDs de franjas horarias
+        // Obter IDs das faixas de horário
         List<String> timeSlotIds = timeSlotsQuery.docs.map((doc) => doc.id).toList();
         
-        // Contar invitaciones y asistencias
+        // Contar convites e presenças
         int totalInvitations = 0;
         int acceptedInvitations = 0;
         int rejectedInvitations = 0;
         int totalAttendances = 0;
         int totalAbsences = 0;
         
-        // Buscar invitaciones específicas para este culto
+        // Buscar convites específicos para este culto
         final invitationsQuery = await FirebaseFirestore.instance
             .collection('work_invites')
             .where('entityId', isEqualTo: doc.id)
@@ -156,7 +156,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
           }
         }
         
-        // Obtener asignaciones para todas las franjas horarias
+        // Obter atribuições para todas as faixas de horário
         for (String timeSlotId in timeSlotIds) {
           final assignmentsQuery = await FirebaseFirestore.instance
               .collection('work_assignments')
@@ -175,10 +175,10 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
           }
         }
         
-        // Construir objeto de culto con estadísticas
+        // Construir objeto de culto com estatísticas
         cults.add({
           'id': doc.id,
-          'name': cultData['name'] ?? 'Culto sin nombre',
+          'name': cultData['name'] ?? 'Culto sem nome',
           'date': (cultData['date'] as Timestamp).toDate(),
           'startTime': (cultData['startTime'] as Timestamp).toDate(),
           'endTime': (cultData['endTime'] as Timestamp).toDate(),
@@ -194,7 +194,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
         });
       }
       
-      // Ordenar los cultos
+      // Ordenar os cultos
       _sortCults(cults);
       
       setState(() {
@@ -202,7 +202,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error al cargar cultos: $e');
+      print('Erro ao carregar cultos: $e');
       setState(() {
         _isLoading = false;
       });
@@ -265,7 +265,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'No se encontraron cultos',
+              'Nenhum culto encontrado',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             if (_selectedService.isNotEmpty || widget.searchQuery.isNotEmpty)
@@ -279,7 +279,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
                   _loadCults();
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Limpiar filtros'),
+                label: const Text('Limpar filtros'),
               ),
           ],
         ),
@@ -301,7 +301,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
               final startTime = cult['startTime'] as DateTime;
               final endTime = cult['endTime'] as DateTime;
               
-              final formattedDate = DateFormat('EEE, d MMM yyyy', 'es').format(cultDate);
+              final formattedDate = DateFormat('EEE, d MMM yyyy', 'pt_BR').format(cultDate);
               final formattedTime = '${DateFormat('HH:mm').format(startTime)} - ${DateFormat('HH:mm').format(endTime)}';
               
               Color statusColor;
@@ -310,11 +310,11 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
               switch (cult['status']) {
                 case 'planificado':
                   statusColor = Colors.blue;
-                  statusText = 'Planificado';
+                  statusText = 'Planejado';
                   break;
                 case 'en_curso':
                   statusColor = Colors.green;
-                  statusText = 'En curso';
+                  statusText = 'Em andamento';
                   break;
                 case 'finalizado':
                   statusColor = Colors.grey;
@@ -322,7 +322,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
                   break;
                 default:
                   statusColor = Colors.grey;
-                  statusText = 'Desconocido';
+                  statusText = 'Desconhecido';
               }
               
               return Card(
@@ -396,7 +396,7 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Estadísticas',
+                            'Estatísticas',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -404,38 +404,38 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
                           ),
                           const SizedBox(height: 8),
                           
-                          // Estadísticas de invitaciones
+                          // Estatísticas de convites
                           _buildStatRow(
-                            'Invitaciones enviadas', 
+                            'Convites enviados', 
                             cult['totalInvitations'], 
                             Colors.blue
                           ),
                           _buildStatRow(
-                            'Invitaciones aceptadas', 
+                            'Convites aceitos', 
                             cult['acceptedInvitations'], 
                             Colors.green
                           ),
                           _buildStatRow(
-                            'Invitaciones rechazadas', 
+                            'Convites rejeitados', 
                             cult['rejectedInvitations'], 
                             Colors.red
                           ),
                           
                           const Divider(height: 16),
                           
-                          // Estadísticas de asistencia
+                          // Estatísticas de presença
                           _buildStatRow(
-                            'Total asistencias', 
+                            'Total de presenças', 
                             cult['totalAttendances'], 
                             Colors.green
                           ),
                           _buildStatRow(
-                            'Total ausencias', 
+                            'Total de ausências', 
                             cult['totalAbsences'], 
                             Colors.orange
                           ),
                           _buildStatRow(
-                            'Franjas horarias', 
+                            'Faixas de horário', 
                             cult['timeSlotsCount'], 
                             Colors.purple
                           ),
@@ -443,10 +443,10 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
                           const SizedBox(height: 16),
                           OutlinedButton.icon(
                             onPressed: () {
-                              // Aquí irá la navegación a los detalles del culto
+                              // Aqui irá a navegação para os detalhes do culto
                             },
                             icon: const Icon(Icons.visibility),
-                            label: const Text('Ver detalles'),
+                            label: const Text('Ver detalhes'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primary,
                             ),
@@ -470,14 +470,14 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
       child: DropdownButtonFormField<String>(
         value: _selectedService,
         decoration: const InputDecoration(
-          labelText: 'Filtrar por servicio',
+          labelText: 'Filtrar por serviço',
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           border: OutlineInputBorder(),
         ),
         items: _services.map((String serviceId) {
           return DropdownMenuItem<String>(
             value: serviceId,
-            child: Text(_serviceNames[serviceId] ?? 'Desconocido'),
+            child: Text(_serviceNames[serviceId] ?? 'Desconhecido'),
           );
         }).toList(),
         onChanged: (String? value) {
@@ -500,10 +500,10 @@ class _ServiceCultsStatsTabState extends State<ServiceCultsStatsTab> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 8),
-          _buildSortButton('Nombre', 'name'),
-          _buildSortButton('Fecha', 'date'),
-          _buildSortButton('Invitaciones', 'invitations'),
-          _buildSortButton('Asistencias', 'attendances'),
+          _buildSortButton('Nome', 'name'),
+          _buildSortButton('Data', 'date'),
+          _buildSortButton('Convites', 'invitations'),
+          _buildSortButton('Presenças', 'attendances'),
         ],
       ),
     );

@@ -669,9 +669,9 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
               // Opción Presencial
               Expanded(
                 child: FilterChip(
-                  label: Row(
+                  label: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.person, size: 18),
                       SizedBox(width: 8),
                       Text('Presencial'),
@@ -1072,9 +1072,9 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
       // Añadir padding inferior al contenedor principal
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomPadding),
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.background,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),

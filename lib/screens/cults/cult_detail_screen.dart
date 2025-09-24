@@ -26,7 +26,7 @@ class CultDetailScreen extends StatefulWidget {
 
 class _CultDetailScreenState extends State<CultDetailScreen> {
   Timer? _statusCheckTimer;
-  bool _isPastor = false;
+  // bool _isPastor = false;
   
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
     });
     
     // Verificar si el usuario es pastor
-    _checkPastorStatus();
+    // _checkPastorStatus();
   }
   
   @override
@@ -51,6 +51,7 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
   }
   
   // Verifica si el usuario actual es un pastor
+  /*
   Future<void> _checkPastorStatus() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -67,6 +68,7 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
       }
     }
   }
+  */
   
   // Muestra el modal para crear un anuncio del culto
   void _showCreateAnnouncementModal() {
@@ -136,20 +138,18 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
                 color: Colors.white,
                 onPressed: () => _deleteEvent(context),
               ),
-            if (_isPastor)
-              IconButton(
-                icon: const Icon(Icons.campaign),
-                tooltip: 'Criar Anúncio',
-                color: Colors.white,
-                onPressed: _showCreateAnnouncementModal,
-              ),
-            if (_isPastor)
-              IconButton(
-                icon: const Icon(Icons.copy),
-                tooltip: 'Duplicar Culto',
-                color: Colors.white,
-                onPressed: _showDuplicateCultModal,
-              ),
+            IconButton(
+              icon: const Icon(Icons.campaign),
+              tooltip: 'Criar Anúncio',
+              color: Colors.white,
+              onPressed: _showCreateAnnouncementModal,
+            ),
+            IconButton(
+              icon: const Icon(Icons.copy),
+              tooltip: 'Duplicar Culto',
+              color: Colors.white,
+              onPressed: _showDuplicateCultModal,
+            ),
           ],
           bottom: TabBar(
             tabs: const [

@@ -20,8 +20,8 @@ class CultTimeSlotsTab extends StatefulWidget {
 }
 
 class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
-  bool _isPastor = false;
-  bool _isLoading = true;
+  // bool _isPastor = false;
+  // bool _isLoading = true;
   
   // Lista completa de horas (0-23)
   final List<int> _hoursList = List.generate(24, (index) => index);
@@ -41,10 +41,11 @@ class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
   @override
   void initState() {
     super.initState();
-    _checkPastorStatus();
+    // _checkPastorStatus();
   }
   
   // Verifica se o usuário atual é um pastor
+  /*
   Future<void> _checkPastorStatus() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -77,6 +78,7 @@ class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
       });
     }
   }
+  */
 
   void _showCreateTimeSlotModal() {
     showModalBottomSheet(
@@ -105,10 +107,6 @@ class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
   
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)));
-    }
-    
     return Scaffold(
       backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
@@ -150,14 +148,12 @@ class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
           );
         },
       ),
-      floatingActionButton: _isPastor 
-          ? FloatingActionButton(
-              onPressed: _showCreateTimeSlotModal,
-              tooltip: 'Criar faixa horária',
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add, color: Colors.white),
-            ) 
-          : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showCreateTimeSlotModal,
+        tooltip: 'Criar faixa horária',
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
   

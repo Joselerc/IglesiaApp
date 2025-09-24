@@ -533,99 +533,110 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 const SizedBox(height: 20),
                 
                 // Categoría
-                DropdownButtonFormField<String>(
-                  value: _selectedCategory,
-                  decoration: InputDecoration(
-                    labelText: 'Categoria',
-                    hintText: 'Selecione uma categoria',
-                    prefixIcon: Icon(Icons.category, color: AppColors.primary),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.add_circle_outline, color: AppColors.primary),
-                      tooltip: 'Criar nova categoria',
-                      onPressed: _createCategory,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primary, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    floatingLabelStyle: TextStyle(color: AppColors.primary),
-                  ),
-                  items: _categories.map((category) => DropdownMenuItem(
-                    value: category,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            category,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 15,
-                            ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        decoration: InputDecoration(
+                          labelText: 'Categoria',
+                          hintText: 'Selecione uma categoria',
+                          prefixIcon: Icon(Icons.category, color: AppColors.primary),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.primary, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          floatingLabelStyle: TextStyle(color: AppColors.primary),
                         ),
-                        const SizedBox(width: 8),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(50),
-                            onTap: () {
-                              // Cerrar el desplegable y luego mostrar confirmación
-                              Navigator.of(context).pop();
-                              Future.delayed(const Duration(milliseconds: 100), () {
-                                _hideCategory(category);
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.delete_outline,
-                                color: Colors.red.shade700,
-                                size: 20,
+                        items: _categories.map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  category,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(50),
+                                  onTap: () {
+                                    // Cerrar el desplegable y luego mostrar confirmación
+                                    Navigator.of(context).pop();
+                                    Future.delayed(const Duration(milliseconds: 100), () {
+                                      _hideCategory(category);
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red.shade700,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        )).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategory = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, selecione uma categoria';
+                          }
+                          return null;
+                        },
+                        isExpanded: true,
+                        dropdownColor: Colors.white,
+                        icon: Icon(Icons.arrow_drop_down, color: AppColors.primary),
+                        menuMaxHeight: 300,
+                        selectedItemBuilder: (context) {
+                          return _categories.map((category) {
+                            return Text(
+                              category,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 15,
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
                     ),
-                  )).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, selecione uma categoria';
-                    }
-                    return null;
-                  },
-                  isExpanded: true,
-                  dropdownColor: Colors.white,
-                  icon: Icon(Icons.arrow_drop_down, color: AppColors.primary),
-                  menuMaxHeight: 300,
-                  selectedItemBuilder: (context) {
-                    return _categories.map((category) {
-                      return Text(
-                        category,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                        ),
-                      );
-                    }).toList();
-                  },
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
+                        tooltip: 'Criar nova categoria',
+                        onPressed: _createCategory,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 

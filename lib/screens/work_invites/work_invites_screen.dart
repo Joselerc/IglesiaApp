@@ -21,7 +21,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Invitaciones de Trabajo'),
+        title: const Text('Convites de Trabalho'),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
@@ -33,19 +33,19 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'all',
-                child: Text('Todas'),
+                child: Text('Todos'),
               ),
               const PopupMenuItem<String>(
                 value: 'pending',
-                child: Text('Pendientes'),
+                child: Text('Pendentes'),
               ),
               const PopupMenuItem<String>(
                 value: 'accepted',
-                child: Text('Aceptadas'),
+                child: Text('Aceitos'),
               ),
               const PopupMenuItem<String>(
                 value: 'rejected',
-                child: Text('Rechazadas'),
+                child: Text('Rejeitados'),
               ),
             ],
           ),
@@ -62,14 +62,14 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
           
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'),
+              child: Text('Erro: ${snapshot.error}'),
             );
           }
           
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
-                'No tienes invitaciones de trabajo',
+                'Você não tem convites de trabalho',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -86,7 +86,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
           if (invites.isEmpty) {
             return Center(
               child: Text(
-                'No tienes invitaciones ${_getStatusText(_statusFilter)}',
+                'Você não tem convites ${_getStatusText(_statusFilter)}',
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -108,11 +108,11 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
   String _getStatusText(String status) {
     switch (status) {
       case 'pending':
-        return 'pendientes';
+        return 'pendentes';
       case 'accepted':
-        return 'aceptadas';
+        return 'aceitos';
       case 'rejected':
-        return 'rechazadas';
+        return 'rejeitados';
       default:
         return '';
     }
@@ -130,12 +130,12 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // Marcar como leída si es pendiente
+          // Marcar como lida se estiver pendente
           if (invite.status == 'pending' && !invite.isRead) {
             _workScheduleService.markInviteAsRead(invite.id);
           }
           
-          // Navegar a detalle
+          // Navegar para detalhes
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -259,7 +259,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red),
                         ),
-                        child: const Text('Rechazar'),
+                        child: const Text('Rejeitar'),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton(
@@ -268,7 +268,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text('Aceptar'),
+                        child: const Text('Aceitar'),
                       ),
                     ],
                   ),
@@ -287,20 +287,20 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
     switch (status) {
       case 'accepted':
         color = Colors.green;
-        label = 'Aceptada';
+        label = 'Aceito';
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Rechazada';
+        label = 'Rejeitado';
         break;
       case 'seen':
         color = Colors.orange;
-        label = 'Vista';
+        label = 'Visto';
         break;
       case 'pending':
       default:
         color = Colors.amber;
-        label = 'Pendiente';
+        label = 'Pendente';
         break;
     }
     
@@ -329,7 +329,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Invitación ${status == 'accepted' ? 'aceptada' : 'rechazada'} exitosamente'),
+            content: Text('Convite ${status == 'accepted' ? 'aceito' : 'rejeitado'} com sucesso'),
             backgroundColor: status == 'accepted' ? Colors.green : Colors.orange,
           ),
         );
@@ -338,7 +338,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al responder a la invitación: $e'),
+            content: Text('Erro ao responder ao convite: $e'),
             backgroundColor: Colors.red,
           ),
         );
