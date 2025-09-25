@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.igrejamoremovimento.igreja"
+    namespace "com.iglesia.app"
     compileSdkVersion 35
 
     compileOptions {
@@ -39,8 +39,8 @@ android {
     }
 
     defaultConfig {
-        // Application ID único para Igreja Amor em Movimento
-        applicationId "com.igrejamoremovimento.igreja"
+        // Application ID único para Iglesia App
+        applicationId "com.iglesia.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 29

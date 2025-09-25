@@ -2,11 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:igreja_amor_em_movimento/models/course_lesson.dart';
-import 'package:igreja_amor_em_movimento/services/course_service.dart';
-import 'package:igreja_amor_em_movimento/theme/app_colors.dart';
-import 'package:igreja_amor_em_movimento/theme/app_text_styles.dart';
+import 'package:iglesia_app/models/course_lesson.dart';
+import 'package:iglesia_app/services/course_service.dart';
+import 'package:iglesia_app/theme/app_colors.dart';
+import 'package:iglesia_app/theme/app_text_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+
 
 class ManageLessonMaterialsScreen extends StatefulWidget {
   final CourseLesson lesson;

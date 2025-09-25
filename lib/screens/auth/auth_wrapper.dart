@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:igreja_amor_em_movimento/screens/auth/login_screen.dart';
-import 'package:igreja_amor_em_movimento/screens/main_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:iglesia_app/services/auth_service.dart';
+import 'package:iglesia_app/screens/main_screen.dart';
+import 'package:iglesia_app/screens/auth/login_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/common/church_logo.dart'; // Logo optimizado

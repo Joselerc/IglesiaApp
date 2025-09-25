@@ -50,20 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU',
-    appId: '1:1039506776024:android:ca92f3c5f6eab01c341cad',
-    messagingSenderId: '1039506776024',
-    projectId: 'igreja-amor-em-movimento',
-    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
+    apiKey: 'AIzaSyBlduEpFx5FTQn0CD0qRZCraFv9h01rYTE',
+    appId: '1:859775537407:android:8315071fe3915fa4fbfcca',
+    messagingSenderId: '859775537407',
+    projectId: 'iglesiaapp-2dc33',
+    storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCGTdnIZ5m-zROkgb67iIL3AzXaBJFSbRQ',
-    appId: '1:1039506776024:ios:0feee15e891f5eef341cad',
-    messagingSenderId: '1039506776024',
-    projectId: 'igreja-amor-em-movimento',
-    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
-    iosBundleId: 'com.igrejamoremovimento.igreja',
+    apiKey: 'AIzaSyDeBWeQTSlBoLQHLhxUc_d1LXl1QlsEyBA',
+    appId: '1:859775537407:ios:b2d3acaecc954341fbfcca',
+    messagingSenderId: '859775537407',
+    projectId: 'iglesiaapp-2dc33',
+    storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
+    iosBundleId: 'com.iglesia.app',
   );
-
 }

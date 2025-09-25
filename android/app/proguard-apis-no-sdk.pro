@@ -1,5 +1,5 @@
 # === REGLAS ULTRA-ESPECÍFICAS PARA APIs NO-SDK ===
-# Igreja Amor em Movimento - Solución agresiva
+# Iglesia App - Solución agresiva
 
 # 1. ELIMINAR COMPLETAMENTE las llamadas problemáticas
 -assumenosideeffects class android.view.accessibility.AccessibilityNodeInfo {

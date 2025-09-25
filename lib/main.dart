@@ -175,7 +175,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Church App',
+        title: 'IglesiaApp',
         navigatorKey: EventService.navigatorKey,
         theme: AppTheme.lightTheme,
         home: const AuthWrapper(),
