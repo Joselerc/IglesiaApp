@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/work_invite.dart';
 import '../../services/work_schedule_service.dart';
 import './work_invite_detail_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class WorkInvitesScreen extends StatefulWidget {
   const WorkInvitesScreen({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Convites de Trabalho'),
+        title: Text(AppLocalizations.of(context)!.workInvites),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
@@ -31,21 +32,21 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
               });
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'all',
-                child: Text('Todos'),
+                child: Text(AppLocalizations.of(context)!.all),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'pending',
-                child: Text('Pendentes'),
+                child: Text(AppLocalizations.of(context)!.pending),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'accepted',
-                child: Text('Aceitos'),
+                child: Text(AppLocalizations.of(context)!.accepted),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'rejected',
-                child: Text('Rejeitados'),
+                child: Text(AppLocalizations.of(context)!.rejected),
               ),
             ],
           ),
@@ -62,14 +63,14 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
           
           if (snapshot.hasError) {
             return Center(
-              child: Text('Erro: ${snapshot.error}'),
+              child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())),
             );
           }
           
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'Você não tem convites de trabalho',
+                AppLocalizations.of(context)!.youHaveNoWorkInvites,
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -86,7 +87,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
           if (invites.isEmpty) {
             return Center(
               child: Text(
-                'Você não tem convites ${_getStatusText(_statusFilter)}',
+                AppLocalizations.of(context)!.youHaveNoInvitesOfType(_getStatusText(_statusFilter)),
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -108,11 +109,11 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
   String _getStatusText(String status) {
     switch (status) {
       case 'pending':
-        return 'pendentes';
+        return AppLocalizations.of(context)!.pending;
       case 'accepted':
-        return 'aceitos';
+        return AppLocalizations.of(context)!.accepted;
       case 'rejected':
-        return 'rejeitados';
+        return AppLocalizations.of(context)!.rejected;
       default:
         return '';
     }
@@ -259,7 +260,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red),
                         ),
-                        child: const Text('Rejeitar'),
+                        child: Text(AppLocalizations.of(context)!.reject),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton(
@@ -268,7 +269,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text('Aceitar'),
+                        child: Text(AppLocalizations.of(context)!.accept),
                       ),
                     ],
                   ),
@@ -287,20 +288,20 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
     switch (status) {
       case 'accepted':
         color = Colors.green;
-        label = 'Aceito';
+        label = AppLocalizations.of(context)!.acceptedStatus;
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Rejeitado';
+        label = AppLocalizations.of(context)!.rejectedStatus;
         break;
       case 'seen':
         color = Colors.orange;
-        label = 'Visto';
+        label = AppLocalizations.of(context)!.seenStatus;
         break;
       case 'pending':
       default:
         color = Colors.amber;
-        label = 'Pendente';
+        label = AppLocalizations.of(context)!.pendingStatus;
         break;
     }
     
@@ -329,7 +330,9 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Convite ${status == 'accepted' ? 'aceito' : 'rejeitado'} com sucesso'),
+            content: Text(status == 'accepted' 
+                ? AppLocalizations.of(context)!.inviteAcceptedSuccessfully 
+                : AppLocalizations.of(context)!.inviteRejectedSuccessfully),
             backgroundColor: status == 'accepted' ? Colors.green : Colors.orange,
           ),
         );
@@ -338,7 +341,7 @@ class _WorkInvitesScreenState extends State<WorkInvitesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao responder ao convite: $e'),
+            content: Text(AppLocalizations.of(context)!.errorRespondingToInvite(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

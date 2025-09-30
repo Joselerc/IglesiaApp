@@ -7,6 +7,7 @@ import '../../services/course_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/shimmer_loading.dart';
+import '../../l10n/app_localizations.dart';
 
 class CoursesSection extends StatefulWidget {
   final String? title;
@@ -99,7 +100,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                       Navigator.pushNamed(context, '/courses');
                     },
                     child: Text(
-                      'Ver todos',
+                      AppLocalizations.of(context)!.viewAll,
                       style: AppTextStyles.bodyText2.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
@@ -112,7 +113,7 @@ class _CoursesSectionState extends State<CoursesSection> {
 
             // Card principal personalizado con proporción 16:9
             _buildFeaturedCard(config),
-            
+
             // Lista horizontal de cursos destacados
             StreamBuilder<List<Course>>(
               stream: _courseService.getCourses(
@@ -121,26 +122,28 @@ class _CoursesSectionState extends State<CoursesSection> {
               ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox.shrink(); // No mostrar nada durante la carga
+                  return const SizedBox
+                      .shrink(); // No mostrar nada durante la carga
                 }
-                
+
                 if (snapshot.hasError) {
                   return const SizedBox.shrink(); // No mostrar error
                 }
-                
+
                 final courses = snapshot.data ?? [];
-                
+
                 // Solo mostrar la sección si hay cursos destacados
                 if (courses.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                
+
                 // Mostrar indicador de scroll
                 return Column(
                   children: [
                     // Indicador de cursos disponibles
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+                      padding:
+                          const EdgeInsets.only(left: 16, top: 16, bottom: 8),
                       child: Row(
                         children: [
                           Icon(
@@ -150,7 +153,8 @@ class _CoursesSectionState extends State<CoursesSection> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Deslize para ver cursos em destaque',
+                            AppLocalizations.of(context)!
+                                .swipeToSeeFeaturedCourses,
                             style: AppTextStyles.caption.copyWith(
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
@@ -159,7 +163,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                         ],
                       ),
                     ),
-                    
+
                     // Lista de cursos horizontal
                     SizedBox(
                       height: 220,
@@ -248,11 +252,14 @@ class _CoursesSectionState extends State<CoursesSection> {
                         ),
                         if (config.subtitle != null)
                           Padding(
-                            padding: const EdgeInsets.only(top: 8, right: 40), // Aumentado el padding derecho
+                            padding: const EdgeInsets.only(
+                                top: 8,
+                                right: 40), // Aumentado el padding derecho
                             child: Text(
                               config.subtitle!,
                               style: AppTextStyles.bodyText2.copyWith(
-                                color: Color(config.getTextColorValue()).withOpacity(0.9),
+                                color: Color(config.getTextColorValue())
+                                    .withOpacity(0.9),
                               ),
                             ),
                           ),
@@ -290,7 +297,7 @@ class _CoursesSectionState extends State<CoursesSection> {
   Widget _buildCourseCard(Course course) {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(
-        context, 
+        context,
         '/courses/detail',
         arguments: course.id,
       ),
@@ -334,7 +341,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                       );
                     },
                   ),
-                  
+
                   // Overlay para mejor legibilidad del texto
                   Positioned.fill(
                     child: Container(
@@ -350,13 +357,14 @@ class _CoursesSectionState extends State<CoursesSection> {
                       ),
                     ),
                   ),
-                  
+
                   // Categoría (en lugar del nivel)
                   Positioned(
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(12),
@@ -374,7 +382,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                 ],
               ),
             ),
-            
+
             // Información del curso
             Padding(
               padding: const EdgeInsets.all(12),
@@ -391,7 +399,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Instructor
                   Text(
                     course.instructorName,
@@ -402,7 +410,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Información del curso (duración, lecciones)
                   Row(
                     children: [
@@ -413,7 +421,7 @@ class _CoursesSectionState extends State<CoursesSection> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _formatDuration(course.totalDuration),
+                        _formatDuration(course.totalDuration, context),
                         style: AppTextStyles.caption.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -426,7 +434,8 @@ class _CoursesSectionState extends State<CoursesSection> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${course.totalLessons} lecciones',
+                        AppLocalizations.of(context)!
+                            .totalLessons(course.totalLessons),
                         style: AppTextStyles.caption.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -443,17 +452,18 @@ class _CoursesSectionState extends State<CoursesSection> {
   }
 
   // Formatea la duración en minutos a formato legible
-  String _formatDuration(int minutes) {
+  String _formatDuration(int minutes, BuildContext context) {
     if (minutes < 60) {
-      return '$minutes min';
+      return AppLocalizations.of(context)!.minutes(minutes);
     } else {
       final hours = minutes ~/ 60;
       final remainingMinutes = minutes % 60;
       if (remainingMinutes == 0) {
-        return '$hours h';
+        return AppLocalizations.of(context)!.hours(hours);
       } else {
-        return '$hours h $remainingMinutes min';
+        return AppLocalizations.of(context)!
+            .hoursAndMinutes(hours, remainingMinutes);
       }
     }
   }
-} 
+}

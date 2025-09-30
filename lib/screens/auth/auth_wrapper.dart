@@ -10,6 +10,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
+import '../../l10n/app_localizations.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});

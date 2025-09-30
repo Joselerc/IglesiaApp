@@ -6,6 +6,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../models/user_model.dart'; // Asumiendo la necesidad y la ruta
 import '../../../theme/app_colors.dart'; // Para colores consistentes
 import '../../../theme/app_text_styles.dart'; // Para estilos de texto consistentes
+import '../../l10n/app_localizations.dart';
 
 class ProfilePersonalInformationSection extends StatefulWidget {
   final String userId;
@@ -68,7 +69,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
         _phoneCompleteNumber = userData['phoneComplete'] as String? ?? '';
         _phoneCountryCode = userData['phoneCountryCode'] as String? ?? '+55';
         _isoCountryCode = userData['isoCountryCode'] as String? ?? _getIsoCodeFromDialCode(_phoneCountryCode);
-        _isValidPhone = phoneSimple.length >= 8; // Ajustar según reglas de validación
+        // _isValidPhone = phoneSimple.length >= 8; // Ajustar según reglas de validación
 
         _birthDate = (userData['birthDate'] as Timestamp?)?.toDate();
         _gender = userData['gender'] as String?;
@@ -83,7 +84,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
       print('PROFILE_PERSONAL_INFO_SECTION: Error al cargar datos personales: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar dados pessoais: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingPersonalData(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -136,7 +137,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Informação pessoal atualizada com sucesso!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.personalInfoUpdatedSuccessfully), backgroundColor: Colors.green),
         );
       }
       print('PROFILE_PERSONAL_INFO_SECTION: Datos personales guardados para userId: ${widget.userId}');
@@ -145,7 +146,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
       print('PROFILE_PERSONAL_INFO_SECTION: Error al guardar datos personales: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar dados pessoais: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingPersonalData(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -215,8 +216,8 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Informação Pessoal',
+                      Text(
+                        AppLocalizations.of(context)!.personalInformationSection,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -232,8 +233,8 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       icon: _isLoading 
                           ? Container(width: 16, height: 16, child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.save, size: 14, color: Colors.white),
-                      label: const Text(
-                        'Salvar',
+                      label: Text(
+                        AppLocalizations.of(context)!.save,
                         style: TextStyle(fontSize: 13),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -261,7 +262,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      labelText: 'Nome',
+                      labelText: AppLocalizations.of(context)!.name,
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
@@ -271,7 +272,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    validator: (value) => (value == null || value.isEmpty) ? 'Por favor, digite seu nome' : null,
+                    validator: (value) => (value == null || value.isEmpty) ? AppLocalizations.of(context)!.pleaseEnterYourName : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -279,7 +280,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                   TextFormField(
                     controller: _surnameController,
                     decoration: InputDecoration(
-                      labelText: 'Sobrenome',
+                      labelText: AppLocalizations.of(context)!.surname,
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
@@ -289,7 +290,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    validator: (value) => (value == null || value.isEmpty) ? 'Por favor, digite seu sobrenome' : null,
+                    validator: (value) => (value == null || value.isEmpty) ? AppLocalizations.of(context)!.pleaseEnterYourSurname : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -310,7 +311,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                     },
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: 'Nascimento',
+                        labelText: AppLocalizations.of(context)!.birthDateField,
                         labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
@@ -323,7 +324,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       child: Padding(
                         padding: const EdgeInsets.only(left: 12.0),
                         child: Text(
-                          _birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : 'Selecionar data',
+                          _birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : AppLocalizations.of(context)!.selectDate,
                           style: _birthDate != null ? AppTextStyles.bodyText1.copyWith(color: Colors.black87) : AppTextStyles.bodyText1.copyWith(color: Colors.grey[700]),
                         ),
                       ),
@@ -334,7 +335,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                   // Campo Sexo
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
-                      labelText: 'Sexo',
+                      labelText: AppLocalizations.of(context)!.genderField,
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
@@ -346,12 +347,12 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                     ),
                     value: _gender,
                     isExpanded: true,
-                    items: ['Masculino', 'Feminino', 'Prefiro não dizer']
+                    items: [AppLocalizations.of(context)!.male, AppLocalizations.of(context)!.female, AppLocalizations.of(context)!.preferNotToSay]
                         .map((label) => DropdownMenuItem(child: Padding(padding: const EdgeInsets.only(left: 12.0), child: Text(label)), value: label))
                         .toList(),
                     onChanged: (value) => setState(() => _gender = value),
                     selectedItemBuilder: (BuildContext context) {
-                      return ['Masculino', 'Feminino', 'Prefiro não dizer'].map<Widget>((String item) {
+                      return [AppLocalizations.of(context)!.male, AppLocalizations.of(context)!.female, AppLocalizations.of(context)!.preferNotToSay].map<Widget>((String item) {
                         return Padding(padding: const EdgeInsets.only(left:12.0), child: Text(item, style: AppTextStyles.bodyText1.copyWith(color: Colors.black87)));
                       }).toList();
                     },
@@ -365,20 +366,20 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       if (_phoneCompleteNumber.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(left: 4, bottom: 4),
-                          child: Text('Número atual: $_phoneCompleteNumber', style: TextStyle(fontSize: 12, color: Colors.blue[700], fontWeight: FontWeight.w500)),
+                          child: Text(AppLocalizations.of(context)!.currentNumber(_phoneCompleteNumber), style: TextStyle(fontSize: 12, color: Colors.blue[700], fontWeight: FontWeight.w500)),
                         ),
                       IntlPhoneField(
                         controller: _phoneController, // ASIGNAR EL CONTROLADOR
                         initialCountryCode: _isoCountryCode,
                         decoration: InputDecoration(
-                          labelText: 'Telefone',
+                          labelText: AppLocalizations.of(context)!.phoneField,
                           labelStyle: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w500),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
                           filled: true,
                           fillColor: Colors.grey[50],
-                          hintText: _phoneController.text.isEmpty ? 'Opcional' : null,
+                          hintText: _phoneController.text.isEmpty ? AppLocalizations.of(context)!.optional : null,
                           contentPadding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         onChanged: (phone) {
@@ -390,7 +391,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                             _phoneCountryCode = phone.countryCode;
                             _phoneCompleteNumber = phone.completeNumber;
                             _isoCountryCode = phone.countryISOCode;
-                            _isValidPhone = cleanNumber.length >= 8; // O la validación que prefieras
+                            // _isValidPhone = cleanNumber.length >= 8; // O la validación que prefieras
                           });
                         },
                         onCountryChanged: (country) {
@@ -405,7 +406,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         },
                         validator: (phone) {
                           if (phone == null || phone.number.isEmpty) return null; // Opcional
-                          if (phone.number.length < 8) return 'Telefone inválido';
+                          if (phone.number.length < 8) return AppLocalizations.of(context)!.invalidPhone;
                           return null;
                         },
                       ),

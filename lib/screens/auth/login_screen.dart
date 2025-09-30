@@ -14,6 +14,7 @@ import '../../widgets/common/church_logo.dart'; // Nuevo widget de logo optimiza
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 import '../../modals/forgot_password_modal.dart';
+import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
         
         // Mostrar mensagem de boas-vindas
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bem-vindo de volta!')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.welcomeBack)),
         );
       }
       
@@ -114,36 +115,36 @@ class _LoginScreenState extends State<LoginScreen> {
       String message;
       switch (e.code) {
         case 'user-not-found':
-          message = 'Não existe uma conta com este email';
+          message = AppLocalizations.of(context)!.noAccountWithThisEmail;
           break;
         case 'wrong-password':
-          message = 'Senha incorreta';
+          message = AppLocalizations.of(context)!.incorrectPassword;
           break;
         case 'too-many-requests':
-          message = 'Muitas tentativas malsucedidas. Por favor, tente mais tarde.';
+          message = AppLocalizations.of(context)!.tooManyFailedAttempts;
           break;
         case 'invalid-credential':
-          message = 'Credenciais inválidas. Verifique seu email e senha.';
+          message = AppLocalizations.of(context)!.invalidCredentials;
           break;
         case 'user-disabled':
-          message = 'Esta conta foi desativada.';
+          message = AppLocalizations.of(context)!.accountDisabled;
           break;
         case 'operation-not-allowed':
-          message = 'O login com email e senha não está habilitado.';
+          message = AppLocalizations.of(context)!.loginNotEnabled;
           break;
         case 'network-request-failed':
-          message = 'Erro de conexão. Verifique sua conexão com a Internet.';
+          message = AppLocalizations.of(context)!.connectionError;
           break;
         case 'invalid-verification-code':
         case 'invalid-verification-id':
-          message = 'Erro de verificação. Por favor, tente novamente.';
+          message = AppLocalizations.of(context)!.verificationError;
           break;
         case 'captcha-check-failed':
-          message = 'A verificação do reCAPTCHA falhou. Por favor, tente novamente.';
+          message = AppLocalizations.of(context)!.recaptchaFailed;
           _loginAttempts = 0; // Reiniciar para forçar método diferente
           break;
         default:
-          message = 'Erro ao fazer login: ${e.message}';
+          message = AppLocalizations.of(context)!.errorLoggingIn(e.message ?? '');
           // Log de errores no manejados para futuras mejoras
           debugPrint('⚠️ LOGIN_SCREEN - Error no manejado: ${e.code} - ${e.message}');
       }
@@ -155,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on TimeoutException catch (e) {
       debugPrint('⏱️ LOGIN_SCREEN - Tempo de espera esgotado: $e');
       setState(() {
-        _errorMessage = 'A operação demorou muito. Por favor, tente novamente.';
+        _errorMessage = AppLocalizations.of(context)!.operationTimedOut;
       });
     } catch (e) {
       debugPrint('⚠️ LOGIN_SCREEN - Erro não categorizado: $e');
@@ -164,14 +165,14 @@ class _LoginScreenState extends State<LoginScreen> {
       // Mostrar una mensagem mais específica para o erro de plataforma não compatível
       if (e.toString().contains('only supported on web')) {
         setState(() {
-          _errorMessage = 'Erro de plataforma. Por favor, contate o administrador.';
+          _errorMessage = AppLocalizations.of(context)!.platformError;
         });
         
         // Tentar realizar um login mais simples como fallback
         _simpleLoginFallback();
       } else {
         setState(() {
-          _errorMessage = 'Erro inesperado. Por favor, tente novamente mais tarde.';
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         });
       }
     } finally {
@@ -254,13 +255,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   // Título da página
                   Text(
-                    'Entrar na sua conta',
+                    AppLocalizations.of(context)!.loginToYourAccount,
                     style: AppTextStyles.headline2,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Bem-vindo de volta! Por favor, faça login para continuar',
+                    AppLocalizations.of(context)!.welcomeBackPleaseLogin,
                     style: AppTextStyles.bodyText2,
                     textAlign: TextAlign.center,
                   ),
@@ -286,16 +287,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Formulário
                   AppTextField(
                     controller: _emailController,
-                    label: 'Email',
-                    hint: 'seu.email@exemplo.com',
+                    label: AppLocalizations.of(context)!.email,
+                    hint: AppLocalizations.of(context)!.yourEmailExample,
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu email';
+                        return AppLocalizations.of(context)!.pleaseEnterYourEmail;
                       }
                       if (!value.contains('@') || !value.contains('.')) {
-                        return 'Por favor, digite um email válido';
+                        return AppLocalizations.of(context)!.pleaseEnterAValidEmail;
                       }
                       return null;
                     },
@@ -303,12 +304,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppPasswordField(
                     controller: _passwordController,
-                    label: 'Senha',
-                    hint: 'Digite sua senha',
+                    label: AppLocalizations.of(context)!.password,
+                    hint: AppLocalizations.of(context)!.enterYourPassword,
                     prefixIcon: Icons.lock_outline,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite sua senha';
+                        return AppLocalizations.of(context)!.pleaseEnterYourPassword;
                       }
                       return null;
                     },
@@ -319,14 +320,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: TextButton(
                       onPressed: _showForgotPasswordModal,
                       child: Text(
-                        'Esqueceu sua senha?',
+                        AppLocalizations.of(context)!.forgotYourPassword,
                         style: AppTextStyles.bodyText2.copyWith(color: AppColors.primary),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   AppButton(
-                    text: 'Entrar',
+                    text: AppLocalizations.of(context)!.login,
                     onPressed: _isLoading ? null : _login,
                     icon: Icons.login,
                     fullWidth: true,
@@ -336,13 +337,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Não tem uma conta?',
+                        AppLocalizations.of(context)!.dontHaveAnAccount,
                         style: AppTextStyles.bodyText2,
                       ),
                       TextButton(
                         onPressed: () => Navigator.pushNamed(context, '/register'),
                         child: Text(
-                          'Cadastre-se',
+                          AppLocalizations.of(context)!.signUp,
                           style: AppTextStyles.bodyText2.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,

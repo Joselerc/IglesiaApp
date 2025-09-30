@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../models/work_invite.dart';
 import '../../services/work_schedule_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class WorkInviteDetailScreen extends StatefulWidget {
   final WorkInvite invite;
@@ -38,7 +39,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
       
       if (senderDoc.exists) {
         setState(() {
-          _senderName = (senderDoc.data() as Map<String, dynamic>)['name'] ?? 'Usuario';
+          _senderName = (senderDoc.data() as Map<String, dynamic>)['name'] ?? AppLocalizations.of(context)!.user;
         });
       }
     } catch (e) {
@@ -89,7 +90,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Invitación ${status == 'accepted' ? 'aceptada' : 'rechazada'} exitosamente'),
+            content: Text(status == 'accepted' ? AppLocalizations.of(context)!.invitationAccepted : AppLocalizations.of(context)!.invitationRejected),
             backgroundColor: status == 'accepted' ? Colors.green : Colors.orange,
           ),
         );
@@ -98,7 +99,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al responder a la invitación: $e'),
+            content: Text(AppLocalizations.of(context)!.errorRespondingToInvite(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -119,18 +120,18 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles de Invitación'),
+        title: Text(AppLocalizations.of(context)!.invitationDetails),
         actions: [
           if (widget.invite.status == 'pending')
             IconButton(
               icon: const Icon(Icons.done),
-              tooltip: 'Aceptar',
+              tooltip: AppLocalizations.of(context)!.accept,
               onPressed: () => _respondToInvite('accepted'),
             ),
           if (widget.invite.status == 'pending')
             IconButton(
               icon: const Icon(Icons.close),
-              tooltip: 'Rechazar',
+              tooltip: AppLocalizations.of(context)!.reject,
               onPressed: () => _respondToInvite('rejected'),
             ),
         ],
@@ -173,7 +174,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Invitación de Trabajo',
+                              AppLocalizations.of(context)!.workInvitation,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -246,8 +247,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Detalles del Trabajo',
+                                Text(
+                                  AppLocalizations.of(context)!.jobDetails,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -264,8 +265,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'Ministerio',
+                                          Text(
+                                            AppLocalizations.of(context)!.ministries,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey,
@@ -292,8 +293,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'Rol a desempeñar',
+                                          Text(
+                                            AppLocalizations.of(context)!.roleToPerform,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey,
@@ -326,8 +327,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Información de la Invitación',
+                                Text(
+                                  AppLocalizations.of(context)!.invitationInfo,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -343,15 +344,15 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          'Enviado por',
+                                        Text(
+                                          AppLocalizations.of(context)!.sentBy,
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey,
                                           ),
                                         ),
                                         Text(
-                                          _senderName ?? 'Cargando...',
+                                          _senderName ?? AppLocalizations.of(context)!.loading,
                                           style: const TextStyle(fontSize: 16),
                                         ),
                                       ],
@@ -369,8 +370,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          'Fecha de envío',
+                                        Text(
+                                          AppLocalizations.of(context)!.sentDate,
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey,
@@ -396,8 +397,8 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'Fecha de respuesta',
+                                          Text(
+                                            AppLocalizations.of(context)!.responseDate,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey,
@@ -446,7 +447,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                         side: const BorderSide(color: Colors.red),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Rechazar'),
+                      child: Text(AppLocalizations.of(context)!.reject),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -458,7 +459,7 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Aceptar'),
+                      child: Text(AppLocalizations.of(context)!.accept),
                     ),
                   ),
                 ],
@@ -475,20 +476,20 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     switch (status) {
       case 'accepted':
         color = Colors.green;
-        label = 'Aceptada';
+        label = AppLocalizations.of(context)!.acceptedStatus;
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Rechazada';
+        label = AppLocalizations.of(context)!.rejectedStatus;
         break;
       case 'seen':
         color = Colors.orange;
-        label = 'Vista';
+        label = AppLocalizations.of(context)!.seenStatus;
         break;
       case 'pending':
       default:
         color = Colors.amber;
-        label = 'Pendiente';
+        label = AppLocalizations.of(context)!.pendingStatus;
         break;
     }
     

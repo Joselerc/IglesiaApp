@@ -4,6 +4,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class MinistriesSection extends StatelessWidget {
   final String displayTitle;
@@ -61,7 +62,7 @@ class MinistriesSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ministérios',
+                        AppLocalizations.of(context)!.ministries,
                         style: AppTextStyles.subtitle1.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -69,7 +70,7 @@ class MinistriesSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Participe dos ministérios da igreja',
+                        AppLocalizations.of(context)!.participateInChurchMinistries,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: AppColors.textSecondary,
                         ),

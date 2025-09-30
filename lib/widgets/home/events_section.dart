@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventsSection extends StatelessWidget {
   const EventsSection({super.key});
@@ -23,7 +24,7 @@ class EventsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Eventos',
+                AppLocalizations.of(context)!.events,
                 style: AppTextStyles.headline3.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -37,7 +38,7 @@ class EventsSection extends StatelessWidget {
                   );
                 },
                 child: Text(
-                  'Ver mais',
+                  AppLocalizations.of(context)!.seeMore,
                   style: AppTextStyles.bodyText2.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
@@ -59,15 +60,15 @@ class EventsSection extends StatelessWidget {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return _buildErrorPlaceholder(snapshot.error.toString());
+                return _buildErrorPlaceholder(context, snapshot.error.toString());
               }
               
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return _buildLoadingPlaceholder();
+                return _buildLoadingPlaceholder(context);
               }
               
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return _buildNoEventsPlaceholder();
+                return _buildNoEventsPlaceholder(context);
               }
               
               List<EventModel> events = [];
@@ -81,7 +82,7 @@ class EventsSection extends StatelessWidget {
               }
               
               if (events.isEmpty) {
-                 return _buildNoEventsPlaceholder();
+                 return _buildNoEventsPlaceholder(context);
               }
               
               return ListView.builder(
@@ -108,7 +109,7 @@ class EventsSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Imagen
-                            _buildEventImage(event),
+                            _buildEventImage(context, event),
                             // Detalles
                             _buildEventDetails(context, event),
                           ],
@@ -127,12 +128,12 @@ class EventsSection extends StatelessWidget {
 
   // --- Widgets internos y helpers para Eventos (copiados de HomeScreen) ---
 
-  Widget _buildErrorPlaceholder(String error) {
+  Widget _buildErrorPlaceholder(BuildContext context, String error) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Center(
         child: Text(
-          'Erro ao carregar eventos: $error',
+          AppLocalizations.of(context)!.error(error),
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyText2.copyWith(color: AppColors.error),
         ),
@@ -140,16 +141,16 @@ class EventsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingPlaceholder() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40),
+  Widget _buildLoadingPlaceholder(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 40),
       child: Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
     );
   }
 
-  Widget _buildNoEventsPlaceholder() {
+  Widget _buildNoEventsPlaceholder(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Center(
@@ -159,7 +160,7 @@ class EventsSection extends StatelessWidget {
             Icon(Icons.event_busy_outlined, size: 48, color: AppColors.textSecondary.withOpacity(0.5)),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Não há eventos futuros no momento',
+              AppLocalizations.of(context)!.noUpcomingEvents,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
             ),
@@ -169,7 +170,7 @@ class EventsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEventImage(EventModel event) {
+  Widget _buildEventImage(BuildContext context, EventModel event) {
     return SizedBox(
       height: 160,
       width: double.infinity,
@@ -253,14 +254,14 @@ class EventsSection extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildEventTypeChip(event.eventType),
-              if (event.eventType != 'online' && _buildLocationString(event).isNotEmpty) ...[
+              _buildEventTypeChip(context, event.eventType),
+              if (event.eventType != 'online' && _buildLocationString(context, event).isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.sm),
                 Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
-                    _buildLocationString(event),
+                    _buildLocationString(context, event),
                     style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -283,7 +284,7 @@ class EventsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEventTypeChip(String eventType) {
+  Widget _buildEventTypeChip(BuildContext context, String eventType) {
     String label;
     Color bgColor;
     Color textColor;
@@ -291,19 +292,19 @@ class EventsSection extends StatelessWidget {
 
     switch (eventType) {
       case 'online':
-        label = 'Online';
+        label = AppLocalizations.of(context)!.online;
         bgColor = Colors.blue.shade50;
         textColor = Colors.blue.shade700;
         iconData = Icons.videocam_outlined;
         break;
       case 'presential':
-        label = 'Presencial';
+        label = AppLocalizations.of(context)!.inPerson;
         bgColor = Colors.green.shade50;
         textColor = Colors.green.shade700;
         iconData = Icons.location_on_outlined;
         break;
       case 'hybrid':
-        label = 'Híbrido';
+        label = AppLocalizations.of(context)!.hybrid;
         bgColor = Colors.purple.shade50;
         textColor = Colors.purple.shade700;
         iconData = Icons.groups_outlined;
@@ -335,7 +336,7 @@ class EventsSection extends StatelessWidget {
     );
   }
   
-  String _buildLocationString(EventModel event) {
+  String _buildLocationString(BuildContext context, EventModel event) {
     List<String> parts = [];
     if (event.street != null && event.street!.isNotEmpty) parts.add(event.street!);
     if (event.number != null && event.number!.isNotEmpty) parts.add(event.number!);

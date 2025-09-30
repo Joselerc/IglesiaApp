@@ -1,0 +1,1008 @@
+{
+    "@@locale": "es",
+    "myProfile": "Mi Perfil",
+    "deleteAccount": "Eliminar Cuenta",
+    "completeYourProfile": "Completa tu perfil",
+    "personalInformation": "Información Personal",
+    "save": "Guardar",
+    "name": "Nombre",
+    "pleaseEnterYourName": "Por favor, escribe tu nombre",
+    "surname": "Apellido",
+    "pleaseEnterYourSurname": "Por favor, escribe tu apellido",
+    "birthDate": "Fecha de Nacimiento",
+    "selectDate": "Seleccionar fecha",
+    "gender": "Sexo",
+    "male": "Masculino",
+    "female": "Femenino",
+    "preferNotToSay": "Prefiero no decirlo",
+    "phone": "Teléfono",
+    "optional": "Opcional",
+    "invalidPhone": "Teléfono inválido",
+    "currentNumber": "Número actual: {number}",
+    "@currentNumber": {
+        "placeholders": {
+            "number": {
+                "type": "String"
+            }
+        }
+    },
+    "participation": "Participación",
+    "ministries": "Ministerios",
+    "errorLoadingMinistries": "Error al cargar los ministerios",
+    "mySchedules": "Mis Turnos",
+    "manageAssignmentsAndInvitations": "Gestiona tus asignaciones e invitaciones de trabajo en los ministerios",
+    "joinAnotherMinistry": "Unirse a otro Ministerio",
+    "youDoNotBelongToAnyMinistry": "No perteneces a ningún ministerio",
+    "joinAMinistryToParticipate": "Únete a un ministerio para participar en el servicio de la iglesia",
+    "joinAMinistry": "Unirse a un Ministerio",
+    "groups": "Grupos",
+    "errorLoadingGroups": "Error al cargar los grupos",
+    "joinAnotherGroup": "Unirse a otro Grupo",
+    "youDoNotBelongToAnyGroup": "No perteneces a ningún grupo",
+    "joinAGroupToParticipate": "Únete a un grupo para participar en la vida comunitaria",
+    "joinAGroup": "Unirse a un Grupo",
+    "administration": "Administración",
+    "manageDonations": "Gestionar Donaciones",
+    "configureDonationSection": "Configura la sección y formas de donación",
+    "manageLiveStreams": "Gestionar Transmisiones en Vivo",
+    "createEditControlStreams": "Crear, editar y controlar transmisiones",
+    "manageOnlineCourses": "Gestionar Cursos en Línea",
+    "createEditConfigureCourses": "Crear, editar y configurar cursos",
+    "manageHomeScreen": "Gestionar Pantalla de Inicio",
+    "managePages": "Gestionar Páginas",
+    "createEditInfoContent": "Crear y editar contenido informativo",
+    "manageAvailability": "Gestionar Disponibilidad",
+    "configureCounselingHours": "Configura tus horarios para asesoramiento",
+    "manageProfileFields": "Gestionar Campos de Perfil",
+    "configureAdditionalUserFields": "Configura los campos adicionales para los usuarios",
+    "manageRoles": "Gestionar Roles",
+    "assignPastorRoles": "Asigna roles de pastor a otros usuarios",
+    "createEditRoles": "Crear/Editar Roles",
+    "createEditRolesAndPermissions": "Crear/editar roles y permisos",
+    "createAnnouncements": "Crear Anuncios",
+    "createEditChurchAnnouncements": "Crea y edita anuncios para la iglesia",
+    "manageEvents": "Gestionar Eventos",
+    "createManageChurchEvents": "Crear y gestionar eventos de la iglesia",
+    "manageVideos": "Gestionar Videos",
+    "administerChurchSectionsVideos": "Administra las secciones y videos de la iglesia",
+    "administerCults": "Administrar Cultos",
+    "manageCultsMinistriesSongs": "Gestionar cultos, ministerios y canciones",
+    "createMinistry": "Crear Ministerio",
+    "createConnect": "Crear Conexión",
+    "counselingRequests": "Solicitudes de Asesoramiento",
+    "manageMemberRequests": "Gestiona las solicitudes de los miembros",
+    "privatePrayers": "Oraciones Privadas",
+    "managePrivatePrayerRequests": "Gestiona las solicitudes de oración privada",
+    "sendPushNotification": "Enviar Notificación Push",
+    "sendMessagesToChurchMembers": "Envía mensajes a los miembros de la iglesia",
+    "deleteMinistries": "Eliminar Ministerios",
+    "removeExistingMinistries": "Eliminar ministerios existentes",
+    "deleteGroups": "Eliminar Grupos",
+    "removeExistingGroups": "Eliminar grupos existentes",
+    "reportsAndAttendance": "Informes y Asistencia",
+    "manageEventAttendance": "Gestionar Asistencia a Eventos",
+    "checkAttendanceGenerateReports": "Verificar asistencia y generar informes",
+    "ministryStatistics": "Estadísticas de Ministerios",
+    "participationMembersAnalysis": "Análisis de participación y miembros",
+    "groupStatistics": "Estadísticas de Grupos",
+    "scheduleStatistics": "Estadísticas de Turnos",
+    "participationInvitationsAnalysis": "Análisis de participación e invitaciones",
+    "courseStatistics": "Estadísticas de Cursos",
+    "enrollmentProgressAnalysis": "Análisis de inscripciones y progreso",
+    "userInfo": "Información de Usuarios",
+    "consultParticipationDetails": "Consultar detalles de participación",
+    "churchStatistics": "Estadísticas de la Iglesia",
+    "membersActivitiesOverview": "Visión general de los miembros y actividades",
+    "noGroupsAvailable": "No hay grupos disponibles",
+    "unnamedGroup": "Grupo sin nombre",
+    "noMinistriesAvailable": "No hay ministerios disponibles",
+    "unnamedMinistry": "Ministerio sin nombre",
+    "deleteGroup": "Eliminar Grupo",
+    "confirmDeleteGroupQuestion": "¿Está seguro que desea eliminar el grupo ",
+    "deleteGroupWarning": "\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "groupDeletedSuccessfully": "Grupo \"{groupName}\" eliminado con éxito",
+    "@groupDeletedSuccessfully": {
+        "placeholders": {
+            "groupName": {
+                "type": "String"
+            }
+        }
+    },
+    "errorDeletingGroup": "Error al eliminar el grupo: {error}",
+    "@errorDeletingGroup": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteMinistry": "Eliminar Ministerio",
+    "confirmDeleteMinistryQuestion": "¿Está seguro que desea eliminar el ministerio ",
+    "deleteMinistryWarning": "\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.",
+    "ministryDeletedSuccessfully": "Ministerio \"{ministryName}\" eliminado con éxito",
+    "@ministryDeletedSuccessfully": {
+        "placeholders": {
+            "ministryName": {
+                "type": "String"
+            }
+        }
+    },
+    "errorDeletingMinistry": "Error al eliminar el ministerio: {error}",
+    "logOut": "Cerrar Sesión",
+    "errorLoggingOut": "Error al Cerrar Sesión: {error}",
+    "@errorLoggingOut": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "additionalInfoSavedSuccessfully": "Información adicional guardada con éxito",
+    "errorSaving": "Error al guardar: {error}",
+    "@errorSaving": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "unsupportedFieldType": "Tipo de campo no soportado: {type}",
+    "@unsupportedFieldType": {
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "thisFieldIsRequired": "Este campo es obligatorio",
+    "requiredField": "Campo obligatorio",
+    "selectLanguage": "Seleccionar Idioma",
+    "choosePreferredLanguage": "Elige tu idioma preferido",
+    "somethingWentWrong": "Algo salió mal!",
+    "tryAgainLater": "Intenta de nuevo más tarde",
+    "welcome": "Bienvenido",
+    "connectingToYourCommunity": "Conectándote a tu comunidad",
+    "errorLoadingSections": "Error al cargar las secciones: {error}",
+    "@errorLoadingSections": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "unknownSectionError": "Sección desconocida o con error: {sectionType}",
+    "@unknownSectionError": {
+        "placeholders": {
+            "sectionType": {
+                "type": "String"
+            }
+        }
+    },
+    "additionalInformationNeeded": "Información adicional necesaria",
+    "pleaseCompleteYourAdditionalInfo": "Por favor, completa tu información adicional para mejorar tu experiencia en la iglesia.",
+    "completeNow": "Completar ahora",
+    "doNotShowAgain": "No mostrar más",
+    "skipForNow": "Omitir por ahora",
+    "user": "Usuario",
+    "workInvites": "Invitaciones de Trabajo",
+    "serviceStatistics": "Estadísticas de Servicios",
+    "home": "Inicio",
+    "notifications": "Notificaciones",
+    "calendar": "Calendario",
+    "videos": "Videos",
+    "profile": "Perfil",
+    "all": "Todas",
+    "unread": "No leídas",
+    "markAllAsRead": "Marcar todas como leídas",
+    "allNotificationsMarkedAsRead": "Todas las notificaciones marcadas como leídas",
+    "error": "Error: {error}",
+    "@error": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "moreOptions": "Más opciones",
+    "deleteAllNotifications": "Eliminar todas las notificaciones",
+    "areYouSureYouWantToDeleteAllNotifications": "¿Estás seguro de que quieres eliminar todas las notificaciones?",
+    "deleteAll": "Eliminar todas",
+    "allNotificationsDeleted": "Todas las notificaciones eliminadas",
+    "youHaveNoNotifications": "No tienes notificaciones",
+    "youHaveNoNotificationsOfType": "No tienes notificaciones de este tipo",
+    "removeFilter": "Quitar filtro",
+    "youHaveNoUnreadNotifications": "No tienes notificaciones no leídas",
+    "youHaveNoUnreadNotificationsOfType": "No tienes notificaciones no leídas de este tipo",
+    "notificationDeleted": "Notificación eliminada",
+    "errorLoadingEvents": "Error al cargar los eventos",
+    "@errorLoadingEvents": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "calendars": "Calendarios",
+    "events": "Eventos",
+    "services": "Servicios",
+    "counseling": "Asesoramiento",
+    "manageSections": "Gestionar secciones",
+    "recentVideos": "Videos Recientes",
+    "errorInSection": "Error en la sección: {error}",
+    "noVideosAvailableInSection": "No hay videos disponibles en esta sección",
+    "errorInCustomSection": "Error en la sección personalizada: {error}",
+    "noVideosInCustomSection": "No hay videos en esta sección personalizada",
+    "addVideo": "Añadir video",
+    "cultsSchedule": "Programación de Cultos",
+    "noScheduledCults": "No hay cultos programados",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "loginToYourAccount": "Inicia sesión en tu cuenta",
+    "welcomeBackPleaseLogin": "¡Bienvenido de nuevo! Por favor, inicia sesión para continuar",
+    "email": "Email",
+    "yourEmailExample": "tu.email@ejemplo.com",
+    "pleaseEnterYourEmail": "Por favor, escribe tu email",
+    "pleaseEnterAValidEmail": "Por favor, escribe un email válido",
+    "password": "Contraseña",
+    "enterYourPassword": "Escribe tu contraseña",
+    "pleaseEnterYourPassword": "Por favor, escribe tu contraseña",
+    "forgotYourPassword": "¿Olvidaste tu contraseña?",
+    "login": "Iniciar Sesión",
+    "dontHaveAnAccount": "¿No tienes una cuenta?",
+    "signUp": "Regístrate",
+    "welcomeBack": "¡Bienvenido de nuevo!",
+    "noAccountWithThisEmail": "No existe una cuenta con este email",
+    "incorrectPassword": "Contraseña incorrecta",
+    "tooManyFailedAttempts": "Demasiados intentos fallidos. Por favor, inténtalo más tarde.",
+    "invalidCredentials": "Credenciales inválidas. Verifica tu email y contraseña.",
+    "accountDisabled": "Esta cuenta ha sido desactivada.",
+    "loginNotEnabled": "El inicio de sesión con email y contraseña no está habilitado.",
+    "connectionError": "Error de conexión. Verifica tu conexión a Internet.",
+    "verificationError": "Error de verificación. Por favor, inténtalo de nuevo.",
+    "recaptchaFailed": "La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.",
+    "errorLoggingIn": "Error al iniciar sesión: {error}",
+    "@errorLoggingIn": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "operationTimedOut": "La operación tardó demasiado. Por favor, inténtalo de nuevo.",
+    "platformError": "Error de plataforma. Por favor, contacta al administrador.",
+    "unexpectedError": "Error inesperado. Por favor, inténtalo más tarde.",
+    "unauthenticatedUser": "Usuario no autenticado",
+    "noAdditionalFields": "No hay campos adicionales para completar",
+    "back": "Volver",
+    "additionalInformation": "Información Adicional",
+    "pleaseCompleteTheFollowingInfo": "Por favor, completa la siguiente información:",
+    "otherInformation": "Otra Información",
+    "pleaseCorrectErrorsBeforeSaving": "Por favor, corrige los errores antes de guardar.",
+    "pleaseFillAllRequiredBasicFields": "Por favor, rellena todos los campos básicos obligatorios.",
+    "pleaseFillAllRequiredAdditionalFields": "Por favor, rellena todos los campos adicionales obligatorios (*)",
+    "informationSavedSuccessfully": "Información guardada con éxito",
+    "birthDateLabel": "Fecha de Nacimiento",
+    "genderLabel": "Género",
+    "phoneLabel": "Teléfono",
+    "phoneHint": "Ej: 612345678",
+    "selectAnOption": "Seleccione una opción",
+    "enterAValidNumber": "Inserta un número válido",
+    "enterAValidEmail": "Inserta un email válido",
+    "enterAValidPhoneNumber": "Inserta un número de teléfono válido",
+    "recoverPassword": "Recuperar Contraseña",
+    "enterEmailToReceiveInstructions": "Escribe tu email para recibir las instrucciones",
+    "sendEmail": "Enviar Email",
+    "emailSent": "¡Email Enviado!",
+    "checkYourInbox": "Verifica tu bandeja de entrada y sigue las instrucciones para restablecer tu contraseña.",
+    "gotIt": "Entendido",
+    "recoveryEmailSentSuccessfully": "¡Email de recuperación enviado con éxito!",
+    "invalidEmail": "Email inválido",
+    "errorSendingEmail": "Error al enviar email: {error}",
+    "@errorSendingEmail": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "createANewAccount": "Crear una nueva cuenta",
+    "fillYourDetailsToRegister": "Rellena tus datos para registrarte",
+    "enterYourName": "Escribe tu nombre",
+    "enterYourSurname": "Escribe tu apellido",
+    "phoneNumber": "Número de teléfono",
+    "phoneNumberHint": "(00) 00000-0000",
+    "pleaseEnterYourPhone": "Por favor, escribe tu teléfono",
+    "pleaseEnterAValidPhone": "Por favor, escribe un teléfono válido",
+    "pleaseEnterAPassword": "Por favor, escribe una contraseña",
+    "passwordMustBeAtLeast6Chars": "La contraseña debe tener al menos 6 caracteres",
+    "confirmPassword": "Confirmar Contraseña",
+    "enterYourPasswordAgain": "Escribe tu contraseña de nuevo",
+    "pleaseConfirmYourPassword": "Por favor, confirma tu contraseña",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "createAccount": "Crear Cuenta",
+    "alreadyHaveAnAccount": "¿Ya tienes una cuenta?",
+    "byRegisteringYouAccept": "Al registrarte, aceptas nuestros términos y condiciones y nuestra política de privacidad.",
+    "welcomeCompleteProfile": "¡Bienvenido! Completa tu perfil para disfrutar de todas las funciones.",
+    "emailAlreadyInUse": "Ya existe una cuenta con este email",
+    "invalidEmailFormat": "El formato del email no es válido",
+    "registrationNotEnabled": "El registro con email y contraseña no está habilitado",
+    "weakPassword": "La contraseña es muy débil, intenta una más segura",
+    "errorRegistering": "Error al registrar: {error}",
+    "@errorRegistering": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "pending": "Pendientes",
+    "accepted": "Aceptados",
+    "rejected": "Rechazados",
+    "youHaveNoWorkInvites": "No tienes invitaciones de trabajo",
+    "youHaveNoInvitesOfType": "No tienes invitaciones {status}",
+    "@youHaveNoInvitesOfType": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "acceptedStatus": "Aceptado",
+    "rejectedStatus": "Rechazado",
+    "seenStatus": "Visto",
+    "pendingStatus": "Pendiente",
+    "reject": "Rechazar",
+    "accept": "Aceptar",
+    "inviteAcceptedSuccessfully": "Invitación aceptada con éxito",
+    "inviteRejectedSuccessfully": "Invitación rechazada con éxito",
+    "errorRespondingToInvite": "Error al responder a la invitación: {error}",
+    "@errorRespondingToInvite": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "invitationDetails": "Detalles de Invitación",
+    "invitationAccepted": "Invitación aceptada exitosamente",
+    "invitationRejected": "Invitación rechazada exitosamente",
+    "workInvitation": "Invitación de Trabajo",
+    "jobDetails": "Detalles del Trabajo",
+    "roleToPerform": "Rol a desempeñar",
+    "invitationInfo": "Información de la Invitación",
+    "sentBy": "Enviado por",
+    "loading": "Cargando...",
+    "sentDate": "Fecha de envío",
+    "responseDate": "Fecha de respuesta",
+    "announcements": "Anuncios",
+    "errorLoadingAnnouncements": "Error al cargar los anuncios",
+    "noAnnouncementsAvailable": "No hay anuncios disponibles",
+    "seeMore": "Ver más",
+    "noUpcomingEvents": "No hay eventos futuros en este momento",
+    "online": "Online",
+    "inPerson": "Presencial",
+    "hybrid": "Híbrido",
+    "schedulePastoralCounseling": "Agenda una cita pastoral",
+    "talkToAPastor": "Habla con un pastor para orientación espiritual",
+    "viewAll": "Ver todos",
+    "swipeToSeeFeaturedCourses": "Desliza para ver cursos destacados",
+    "lessons": "{count, plural, =1{1 lección} other{{count} lecciones}}",
+    "@lessons": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "minutes": "{count} min",
+    "@minutes": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "hours": "{count} h",
+    "@hours": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "hoursAndMinutes": "{hours} h {minutes} min",
+    "@hoursAndMinutes": {
+        "placeholders": {
+            "hours": {
+                "type": "int"
+            },
+            "minutes": {
+                "type": "int"
+            }
+        }
+    },
+    "viewDonationOptions": "Ver opciones de donación",
+    "participateInChurchMinistries": "Participa en los ministerios de la iglesia",
+    "connect": "Conectar",
+    "connectWithChurchGroups": "Conéctate con los grupos de la iglesia",
+    "privatePrayer": "Oración Privada",
+    "sendPrivatePrayerRequests": "Envía peticiones de oración privadas",
+    "publicPrayer": "Oración Pública",
+    "shareAndPrayWithTheCommunity": "Comparte y ora con la comunidad",
+    "eventNotFound": "Evento no encontrado",
+    "errorLoadingEvent": "Error al cargar el evento",
+    "errorLoadingEventDetails": "Error al cargar detalles del evento: {error}",
+    "@errorLoadingEventDetails": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "eventNotFoundOrInvalid": "Evento no encontrado o inválido.",
+    "errorOpeningEvent": "Error al abrir el evento: {error}",
+    "@errorOpeningEvent": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorNavigatingToEvent": "Error al navegar al evento: {error}",
+    "@errorNavigatingToEvent": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "announcementReloaded": "Datos del anuncio recargados (implementar actualización de estado si es necesario)",
+    "errorReloadingAnnouncement": "Error al recargar anuncio: {error}",
+    "@errorReloadingAnnouncement": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmDeletion": "Confirmar Eliminación",
+    "confirmDeleteAnnouncement": "¿Estás seguro de que quieres eliminar este anuncio? Esta acción no se puede deshacer.",
+    "deletingAnnouncement": "Eliminando anuncio...",
+    "errorDeletingImage": "Error al eliminar imagen del Storage: {error}",
+    "@errorDeletingImage": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "announcementDeletedSuccessfully": "Anuncio eliminado con éxito.",
+    "errorDeletingAnnouncement": "Error al eliminar anuncio: {error}",
+    "@errorDeletingAnnouncement": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "cultAnnouncement": "Anuncio de Culto",
+    "announcement": "Anuncio",
+    "editAnnouncement": "Editar Anuncio",
+    "deleteAnnouncement": "Eliminar Anuncio",
+    "cult": "Culto",
+    "publishedOn": "Publicado el: {date}",
+    "@publishedOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "cultDate": "Fecha del culto: {date}",
+    "@cultDate": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "linkedEvent": "Evento Vinculado",
+    "tapToSeeDetails": "Toca para ver detalles",
+    "noEventLinkedToThisCult": "Ningún evento vinculado a este culto.",
+    "errorVerifyingRegistration": "Error al verificar registro: {error}",
+    "@errorVerifyingRegistration": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorVerifyingUserRole": "Error al verificar el rol del usuario: {error}",
+    "@errorVerifyingUserRole": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "updateEventLink": "Actualizar enlace del evento",
+    "addEventLink": "Añadir enlace del evento",
+    "enterOnlineEventLink": "Introduce el enlace para que los asistentes accedan al evento online:",
+    "eventUrl": "URL del evento",
+    "eventUrlHint": "https://zoom.us/meeting/...",
+    "invalidUrlFormat": "El enlace debe comenzar con http:// o https://",
+    "deleteLink": "Eliminar enlace",
+    "linkDeletedSuccessfully": "Enlace del evento eliminado correctamente",
+    "linkUpdatedSuccessfully": "Enlace del evento actualizado correctamente",
+    "linkAddedSuccessfully": "Enlace del evento añadido correctamente",
+    "errorUpdatingLink": "Error al actualizar el enlace: {error}",
+    "@errorUpdatingLink": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorSendingNotifications": "Error al enviar notificaciones: {error}",
+    "@errorSendingNotifications": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "mustLoginToRegisterAttendance": "Debes iniciar sesión para registrar tu asistencia",
+    "attendanceRegisteredSuccessfully": "¡Asistencia registrada correctamente!",
+    "couldNotOpenLink": "No se pudo abrir el enlace",
+    "errorOpeningLink": "Error al abrir el enlace: {error}",
+    "@errorOpeningLink": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionToDeleteEvent": "No tienes permiso para eliminar este evento",
+    "deleteEvent": "Eliminar Evento",
+    "confirmDeleteEvent": "¿Estás seguro que deseas eliminar este evento?",
+    "eventDeletedSuccessfully": "Evento eliminado con éxito",
+    "deleteTicket": "Eliminar Entrada",
+    "confirmDeleteTicket": "¿Estás seguro que deseas eliminar esta entrada? Esta acción no se puede deshacer.",
+    "ticketDeletedSuccessfully": "Entrada eliminada con éxito",
+    "errorDeletingTicket": "Error al eliminar: {error}",
+    "@errorDeletingTicket": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteMyTicket": "Eliminar mi entrada",
+    "confirmDeleteMyTicket": "¿Estás seguro que deseas eliminar tu entrada? Esta acción no se puede deshacer.",
+    "errorDeletingMyTicket": "Error al eliminar la entrada: {error}",
+    "@errorDeletingMyTicket": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "notDefined": "No definido",
+    "onlineEvent": "Evento online",
+    "accessEvent": "Acceder al evento",
+    "copyEventLink": "Copiar enlace del evento",
+    "linkCopied": "¡Enlace copiado!",
+    "linkNotConfigured": "Enlace no configurado",
+    "addLinkForAttendees": "Añade un enlace para que los asistentes puedan acceder al evento",
+    "addLink": "Añadir enlace",
+    "physicalLocationNotSpecified": "Ubicación física no especificada",
+    "physicalLocation": "Ubicación física",
+    "accessOnline": "Acceder online",
+    "addLinkForOnlineAttendance": "Añade un enlace para la asistencia online",
+    "locationNotSpecified": "Lugar no especificado",
+    "manageAttendees": "Gestionar asistentes",
+    "scanTickets": "Escanear entradas",
+    "updateLink": "Actualizar enlace",
+    "createNewTicket": "Crear nuevo ticket",
+    "noPermissionToCreateTickets": "No tienes permiso para crear tickets",
+    "deleteEventTooltip": "Eliminar evento",
+    "start": "Inicio",
+    "end": "Fin",
+    "description": "Descripción",
+    "updatingTickets": "Actualizando entradas...",
+    "loadingTickets": "Cargando entradas...",
+    "availableTickets": "Entradas disponibles",
+    "createTicket": "Crear entrada",
+    "noTicketsAvailable": "No hay entradas disponibles",
+    "createTicketForUsers": "Crea una entrada para que los usuarios puedan registrarse",
+    "errorLoadingTickets": "Error al cargar entradas: {error}",
+    "@errorLoadingTickets": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "alreadyRegistered": "Ya registrado",
+    "viewQr": "Ver QR",
+    "register": "Registrarse",
+    "presential": "Presencial",
+    "unknown": "Desconocido",
+    "cults": "Cultos",
+    "unknownSectionType": "Sección desconocida o error: {sectionType}",
+    "@unknownSectionType": {
+        "placeholders": {
+            "sectionType": {
+                "type": "String"
+            }
+        }
+    },
+    "additionalInformationRequired": "Información adicional necesaria",
+    "pleaseCompleteAdditionalInfo": "Por favor, completa tu información adicional para mejorar tu experiencia en la iglesia.",
+    "churchName": "Amor en Movimiento",
+    "navHome": "Inicio",
+    "navNotifications": "Notificaciones",
+    "navCalendar": "Calendario",
+    "navVideos": "Videos",
+    "navProfile": "Perfil",
+    "errorPublishingComment": "Error al publicar el comentario: {error}",
+    "@errorPublishingComment": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteOwnCommentsOnly": "Solo puedes eliminar tus propios comentarios",
+    "deleteComment": "Eliminar comentario",
+    "deleteCommentConfirmation": "¿Estás seguro de que deseas eliminar este comentario?",
+    "commentDeleted": "Comentario eliminado",
+    "errorDeletingComment": "Error al eliminar el comentario: {error}",
+    "@errorDeletingComment": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorTitle": "Error",
+    "cultNotFound": "Culto no encontrado",
+    "totalLessons": "{count, plural, one {# lección} other {# lecciones}}",
+    "@totalLessons": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "myKidsManagement": "Gestión MyKids",
+    "familyProfiles": "Perfiles Familiares",
+    "manageFamilyProfiles": "Gestionar perfiles de padres y niños",
+    "manageRoomsAndCheckin": "Gestionar Salas y Check-in",
+    "manageRoomsCheckinDescription": "Administrar salas, check-in/out y asistencia",
+    "permissionsDiagnostics": "Diagnóstico de Permisos",
+    "availablePermissions": "Permisos Disponibles",
+    "noUserData": "No hay datos de usuario",
+    "noName": "Sin nombre",
+    "noEmail": "Sin email",
+    "roleIdLabel": "ID del Rol",
+    "noRole": "Sin rol",
+    "superUser": "SuperUsuario",
+    "yes": "Sí",
+    "no": "No",
+    "rolePermissionsTitle": "Permisos del rol",
+    "roleNoPermissions": "Este rol no tiene permisos asignados",
+    "noRoleInfo": "No hay información de rol disponible",
+    "deleteGroupConfirmationPrefix": "¿Estás seguro que deseas eliminar el grupo ",
+    "deleteMinistryConfirmationPrefix": "¿Estás seguro que deseas eliminar el ministerio ",
+    "errorFetchingDiagnostics": "Error al obtener diagnóstico: {error}",
+    "@errorFetchingDiagnostics": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "roleNotFound": "Rol no encontrado: {roleId}",
+    "@roleNotFound": {
+        "placeholders": {
+            "roleId": {
+                "type": "String"
+            }
+        }
+    },
+    "idLabel": "ID",
+    "personalInformationSection": "Información Personal",
+    "birthDateField": "Fecha de Nacimiento",
+    "genderField": "Sexo",
+    "phoneField": "Teléfono",
+    "selectDate": "Seleccionar fecha",
+    "currentNumber": "Número actual: {number}",
+    "@currentNumber": {
+        "placeholders": {
+            "number": {
+                "type": "String"
+            }
+        }
+    },
+    "invalidPhone": "Teléfono inválido",
+    "mySchedulesSection": "Mis Turnos",
+    "manageMinistriesAssignments": "Gestiona tus asignaciones e invitaciones de trabajo en los ministerios",
+    "errorLoadingMinistries": "Error al cargar los ministerios",
+    "errorLoadingGroups": "Error al cargar los grupos",
+    "additionalInfoSavedSuccessfully": "Información adicional guardada con éxito",
+    "errorSavingInfo": "Error al guardar: {error}",
+    "@errorSavingInfo": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "thisFieldIsRequired": "Este campo es obligatorio",
+    "requiredFieldTooltip": "Campo obligatorio",
+    "unsupportedFieldType": "Tipo de campo no soportado: {type}",
+    "@unsupportedFieldType": {
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "navigateToFamilyProfiles": "Navegar para Perfiles Familiares",
+    "personalInfoUpdatedSuccessfully": "¡Información personal actualizada con éxito!",
+    "errorSavingPersonalData": "Error al guardar datos personales: {error}",
+    "@errorSavingPersonalData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorLoadingPersonalData": "Error al cargar datos personales: {error}",
+    "@errorLoadingPersonalData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "manageDonationsTitle": "Gestionar Donaciones",
+    "noPermissionToSaveSettings": "Sin permiso para guardar configuraciones.",
+    "errorUploadingImage": "Error al subir imagen",
+    "donationConfigSaved": "Configuraciones de donación guardadas",
+    "errorSaving": "Error al guardar: {error}",
+    "@errorSaving": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorCheckingPermission": "Error al verificar permiso: {error}",
+    "@errorCheckingPermission": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "accessDenied": "Acceso Denegado",
+    "noPermissionManageDonations": "No tienes permiso para gestionar las configuraciones de donación.",
+    "configureDonationsSection": "Configura cómo aparecerá la sección de donaciones en la Pantalla de Inicio.",
+    "sectionTitleOptional": "Título de la Sección (Opcional)",
+    "descriptionOptional": "Descripción (Opcional)",
+    "backgroundImageOptional": "Imagen de Fondo (Opcional)",
+    "tapToAddImage": "Toca para agregar imagen\n(Recomendado 16:9)",
+    "removeImage": "Eliminar Imagen",
+    "bankAccountsOptional": "Cuentas Bancarias (Opcional)",
+    "bankingInformation": "Información Bancaria",
+    "bankAccountsHint": "Banco: XXX\nAgencia: YYYY\nCuenta: ZZZZZZ\nNombre Titular\n\n(Separa cuentas con línea en blanco)",
+    "pixKeysOptional": "Claves Pix (Opcional)",
+    "noPixKeysAdded": "Ninguna clave Pix agregada.",
+    "pixKey": "Clave Pix",
+    "removeKey": "Eliminar Clave",
+    "keyRequired": "Clave obligatoria",
+    "addPixKey": "Agregar Clave Pix",
+    "saveSettings": "Guardar Configuraciones",
+    "manageLiveStreamTitle": "Gestionar Transmisión",
+    "errorLoadingData": "Error al cargar datos: {error}",
+    "@errorLoadingData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionManageLiveStream": "No tienes permiso para gestionar la configuración de transmisión.",
+    "sectionTitleHome": "Título de la Sección (Home)",
+    "sectionTitleHint": "Ej: Transmisión En Vivo",
+    "pleaseEnterSectionTitle": "Por favor, ingresa un título para la sección",
+    "additionalTextOptional": "Texto Adicional (opcional)",
+    "transmissionImage": "Imagen de la Transmisión",
+    "titleOverImage": "Título sobre la Imagen",
+    "titleOverImageHint": "Ej: Culto de Domingo",
+    "transmissionLink": "Link de la Transmisión",
+    "urlYouTubeVimeo": "URL (YouTube, Vimeo, etc.)",
+    "pasteFullLinkHere": "Pega el link completo aquí",
+    "pleaseEnterValidUrl": "Por favor, ingresa una URL válida (comenzando con http o https)",
+    "activateTransmissionHome": "Activar Transmisión en Home",
+    "visibleInHome": "Visible en Home",
+    "hiddenInHome": "Oculto en Home",
+    "saveConfiguration": "Guardar Configuración",
+    "configurationSaved": "Configuración guardada",
+    "errorUploadingImageStream": "Error al subir la imagen",
+    "manageHomeScreenTitle": "Gestionar Pantalla de Inicio",
+    "noPermissionReorderSections": "Sin permiso para reordenar secciones.",
+    "errorSavingNewOrder": "Error al guardar el nuevo orden: {error}",
+    "@errorSavingNewOrder": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionEditSections": "Sin permiso para editar secciones.",
+    "editSectionName": "Editar Nombre de la Sección",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "sectionNameUpdatedSuccessfully": "¡Nombre de la sección actualizado con éxito!",
+    "errorUpdatingName": "Error al actualizar nombre: {error}",
+    "@errorUpdatingName": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "configureVisibility": "Configurar Visibilidad",
+    "sectionWillBeHiddenWhen": "La sección será ocultada cuando no haya {contentType} para mostrar.",
+    "@sectionWillBeHiddenWhen": {
+        "placeholders": {
+            "contentType": {
+                "type": "String"
+            }
+        }
+    },
+    "visibilityConfigurationUpdated": "¡Configuración de visibilidad actualizada!",
+    "errorUpdatingConfiguration": "Error al actualizar configuración: {error}",
+    "@errorUpdatingConfiguration": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionChangeStatus": "Sin permiso para cambiar estado.",
+    "errorUpdatingStatus": "Error al actualizar estado: {error}",
+    "@errorUpdatingStatus": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "thisSectionCannotBeEditedHere": "Esta sección no puede ser editada aquí.",
+    "noPermissionCreateSections": "Sin permiso para crear secciones.",
+    "noSectionsFound": "Ninguna sección encontrada.",
+    "events": "eventos",
+    "announcements": "anuncios",
+    "scheduledCults": "cultos programados",
+    "videos": "videos",
+    "pages": "páginas",
+    "content": "contenido",
+    "manageProfileFieldsTitle": "Gestionar Campos de Perfil",
+    "noPermissionManageProfileFields": "No tienes permiso para gestionar campos de perfil.",
+    "createField": "Crear Campo",
+    "confirmDeletion": "Confirmar Eliminación",
+    "confirmDeleteField": "¿Estás seguro de que deseas eliminar el campo \"{fieldName}\"?",
+    "@confirmDeleteField": {
+        "placeholders": {
+            "fieldName": {
+                "type": "String"
+            }
+        }
+    },
+    "delete": "Eliminar",
+    "fieldDeletedSuccessfully": "Campo eliminado con éxito",
+    "errorDeletingField": "Error al eliminar el campo: {error}",
+    "@errorDeletingField": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "pleaseAddAtLeastOneOption": "Por favor, añade al menos una opción para el campo de selección.",
+    "noPermissionManageFields": "Sin permiso para gestionar campos de perfil.",
+    "manageRolesTitle": "Gestionar Perfiles",
+    "confirmDeletionRole": "Confirmar Eliminación",
+    "confirmDeleteRole": "¿Estás seguro de que quieres eliminar el perfil \"{roleName}\"?",
+    "@confirmDeleteRole": {
+        "placeholders": {
+            "roleName": {
+                "type": "String"
+            }
+        }
+    },
+    "warningDeleteRole": "Atención: Esto puede afectar a usuarios que tienen este perfil asignado.",
+    "noPermissionDeleteRoles": "Sin permiso para eliminar perfiles",
+    "roleDeletedSuccessfully": "Perfil eliminado con éxito",
+    "errorDeletingRole": "Error al eliminar perfil: {error}",
+    "@errorDeletingRole": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionManageRoles": "No tienes permiso para gestionar perfiles y permisos.",
+    "errorLoadingRoles": "Error al cargar perfiles: {error}",
+    "@errorLoadingRoles": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noRolesFound": "Ningún perfil encontrado. ¡Crea el primero!",
+    "manageUserRolesTitle": "Gestionar Perfiles de Usuarios",
+    "noPermissionAccessPage": "No tienes permiso para acceder a esta página",
+    "errorCheckingPermissions": "Error al verificar permisos: {error}",
+    "@errorCheckingPermissions": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorLoadingRolesData": "Error al cargar perfiles: {error}",
+    "@errorLoadingRolesData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorLoadingUsers": "Error al cargar usuarios: {error}",
+    "@errorLoadingUsers": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "noPermissionUpdateRoles": "No tienes permiso para actualizar perfiles.",
+    "cannotChangeOwnRole": "No es posible cambiar tu propio perfil",
+    "userRoleUpdatedSuccessfully": "Perfil del usuario actualizado con éxito",
+    "errorUpdatingRole": "Error al actualizar perfil: {error}",
+    "@errorUpdatingRole": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "selectUserRole": "Seleccionar perfil del usuario",
+    "manageCoursesTitle": "Gestionar Cursos",
+    "noPermissionManageCourses": "No tienes permiso para gestionar cursos.",
+    "errorLoadingCourses": "Error al cargar cursos: {error}",
+    "@errorLoadingCourses": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "all": "Todos",
+    "published": "Publicados",
+    "drafts": "Borradores",
+    "archived": "Archivados",
+    "edit": "Editar",
+    "unpublish": "Despublicar",
+    "publish": "Publicar",
+    "publishCourse": "Publicar curso",
+    "makeCourseVisibleToAllUsers": "Hacer el curso visible para todos los usuarios"
+}

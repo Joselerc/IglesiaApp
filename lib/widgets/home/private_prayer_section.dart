@@ -4,13 +4,14 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class PrivatePrayerSection extends StatelessWidget {
   final String displayTitle;
-  
+
   const PrivatePrayerSection({
     super.key,
-    this.displayTitle = 'Oração Privada',
+    this.displayTitle = '',
   });
 
   @override
@@ -21,7 +22,9 @@ class PrivatePrayerSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            displayTitle,
+            displayTitle.isEmpty
+                ? AppLocalizations.of(context)!.privatePrayer
+                : displayTitle,
             style: AppTextStyles.headline3.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
@@ -61,7 +64,7 @@ class PrivatePrayerSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Oração Privada',
+                        AppLocalizations.of(context)!.privatePrayer,
                         style: AppTextStyles.subtitle1.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -69,7 +72,7 @@ class PrivatePrayerSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Envie pedidos de oração privados',
+                        AppLocalizations.of(context)!.sendPrivatePrayerRequests,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -89,4 +92,4 @@ class PrivatePrayerSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

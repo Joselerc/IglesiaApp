@@ -4,13 +4,14 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class PublicPrayerSection extends StatelessWidget {
   final String displayTitle;
-  
+
   const PublicPrayerSection({
     super.key,
-    this.displayTitle = 'Oração Pública',
+    this.displayTitle = '',
   });
 
   @override
@@ -21,7 +22,9 @@ class PublicPrayerSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            displayTitle,
+            displayTitle.isEmpty
+                ? AppLocalizations.of(context)!.publicPrayer
+                : displayTitle,
             style: AppTextStyles.headline3.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
@@ -61,7 +64,7 @@ class PublicPrayerSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Oração Pública',
+                        AppLocalizations.of(context)!.publicPrayer,
                         style: AppTextStyles.subtitle1.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -69,7 +72,8 @@ class PublicPrayerSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Compartilhe e ore com a comunidade',
+                        AppLocalizations.of(context)!
+                            .shareAndPrayWithTheCommunity,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -89,4 +93,4 @@ class PublicPrayerSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

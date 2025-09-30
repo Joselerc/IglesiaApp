@@ -7,6 +7,7 @@ import '../../services/permission_service.dart';
 import '../../services/role_service.dart';
 import '../../models/role.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class UserRoleManagementScreen extends StatefulWidget {
   const UserRoleManagementScreen({Key? key}) : super(key: key);
@@ -60,8 +61,8 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Você não tem permissão para acessar esta página'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.noPermissionAccessPage),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
             ),
@@ -80,7 +81,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao verificar permissão: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorCheckingPermissions(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -95,7 +96,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       print("Error al cargar roles disponibles: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Erro ao carregar papéis: $e'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingRolesData(e.toString())), backgroundColor: Colors.red),
         );
       }
       _availableRoles = [];
@@ -147,7 +148,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       print('Erro ao carregar usuários: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar usuários: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingUsers(e.toString()))),
         );
       }
     }
@@ -158,7 +159,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
     if (!hasAssignPermission) {
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Você não tem permissão para atualizar papéis.'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionUpdateRoles), backgroundColor: Colors.red),
          );
       }
       return;
@@ -166,7 +167,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
 
     if (userId == _currentUserId) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não é possível alterar seu próprio papel')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.cannotChangeOwnRole)),
       );
       return;
     }
@@ -195,8 +196,8 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Papel do usuário atualizado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.userRoleUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -208,7 +209,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atualizar papel: $e'),
+            content: Text(AppLocalizations.of(context)!.errorUpdatingRole(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -231,7 +232,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Perfiles de Usuários'),
+        title: Text(AppLocalizations.of(context)!.manageUserRolesTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -469,7 +470,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Selecionar papel do usuário'),
+          title: Text(AppLocalizations.of(context)!.selectUserRole),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -550,7 +551,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           ],
         );

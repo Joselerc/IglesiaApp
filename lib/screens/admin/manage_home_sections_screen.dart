@@ -6,6 +6,7 @@ import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'edit_custom_section_screen.dart'; // <-- Importar pantalla de edición
+import '../../l10n/app_localizations.dart';
 // Importar EditHomeScreenSectionScreen (se creará después)
 // import 'edit_home_section_screen.dart'; 
 
@@ -28,7 +29,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     if (!hasPermission) {
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Sem permissão para reordenar seções.'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionReorderSections), backgroundColor: Colors.red),
          );
       }
       return;
@@ -172,7 +173,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     if (!hasPerm) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sem permissão para editar seções.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionEditSections), backgroundColor: Colors.red),
         );
       }
       return;
@@ -208,11 +209,11 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Salvar'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -242,7 +243,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     if (!hasPerm) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sem permissão para editar seções.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionEditSections), backgroundColor: Colors.red),
         );
       }
       return;
@@ -274,7 +275,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                     Expanded(
                       child: Text(
                         hideWhenEmpty 
-                          ? 'A seção será ocultada quando não houver ${_getContentTypeText(section.type)} para exibir.'
+                          ? AppLocalizations.of(context)!.sectionWillBeHiddenWhen(_getContentTypeText(context, section.type))
                           : 'A seção será sempre exibida, mesmo sem conteúdo.',
                         style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
                       ),
@@ -295,11 +296,11 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, hideWhenEmpty),
-              child: const Text('Salvar'),
+              child: Text(AppLocalizations.of(context)!.save),
             ),
           ],
         ),
@@ -328,7 +329,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Tela Inicial'),
+        title: Text(AppLocalizations.of(context)!.manageHomeScreenTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -475,7 +476,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                          if (!hasPerm) {
                            if (mounted) {
                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Sem permissão para editar seções.'), backgroundColor: Colors.red),
+                                SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionEditSections), backgroundColor: Colors.red),
                               );
                            }
                            return;
@@ -637,20 +638,20 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
   }
 
   // Función helper para obtener el texto del tipo de contenido para visibilidad condicional
-  String _getContentTypeText(HomeScreenSectionType type) {
+  String _getContentTypeText(BuildContext context, HomeScreenSectionType type) {
     switch (type) {
       case HomeScreenSectionType.events:
-        return 'eventos';
+        return AppLocalizations.of(context)!.events;
       case HomeScreenSectionType.announcements:
-        return 'anúncios';
+        return AppLocalizations.of(context)!.announcements;
       case HomeScreenSectionType.cults:
-        return 'cultos programados';
+        return AppLocalizations.of(context)!.scheduledCults;
       case HomeScreenSectionType.videos:
-        return 'vídeos';
+        return AppLocalizations.of(context)!.videos;
       case HomeScreenSectionType.customPageList:
-        return 'páginas';
+        return AppLocalizations.of(context)!.pages;
       default:
-        return 'conteúdo';
+        return AppLocalizations.of(context)!.content;
     }
   }
 }

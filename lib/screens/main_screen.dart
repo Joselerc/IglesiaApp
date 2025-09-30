@@ -15,6 +15,7 @@ import './statistics_services/services_stats_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart'; // Importar para acceder a navigationCubit global
+import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

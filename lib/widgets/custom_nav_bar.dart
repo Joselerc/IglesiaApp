@@ -5,14 +5,17 @@ import '../cubits/navigation_cubit.dart';
 import '../services/notification_service.dart';
 import '../theme/app_colors.dart';
 import '../main.dart'; // Importar para acceder a navigationCubit global
+import '../l10n/app_localizations.dart';
 
 class CustomNavBar extends StatelessWidget {
   const CustomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final notificationService = Provider.of<NotificationService>(context, listen: false);
-    
+    final notificationService =
+        Provider.of<NotificationService>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocBuilder<NavigationCubit, NavigationState>(
       builder: (context, state) {
         return Container(
@@ -43,10 +46,10 @@ class CustomNavBar extends StatelessWidget {
               }
             },
             items: [
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
                 activeIcon: Icon(Icons.home),
-                label: 'Início',
+                label: l10n.navHome,
               ),
               BottomNavigationBarItem(
                 icon: StreamBuilder<int>(
@@ -68,22 +71,22 @@ class CustomNavBar extends StatelessWidget {
                   },
                 ),
                 activeIcon: const Icon(Icons.notifications),
-                label: 'Notifica...',
+                label: l10n.navNotifications,
               ),
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_month_outlined),
                 activeIcon: Icon(Icons.calendar_month),
-                label: 'Calend...',
+                label: l10n.navCalendar,
               ),
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Icon(Icons.video_library_outlined),
                 activeIcon: Icon(Icons.video_library),
-                label: 'Vídeos',
+                label: l10n.navVideos,
               ),
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
                 activeIcon: Icon(Icons.person),
-                label: 'Perfil',
+                label: l10n.navProfile,
               ),
             ],
             type: BottomNavigationBarType.fixed,
@@ -116,4 +119,4 @@ class CustomNavBar extends StatelessWidget {
         return 0;
     }
   }
-} 
+}

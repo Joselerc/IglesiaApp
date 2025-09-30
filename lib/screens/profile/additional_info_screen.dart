@@ -10,6 +10,7 @@ import '../../widgets/custom/selection_field.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/user_model.dart';
+import '../../l10n/app_localizations.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
   final bool fromBanner;
@@ -179,7 +180,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Center(child: Text('Usuário não autenticado'));
+      return Center(child: Text(AppLocalizations.of(context)!.unauthenticatedUser));
     }
 
     if (_isInitializing) {
@@ -204,7 +205,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
             Icon(Icons.info_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Não há campos adicionais para completar',
+              AppLocalizations.of(context)!.noAdditionalFields,
               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
@@ -215,7 +216,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: const Text('Voltar'),
+              child: Text(AppLocalizations.of(context)!.back),
             ),
           ],
         ),
@@ -243,7 +244,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
-                'Informações Adicionais',
+                AppLocalizations.of(context)!.additionalInformation,
                 style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
@@ -258,10 +259,10 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
-                            'Por favor, complete as seguintes informações:',
+                            AppLocalizations.of(context)!.pleaseCompleteTheFollowingInfo,
                             style: AppTextStyles.bodyText1,
                           ),
                         ),
@@ -269,9 +270,9 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
                         // --- CAMPOS BÁSICOS (si no están completos) ---
                         if (!_isBasicFieldComplete('name')) 
-                          _buildBasicTextField(_nameController, 'Nome', 'Digite seu nome', Icons.person),
+                          _buildBasicTextField(_nameController, AppLocalizations.of(context)!.name, AppLocalizations.of(context)!.enterYourName, Icons.person),
                         if (!_isBasicFieldComplete('surname')) 
-                          _buildBasicTextField(_surnameController, 'Sobrenome', 'Digite seu sobrenome', Icons.person_outline),
+                          _buildBasicTextField(_surnameController, AppLocalizations.of(context)!.surname, AppLocalizations.of(context)!.enterYourSurname, Icons.person_outline),
                         if (!_isBasicFieldComplete('birthDate')) 
                           _buildBirthDateField(),
                         if (!_isBasicFieldComplete('gender')) 
@@ -284,7 +285,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                           Column(
                             children: [
                               const SizedBox(height: 16),
-                              Text('Outras Informações', style: AppTextStyles.subtitle1.copyWith(color: AppColors.textSecondary)),
+                              Text(AppLocalizations.of(context)!.otherInformation, style: AppTextStyles.subtitle1.copyWith(color: AppColors.textSecondary)),
                               const Divider(height: 24),
                             ],
                           ),
@@ -337,8 +338,8 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                 ),
                 child: _isLoading
                     ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                    : const Text(
-                        'Salvar Informações',
+                    : Text(
+                        AppLocalizations.of(context)!.save,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -378,18 +379,18 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                   : TextInputType.text,
           validator: (value) {
             if (field.isRequired && (value == null || value.isEmpty)) {
-              return 'Este campo é obrigatório';
+              return AppLocalizations.of(context)!.thisFieldIsRequired;
             }
             if (field.type == 'email' && value != null && value.isNotEmpty) {
               final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
               if (!emailRegex.hasMatch(value)) {
-                return 'Insira um email válido';
+                return AppLocalizations.of(context)!.enterAValidEmail;
               }
             }
             if (field.type == 'phone' && value != null && value.isNotEmpty) {
               final phoneRegex = RegExp(r'^\+?[0-9]{8,15}$');
               if (!phoneRegex.hasMatch(value)) {
-                return 'Insira um número de telefone válido';
+                return AppLocalizations.of(context)!.enterAValidPhoneNumber;
               }
             }
             return null;
@@ -414,12 +415,12 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
           keyboardType: TextInputType.number,
           validator: (value) {
              if (field.isRequired && (value == null || value.isEmpty)) {
-              return 'Este campo é obrigatório';
+              return AppLocalizations.of(context)!.thisFieldIsRequired;
             }
             if (value != null && value.isNotEmpty) {
               final numRegex = RegExp(r'^[0-9]+$');
               if (!numRegex.hasMatch(value)) {
-                return 'Insira um número válido';
+                return AppLocalizations.of(context)!.enterAValidNumber;
               }
             }
             return null;
@@ -476,7 +477,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
           readOnly: true,
           validator: (value) {
             if (field.isRequired && (value == null || value.isEmpty)) {
-              return 'Este campo é obrigatório';
+              return AppLocalizations.of(context)!.thisFieldIsRequired;
             }
             return null;
           },
@@ -492,7 +493,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         return SelectionField(
           key: ValueKey('selection_${field.id}'), 
           label: field.name,
-          hint: field.description,
+          hint: field.description ?? AppLocalizations.of(context)!.selectAnOption,
           value: currentValueInResponses,
           options: options,
           isRequired: field.isRequired,
@@ -511,7 +512,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         );
       
       default:
-        return Text('Tipo de campo não suportado: ${field.type}');
+        return Text(AppLocalizations.of(context)!.unsupportedFieldType(field.type));
     }
   }
 
@@ -524,7 +525,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   Future<void> _saveResponses(String userId) async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, corrija os erros antes de salvar.'), backgroundColor: Colors.red,)
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseCorrectErrorsBeforeSaving), backgroundColor: Colors.red,)
       );
       return;
     }
@@ -539,7 +540,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
     if (!allRequiredBasicFilled) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Por favor, preencha todos os campos básicos obrigatórios.'), backgroundColor: Colors.red,)
+            SnackBar(content: Text(AppLocalizations.of(context)!.pleaseFillAllRequiredBasicFields), backgroundColor: Colors.red,)
         );
         return;
     }
@@ -557,7 +558,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
     if (!allRequiredAdditionalFilled) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Por favor, preencha todos os campos adicionais obrigatórios (*)'), backgroundColor: Colors.red,)
+            SnackBar(content: Text(AppLocalizations.of(context)!.pleaseFillAllRequiredAdditionalFields), backgroundColor: Colors.red,)
         );
         return;
     }
@@ -626,7 +627,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Informações salvas com sucesso'), backgroundColor: Colors.green, duration: Duration(seconds: 2)),
+          SnackBar(content: Text(AppLocalizations.of(context)!.informationSavedSuccessfully), backgroundColor: Colors.green, duration: Duration(seconds: 2)),
         );
       }
 
@@ -644,7 +645,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       print('Error al guardar respuestas: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -681,11 +682,11 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: const Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red)),
+          suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Este campo é obrigatório';
+            return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           return null;
         },
@@ -703,13 +704,13 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         ),
         readOnly: true,
         decoration: InputDecoration(
-          labelText: 'Data de Nascimento',
+          labelText: AppLocalizations.of(context)!.birthDateLabel,
           prefixIcon: Icon(Icons.calendar_today, color: AppColors.primary.withOpacity(0.7)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: const Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red)),
+          suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
         onTap: () async {
           final DateTime? pickedDate = await showDatePicker(
@@ -728,7 +729,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         },
         validator: (value) {
           if (_birthDate == null) { // Validar la variable de estado _birthDate
-            return 'Este campo é obrigatório';
+            return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           return null;
         },
@@ -742,15 +743,19 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       child: DropdownButtonFormField<String>(
         value: _gender,
         decoration: InputDecoration(
-          labelText: 'Gênero',
+          labelText: AppLocalizations.of(context)!.genderLabel,
           prefixIcon: Icon(Icons.person_outline, color: AppColors.primary.withOpacity(0.7)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: const Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red)),
+          suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
-        items: ['Masculino', 'Feminino', 'Prefiro não dizer'].map((String value) {
+        items: [
+          AppLocalizations.of(context)!.male,
+          AppLocalizations.of(context)!.female,
+          AppLocalizations.of(context)!.preferNotToSay
+        ].map((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
@@ -763,7 +768,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         },
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Este campo é obrigatório';
+            return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           return null;
         },
@@ -780,19 +785,19 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       child: TextFormField(
         controller: _phoneController, // Asume que _phoneController solo tiene el número local
         decoration: InputDecoration(
-          labelText: 'Telefone',
-          hintText: 'Ex: 912345678',
+          labelText: AppLocalizations.of(context)!.phoneLabel,
+          hintText: AppLocalizations.of(context)!.phoneHint,
           prefixIcon: Icon(Icons.phone, color: AppColors.primary.withOpacity(0.7)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: const Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red)),
+          suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
         keyboardType: TextInputType.phone,
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Este campo é obrigatório';
+            return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           // Aquí podrías añadir una validación de formato de teléfono más específica si lo deseas.
           return null;

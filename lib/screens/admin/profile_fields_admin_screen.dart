@@ -5,6 +5,7 @@ import '../../services/profile_fields_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/custom/selection_field.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProfileFieldsAdminScreen extends StatefulWidget {
   const ProfileFieldsAdminScreen({super.key});
@@ -22,7 +23,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Campos de Perfil'),
+        title: Text(AppLocalizations.of(context)!.manageProfileFieldsTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -46,7 +47,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -58,9 +59,9 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar campos de perfil.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionManageProfileFields, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -104,7 +105,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                       ElevatedButton.icon(
                         onPressed: () => _showAddEditFieldDialog(context),
                         icon: const Icon(Icons.add),
-                        label: const Text('Criar Campo'),
+                        label: Text(AppLocalizations.of(context)!.createField),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -278,7 +279,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sem permissão para gerenciar campos de perfil.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionManageFields), backgroundColor: Colors.red),
         );
       }
       return;
@@ -299,15 +300,15 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: Text('Tem certeza de que deseja excluir o campo "${field.name}"?'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteField(field.name)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -318,7 +319,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -330,8 +331,8 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
         await _profileFieldsService.deleteProfileField(field.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Campo excluído com sucesso'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.fieldDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -340,7 +341,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao excluir o campo: $e'),
+              content: Text(AppLocalizations.of(context)!.errorDeletingField(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -425,7 +426,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
     // Validación adicional para el tipo 'select'
     if (_selectedType == 'select' && _currentOptions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, adicione ao menos uma opção para o campo de seleção.'), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseAddAtLeastOneOption), backgroundColor: Colors.red),
       );
       return;
     }
@@ -475,7 +476,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {

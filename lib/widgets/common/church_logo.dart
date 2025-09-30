@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../constants/app_assets.dart';
 
 class ChurchLogo extends StatelessWidget {
   final double height;
@@ -29,14 +30,14 @@ class ChurchLogo extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Image.asset(
-          'assets/images/logoaem.png',
+          AppAssets.churchLogo,
           height: height,
           fit: fit,
           // Si el asset local falla, mostrar un fallback
           errorBuilder: (context, error, stackTrace) {
             debugPrint('⚠️ CHURCH_LOGO - Error cargando asset local: $error');
             return CachedNetworkImage(
-              imageUrl: 'https://firebasestorage.googleapis.com/v0/b/churchappbr.firebasestorage.app/o/Logo%2Flogoaem.png?alt=media&token=6cbd3bba-fc29-47f6-8cd6-d7ba2fd8ea0f',
+              imageUrl: AppAssets.churchLogoFallback,
               height: height,
               fit: fit,
               placeholder: showLoadingIndicator

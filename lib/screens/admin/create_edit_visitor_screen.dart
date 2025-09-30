@@ -574,7 +574,7 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
                       decoration: const InputDecoration(labelText: 'Tipo de telefone'),
                       value: _phoneType,
                       isExpanded: true,
-                      items: ['Celular', 'Comercial', 'Residencial'].map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
+                      items: ['Teléfono', 'Comercial', 'Residencial'].map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
                       onChanged: (val) => setState(() => _phoneType = val),
                     ),
                     const SizedBox(height: 16),

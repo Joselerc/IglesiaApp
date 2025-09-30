@@ -368,7 +368,7 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
                         decoration: const InputDecoration(labelText: 'Tipo de telefone *'),
                         value: _phoneType,
                         isExpanded: true, 
-                        items: ['Celular', 'Comercial', 'Residencial'].map((label) => DropdownMenuItem(child: Text(label), value: label)).toList(),
+                        items: ['Teléfono', 'Comercial', 'Residencial'].map((label) => DropdownMenuItem(child: Text(label), value: label)).toList(),
                         onChanged: (value) => setState(() => _phoneType = value),
                         validator: (value) => (value == null) ? 'Obrigatório' : null,
                      ),

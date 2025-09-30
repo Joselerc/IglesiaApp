@@ -6,6 +6,7 @@ import '../../screens/announcements/announcement_detail_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../announcement_card.dart'; // Asegúrate que la ruta sea correcta
+import '../../l10n/app_localizations.dart';
 
 class AnnouncementsSection extends StatelessWidget {
   const AnnouncementsSection({super.key});
@@ -21,7 +22,7 @@ class AnnouncementsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Anúncios',
+                AppLocalizations.of(context)!.announcements,
                 style: AppTextStyles.headline3.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -45,7 +46,7 @@ class AnnouncementsSection extends StatelessWidget {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Center(child: Text('Erro ao carregar anúncios'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorLoadingAnnouncements));
               }
 
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,7 +75,7 @@ class AnnouncementsSection extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30), // Ajustar padding
                   child: Center(
                     child: Text(
-                      'Não há anúncios disponíveis',
+                      AppLocalizations.of(context)!.noAnnouncementsAvailable,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
                     ),

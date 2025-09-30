@@ -13,6 +13,7 @@ import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../services/role_service.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
+import '../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -104,8 +105,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         
         // Luego mostramos un mensaje de bienvenida
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Bem-vindo! Complete seu perfil para aproveitar todas as funções.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.welcomeCompleteProfile),
             duration: Duration(seconds: 5),
           ),
         );
@@ -122,19 +123,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
       switch (e.code) {
         case 'email-already-in-use':
-          message = 'Já existe uma conta com este email';
+          message = AppLocalizations.of(context)!.emailAlreadyInUse;
           break;
         case 'invalid-email':
-          message = 'O formato do email não é válido';
+          message = AppLocalizations.of(context)!.invalidEmailFormat;
           break;
         case 'operation-not-allowed':
-          message = 'O registro com email e senha não está habilitado';
+          message = AppLocalizations.of(context)!.registrationNotEnabled;
           break;
         case 'weak-password':
-          message = 'A senha é muito fraca, tente uma mais segura';
+          message = AppLocalizations.of(context)!.weakPassword;
           break;
         default:
-          message = 'Erro ao registrar: ${e.message}';
+          message = AppLocalizations.of(context)!.errorRegistering(e.message ?? '');
       }
       
       setState(() {
@@ -144,7 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       debugPrint('❌ Erro inesperado: $e');
       setState(() {
-        _errorMessage = 'Erro inesperado. Por favor, tente novamente mais tarde.';
+        _errorMessage = AppLocalizations.of(context)!.unexpectedError;
       });
     } finally {
       if (mounted) {
@@ -182,14 +183,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 24),
                   
                   // Título da página
-                  const Text(
-                    'Criar uma nova conta',
+                  Text(
+                    AppLocalizations.of(context)!.createANewAccount,
                     style: AppTextStyles.headline2,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Preencha seus dados para se cadastrar',
+                  Text(
+                    AppLocalizations.of(context)!.fillYourDetailsToRegister,
                     style: AppTextStyles.bodyText2,
                     textAlign: TextAlign.center,
                   ),
@@ -215,13 +216,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Formulário de registro
                   AppTextField(
                     controller: _nameController,
-                    label: 'Nome',
-                    hint: 'Digite seu nome',
+                    label: AppLocalizations.of(context)!.name,
+                    hint: AppLocalizations.of(context)!.enterYourName,
                     prefixIcon: Icons.person_outline,
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu nome';
+                        return AppLocalizations.of(context)!.pleaseEnterYourName;
                       }
                       return null;
                     },
@@ -229,13 +230,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppTextField(
                     controller: _surnameController,
-                    label: 'Sobrenome',
-                    hint: 'Digite seu sobrenome',
+                    label: AppLocalizations.of(context)!.surname,
+                    hint: AppLocalizations.of(context)!.enterYourSurname,
                     prefixIcon: Icons.person_outline,
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu sobrenome';
+                        return AppLocalizations.of(context)!.pleaseEnterYourSurname;
                       }
                       return null;
                     },
@@ -243,17 +244,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppTextField(
                     controller: _emailController,
-                    label: 'Email',
-                    hint: 'seu.email@exemplo.com',
+                    label: AppLocalizations.of(context)!.email,
+                    hint: AppLocalizations.of(context)!.yourEmailExample,
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu email';
+                        return AppLocalizations.of(context)!.pleaseEnterYourEmail;
                       }
                       if (!value.contains('@') || !value.contains('.')) {
-                        return 'Por favor, digite um email válido';
+                        return AppLocalizations.of(context)!.pleaseEnterAValidEmail;
                       }
                       return null;
                     },
@@ -261,8 +262,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppTextField(
                     controller: _phoneController,
-                    label: 'Telefone',
-                    hint: '(00) 00000-0000',
+                    label: AppLocalizations.of(context)!.phoneNumber,
+                    hint: AppLocalizations.of(context)!.phoneNumberHint,
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
                     isRequired: true,
@@ -272,10 +273,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu telefone';
+                        return AppLocalizations.of(context)!.pleaseEnterYourPhone;
                       }
                       if (value.length < 10) {
-                        return 'Por favor, digite um telefone válido';
+                        return AppLocalizations.of(context)!.pleaseEnterAValidPhone;
                       }
                       return null;
                     },
@@ -283,16 +284,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppPasswordField(
                     controller: _passwordController,
-                    label: 'Senha',
-                    hint: 'Digite sua senha',
+                    label: AppLocalizations.of(context)!.password,
+                    hint: AppLocalizations.of(context)!.enterYourPassword,
                     prefixIcon: Icons.lock_outline,
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite uma senha';
+                        return AppLocalizations.of(context)!.pleaseEnterAPassword;
                       }
                       if (value.length < 6) {
-                        return 'A senha deve ter pelo menos 6 caracteres';
+                        return AppLocalizations.of(context)!.passwordMustBeAtLeast6Chars;
                       }
                       return null;
                     },
@@ -300,23 +301,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AppSpacing.verticalSpacerMD,
                   AppPasswordField(
                     controller: _confirmPasswordController,
-                    label: 'Confirmar Senha',
-                    hint: 'Digite sua senha novamente',
+                    label: AppLocalizations.of(context)!.confirmPassword,
+                    hint: AppLocalizations.of(context)!.enterYourPasswordAgain,
                     prefixIcon: Icons.lock_outline,
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, confirme sua senha';
+                        return AppLocalizations.of(context)!.pleaseConfirmYourPassword;
                       }
                       if (value != _passwordController.text) {
-                        return 'As senhas não coincidem';
+                        return AppLocalizations.of(context)!.passwordsDoNotMatch;
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 32),
                   AppButton(
-                    text: 'Criar Conta',
+                    text: AppLocalizations.of(context)!.createAccount,
                     icon: Icons.app_registration,
                     onPressed: _isLoading ? null : _register,
                     fullWidth: true,
@@ -325,14 +326,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Já tem uma conta?',
+                      Text(
+                        AppLocalizations.of(context)!.alreadyHaveAnAccount,
                         style: AppTextStyles.bodyText2,
                       ),
                       TextButton(
                         onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                         child: Text(
-                          'Entrar',
+                          AppLocalizations.of(context)!.login,
                           style: AppTextStyles.bodyText2.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
@@ -344,7 +345,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
                   // Termos e condições
                   Text(
-                    'Ao se cadastrar, você aceita nossos termos e condições e nossa política de privacidade.',
+                    AppLocalizations.of(context)!.byRegisteringYouAccept,
                     style: AppTextStyles.caption.copyWith(color: AppColors.mutedGray),
                     textAlign: TextAlign.center,
                   ),

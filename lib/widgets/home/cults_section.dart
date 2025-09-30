@@ -5,6 +5,7 @@ import '../../models/cult.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
+import '../../l10n/app_localizations.dart';
 
 class CultsSection extends StatelessWidget {
   const CultsSection({super.key});
@@ -17,7 +18,7 @@ class CultsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
-            'Programação de Cultos',
+            AppLocalizations.of(context)!.cultsSchedule,
             style: AppTextStyles.headline3.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
@@ -37,7 +38,7 @@ class CultsSection extends StatelessWidget {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(child: Text('Erro: ${snapshot.error}'));
+                return Center(child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())));
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -47,7 +48,7 @@ class CultsSection extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Center(
                     child: Text(
-                      'Não há cultos programados',
+                      AppLocalizations.of(context)!.noScheduledCults,
                       style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
@@ -73,7 +74,7 @@ class CultsSection extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Center(
                     child: Text(
-                      'Não há cultos programados',
+                      AppLocalizations.of(context)!.noScheduledCults,
                       style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
@@ -116,9 +117,9 @@ class CultsSection extends StatelessWidget {
 
     String dateLabel;
     if (isToday) {
-      dateLabel = 'Hoje';
+      dateLabel = AppLocalizations.of(context)!.today;
     } else if (isTomorrow) {
-      dateLabel = 'Amanhã';
+      dateLabel = AppLocalizations.of(context)!.tomorrow;
     } else {
       dateLabel = dateFormatter.format(cult.date);
     }

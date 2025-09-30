@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart'; // Para QR Code (aunque no se usa a
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageDonationsScreen extends StatefulWidget {
   const ManageDonationsScreen({super.key});
@@ -42,7 +43,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
 
   // Estado de las Claves Pix
   List<PixKeyEntry> _pixKeyEntries = [];
-  final List<String> _pixKeyTypes = ['CNPJ', 'CPF', 'Celular', 'Email', 'Aleatória'];
+  final List<String> _pixKeyTypes = ['CNPJ', 'CPF', 'Teléfono', 'Email', 'Aleatória'];
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -153,7 +154,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
     if (!hasPermission) {
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Sem permissão para salvar configurações.'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToSaveSettings), backgroundColor: Colors.red),
          );
       }
       return; // No continuar si no tiene permiso
@@ -168,7 +169,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
       finalImageUrl = await _uploadImage(_imageFile!);
       if (finalImageUrl == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao enviar imagem'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage), backgroundColor: Colors.red),
         );
         setState(() => _isLoading = false);
         return;
@@ -204,14 +205,14 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
       await _donationConfigDocRef.set(configData, SetOptions(merge: true));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Configurações de doação salvas'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.donationConfigSaved), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       print('❌ Error al guardar configuración de donaciones: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -224,7 +225,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gerenciar Doações')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.manageDonationsTitle)),
       body: FutureBuilder<bool>(
         future: _permissionService.hasPermission('manage_donations_config'),
         builder: (context, permissionSnapshot) {
@@ -232,7 +233,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())));
           }
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
             return Center(
@@ -243,9 +244,9 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                    children: [
                       Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
-                      Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                       SizedBox(height: 8),
-                      Text('Você não tem permissão para gerenciar as configurações de doação.', textAlign: TextAlign.center),
+                      Text(AppLocalizations.of(context)!.noPermissionManageDonations, textAlign: TextAlign.center),
                    ],
                  ),
               ),
@@ -264,24 +265,24 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(16.0),
                   children: [
-                    Text('Configure como a seção de doações aparecerá na Tela Inicial.', style: Theme.of(context).textTheme.titleMedium),
+                    Text(AppLocalizations.of(context)!.configureDonationsSection, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: AppSpacing.lg),
 
                     // --- Campos Gerais ---
                     TextFormField(
                        controller: _sectionTitleController,
-                       decoration: const InputDecoration(labelText: 'Título da Seção (Opcional)', border: OutlineInputBorder()),
+                       decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sectionTitleOptional, border: OutlineInputBorder()),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                        controller: _descriptionController,
-                       decoration: const InputDecoration(labelText: 'Descrição (Opcional)', border: OutlineInputBorder()),
+                       decoration: InputDecoration(labelText: AppLocalizations.of(context)!.descriptionOptional, border: OutlineInputBorder()),
                        maxLines: 3,
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
                     // --- Imagem ---
-                    const Text('Imagem de Fundo (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.backgroundImageOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.sm),
                      GestureDetector(
                        onTap: _pickImage,
@@ -306,7 +307,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                                      Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
                                      const SizedBox(height: 8),
                                      Text(
-                                       'Toque para adicionar imagem\n(Recomendado 16:9)',
+                                       AppLocalizations.of(context)!.tapToAddImage,
                                        textAlign: TextAlign.center,
                                        style: TextStyle(color: Colors.grey.shade600),
                                      ),
@@ -318,7 +319,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                                child: IconButton(
                                  icon: const Icon(Icons.delete_outline, color: Colors.white, shadows: [Shadow(blurRadius: 2, color: Colors.black54)]), 
                                  onPressed: () => setState(() { _imageFile = null; _imageUrl = null; }),
-                                 tooltip: 'Remover Imagem',
+                                 tooltip: AppLocalizations.of(context)!.removeImage,
                                ),
                              ),
                          ),
@@ -329,13 +330,13 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                     const SizedBox(height: AppSpacing.lg),
 
                     // --- Contas Bancárias ---
-                     const Text('Contas Bancárias (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                     Text(AppLocalizations.of(context)!.bankAccountsOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                      const SizedBox(height: AppSpacing.sm),
                      TextFormField(
                        controller: _bankAccountsController,
-                       decoration: const InputDecoration(
-                         labelText: 'Informações Bancárias',
-                         hintText: 'Banco: XXX\nAgência: YYYY\nConta: ZZZZZZ\nNome Titular\n\n(Separe contas com linha em branco)',
+                       decoration: InputDecoration(
+                         labelText: AppLocalizations.of(context)!.bankingInformation,
+                         hintText: AppLocalizations.of(context)!.bankAccountsHint,
                          border: OutlineInputBorder(),
                        ),
                        maxLines: 5,
@@ -345,12 +346,12 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                      const SizedBox(height: AppSpacing.lg),
 
                      // --- Chaves Pix ---
-                      const Text('Chaves Pix (Opcional)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context)!.pixKeysOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       const SizedBox(height: AppSpacing.sm),
                       if (_pixKeyEntries.isEmpty)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text('Nenhuma chave Pix adicionada.', style: TextStyle(color: Colors.grey)),
+                          child: Text(AppLocalizations.of(context)!.noPixKeysAdded, style: TextStyle(color: Colors.grey)),
                         ),
                       ListView.builder(
                         shrinkWrap: true,
@@ -394,17 +395,17 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                                   child: TextFormField(
                                     controller: entry.keyController,
                                     decoration: InputDecoration(
-                                      labelText: 'Chave Pix',
+                                      labelText: AppLocalizations.of(context)!.pixKey,
                                       border: const OutlineInputBorder(),
                                       suffixIcon: IconButton(
                                         icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
                                         onPressed: () => _removePixKeyEntry(index),
-                                        tooltip: 'Remover Chave',
+                                        tooltip: AppLocalizations.of(context)!.removeKey,
                                       ),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.trim().isEmpty) {
-                                        return 'Chave obrigatória';
+                                        return AppLocalizations.of(context)!.keyRequired;
                                       }
                                       // TODO: Añadir validaciones específicas por tipo?
                                       return null;
@@ -419,7 +420,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                       const SizedBox(height: AppSpacing.sm),
                       TextButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text('Adicionar Chave Pix'),
+                        label: Text(AppLocalizations.of(context)!.addPixKey),
                         onPressed: _addPixKeyEntry,
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -431,7 +432,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
                       ? const Center(child: CircularProgressIndicator())
                       : ElevatedButton.icon(
                           icon: const Icon(Icons.save, color: Colors.white),
-                          label: const Text('Salvar Configurações', style: TextStyle(color: Colors.white, fontSize: 16)),
+                          label: Text(AppLocalizations.of(context)!.saveSettings, style: TextStyle(color: Colors.white, fontSize: 16)),
                           onPressed: _saveConfig,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,

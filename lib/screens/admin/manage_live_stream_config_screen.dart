@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageLiveStreamConfigScreen extends StatefulWidget {
   const ManageLiveStreamConfigScreen({super.key});
@@ -81,7 +82,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
       print('❌ Error al cargar configuración de directo: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: ${e.toString()}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingData(e.toString()))),
         );
       }
     } finally {
@@ -120,7 +121,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
     if (!hasPermission) {
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Sem permissão para salvar configurações.'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToSaveSettings), backgroundColor: Colors.red),
          );
       }
       return;
@@ -138,7 +139,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
       finalImageUrl = await _uploadImage(_imageFile!);
       if (finalImageUrl == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al subir la imagen'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImageStream), backgroundColor: Colors.red),
         );
         setState(() => _isLoading = false);
         return;
@@ -161,7 +162,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
       print('✅ Configuración de directo guardada.');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Configuración guardada'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.configurationSaved), backgroundColor: Colors.green),
         );
         // Opcional: Navegar hacia atrás
         // Navigator.pop(context);
@@ -170,7 +171,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
       print('❌ Error al guardar configuración de directo: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar: ${e.toString()}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSaving(e.toString()))),
         );
       }
     } finally {
@@ -184,7 +185,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Transmissão'),
+        title: Text(AppLocalizations.of(context)!.manageLiveStreamTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -203,7 +204,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
             return const Center(child: CircularProgressIndicator());
           }
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())));
           }
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
             return Center(
@@ -214,9 +215,9 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                    children: [
                       Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
-                      Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                       SizedBox(height: 8),
-                      Text('Você não tem permissão para gerenciar a configuração de transmissão.', textAlign: TextAlign.center),
+                      Text(AppLocalizations.of(context)!.noPermissionManageLiveStream, textAlign: TextAlign.center),
                    ],
                  ),
               ),
@@ -238,14 +239,14 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                     // Título de la Sección
                     TextFormField(
                       controller: _sectionTitleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Título da Seção (Home)',
-                        hintText: 'Ex: Transmissão Ao Vivo',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.sectionTitleHome,
+                        hintText: AppLocalizations.of(context)!.sectionTitleHint,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, insira um título para a seção';
+                          return AppLocalizations.of(context)!.pleaseEnterSectionTitle;
                         }
                         return null;
                       },
@@ -255,8 +256,8 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                     // Descripción -> Texto Adicional
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Texto Adicional (opcional)',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.additionalTextOptional,
                         border: OutlineInputBorder(),
                       ),
                       maxLines: 2,
@@ -267,7 +268,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
 
 
                     // Imagen y Título sobre Imagen
-                    const Text('Imagem da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.transmissionImage, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
 
                     // --- Selector de Imagen Mejorado ---
@@ -289,7 +290,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                                       Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Toque para adicionar imagem\n(Recomendado 16:9)',
+                                        AppLocalizations.of(context)!.tapToAddImage,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(color: Colors.grey.shade600),
                                       ),
@@ -328,9 +329,9 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                     // Título sobre Imagen
                     TextFormField(
                       controller: _imageTitleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Título sobre a Imagem',
-                        hintText: 'Ex: Culto de Domingo',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.titleOverImage,
+                        hintText: AppLocalizations.of(context)!.titleOverImageHint,
                         border: OutlineInputBorder(),
                       ),
                       // Podría ser opcional, ajustar validator si es necesario
@@ -340,21 +341,21 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                     const SizedBox(height: 16),
 
                     // URL del Directo
-                    const Text('Link da Transmissão', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.transmissionLink, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                      TextFormField(
                       controller: _urlController,
-                      decoration: const InputDecoration(
-                        labelText: 'URL (YouTube, Vimeo, etc.)',
-                        hintText: 'Cole o link completo aqui',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.link),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.urlYouTubeVimeo,
+                        hintText: AppLocalizations.of(context)!.pasteFullLinkHere,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.link),
                       ),
                        keyboardType: TextInputType.url,
                       validator: (value) {
                         // Es opcional tener URL, pero si se pone, validar formato básico
                         if (value != null && value.isNotEmpty && !value.startsWith('http')) {
-                          return 'Por favor, insira um URL válido (começando com http ou https)';
+                          return AppLocalizations.of(context)!.pleaseEnterValidUrl;
                         }
                         return null;
                       },
@@ -366,11 +367,11 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                     const SizedBox(height: 16),
                     // Interruptor Activo/Inactivo
                     SwitchListTile(
-                      title: const Text('Ativar Transmissão na Home'),
+                      title: Text(AppLocalizations.of(context)!.activateTransmissionHome),
                       subtitle: Text(
                           _isActive
-                           ? 'Visível na Home'
-                           : 'Oculto na Home',
+                           ? AppLocalizations.of(context)!.visibleInHome
+                           : AppLocalizations.of(context)!.hiddenInHome,
                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: _isActive ? AppColors.secondary : Colors.grey
                            )
@@ -391,7 +392,7 @@ class _ManageLiveStreamConfigScreenState extends State<ManageLiveStreamConfigScr
                         ? const Center(child: CircularProgressIndicator())
                         : ElevatedButton.icon(
                             icon: const Icon(Icons.save, color: Colors.white),
-                            label: const Text('Salvar Configuração', style: TextStyle(color: Colors.white, fontSize: 16)),
+                            label: Text(AppLocalizations.of(context)!.saveConfiguration, style: TextStyle(color: Colors.white, fontSize: 16)),
                             onPressed: _saveConfig,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,

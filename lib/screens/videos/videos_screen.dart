@@ -12,6 +12,7 @@ import '../../widgets/skeletons/videos_screen_skeleton.dart';
 import '../../widgets/skeletons/video_section_skeleton.dart';
 import '../../widgets/home/favorite_videos_section.dart';
 import '../../widgets/videos/video_card_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class VideosScreen extends StatefulWidget {
   const VideosScreen({super.key});
@@ -128,8 +129,8 @@ class _VideosScreenState extends State<VideosScreen> {
                     ),
                   ),
                   child: FlexibleSpaceBar(
-                    title: const Text(
-                      'Vídeos',
+                    title: Text(
+                      AppLocalizations.of(context)!.videos,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -191,7 +192,7 @@ class _VideosScreenState extends State<VideosScreen> {
                           _checkIfFavoritesSectionShouldBeShown();
                         });
                       },
-                      tooltip: 'Gerenciar seções',
+                      tooltip: AppLocalizations.of(context)!.manageSections,
                     ),
                 ],
               ),
@@ -211,7 +212,7 @@ class _VideosScreenState extends State<VideosScreen> {
                     padding: const EdgeInsets.only(bottom: 35),
                     children: [
                       _buildSection(
-                        title: 'Vídeos Recentes',
+                        title: AppLocalizations.of(context)!.recentVideos,
                         icon: Icons.new_releases,
                         stream: FirebaseFirestore.instance
                             .collection('videos')
@@ -236,7 +237,7 @@ class _VideosScreenState extends State<VideosScreen> {
                             print('Error en StreamBuilder de Secciones Personalizadas: ${snapshot.error}');
                             return Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Center(child: Text('Erro ao carregar seções: ${snapshot.error}')),
+                              child: Center(child: Text(AppLocalizations.of(context)!.errorLoadingSections(snapshot.error.toString()))),
                             );
                           }
                           if (!snapshot.hasData || snapshot.data == null) {
@@ -283,7 +284,7 @@ class _VideosScreenState extends State<VideosScreen> {
           );
         },
         icon: const Icon(Icons.add_circle_outline),
-        label: const Text('Adicionar vídeo'),
+        label: Text(AppLocalizations.of(context)!.addVideo),
         backgroundColor: AppColors.primary,
       ) : null,
     );
@@ -325,12 +326,12 @@ class _VideosScreenState extends State<VideosScreen> {
               }
               if (snapshot.hasError) {
                 print('Error en StreamBuilder de _buildSection: ${snapshot.error}');
-                return Center(child: Text('Erro na seção: ${snapshot.error}'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorInSection(snapshot.error.toString())));
               }
               if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Text(
-                    'Nenhum vídeo disponível nesta seção',
+                    AppLocalizations.of(context)!.noVideosAvailableInSection,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -399,14 +400,14 @@ class _VideosScreenState extends State<VideosScreen> {
               }
               if (snapshot.hasError) {
                 print('Error en StreamBuilder de _buildCustomSection: ${snapshot.error}');
-                return Center(child: Text('Erro na seção customizada: ${snapshot.error}'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorInCustomSection(snapshot.error.toString())));
               }
               if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      'Nenhum vídeo nesta seção personalizada',
+                      AppLocalizations.of(context)!.noVideosInCustomSection,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w500,

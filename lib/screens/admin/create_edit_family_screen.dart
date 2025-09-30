@@ -1041,7 +1041,7 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
               decoration: const InputDecoration(labelText: 'Tipo de telefone *'),
               value: _guardianPhoneType,
               isExpanded: true,
-              items: ['Celular', 'Comercial', 'Residencial']
+              items: ['Teléfono', 'Comercial', 'Residencial']
                   .map((label) => DropdownMenuItem(child: Text(label), value: label))
                   .toList(),
               onChanged: (value) {

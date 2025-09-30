@@ -4,6 +4,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class GroupsSection extends StatelessWidget {
   final String displayTitle;
@@ -61,7 +62,7 @@ class GroupsSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Connect',
+                        AppLocalizations.of(context)!.connect,
                         style: AppTextStyles.subtitle1.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -69,7 +70,7 @@ class GroupsSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Conecte-se com grupos da igreja',
+                        AppLocalizations.of(context)!.connectWithChurchGroups,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: AppColors.textSecondary,
                         ),

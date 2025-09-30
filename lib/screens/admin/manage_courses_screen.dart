@@ -5,6 +5,7 @@ import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'create_edit_course_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageCoursesScreen extends StatefulWidget {
   const ManageCoursesScreen({super.key});
@@ -59,7 +60,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Cursos'),
+        title: Text(AppLocalizations.of(context)!.manageCoursesTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -72,7 +73,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
           
           if (permissionSnapshot.hasError) {
             return Center(
-              child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'),
+              child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())),
             );
           }
           
@@ -85,10 +86,10 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', 
+                    Text(AppLocalizations.of(context)!.accessDenied, 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar cursos.',
+                    Text(AppLocalizations.of(context)!.noPermissionManageCourses,
                       textAlign: TextAlign.center),
                   ],
                 ),
@@ -150,7 +151,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
             child: Row(
               children: [
                 FilterChip(
-                  label: const Text('Todos'),
+                  label: Text(AppLocalizations.of(context)!.all),
                   selected: _selectedFilter == null,
                   onSelected: (selected) {
                     if (selected) {
@@ -179,7 +180,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                 ),
                 const SizedBox(width: 12),
                 FilterChip(
-                  label: const Text('Publicados'),
+                  label: Text(AppLocalizations.of(context)!.published),
                   selected: _selectedFilter == CourseStatus.published,
                   onSelected: (selected) {
                     if (selected) {
@@ -208,7 +209,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                 ),
                 const SizedBox(width: 12),
                 FilterChip(
-                  label: const Text('Rascunhos'),
+                  label: Text(AppLocalizations.of(context)!.drafts),
                   selected: _selectedFilter == CourseStatus.draft,
                   onSelected: (selected) {
                     if (selected) {
@@ -237,7 +238,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                 ),
                 const SizedBox(width: 12),
                 FilterChip(
-                  label: const Text('Arquivados'),
+                  label: Text(AppLocalizations.of(context)!.archived),
                   selected: _selectedFilter == CourseStatus.archived,
                   onSelected: (selected) {
                     if (selected) {
@@ -282,7 +283,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
         
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro ao carregar cursos: ${snapshot.error}'),
+            child: Text(AppLocalizations.of(context)!.errorLoadingCourses(snapshot.error.toString())),
           );
         }
         
@@ -620,7 +621,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                       // Botón de editar (siempre visible)
                       OutlinedButton.icon(
                         icon: const Icon(Icons.edit, size: 16),
-                        label: const Text('Editar'),
+                        label: Text(AppLocalizations.of(context)!.edit),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                           minimumSize: const Size(0, 36),
@@ -652,7 +653,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                               children: [
                                 const Icon(Icons.unpublished, color: Colors.white, size: 16),
                                 const SizedBox(width: 4),
-                                const Text('Despublicar'),
+                                Text(AppLocalizations.of(context)!.unpublish),
                               ],
                             ),
                           )
@@ -672,7 +673,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                               children: [
                                 const Icon(Icons.publish, color: Colors.white, size: 16),
                                 const SizedBox(width: 4),
-                                const Text('Publicar'),
+                                Text(AppLocalizations.of(context)!.publish),
                               ],
                             ),
                           ),
@@ -725,8 +726,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                     ),
                     child: const Icon(Icons.publish, color: Colors.green),
                   ),
-                  title: const Text('Publicar curso'),
-                  subtitle: const Text('Torne o curso visível para todos os usuários'),
+                  title: Text(AppLocalizations.of(context)!.publishCourse),
+                  subtitle: Text(AppLocalizations.of(context)!.makeCourseVisibleToAllUsers),
                   onTap: () {
                     _updateCourseStatus(course, CourseStatus.published);
                     Navigator.pop(context);

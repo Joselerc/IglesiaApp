@@ -4,6 +4,7 @@ import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart'; // O usar Card normal
 import '../../screens/donations/donation_details_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class DonationsSection extends StatelessWidget {
   final String title; // Título viene de homeScreenSections
@@ -44,7 +45,7 @@ class DonationsSection extends StatelessWidget {
                contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                leading: Icon(Icons.volunteer_activism, color: AppColors.primary, size: 28),
                title: Text(
-                 'Ver opções de doação', 
+                 AppLocalizations.of(context)!.viewDonationOptions, 
                  style: Theme.of(context).textTheme.bodyLarge,
                ),
                trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),

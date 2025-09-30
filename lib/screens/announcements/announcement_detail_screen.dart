@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import '../events/event_detail_screen.dart';
 import './edit_announcement_screen.dart';
 import 'package:flutter/services.dart';
+import '../../l10n/app_localizations.dart'; // Importación para internacionalización
+import 'package:flutter/foundation.dart'; // Para debugPrint
 
 class AnnouncementDetailScreen extends StatefulWidget {
   final AnnouncementModel announcement;
@@ -81,17 +83,17 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       } else {
           if (mounted) {
               setState(() {
-                  _eventTitle = 'Evento não encontrado';
+                  _eventTitle = AppLocalizations.of(context)!.eventNotFound;
                   _eventData = null;
                   _isLoadingEvent = false;
               });
           }
       }
     } catch (e) {
-      print('Error al cargar detalles del evento: $e');
+      debugPrint(AppLocalizations.of(context)!.errorLoadingEventDetails(e.toString()));
       if (mounted) {
         setState(() {
-          _eventTitle = 'Erro ao carregar evento';
+          _eventTitle = AppLocalizations.of(context)!.errorLoadingEvent;
           _isLoadingEvent = false;
         });
       }
@@ -102,7 +104,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     if (widget.announcement.eventId == null || _eventData == null) {
          if (mounted) {
              ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('Evento não encontrado ou inválido.')),
+                 SnackBar(content: Text(AppLocalizations.of(context)!.eventNotFoundOrInvalid)),
              );
          }
          return;
@@ -129,10 +131,10 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
         );
       }
     } catch (e) {
-      print('Error al navegar al evento: $e');
+      debugPrint(AppLocalizations.of(context)!.errorNavigatingToEvent(e.toString()));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao abrir o evento: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOpeningEvent(e.toString()))),
         );
       }
     } finally {
@@ -170,13 +172,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
               .doc(widget.announcement.id)
               .get();
           if (doc.exists && mounted) {
-              print("Datos del anuncio recargados (implementar actualización de estado si es necesario)");
+              debugPrint(AppLocalizations.of(context)!.announcementReloaded);
           }
       } catch (e) {
-          print("Error al recargar datos del anuncio: $e");
+          debugPrint(AppLocalizations.of(context)!.errorReloadingAnnouncement(e.toString()));
            if (mounted) {
                ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text('Erro ao recarregar anúncio: $e')),
+                   SnackBar(content: Text(AppLocalizations.of(context)!.errorReloadingAnnouncement(e.toString()))),
                );
            }
       }
@@ -188,17 +190,17 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: const Text('Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteAnnouncement),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -214,7 +216,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
           try {
             await FirebaseStorage.instance.refFromURL(widget.announcement.imageUrl).delete();
           } catch (e) {
-            print("Erro ao excluir imagem do Storage: $e");
+            debugPrint(AppLocalizations.of(context)!.errorDeletingImage(e.toString()));
           }
         }
 
@@ -225,19 +227,19 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Anúncio excluído com sucesso.'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.announcementDeletedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
           Navigator.pop(context);
         }
       } catch (e) {
-        print("Erro ao excluir anúncio: $e");
+        debugPrint(AppLocalizations.of(context)!.errorDeletingAnnouncement(e.toString()));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao excluir anúncio: $e'),
+              content: Text(AppLocalizations.of(context)!.errorDeletingAnnouncement(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -260,7 +262,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
         elevation: 2,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          isCultAnnouncement ? 'Anúncio de Culto' : 'Anúncio',
+          isCultAnnouncement ? AppLocalizations.of(context)!.cultAnnouncement : AppLocalizations.of(context)!.announcement,
           style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
         ),
         actions: [
@@ -268,25 +270,25 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: _isDeleting ? null : _editAnnouncement,
-              tooltip: 'Editar Anúncio',
+              tooltip: AppLocalizations.of(context)!.editAnnouncement,
             ),
         ],
       ),
       body: Stack(
         children: [
           isCultAnnouncement 
-              ? _buildCultAnnouncementDetail()
-              : _buildRegularAnnouncementDetail(),
+              ? _buildCultAnnouncementDetail(context)
+              : _buildRegularAnnouncementDetail(context),
           if (_isDeleting)
             Container(
               color: Colors.black.withOpacity(0.5),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(color: Colors.white),
                     SizedBox(height: 16),
-                    Text("Excluindo anúncio...", style: TextStyle(color: Colors.white, fontSize: 16)),
+                    Text(AppLocalizations.of(context)!.deletingAnnouncement, style: const TextStyle(color: Colors.white, fontSize: 16)),
                   ],
                 ),
               ),
@@ -296,7 +298,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     );
   }
 
-  Widget _buildImageHeader() {
+  Widget _buildImageHeader(BuildContext context) {
       return Stack(
         children: [
           SizedBox(
@@ -381,7 +383,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                   borderRadius: BorderRadius.circular(20),
                   onTapDown: (_) => HapticFeedback.lightImpact(), 
                   child: Tooltip(
-                    message: 'Excluir Anúncio',
+                    message: AppLocalizations.of(context)!.deleteAnnouncement,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
@@ -412,14 +414,14 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                          )
                      ]
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.church, color: Colors.white, size: 16),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
-                        'Culto',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.cult,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -433,12 +435,12 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       );
   }
 
-  Widget _buildRegularAnnouncementDetail() {
+  Widget _buildRegularAnnouncementDetail(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildImageHeader(),
+          _buildImageHeader(context),
           
           Padding(
             padding: const EdgeInsets.all(20),
@@ -468,7 +470,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                     children: [
                       _buildInfoRow(
                           Icons.calendar_today_outlined,
-                          'Publicado em: ${DateFormat('dd/MM/yyyy').format(widget.announcement.createdAt)}'
+                          AppLocalizations.of(context)!.publishedOn(DateFormat('dd/MM/yyyy').format(widget.announcement.createdAt))
                       ),
                       
                       if (widget.announcement.location != null && widget.announcement.location!.isNotEmpty) ...[
@@ -489,14 +491,14 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     );
   }
 
-  Widget _buildCultAnnouncementDetail() {
+  Widget _buildCultAnnouncementDetail(BuildContext context) {
     final hasEventLink = widget.announcement.eventId != null;
     
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           _buildImageHeader(),
+           _buildImageHeader(context),
           
           Padding(
             padding: const EdgeInsets.all(20),
@@ -526,7 +528,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                     children: [
                       _buildInfoRow(
                           Icons.calendar_today_outlined,
-                          'Data do culto: ${DateFormat('dd/MM/yyyy HH:mm').format(widget.announcement.date)}'
+                          AppLocalizations.of(context)!.cultDate(DateFormat('dd/MM/yyyy HH:mm').format(widget.announcement.date))
                       ),
                       
                       if (widget.announcement.location != null && widget.announcement.location!.isNotEmpty) ...[
@@ -548,7 +550,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                       Icon(Icons.link, size: 20, color: Colors.grey[700]),
                       const SizedBox(width: 8),
                       Text(
-                        'Evento Vinculado',
+                        AppLocalizations.of(context)!.linkedEvent,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -592,7 +594,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          _eventTitle ?? 'Carregando...',
+                                          _eventTitle ?? AppLocalizations.of(context)!.loading,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -600,30 +602,11 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        if (_eventTitle != null && _eventTitle != 'Evento não encontrado' && _eventTitle != 'Erro ao carregar evento') ...[
-                                             const SizedBox(height: 4),
-                                             Text(
-                                                 'Toque para ver detalhes',
-                                                 style: TextStyle(
-                                                     color: Colors.grey[600],
-                                                     fontSize: 13,
-                                                 ),
-                                             ),
-                                         ] else if (_eventTitle == 'Evento não encontrado' || _eventTitle == 'Erro ao carregar evento') ...[
-                                             const SizedBox(height: 4),
-                                             Text(
-                                                 _eventTitle!,
-                                                 style: TextStyle(
-                                                     color: Colors.red[700],
-                                                     fontSize: 13,
-                                                     fontWeight: FontWeight.w500,
-                                                 ),
-                                             ),
-                                         ],
+                                        ..._buildEventDetailsWidgets(context),
                                       ],
                                     ),
                                   ),
-                                   if (_eventTitle != null && _eventTitle != 'Evento não encontrado' && _eventTitle != 'Erro ao carregar evento')
+                                   if (_eventTitle != null && _eventTitle != AppLocalizations.of(context)!.eventNotFound && _eventTitle != AppLocalizations.of(context)!.errorLoadingEvent)
                                       const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                                 ],
                               ),
@@ -645,7 +628,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                                const SizedBox(width: 8),
                                Expanded(
                                    child: Text(
-                                       'Nenhum evento vinculado a este culto.',
+                                       AppLocalizations.of(context)!.noEventLinkedToThisCult,
                                        style: TextStyle(fontSize: 13, color: Colors.orange.shade800),
                                    ),
                                ),
@@ -660,6 +643,34 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildEventDetailsWidgets(BuildContext context) {
+    if (_eventTitle != null && _eventTitle != AppLocalizations.of(context)!.eventNotFound && _eventTitle != AppLocalizations.of(context)!.errorLoadingEvent) {
+      return [
+        const SizedBox(height: 4),
+        Text(
+            AppLocalizations.of(context)!.tapToSeeDetails,
+            style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 13,
+            ),
+        ),
+      ];
+    } else if (_eventTitle == AppLocalizations.of(context)!.eventNotFound || _eventTitle == AppLocalizations.of(context)!.errorLoadingEvent) {
+      return [
+        const SizedBox(height: 4),
+        Text(
+            _eventTitle!,
+            style: TextStyle(
+                color: Colors.red[700],
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+            ),
+        ),
+      ];
+    }
+    return [];
   }
 
   Widget _buildInfoRow(IconData icon, String text) {

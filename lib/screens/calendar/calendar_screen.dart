@@ -13,11 +13,11 @@ import '../../models/group_event.dart';
 import '../../models/event_model.dart';
 import '../../models/cult.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_text_styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../main.dart' as main_app;
 import '../../cubits/navigation_cubit.dart';
 import '../../widgets/skeletons/calendar_screen_skeleton.dart';
+import '../../l10n/app_localizations.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -76,7 +76,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         _loadCounselingEvents(),
       ]);
     } catch (e) {
-      debugPrint('Erro ao carregar eventos: $e');
+      debugPrint(AppLocalizations.of(context)!.errorLoadingEvents(e.toString()));
     } finally {
       setState(() {
         _isLoading = false;
@@ -466,27 +466,27 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
 
     switch (currentTabIndex) {
       case 0:
-        tabName = 'Eventos';
+        tabName = AppLocalizations.of(context)!.events;
         events = _allEvents[normalizedDay] ?? [];
         break;
       case 1:
-        tabName = 'Ministérios';
+        tabName = AppLocalizations.of(context)!.ministries;
         events = _ministryEvents[normalizedDay] ?? [];
         break;
       case 2:
-        tabName = 'Grupos';
+        tabName = AppLocalizations.of(context)!.groups;
         events = _groupEvents[normalizedDay] ?? [];
         break;
       case 3:
-        tabName = 'Cultos';
+        tabName = AppLocalizations.of(context)!.cults;
         events = _cultEvents[normalizedDay] ?? [];
         break;
       case 4:
-        tabName = 'Escalas';
+        tabName = AppLocalizations.of(context)!.services;
         events = _serviceEvents[normalizedDay] ?? [];
         break;
       case 5:
-        tabName = 'Aconselhamento';
+        tabName = AppLocalizations.of(context)!.counseling;
         events = _counselingEvents[normalizedDay] ?? [];
         break;
       default:
@@ -548,8 +548,8 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
                               main_app.navigationCubit.navigateTo(NavigationState.home);
                             },
                           ),
-                          const Text(
-                            'Calendários',
+                          Text(
+                            AppLocalizations.of(context)!.calendars,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -710,13 +710,13 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
       indicatorPadding: EdgeInsets.zero,
       labelPadding: const EdgeInsets.symmetric(horizontal: 12),
       tabAlignment: TabAlignment.start,
-      tabs: const [
-        Tab(text: 'Eventos'),
-        Tab(text: 'Ministérios'),
-        Tab(text: 'Grupos'),
-        Tab(text: 'Cultos'),
-        Tab(text: 'Serviços'),
-        Tab(text: 'Aconselhamento'),
+      tabs: [
+        Tab(text: AppLocalizations.of(context)!.events),
+        Tab(text: AppLocalizations.of(context)!.ministries),
+        Tab(text: AppLocalizations.of(context)!.groups),
+        Tab(text: AppLocalizations.of(context)!.cults),
+        Tab(text: AppLocalizations.of(context)!.services),
+        Tab(text: AppLocalizations.of(context)!.counseling),
       ],
     );
   }

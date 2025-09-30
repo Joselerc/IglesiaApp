@@ -15,7 +15,7 @@ import '../modals/create_group_modal.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+// import 'package:intl_phone_field/intl_phone_field.dart'; // Usado en la sección comentada
 import 'admin/user_role_management_screen.dart';
 import 'statistics/ministry_members_stats_screen.dart';
 import 'statistics/group_members_stats_screen.dart';
@@ -26,7 +26,7 @@ import '../theme/app_text_styles.dart';
 import 'admin/profile_fields_admin_screen.dart';
 import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
 import 'admin/manage_donations_screen.dart'; // <-- Import añadido
-import 'admin/create_edit_role_screen.dart'; // <-- Import añadido
+// import 'admin/create_edit_role_screen.dart'; // No se usa directamente
 import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
 import 'package:iglesia_app/services/permission_service.dart'; // <-- Import PermissionService
 import '../services/role_service.dart'; // <-- Import correcto del servicio de roles
@@ -35,11 +35,13 @@ import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';
 import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
 import '../widgets/skeletons/profile_screen_skeleton.dart';
-import '../widgets/skeletons/additional_fields_skeleton.dart';
+// import '../widgets/skeletons/additional_fields_skeleton.dart'; // No se usa directamente
 import './statistics/church_statistics_screen.dart'; // <-- IMPORTAR NUEVA PANTALLA
 import '../widgets/profile/profile_additional_fields_section.dart'; // <-- IMPORTAR NUEVO WIDGET
 import '../widgets/profile/profile_personal_information_section.dart'; // <-- AÑADIR IMPORT DEL NUEVO WIDGET
 import 'events/events_page.dart'; // <-- IMPORT PARA GERENCIAR EVENTOS
+import '../l10n/app_localizations.dart';
+import '../widgets/debug/superuser_diagnostic_widget.dart'; // <-- IMPORT PARA DIAGNÓSTICO SUPERUSER
 
 
 class ProfileScreen extends StatefulWidget {
@@ -177,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meu Perfil'),
+        title: Text(AppLocalizations.of(context)!.myProfile),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -195,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person_remove),
-            tooltip: 'Eliminar Conta',
+            tooltip: AppLocalizations.of(context)!.deleteAccount,
             onPressed: () => AccountDeletionService.showDeleteAccountConfirmation(context),
           ),
         ],
@@ -267,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          userData['displayName'] ?? 'Completa tu perfil',
+                          userData['displayName'] ?? AppLocalizations.of(context)!.completeYourProfile,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -299,406 +301,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // --- SECCIÓN DE INFORMACIÓN ADICIONAL (WIDGET EXISTENTE) ---
                   if (FirebaseAuth.instance.currentUser != null)
                     ProfileAdditionalFieldsSection(userId: FirebaseAuth.instance.currentUser!.uid),
-
-                  // Sección de información personal - NUEVO DISEÑO (ELIMINAR ESTE BLOQUE)
-                  /*
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Header con estilo
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2196F3).withOpacity(0.08),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Título con icono
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFF2196F3).withOpacity(0.2),
-                                          spreadRadius: 1,
-                                          blurRadius: 5,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(
-                                      Icons.person_outline,
-                                      color: Color(0xFF2196F3),
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    'Informação Pessoal',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2196F3),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              
-                              const SizedBox(height: 12),
-                              
-                              // Botón de guardar en su propia línea
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.save, size: 14, color: Colors.white),
-                                  label: const Text(
-                                    'Salvar',
-                                    style: TextStyle(fontSize: 13),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2196F3),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    elevation: 0,
-                                    minimumSize: const Size(85, 32),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: _guardarInformacionPersonal,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Contenido
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              // Campo de nombre
-                              TextFormField(
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  labelText: 'Nome',
-                                  labelStyle: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.only(left: 12, right: 8),
-                                    child: Icon(
-                                      Icons.person_outline,
-                                      color: const Color(0xFF2196F3).withOpacity(0.7),
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Por favor, digite seu nome';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              
-                              // Campo de apellido
-                              TextFormField(
-                                controller: _surnameController,
-                                decoration: InputDecoration(
-                                  labelText: 'Sobrenome',
-                                  labelStyle: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.only(left: 12, right: 8),
-                                    child: Icon(
-                                      Icons.person_outline,
-                                      color: const Color(0xFF2196F3).withOpacity(0.7),
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Por favor, digite seu sobrenome';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              
-                              // --- NUEVOS CAMPOS UI ---
-                              // Campo de Fecha de Nacimiento
-                              InkWell(
-                                onTap: () async {
-                                  final DateTime? picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: _birthDate ?? DateTime.now(),
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime.now(),
-                                    locale: const Locale('pt', 'BR'),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColors.primary, // Color primario para el DatePicker
-                                            onPrimary: Colors.white, 
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  if (picked != null && picked != _birthDate) {
-                                    setState(() {
-                                      _birthDate = picked;
-                                    });
-                                  }
-                                },
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: 'Nascimento',
-                                    labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
-                                    filled: true,
-                                    fillColor: Colors.grey[50],
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.only(left: 12, right: 8),
-                                      child: Icon(Icons.calendar_today_outlined, color: const Color(0xFF2196F3).withOpacity(0.7)),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0), // Ajuste de padding
-                                  ),
-                                  child: Padding( // Padding interno para el texto
-                                    padding: const EdgeInsets.only(left: 12.0), // Alinea con el texto de otros campos
-                                    child: Text(
-                                      _birthDate != null 
-                                          ? '${_birthDate!.day.toString().padLeft(2, '0')}/${_birthDate!.month.toString().padLeft(2, '0')}/${_birthDate!.year}' 
-                                          : 'Selecionar data',
-                                      style: _birthDate != null 
-                                          ? AppTextStyles.bodyText1.copyWith(color: Colors.black87)
-                                          : AppTextStyles.bodyText1.copyWith(color: Colors.grey[700]),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Campo de Sexo
-                              DropdownButtonFormField<String>(
-                                decoration: InputDecoration(
-                                  labelText: 'Sexo',
-                                  labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                  prefixIcon: Container(
-                                    margin: const EdgeInsets.only(left: 12, right: 8),
-                                    child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7)), // Icono ejemplo
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0), // Reducir padding vertical
-                                ),
-                                value: _gender,
-                                isExpanded: true,
-                                items: ['Masculino', 'Feminino', 'Prefiro não dizer']
-                                    .map((label) => DropdownMenuItem(
-                                          child: Padding( // Padding para los items del dropdown
-                                            padding: const EdgeInsets.only(left: 12.0),
-                                            child: Text(label),
-                                          ), 
-                                          value: label,
-                                        ))
-                                    .toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _gender = value;
-                                  });
-                                },
-                                // validator: (value) => (value == null) ? 'Sexo é obrigatório.' : null, // Opcional, si lo quieres obligatorio
-                                selectedItemBuilder: (BuildContext context) { // Para alinear el texto seleccionado
-                                  return ['Masculino', 'Feminino', 'Prefiro não dizer'].map<Widget>((String item) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(left: 12.0),
-                                      child: Text(
-                                        item,
-                                        style: AppTextStyles.bodyText1.copyWith(color: Colors.black87),
-                                      ),
-                                    );
-                                  }).toList();
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              // --- FIN NUEVOS CAMPOS UI ---
-                              
-                              // Campo de teléfono
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Si hay un teléfono guardado, mostrarlo como texto informativo
-                                  if (_phoneCompleteNumber.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 4, bottom: 4),
-                                      child: Text(
-                                        'Número atual: $_phoneCompleteNumber',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  IntlPhoneField(
-                                    initialCountryCode: _isoCountryCode, // Usar código ISO directamente
-                                    decoration: InputDecoration(
-                                      labelText: 'Telefone',
-                                      labelStyle: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(color: Colors.grey[300]!),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(color: Colors.grey[300]!),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.grey[50],
-                                      hintText: _phoneController.text.isEmpty ? 'Opcional' : null,
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                    ),
-                                    // Establecer el valor inicial del teléfono
-                                    initialValue: _phoneController.text,
-                                    onChanged: (phone) {
-                                      setState(() {
-                                        // Guardar el número sin espacios ni caracteres especiales
-                                        final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
-                                        _phoneCountryCode = phone.countryCode;
-                                        _phoneCompleteNumber = phone.completeNumber;
-                                        _isValidPhone = cleanNumber.length >= 10;
-                                        
-                                        // Solo actualizar el controller si el número ha cambiado
-                                        // para evitar ciclos de actualización
-                                        if (_phoneController.text != cleanNumber) {
-                                          _phoneController.text = cleanNumber;
-                                        }
-                                        
-                                        // Depuración detallada
-                                        print('📱 TELÉFONO ACTUALIZADO (onChanged):');
-                                        print('- Número: $cleanNumber');
-                                        print('- Completo: ${phone.completeNumber}');
-                                        print('- País: ${phone.countryCode}');
-                                      });
-                                    },
-                                    onSaved: (phone) {
-                                      if (phone != null) {
-                                        // Este evento ocurre cuando se guarda el formulario
-                                        final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
-                                        _phoneController.text = cleanNumber;
-                                        _phoneCompleteNumber = phone.completeNumber;
-                                        _phoneCountryCode = phone.countryCode;
-                                        
-                                        print('📱 TELÉFONO GUARDADO (onSaved):');
-                                        print('- Número: $cleanNumber');
-                                        print('- Completo: ${phone.completeNumber}');
-                                      }
-                                    },
-                                    validator: (phone) {
-                                      if (phone == null || phone.number.isEmpty) {
-                                        return null; // Es opcional
-                                      }
-                                      if (phone.number.length < 8) {
-                                        return 'Telefone inválido';
-                                      }
-                                      return null;
-                                    },
-                                    // Asegurar que el teléfono se guarde correctamente incluso cuando solo se cambia el código de país
-                                    onCountryChanged: (country) {
-                                      setState(() {
-                                        _isoCountryCode = country.code; // Actualizar código ISO
-                                        _phoneCountryCode = '+${country.dialCode}'; // Actualizar código de marcación
-                                        if (_phoneController.text.isNotEmpty) {
-                                          _phoneCompleteNumber = '$_phoneCountryCode${_phoneController.text}';
-                                        }
-                                        
-                                        // Depuración
-                                        print('📱 PAÍS CAMBIADO:');
-                                        print('- Código ISO: $_isoCountryCode');
-                                        print('- Código Marcación: $_phoneCountryCode');
-                                        print('- Completo actualizado: $_phoneCompleteNumber');
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  */
                   
                   const SizedBox(height: 24),
                   
@@ -745,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.people_outline,
                                   color: AppColors.primary,
                                   size: 24,
@@ -753,8 +355,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(width: 15),
                               Text(
-                                'Participação',
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.participation,
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primary,
@@ -789,9 +391,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           size: 16,
                                         ),
                                         const SizedBox(width: 6),
-                                        const Text(
-                                          'Ministérios',
-                                          style: TextStyle(
+                                        Text(
+                                          AppLocalizations.of(context)!.ministries,
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -837,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              'Erro ao carregar ministérios',
+                                              AppLocalizations.of(context)!.errorLoadingMinistries,
                                               style: TextStyle(
                                                 color: Colors.red.shade700,
                                               ),
@@ -908,9 +510,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       child: Column(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
-                                                          const Text(
-                                                            'Minhas Escalas',
-                                                            style: TextStyle(
+                                                          Text(
+                                                            AppLocalizations.of(context)!.mySchedulesSection,
+                                                            style: const TextStyle(
                                                               fontSize: 18,
                                                               fontWeight: FontWeight.bold,
                                                               color: Color(0xFFD32F2F),
@@ -918,7 +520,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           ),
                                                           const SizedBox(height: 4),
                                                           Text(
-                                                            'Gerenciar suas atribuições e convites de trabalho nos ministérios',
+                                                            AppLocalizations.of(context)!.manageMinistriesAssignments,
                                                             style: TextStyle(
                                                               fontSize: 13,
                                                               color: Colors.grey.shade700,
@@ -929,7 +531,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     ),
                                                     Container(
                                                       padding: const EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
+                                                      decoration: const BoxDecoration(
                                                         color: Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),
@@ -954,8 +556,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(12),
                                             border: Border.all(color: const Color(0xFFE57373).withOpacity(0.3)),
-                                            gradient: LinearGradient(
-                                              colors: [Colors.white, const Color(0xFFFFF8F8)],
+                                            gradient: const LinearGradient(
+                                              colors: [Colors.white, Color(0xFFFFF8F8)],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
@@ -971,7 +573,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.add_circle,
                                                       color: Color(0xFFE57373),
                                                       size: 20,
@@ -979,8 +581,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     SizedBox(width: 8),
                                                     Flexible(
                                                       child: Text(
-                                                        'Juntar-se a outro Ministério',
-                                                        style: TextStyle(
+                                                        AppLocalizations.of(context)!.joinAnotherMinistry,
+                                                        style: const TextStyle(
                                                           color: Color(0xFFE57373),
                                                           fontWeight: FontWeight.bold,
                                                           fontSize: 15,
@@ -1037,7 +639,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           const SizedBox(height: 20),
                                           Text(
-                                            'Você não pertence a nenhum ministério',
+                                            AppLocalizations.of(context)!.youDoNotBelongToAnyMinistry,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -1047,7 +649,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           const SizedBox(height: 10),
                                           Text(
-                                            'Junte-se a um ministério para participar do serviço na igreja',
+                                            AppLocalizations.of(context)!.joinAMinistryToParticipate,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey.shade600,
@@ -1073,12 +675,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
-                                                  SizedBox(width: 8),
+                                                  const Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
+                                                  const SizedBox(width: 8),
                                                   Flexible(
                                                     child: Text(
-                                                      'Juntar-se a um Ministério',
-                                                      style: TextStyle(
+                                                      AppLocalizations.of(context)!.joinAMinistry,
+                                                      style: const TextStyle(
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.bold,
                                                         color: Colors.white,
@@ -1108,17 +710,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       color: const Color(0xFF4CAF50),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.group,
                                           color: Colors.white,
                                           size: 16,
                                         ),
-                                        SizedBox(width: 6),
+                                        const SizedBox(width: 6),
                                         Text(
-                                          'Grupos',
+                                          AppLocalizations.of(context)!.groups,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -1165,7 +767,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              'Erro ao carregar grupos',
+                                              AppLocalizations.of(context)!.errorLoadingGroups,
                                               style: TextStyle(
                                                 color: Colors.red.shade700,
                                               ),
@@ -1188,8 +790,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(12),
                                             border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
-                                            gradient: LinearGradient(
-                                              colors: [Colors.white, const Color(0xFFF1F8E9)],
+                                            gradient: const LinearGradient(
+                                              colors: [Colors.white, Color(0xFFF1F8E9)],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
@@ -1205,16 +807,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.add_circle,
                                                       color: Color(0xFF4CAF50),
                                                       size: 20,
                                                     ),
-                                                    SizedBox(width: 8),
+                                                    const SizedBox(width: 8),
                                                     Flexible(
                                                       child: Text(
-                                                        'Juntar-se a outro Grupo',
-                                                        style: TextStyle(
+                                                        AppLocalizations.of(context)!.joinAnotherGroup,
+                                                        style: const TextStyle(
                                                           color: Color(0xFF4CAF50),
                                                           fontWeight: FontWeight.bold,
                                                           fontSize: 15,
@@ -1271,7 +873,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           const SizedBox(height: 20),
                                           Text(
-                                            'Você não pertence a nenhum grupo',
+                                            AppLocalizations.of(context)!.youDoNotBelongToAnyGroup,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -1281,7 +883,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           const SizedBox(height: 10),
                                           Text(
-                                            'Junte-se a um grupo para participar da vida comunitária',
+                                            AppLocalizations.of(context)!.joinAGroupToParticipate,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey.shade600,
@@ -1307,12 +909,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
-                                                  SizedBox(width: 8),
+                                                  const Icon(Icons.add_circle_outline, size: 20, color: Colors.white),
+                                                  const SizedBox(width: 8),
                                                   Flexible(
                                                     child: Text(
-                                                      'Juntar-se a um Grupo',
-                                                      style: TextStyle(
+                                                      AppLocalizations.of(context)!.joinAGroup,
+                                                      style: const TextStyle(
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.bold,
                                                         color: Colors.white,
@@ -1384,7 +986,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.admin_panel_settings_outlined,
                                     color: AppColors.primary, 
                                     size: 24,
@@ -1392,7 +994,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(width: 15),
                                 Text(
-                      'Administração',
+                      AppLocalizations.of(context)!.administration,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -1408,77 +1010,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_donations_config',
                             icon: Icons.volunteer_activism, 
-                            title: 'Gerenciar Doações',
-                            subtitle: 'Configure a seção e formas de doação',
+                            title: AppLocalizations.of(context)!.manageDonations,
+                            subtitle: AppLocalizations.of(context)!.configureDonationSection,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageDonationsScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_livestream_config',
                             icon: Icons.live_tv_outlined,
-                            title: 'Gerenciar Transmissões Ao Vivo',
-                            subtitle: 'Criar, editar e controlar transmissões',
+                            title: AppLocalizations.of(context)!.manageLiveStreams,
+                            subtitle: AppLocalizations.of(context)!.createEditControlStreams,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_courses',
                             icon: Icons.school, 
-                            title: 'Gerenciar Cursos Online',
-                            subtitle: 'Criar, editar e configurar cursos',
+                            title: AppLocalizations.of(context)!.manageOnlineCourses,
+                            subtitle: AppLocalizations.of(context)!.createEditConfigureCourses,
                             onTap: () => Navigator.pushNamed(context, '/admin/courses'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_home_sections',
                             icon: Icons.view_quilt_outlined,
-                            title: 'Gerenciar Tela Inicial',
+                            title: AppLocalizations.of(context)!.manageHomeScreen,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_pages',
                             icon: Icons.edit_document, 
-                            title: 'Gerenciar Páginas',
-                            subtitle: 'Criar e editar conteúdo informativo',
+                            title: AppLocalizations.of(context)!.managePages,
+                            subtitle: AppLocalizations.of(context)!.createEditInfoContent,
                             onTap: () => Navigator.pushNamed(context, '/admin/manage-pages'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_counseling_availability',
                             icon: Icons.event_available, 
-                            title: 'Gerenciar Disponibilidade',
-                            subtitle: 'Configure seus horários para aconselhamento',
+                            title: AppLocalizations.of(context)!.manageAvailability,
+                            subtitle: AppLocalizations.of(context)!.configureCounselingHours,
                             onTap: () => Navigator.pushNamed(context, '/counseling/pastor-availability'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_profile_fields',
                             icon: Icons.list_alt,
-                            title: 'Gerenciar Campos de Perfil',
-                            subtitle: 'Configure os campos adicionais para os usuários',
+                            title: AppLocalizations.of(context)!.manageProfileFields,
+                            subtitle: AppLocalizations.of(context)!.configureAdditionalUserFields,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileFieldsAdminScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'assign_user_roles', // Permiso para pantalla antigua
                             icon: Icons.admin_panel_settings,
-                            title: 'Gerenciar Perfiles',
-                            subtitle: 'Atribua perfiles de pastor a outros usuários',
+                            title: AppLocalizations.of(context)!.manageRoles,
+                            subtitle: AppLocalizations.of(context)!.assignPastorRoles,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UserRoleManagementScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_roles', // Permiso para nueva pantalla
                             icon: Icons.assignment_ind_outlined, 
-                            title: 'Criar/editar Perfiles',
-                            subtitle: 'Criar/editar perfiles e permissões',
+                            title: AppLocalizations.of(context)!.createEditRoles,
+                            subtitle: AppLocalizations.of(context)!.createEditRolesAndPermissions,
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageRolesScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_announcements',
                              icon: Icons.campaign, 
-                             title: 'Criar Anúncios',
-                             subtitle: 'Crie e edite anúncios para a igreja',
+                             title: AppLocalizations.of(context)!.createAnnouncements,
+                             subtitle: AppLocalizations.of(context)!.createEditChurchAnnouncements,
                              onTap: () => _showCreateAnnouncementModal(context),
                            ),
                           _buildPermissionControlledTile(
                             permissionKey: 'create_events',
                              icon: Icons.event, 
-                             title: 'Gerenciar Eventos',
-                             subtitle: 'Criar e gerenciar eventos da igreja',
+                             title: AppLocalizations.of(context)!.manageEvents,
+                             subtitle: AppLocalizations.of(context)!.createManageChurchEvents,
                              onTap: () => Navigator.push(
                                context,
                                MaterialPageRoute(builder: (context) => const EventsPage()),
@@ -1487,55 +1089,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_videos',
                              icon: Icons.video_library, 
-                             title: 'Gerenciar Vídeos',
-                             subtitle: 'Administre as seções e vídeos da igreja',
+                             title: AppLocalizations.of(context)!.manageVideos,
+                             subtitle: AppLocalizations.of(context)!.administerChurchSectionsVideos,
                              onTap: () => Navigator.pushNamed(context, '/videos/manage'),
                            ),
                           _buildPermissionControlledTile( 
                              permissionKey: 'manage_cults',
                              icon: Icons.church,
-                             title: 'Administrar Cultos',
-                             subtitle: 'Gerenciar cultos, ministérios e canções',
+                             title: AppLocalizations.of(context)!.administerCults,
+                             subtitle: AppLocalizations.of(context)!.manageCultsMinistriesSongs,
                              onTap: () => Navigator.pushNamed(context, '/cults'),
                            ),
                           _buildPermissionControlledTile(
-                             permissionKey: 'create_ministry',
+                            permissionKey: 'create_ministry',
                              icon: Icons.add_business_outlined, 
-                             title: 'Criar Ministério',
+                             title: AppLocalizations.of(context)!.createMinistry,
                              onTap: () => _showCreateMinistryModal(context),
                            ),
                           _buildPermissionControlledTile(
-                             permissionKey: 'create_group',
+                            permissionKey: 'create_group',
                              icon: Icons.group_add_outlined, 
-                             title: 'Criar Connect',
+                             title: AppLocalizations.of(context)!.createConnect,
                              onTap: () => _showCreateGroupModal(context),
                            ),
                           _buildPermissionControlledTile(
                               permissionKey: 'manage_counseling_requests',
                               icon: Icons.support_agent, 
-                              title: 'Solicitações de Aconselhamento',
-                              subtitle: 'Gerencie as solicitações dos membros',
+                              title: AppLocalizations.of(context)!.counselingRequests,
+                              subtitle: AppLocalizations.of(context)!.manageMemberRequests,
                               onTap: () => Navigator.pushNamed(context, '/counseling/pastor-requests'),
                             ),
                           _buildPermissionControlledTile(
                               permissionKey: 'manage_private_prayers',
                               icon: Icons.favorite_outline, 
-                              title: 'Orações Privadas',
-                              subtitle: 'Gerencie as solicitações de oração privada',
+                              title: AppLocalizations.of(context)!.privatePrayers,
+                              subtitle: AppLocalizations.of(context)!.managePrivatePrayerRequests,
                               onTap: () => Navigator.pushNamed(context, '/prayers/pastor-private-requests'), 
                             ),
                           _buildPermissionControlledTile(
                               permissionKey: 'send_push_notifications',
                               icon: Icons.notifications_active_outlined,
-                              title: 'Enviar Notificação Push',
-                              subtitle: 'Envie mensagens aos membros da igreja',
+                              title: AppLocalizations.of(context)!.sendPushNotification,
+                              subtitle: AppLocalizations.of(context)!.sendMessagesToChurchMembers,
                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PushNotificationScreen())), 
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'delete_ministry',
                              icon: Icons.delete_outline, 
-                             title: 'Eliminar Ministérios',
-                             subtitle: 'Remover ministérios existentes',
+                             title: AppLocalizations.of(context)!.deleteMinistries,
+                             subtitle: AppLocalizations.of(context)!.removeExistingMinistries,
                              onTap: () => Navigator.push(
                                context, 
                                MaterialPageRoute(
@@ -1546,8 +1148,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildPermissionControlledTile(
                              permissionKey: 'delete_group',
                              icon: Icons.remove_circle_outline, 
-                             title: 'Eliminar Grupos',
-                             subtitle: 'Remover grupos existentes',
+                             title: AppLocalizations.of(context)!.deleteGroups,
+                             subtitle: AppLocalizations.of(context)!.removeExistingGroups,
                              onTap: () => Navigator.push(
                                context, 
                                MaterialPageRoute(
@@ -1579,55 +1181,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                            const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
                            Padding(
                              padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
-                             child: Text('Relatórios e Assistência', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+                             child: Text(AppLocalizations.of(context)!.reportsAndAttendance, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'manage_event_attendance',
                              icon: Icons.event_available, 
-                             title: 'Gerenciar Assistência a Eventos',
-                             subtitle: 'Verificar assistência e gerar relatórios',
+                             title: AppLocalizations.of(context)!.manageEventAttendance,
+                             subtitle: AppLocalizations.of(context)!.checkAttendanceGenerateReports,
                              onTap: () => Navigator.pushNamed(context, '/admin/events'),
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_ministry_stats',
                              icon: Icons.bar_chart_outlined,
-                             title: 'Estatísticas de Ministérios',
-                             subtitle: 'Análise de participação e membros',
+                             title: AppLocalizations.of(context)!.ministryStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MinistryMembersStatsScreen())), 
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_group_stats',
                              icon: Icons.pie_chart_outline, 
-                             title: 'Estatísticas de Grupos',
-                             subtitle: 'Análise de participação e membros',
+                             title: AppLocalizations.of(context)!.groupStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GroupMembersStatsScreen())), 
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_schedule_stats',
                              icon: Icons.assessment_outlined, 
-                             title: 'Estatísticas de Escalas',
-                             subtitle: 'Análise de participação e convites',
+                             title: AppLocalizations.of(context)!.scheduleStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationInvitationsAnalysis,
                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesStatsScreen())), 
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_course_stats',
                              icon: Icons.analytics_outlined,
-                             title: 'Estatísticas de Cursos',
-                             subtitle: 'Análise de inscrições e progresso',
+                             title: AppLocalizations.of(context)!.courseStatistics,
+                             subtitle: AppLocalizations.of(context)!.enrollmentProgressAnalysis,
                              onTap: () => Navigator.pushNamed(context, '/admin/course-stats'),
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_user_details',
                              icon: Icons.supervised_user_circle_outlined,
-                             title: 'Informação de Usuários',
-                             subtitle: 'Consultar detalhes de participação',
+                             title: AppLocalizations.of(context)!.userInfo,
+                             subtitle: AppLocalizations.of(context)!.consultParticipationDetails,
                              onTap: () => Navigator.pushNamed(context, '/admin/user-info'),
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'view_church_statistics', // NUEVO PERMISO
                              icon: Icons.bar_chart_rounded, // Icono para estadísticas generales
-                             title: 'Estatísticas da Igreja',
-                             subtitle: 'Visão geral dos membros e atividades',
+                             title: AppLocalizations.of(context)!.churchStatistics,
+                             subtitle: AppLocalizations.of(context)!.membersActivitiesOverview,
                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChurchStatisticsScreen())),
                            ),
                         ],
@@ -1635,9 +1237,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                       ),
 
-                          // --- Subsección: Gestão MyKids --- (TEMPORALMENTE OCULTA)
-                          /*
-                          FutureBuilder<bool>(
+                          // --- Subsección: Gestão MyKids --- 
+                          FutureBuilder<bool>( // Ya estaba presente, solo cambia el texto
                             future: _hasAnyMyKidsPermission(), // Llama a la nueva función
                             builder: (context, myKidsPermSnapshot) {
                               if (myKidsPermSnapshot.connectionState == ConnectionState.waiting) {
@@ -1656,24 +1257,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
-                                    child: Text('Gestão MyKids', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)),
+                                    child: Text(AppLocalizations.of(context)!.myKidsManagement, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)),
                                   ),
                                   _buildPermissionControlledTile(
                                     permissionKey: 'manage_family_profiles', 
                                     icon: Icons.family_restroom_outlined, 
-                                    title: 'Perfis Familiares',
-                                    subtitle: 'Gerenciar perfis de pais e crianças',
+                                    title: AppLocalizations.of(context)!.familyProfiles,
+                                    subtitle: AppLocalizations.of(context)!.manageFamilyProfiles,
                                     iconColor: Colors.teal.shade700, 
                                     onTap: () {
                                       // TODO: Navegar a la pantalla de gestión de perfiles familiares
-                                      print('Navegar para Perfis Familiares');
+                                      print(AppLocalizations.of(context)!.navigateToFamilyProfiles);
                                     },
                                   ),
                                   _buildPermissionControlledTile(
                                     permissionKey: 'manage_checkin_rooms', 
                                     icon: Icons.meeting_room_outlined, 
-                                    title: 'Gerenciar Salas e Check-in', 
-                                    subtitle: 'Administrar salas, check-in/out e assistência',
+                                    title: AppLocalizations.of(context)!.manageRoomsAndCheckin, 
+                                    subtitle: AppLocalizations.of(context)!.manageRoomsCheckinDescription, // Usar la nueva clave
                                     iconColor: Colors.teal.shade700, 
                                     onTap: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const KidsAdminScreen()));
@@ -1684,7 +1285,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                           ),
-                          */
                         ],
                     ),
                     ),
@@ -1695,7 +1295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text("Fechar Sessão", style: TextStyle(color: Colors.white)),
+                      label: Text(AppLocalizations.of(context)!.logOut, style: const TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary, // Color naranja
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -1707,26 +1307,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         } catch (e) {
                           print("Error al cerrar sesión: $e");
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Erro ao Fazer Logout: $e"))
+                            SnackBar(content: Text(AppLocalizations.of(context)!.errorLoggingOut(e.toString())))
                           );
                         }
                                 },
                               ),
                             ),
                   
-                  // Botón de Diagnóstico (solo para administradores) - OCULTO
-                  /*
-                  if (_hasAdminAccess) ...[
-                    const SizedBox(height: 16),
-                    Center(
-                      child: TextButton.icon(
-                        icon: const Icon(Icons.admin_panel_settings, size: 16),
-                        label: const Text("Diagnóstico de Permisos", style: TextStyle(fontSize: 14)),
-                        onPressed: () => _showPermissionDiagnostics(context),
-                      ),
+                  // Botón de Diagnóstico SuperUser (herramienta de depuración)
+                  // Útil para diagnosticar problemas cuando un usuario con isSuperUser = true
+                  // no puede ver las opciones de administración
+                  const SizedBox(height: 16),
+                  Center(
+                    child: SuperUserDiagnosticWidget.buildDiagnosticButton(
+                      hasAdminAccess: _hasAdminAccess,
                     ),
-                  ],
-                  */
+                  ),
                   
                   const SizedBox(height: 20),
                   
@@ -2185,8 +1781,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Informação adicional salva com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.additionalInfoSavedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -2196,7 +1792,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSavingInfo(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -2251,14 +1847,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             filled: true,
             fillColor: Colors.grey[50],
             prefixIcon: Icon(_getIconDataForFieldType(field.type), color: primaryColor.withOpacity(0.7)),
-            suffixIcon: field.isRequired ? Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
+            suffixIcon: field.isRequired ? Tooltip(message: AppLocalizations.of(context)!.requiredFieldTooltip, child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
           ),
           keyboardType: field.type == 'email' ? TextInputType.emailAddress :
                         field.type == 'phone' ? TextInputType.phone :
                         field.type == 'number' ? TextInputType.number :
                         TextInputType.text,
           validator: (value) {
-            if (field.isRequired && (value == null || value.isEmpty)) return 'Este campo é obrigatório';
+            if (field.isRequired && (value == null || value.isEmpty)) return AppLocalizations.of(context)!.thisFieldIsRequired;
             return null;
           },
           onChanged: (value) {
@@ -2286,7 +1882,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             filled: true,
             fillColor: Colors.grey[50],
             prefixIcon: Icon(Icons.calendar_today, color: primaryColor.withOpacity(0.7)),
-            suffixIcon: field.isRequired ? Tooltip(message: 'Campo obrigatório', child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
+            suffixIcon: field.isRequired ? Tooltip(message: AppLocalizations.of(context)!.requiredFieldTooltip, child: Icon(Icons.star, size: 10, color: Colors.red[400])) : null,
           ),
           onTap: () async {
             DateTime initialPickerDate = DateTime.now();
@@ -2314,7 +1910,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
           },
           validator: (value) {
-            if (field.isRequired && fieldValues[field.id] == null) return 'Este campo é obrigatório';
+            if (field.isRequired && fieldValues[field.id] == null) return AppLocalizations.of(context)!.thisFieldIsRequired;
             return null;
           },
         );
@@ -2341,11 +1937,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fieldValues[field.id] = value; 
             });
           },
-          validator: field.isRequired ? (value) => value == null || value.isEmpty ? 'Este campo é obrigatório' : null : null,
+          validator: field.isRequired ? (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.thisFieldIsRequired : null : null,
         );
       
       default:
-        return Text('Tipo de campo não suportado: ${field.type}');
+        return Text(AppLocalizations.of(context)!.unsupportedFieldType(field.type));
     }
   }
 
@@ -2671,7 +2267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return false;
   }
 
-  
+
   // Verifica si el usuario puede eliminar grupos o ministerios
   Future<bool> _canDeleteGroupsOrMinistries() async {
     try {
@@ -2853,20 +2449,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Grupo'),
+        title: Text(AppLocalizations.of(context)!.deleteGroup),
         content: RichText(
           text: TextSpan(
             style: const TextStyle(color: Colors.black87, fontSize: 16),
             children: [
-              const TextSpan(text: '¿Está seguro que desea eliminar el grupo '),
+              TextSpan(text: AppLocalizations.of(context)!.deleteGroupConfirmationPrefix),
               TextSpan(
                 text: groupName,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const TextSpan(text: '?'),
-              const TextSpan(
-                text: '\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              const TextSpan(text: '?'), // Se mantiene el signo de interrogación aquí
+              TextSpan(
+                text: AppLocalizations.of(context)!.deleteGroupWarning,
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -2874,12 +2470,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -2894,7 +2490,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Grupo "$groupName" eliminado con éxito'),
+              content: Text(AppLocalizations.of(context)!.groupDeletedSuccessfully(groupName)),
               backgroundColor: Colors.green,
             ),
           );
@@ -2903,7 +2499,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al eliminar el grupo: $e'),
+              content: Text(AppLocalizations.of(context)!.errorDeletingGroup(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -2921,20 +2517,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Ministerio'),
+        title: Text(AppLocalizations.of(context)!.deleteMinistry),
         content: RichText(
           text: TextSpan(
             style: const TextStyle(color: Colors.black87, fontSize: 16),
             children: [
-              const TextSpan(text: '¿Está seguro que desea eliminar el ministerio '),
+              TextSpan(text: AppLocalizations.of(context)!.deleteMinistryConfirmationPrefix),
               TextSpan(
                 text: ministryName,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const TextSpan(text: '?'),
-              const TextSpan(
-                text: '\n\nEsta acción no se puede deshacer y eliminará todos los mensajes y eventos asociados.',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              const TextSpan(text: '?'), // Se mantiene el signo de interrogación aquí
+              TextSpan(
+                text: AppLocalizations.of(context)!.deleteMinistryWarning,
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -2942,12 +2538,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -2962,7 +2558,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Ministerio "$ministryName" eliminado con éxito'),
+              content: Text(AppLocalizations.of(context)!.ministryDeletedSuccessfully(ministryName)),
               backgroundColor: Colors.green,
             ),
           );
@@ -2971,7 +2567,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al eliminar el ministerio: $e'),
+              content: Text(AppLocalizations.of(context)!.errorDeletingMinistry(e.toString())),
               backgroundColor: Colors.red,
             ),
           );

@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/common/app_button.dart';
 import '../widgets/common/app_text_field.dart';
+import '../l10n/app_localizations.dart';
 
 class ForgotPasswordModal extends StatefulWidget {
   const ForgotPasswordModal({super.key});
@@ -46,8 +47,8 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       // Mostrar snackbar de sucesso
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email de recuperação enviado com sucesso!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.recoveryEmailSentSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -56,16 +57,16 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       String message;
       switch (e.code) {
         case 'user-not-found':
-          message = 'Não existe uma conta com este email';
+          message = AppLocalizations.of(context)!.noAccountWithThisEmail;
           break;
         case 'invalid-email':
-          message = 'Email inválido';
+          message = AppLocalizations.of(context)!.invalidEmail;
           break;
         case 'too-many-requests':
-          message = 'Muitas tentativas. Tente novamente mais tarde';
+          message = AppLocalizations.of(context)!.tooManyFailedAttempts;
           break;
         default:
-          message = 'Erro ao enviar email: ${e.message}';
+          message = AppLocalizations.of(context)!.errorSendingEmail(e.message ?? '');
       }
 
       setState(() {
@@ -74,7 +75,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Erro inesperado. Tente novamente';
+        _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         _isLoading = false;
       });
     }
@@ -132,12 +133,12 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Recuperar Senha',
+                        AppLocalizations.of(context)!.recoverPassword,
                         style: AppTextStyles.headline3,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Digite seu email para receber as instruções',
+                        AppLocalizations.of(context)!.enterEmailToReceiveInstructions,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: Colors.grey.shade600,
                         ),
@@ -178,16 +179,16 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                     // Campo de email
                     AppTextField(
                       controller: _emailController,
-                      label: 'Email',
-                      hint: 'seu.email@exemplo.com',
+                      label: AppLocalizations.of(context)!.email,
+                      hint: AppLocalizations.of(context)!.yourEmailExample,
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, digite seu email';
+                          return AppLocalizations.of(context)!.pleaseEnterYourEmail;
                         }
                         if (!value.contains('@') || !value.contains('.')) {
-                          return 'Por favor, digite um email válido';
+                          return AppLocalizations.of(context)!.pleaseEnterAValidEmail;
                         }
                         return null;
                       },
@@ -201,7 +202,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                           child: TextButton(
                             onPressed: _isLoading ? null : () => Navigator.pop(context),
                             child: Text(
-                              'Cancelar',
+                              AppLocalizations.of(context)!.cancel,
                               style: AppTextStyles.bodyText1.copyWith(
                                 color: Colors.grey.shade600,
                               ),
@@ -212,7 +213,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                         Expanded(
                           flex: 2,
                           child: AppButton(
-                            text: 'Enviar Email',
+                            text: AppLocalizations.of(context)!.sendEmail,
                             onPressed: _isLoading ? null : _sendPasswordResetEmail,
                             icon: Icons.send,
                           ),
@@ -240,14 +241,14 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Email Enviado!',
+                      AppLocalizations.of(context)!.emailSent,
                       style: AppTextStyles.headline3.copyWith(
                         color: Colors.green.shade700,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.',
+                      AppLocalizations.of(context)!.checkYourInbox,
                       style: AppTextStyles.bodyText2.copyWith(
                         color: Colors.green.shade600,
                       ),
@@ -257,7 +258,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
                     SizedBox(
                       width: double.infinity,
                       child: AppButton(
-                        text: 'Entendi',
+                        text: AppLocalizations.of(context)!.gotIt,
                         onPressed: () => Navigator.pop(context),
                         icon: Icons.check,
                       ),

@@ -3,6 +3,7 @@ import '../../screens/counseling/counseling_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/app_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class CounselingSection extends StatelessWidget {
   const CounselingSection({super.key});
@@ -18,7 +19,7 @@ class CounselingSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Aconselhamento',
+                AppLocalizations.of(context)!.counseling,
                 style: AppTextStyles.headline3.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -61,7 +62,7 @@ class CounselingSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Agende uma consulta pastoral',
+                        AppLocalizations.of(context)!.schedulePastoralCounseling,
                         style: AppTextStyles.subtitle1.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -69,7 +70,7 @@ class CounselingSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Converse com um pastor para orientação espiritual',
+                        AppLocalizations.of(context)!.talkToAPastor,
                         style: AppTextStyles.bodyText2.copyWith(
                           color: AppColors.textSecondary,
                         ),

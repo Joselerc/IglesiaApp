@@ -5,7 +5,8 @@ import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart'; 
 // Importar pantalla de crear/editar 
-import 'create_edit_role_screen.dart'; 
+import 'create_edit_role_screen.dart';
+import '../../l10n/app_localizations.dart'; 
 
 class ManageRolesScreen extends StatefulWidget {
   const ManageRolesScreen({super.key});
@@ -25,14 +26,14 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Confirmar Exclusão'),
+          title: Text(AppLocalizations.of(context)!.confirmDeletionRole),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Tem certeza que deseja excluir o papel "${role.name}"?'),
+                Text(AppLocalizations.of(context)!.confirmDeleteRole(role.name)),
                 const SizedBox(height: 10),
-                const Text(
-                  'Atenção: Isso pode afetar usuários que têm este papel atribuído.',
+                Text(
+                  AppLocalizations.of(context)!.warningDeleteRole,
                   style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -40,13 +41,13 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
-              child: const Text('Excluir'),
+              child: Text(AppLocalizations.of(context)!.delete),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 await _deleteRole(role.id);
@@ -65,8 +66,8 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sem permissão para excluir papéis'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noPermissionDeleteRoles),
             backgroundColor: Colors.red,
           ),
         );
@@ -93,7 +94,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao excluir papel: $e'),
+            content: Text(AppLocalizations.of(context)!.errorDeletingRole(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,7 +112,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Perfiles'),
+        title: Text(AppLocalizations.of(context)!.manageRolesTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -124,12 +125,12 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
           
           if (permissionSnapshot.hasError) {
             return Center(
-              child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'),
+              child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())),
             );
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return const Center(
+            return Center(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Column(
@@ -137,10 +138,10 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', 
+                    Text(AppLocalizations.of(context)!.accessDenied, 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar perfiles e permissões.',
+                    Text(AppLocalizations.of(context)!.noPermissionManageRoles,
                       textAlign: TextAlign.center),
                   ],
                 ),
@@ -157,10 +158,10 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Erro ao carregar papéis: ${snapshot.error}'));
+                    return Center(child: Text(AppLocalizations.of(context)!.errorLoadingRoles(snapshot.error.toString())));
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Nenhum papel encontrado. Crie o primeiro!'));
+                    return Center(child: Text(AppLocalizations.of(context)!.noRolesFound));
                   }
 
                   final roles = snapshot.data!;

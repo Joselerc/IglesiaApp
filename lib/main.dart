@@ -69,6 +69,8 @@ import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
 import 'dart:io'; // Para Platform checks
+import 'l10n/app_localizations.dart'; // Importación generada automáticamente
+import 'package:shared_preferences/shared_preferences.dart'; // Importar SharedPreferences
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -76,9 +78,9 @@ final NavigationCubit navigationCubit = NavigationCubit();
 void main() async {
   // Iniciar medición de tiempo de inicio
   PerformanceService.startMeasurement('app_startup');
-  
+
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Configurar manejo global de errores
   FlutterError.onError = (FlutterErrorDetails details) {
     if (kDebugMode) {
@@ -90,48 +92,51 @@ void main() async {
       // Aquí podrías enviar a un servicio de crash reporting como Firebase Crashlytics
     }
   };
-  
+
   // Agregar un listener al NavigationCubit para depuración (solo en debug)
   if (kDebugMode) {
     navigationCubit.stream.listen((state) {
       debugPrint('🧭 NAVIGATION_CUBIT - Estado cambiado a: $state');
     });
   }
-  
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // FlutterDownloader eliminado - reemplazado por Dio para compatibilidad iOS 18.6+
   if (kDebugMode) {
     debugPrint('✅ Usando Dio para downloads - compatible iOS/Android');
   }
-  
+
   // Configurar manejador de mensajes en background para FCM
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  
+
   // Inicializar FCM Service PRIMERO
   final fcmService = FCMService();
   await fcmService.initialize();
-  
+
   // Crear el servicio de notificaciones SIN inicializar automáticamente
   final notificationService = NotificationService.withoutAutoInit();
-  
+
   // Inicializar Cloud Functions Service
   final cloudFunctionsService = CloudFunctionsService();
   // Configurar emulador en desarrollo (opcional)
   if (kDebugMode) {
     // cloudFunctionsService.configureEmulator(); // Descomentar si usas emulador
   }
-  
+
   // Inicializar los datos de localización para formateo de fechas
   await initializeDateFormatting('pt_BR', null);
-  Intl.defaultLocale = 'pt_BR';
-  
+  // Intl.defaultLocale = 'pt_BR'; // ELIMINAR: será gestionado por el sistema de localización
+
   // Configurar las localizaciones de timeago
   timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages());
-  timeago.setDefaultLocale('pt_BR');
-  
+  timeago.setLocaleMessages(
+      'es', timeago.EsMessages()); // Añadir mensajes en español
+  timeago.setDefaultLocale(
+      'es'); // Establecer español como predeterminado para timeago
+
   // Migrar datos existentes (solo en debug para evitar delays en producción)
   if (kDebugMode) {
     try {
@@ -140,10 +145,10 @@ void main() async {
       debugPrint('Error al migrar datos: $e');
     }
   }
-  
+
   // Completar medición de tiempo de inicio
   PerformanceService.stopMeasurement('app_startup');
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -180,35 +185,37 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         home: const AuthWrapper(),
         localizationsDelegates: const [
+          AppLocalizations.delegate, // Añadir delegado generado automáticamente
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           FlutterQuillLocalizations.delegate,
         ],
         supportedLocales: const [
-          Locale('pt', 'BR'),  // Português (Brasil)
-          Locale('es', 'ES'),  // Español (España)
-          Locale('es', 'MX'),  // Español (México)
-          Locale('es', 'AR'),  // Español (Argentina)
-          Locale('es', 'CO'),  // Español (Colombia)
-          Locale('en', 'US'),  // English (US)
+          Locale('es', ''),
+          Locale('pt', ''),
         ],
-        locale: const Locale('pt', 'BR'),
+        // locale: initialLocale, // Usar el idioma cargado o el predeterminado
         routes: {
           '/auth': (context) => const AuthWrapper(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const MainScreen(),
           '/profile_screen': (context) => const ProfileScreen(),
-          '/admin/profile-fields': (context) => const ProfileFieldsAdminScreen(),
+          '/admin/profile-fields': (context) =>
+              const ProfileFieldsAdminScreen(),
           '/profile/additional-info': (context) => AdditionalInfoScreen(
-            fromBanner: (ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?)?['fromBanner'] as bool? ?? false,
-          ),
+                fromBanner: (ModalRoute.of(context)?.settings.arguments
+                        as Map<String, dynamic>?)?['fromBanner'] as bool? ??
+                    false,
+              ),
           '/ministries': (context) => const MinistriesListScreen(),
           '/groups': (context) => const GroupsListScreen(),
           '/counseling': (context) => const CounselingScreen(),
-          '/counseling/pastor-availability': (context) => const PastorAvailabilityScreen(),
-          '/counseling/pastor-requests': (context) => const PastorRequestsScreen(),
+          '/counseling/pastor-availability': (context) =>
+              const PastorAvailabilityScreen(),
+          '/counseling/pastor-requests': (context) =>
+              const PastorRequestsScreen(),
           '/notifications': (context) => const NotificationsScreen(),
           '/calendar': (context) => const CalendarScreen(),
           '/admin/events': (context) => const AdminEventsListScreen(),
@@ -219,7 +226,8 @@ class MyApp extends StatelessWidget {
           '/services': (context) => const ServicesScreen(),
           '/prayers/public': (context) => const PublicPrayerScreen(),
           '/prayers/private': (context) => const PrivatePrayerScreen(),
-          '/prayers/pastor-private-requests': (context) => const PastorPrivatePrayersScreen(),
+          '/prayers/pastor-private-requests': (context) =>
+              const PastorPrivatePrayersScreen(),
           '/videos': (context) => const VideosScreen(),
           '/videos/manage': (context) => const ManageSectionsScreen(),
           '/work-services': (context) => const WorkServicesScreen(),
@@ -228,21 +236,29 @@ class MyApp extends StatelessWidget {
           '/admin/manage-pages': (context) => const ManagePagesScreen(),
           '/admin/courses': (context) => const ManageCoursesScreen(),
           '/admin/course-stats': (context) => const CourseStatsScreen(),
-          '/admin/course-stats/enrollments': (context) => const CourseEnrollmentStatsScreen(),
-          '/admin/course-stats/progress': (context) => const CourseProgressStatsScreen(),
-          '/admin/course-stats/completion': (context) => const CourseCompletionStatsScreen(),
-          '/admin/course-stats/milestones': (context) => const CourseMilestoneStatsScreen(),
+          '/admin/course-stats/enrollments': (context) =>
+              const CourseEnrollmentStatsScreen(),
+          '/admin/course-stats/progress': (context) =>
+              const CourseProgressStatsScreen(),
+          '/admin/course-stats/completion': (context) =>
+              const CourseCompletionStatsScreen(),
+          '/admin/course-stats/milestones': (context) =>
+              const CourseMilestoneStatsScreen(),
           '/admin/course-stats/detail': (context) {
-            final courseId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+            final courseId =
+                ModalRoute.of(context)?.settings.arguments as String? ?? '';
             return CourseDetailStatsScreen(courseId: courseId);
           },
           '/courses': (context) => const CoursesScreen(),
           '/courses/detail': (context) {
-            final courseId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+            final courseId =
+                ModalRoute.of(context)?.settings.arguments as String? ?? '';
             return CourseDetailScreen(courseId: courseId);
           },
           '/courses/lesson': (context) {
-            final args = ModalRoute.of(context)?.settings.arguments as Map<String, String>? ?? {};
+            final args = ModalRoute.of(context)?.settings.arguments
+                    as Map<String, String>? ??
+                {};
             final courseId = args['courseId'] ?? '';
             final lessonId = args['lessonId'] ?? '';
             return LessonScreen(courseId: courseId, lessonId: lessonId);
@@ -252,13 +268,13 @@ class MyApp extends StatelessWidget {
           // Manejar rutas dinámicas
           final uri = Uri.parse(settings.name!);
           final pathSegments = uri.pathSegments;
-          
+
           // Ruta para eventos de ministerios
-          if (pathSegments.length == 4 && 
-              pathSegments[0] == 'ministries' && 
+          if (pathSegments.length == 4 &&
+              pathSegments[0] == 'ministries' &&
               pathSegments[2] == 'events') {
             final eventId = pathSegments[3];
-            
+
             return MaterialPageRoute(
               builder: (context) => FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -271,27 +287,31 @@ class MyApp extends StatelessWidget {
                       body: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  
+
                   if (!snapshot.hasData || !snapshot.data!.exists) {
                     return Scaffold(
-                      appBar: AppBar(title: const Text('Error')),
-                      body: const Center(child: Text('Evento no encontrado')),
+                      appBar: AppBar(
+                          title:
+                              Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(
+                          child: Text(
+                              AppLocalizations.of(context)!.eventNotFound)),
                     );
                   }
-                  
+
                   final event = MinistryEvent.fromFirestore(snapshot.data!);
                   return MinistryEventDetailScreen(event: event);
                 },
               ),
             );
           }
-          
+
           // Ruta para eventos de grupos
-          if (pathSegments.length == 4 && 
-              pathSegments[0] == 'groups' && 
+          if (pathSegments.length == 4 &&
+              pathSegments[0] == 'groups' &&
               pathSegments[2] == 'events') {
             final eventId = pathSegments[3];
-            
+
             return MaterialPageRoute(
               builder: (context) => FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -304,25 +324,29 @@ class MyApp extends StatelessWidget {
                       body: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  
+
                   if (!snapshot.hasData || !snapshot.data!.exists) {
                     return Scaffold(
-                      appBar: AppBar(title: const Text('Error')),
-                      body: const Center(child: Text('Evento no encontrado')),
+                      appBar: AppBar(
+                          title:
+                              Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(
+                          child: Text(
+                              AppLocalizations.of(context)!.eventNotFound)),
                     );
                   }
-                  
+
                   final event = GroupEvent.fromFirestore(snapshot.data!);
                   return GroupEventDetailScreen(event: event);
                 },
               ),
             );
           }
-          
+
           // Ruta para eventos generales
           if (pathSegments.length == 2 && pathSegments[0] == 'events') {
             final eventId = pathSegments[1];
-            
+
             return MaterialPageRoute(
               builder: (context) => FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -335,14 +359,18 @@ class MyApp extends StatelessWidget {
                       body: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  
+
                   if (!snapshot.hasData || !snapshot.data!.exists) {
                     return Scaffold(
-                      appBar: AppBar(title: const Text('Error')),
-                      body: const Center(child: Text('Evento no encontrado')),
+                      appBar: AppBar(
+                          title:
+                              Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(
+                          child: Text(
+                              AppLocalizations.of(context)!.eventNotFound)),
                     );
                   }
-                  
+
                   // Usar la pantalla de detalle real para eventos generales
                   final event = EventModel.fromFirestore(snapshot.data!);
                   return EventDetailScreen(event: event);
@@ -350,11 +378,11 @@ class MyApp extends StatelessWidget {
               ),
             );
           }
-          
+
           // Ruta para cultos
           if (pathSegments.length == 2 && pathSegments[0] == 'cults') {
             final cultId = pathSegments[1];
-            
+
             return MaterialPageRoute(
               builder: (context) => FutureBuilder<QuerySnapshot>(
                 // Buscar el anuncio relacionado con este culto
@@ -370,13 +398,14 @@ class MyApp extends StatelessWidget {
                       body: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  
+
                   // Si encontramos un anuncio relacionado, mostrarlo
                   if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                    final announcement = AnnouncementModel.fromFirestore(snapshot.data!.docs.first);
+                    final announcement = AnnouncementModel.fromFirestore(
+                        snapshot.data!.docs.first);
                     return AnnouncementDetailScreen(announcement: announcement);
                   }
-                  
+
                   // Si no hay anuncio, cargar el culto y mostrar su detalle
                   return FutureBuilder<DocumentSnapshot>(
                     future: FirebaseFirestore.instance
@@ -384,19 +413,24 @@ class MyApp extends StatelessWidget {
                         .doc(cultId)
                         .get(),
                     builder: (context, cultSnapshot) {
-                      if (cultSnapshot.connectionState == ConnectionState.waiting) {
+                      if (cultSnapshot.connectionState ==
+                          ConnectionState.waiting) {
                         return const Scaffold(
                           body: Center(child: CircularProgressIndicator()),
                         );
                       }
-                      
+
                       if (!cultSnapshot.hasData || !cultSnapshot.data!.exists) {
                         return Scaffold(
-                          appBar: AppBar(title: const Text('Error')),
-                          body: const Center(child: Text('Culto no encontrado')),
+                          appBar: AppBar(
+                              title: Text(
+                                  AppLocalizations.of(context)!.errorTitle)),
+                          body: Center(
+                              child: Text(
+                                  AppLocalizations.of(context)!.cultNotFound)),
                         );
                       }
-                      
+
                       final cult = Cult.fromFirestore(cultSnapshot.data!);
                       return CultDetailScreen(cult: cult);
                     },
@@ -405,7 +439,7 @@ class MyApp extends StatelessWidget {
               ),
             );
           }
-          
+
           return null;
         },
       ),

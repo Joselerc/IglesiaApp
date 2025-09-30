@@ -5,6 +5,7 @@ import '../../models/notification.dart';
 import '../../services/notification_service.dart';
 import 'notification_detail_screen.dart';
 import 'notification_type_filter.dart';
+import '../../l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -44,22 +45,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notificações'),
+        title: Text(AppLocalizations.of(context)!.notifications),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.7),
           indicatorColor: Colors.white,
-          tabs: const [
-            Tab(text: 'Todas'),
-            Tab(text: 'Não lidas'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.all),
+            Tab(text: AppLocalizations.of(context)!.unread),
           ],
         ),
         actions: [
           // Marcar todas como leídas
           IconButton(
             icon: const Icon(Icons.mark_email_read),
-            tooltip: 'Marcar todas como lidas',
+            tooltip: AppLocalizations.of(context)!.markAllAsRead,
             onPressed: () async {
               setState(() {
                 _isLoading = true;
@@ -68,8 +69,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 await notificationService.markAllAsRead();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Todas as notificações marcadas como lidas'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.allNotificationsMarkedAsRead),
                     ),
                   );
                 }
@@ -77,7 +78,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Erro: $e'),
+                      content: Text(AppLocalizations.of(context)!.error(e.toString())),
                     ),
                   );
                 }
@@ -92,23 +93,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           ),
           // Menú de opciones
           PopupMenuButton<String>(
-            tooltip: 'Mais opções',
+            tooltip: AppLocalizations.of(context)!.moreOptions,
             onSelected: (value) async {
               if (value == 'delete_all') {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Excluir todas as notificações'),
-                    content: const Text('Tem certeza que deseja excluir todas as notificações?'),
+                    title: Text(AppLocalizations.of(context)!.deleteAllNotifications),
+                    content: Text(AppLocalizations.of(context)!.areYouSureYouWantToDeleteAllNotifications),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancelar'),
+                        child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
                         style: TextButton.styleFrom(foregroundColor: Colors.red),
-                        child: const Text('Excluir'),
+                        child: Text(AppLocalizations.of(context)!.deleteAll),
                       ),
                     ],
                   ),
@@ -122,8 +123,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                     await notificationService.deleteAllNotifications();
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Todas as notificações excluídas'),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.allNotificationsDeleted),
                         ),
                       );
                     }
@@ -131,7 +132,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Erro: $e'),
+                          content: Text(AppLocalizations.of(context)!.error(e.toString())),
                         ),
                       );
                     }
@@ -146,9 +147,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'delete_all',
-                child: Text('Excluir todas'),
+                child: Text(AppLocalizations.of(context)!.deleteAll),
               ),
             ],
           ),
@@ -169,7 +170,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text('Error: ${snapshot.error}'),
+                      child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())),
                     );
                   }
                   
@@ -189,8 +190,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                           const SizedBox(height: 16),
                           Text(
                             _selectedFilter == null
-                                ? 'Você não tem notificações'
-                                : 'Você não tem notificações deste tipo',
+                                ? AppLocalizations.of(context)!.youHaveNoNotifications
+                                : AppLocalizations.of(context)!.youHaveNoNotificationsOfType,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -204,7 +205,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                                   _selectedFilter = null;
                                 });
                               },
-                              child: const Text('Remover filtro'),
+                              child: Text(AppLocalizations.of(context)!.removeFilter),
                             ),
                           ],
                         ],
@@ -226,7 +227,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text('Error: ${snapshot.error}'),
+                      child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())),
                     );
                   }
                   
@@ -246,8 +247,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                           const SizedBox(height: 16),
                           Text(
                             _selectedFilter == null
-                                ? 'Você não tem notificações não lidas'
-                                : 'Você não tem notificações não lidas deste tipo',
+                                ? AppLocalizations.of(context)!.youHaveNoUnreadNotifications
+                                : AppLocalizations.of(context)!.youHaveNoUnreadNotificationsOfType,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -261,7 +262,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                                   _selectedFilter = null;
                                 });
                               },
-                              child: const Text('Remover filtro'),
+                              child: Text(AppLocalizations.of(context)!.removeFilter),
                             ),
                           ],
                         ],
@@ -311,14 +312,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
             try {
               await notificationService.deleteNotification(notification.id);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Notificação excluída'),
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.notificationDeleted),
                 ),
               );
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Error: $e'),
+                  content: Text(AppLocalizations.of(context)!.error(e.toString())),
                 ),
               );
             }

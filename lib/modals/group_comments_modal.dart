@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group_post.dart';
+import '../l10n/app_localizations.dart';
 
 class GroupCommentsModal extends StatefulWidget {
   final GroupPost post;
@@ -54,7 +55,7 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
       });
 
       commentController.clear();
-      
+
       // Actualizar el contador de comentarios en el post
       await FirebaseFirestore.instance
           .collection('group_posts')
@@ -62,10 +63,11 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
           .update({
         'commentCount': FieldValue.increment(1),
       });
-      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao publicar comentário: $e')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!
+                .errorPublishingComment(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -75,47 +77,53 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
       }
     }
   }
-  
+
   Future<void> _deleteComment(DocumentSnapshot comment) async {
     try {
       // Verificar si el usuario actual es el autor del comentario
-      final authorId = (comment.data() as Map<String, dynamic>)['authorId'] as DocumentReference;
+      final authorId = (comment.data() as Map<String, dynamic>)['authorId']
+          as DocumentReference;
       final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      
+
       if (authorId.id != currentUserId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você só pode excluir seus próprios comentários')),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.deleteOwnCommentsOnly)),
         );
         return;
       }
-      
+
       // Mostrar diálogo de confirmación
       final shouldDelete = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Excluir comentário'),
-          content: const Text('Tem certeza de que deseja excluir este comentário?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(AppLocalizations.of(context)!.deleteComment),
+              content:
+                  Text(AppLocalizations.of(context)!.deleteCommentConfirmation),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(AppLocalizations.of(context)!.delete,
+                      style: const TextStyle(color: Colors.red)),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        ),
-      ) ?? false;
-      
+          ) ??
+          false;
+
       if (!shouldDelete) return;
-      
+
       // Eliminar el comentario
       await FirebaseFirestore.instance
           .collection('group_posts_comments')
           .doc(comment.id)
           .delete();
-          
+
       // Actualizar el contador de comentarios en el post
       await FirebaseFirestore.instance
           .collection('group_posts')
@@ -123,16 +131,18 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
           .update({
         'commentCount': FieldValue.increment(-1),
       });
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Comentário excluído')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.commentDeleted)),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir comentário: $e')),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .errorDeletingComment(e.toString()))),
         );
       }
     }
@@ -142,7 +152,7 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
   Widget build(BuildContext context) {
     // Obtener el padding seguro para la parte inferior
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -176,7 +186,8 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                       .where('groupPostId', isEqualTo: widget.post.id)
                       .snapshots(),
                   builder: (context, snapshot) {
-                    int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                    int count =
+                        snapshot.hasData ? snapshot.data!.docs.length : 0;
                     return Text(
                       'Comentários ($count)',
                       style: const TextStyle(
@@ -195,7 +206,7 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
               ],
             ),
           ),
-          
+
           // Lista de comentarios
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -205,18 +216,20 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                   .orderBy('createdAt', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text('Erro: ${snapshot.error}'),
+                    child: Text(AppLocalizations.of(context)!
+                        .error(snapshot.error.toString())),
                   );
                 }
 
                 final comments = snapshot.data?.docs ?? [];
-                
+
                 if (comments.isEmpty) {
                   return Center(
                     child: Column(
@@ -243,19 +256,22 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                     ),
                   );
                 }
-                
+
                 return ListView.separated(
                   itemCount: comments.length,
-                  separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey[200]),
+                  separatorBuilder: (context, index) =>
+                      Divider(height: 1, color: Colors.grey[200]),
                   itemBuilder: (context, index) {
                     final commentDoc = comments[index];
                     final comment = commentDoc.data() as Map<String, dynamic>;
                     final timestamp = comment['createdAt'] as Timestamp?;
                     final userRef = comment['authorId'] as DocumentReference?;
-                    final isAuthor = userRef?.id == FirebaseAuth.instance.currentUser?.uid;
+                    final isAuthor =
+                        userRef?.id == FirebaseAuth.instance.currentUser?.uid;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -264,21 +280,27 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                             future: userRef?.get(),
                             builder: (context, userSnapshot) {
                               String? photoUrl;
-                              if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                                final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
+                              if (userSnapshot.hasData &&
+                                  userSnapshot.data!.exists) {
+                                final userData = userSnapshot.data!.data()
+                                    as Map<String, dynamic>?;
                                 photoUrl = userData?['photoUrl'] as String?;
                               }
-                              
+
                               return CircleAvatar(
                                 radius: 16,
-                                backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                                child: photoUrl == null ? const Icon(Icons.person, size: 16) : null,
+                                backgroundImage: photoUrl != null
+                                    ? NetworkImage(photoUrl)
+                                    : null,
+                                child: photoUrl == null
+                                    ? const Icon(Icons.person, size: 16)
+                                    : null,
                               );
                             },
                           ),
-                          
+
                           const SizedBox(width: 12),
-                          
+
                           // Contenido del comentario
                           Expanded(
                             child: Column(
@@ -291,11 +313,15 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                                       future: userRef?.get(),
                                       builder: (context, userSnapshot) {
                                         String username = 'Usuário';
-                                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                                          final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
-                                          username = userData?['name'] as String? ?? 'Usuário';
+                                        if (userSnapshot.hasData &&
+                                            userSnapshot.data!.exists) {
+                                          final userData = userSnapshot.data!
+                                              .data() as Map<String, dynamic>?;
+                                          username =
+                                              userData?['name'] as String? ??
+                                                  'Usuário';
                                         }
-                                        
+
                                         return Text(
                                           username,
                                           style: const TextStyle(
@@ -316,9 +342,9 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                                       ),
                                   ],
                                 ),
-                                
+
                                 const SizedBox(height: 4),
-                                
+
                                 // Texto del comentario
                                 Text(
                                   comment['content'] as String? ?? '',
@@ -327,11 +353,12 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                               ],
                             ),
                           ),
-                          
+
                           // Botón de eliminar (solo visible para el autor)
                           if (isAuthor)
                             IconButton(
-                              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                              icon: const Icon(Icons.delete_outline,
+                                  size: 18, color: Colors.red),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               onPressed: () => _deleteComment(commentDoc),
@@ -344,12 +371,12 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
               },
             ),
           ),
-          
+
           // Campo para añadir comentario
           Container(
             padding: EdgeInsets.only(
               left: 16,
-              right: 16, 
+              right: 16,
               top: 8,
               bottom: 8 + bottomPadding, // Añadir el padding seguro
             ),
@@ -368,16 +395,18 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                 // Avatar del usuario actual
                 CircleAvatar(
                   radius: 16,
-                  backgroundImage: FirebaseAuth.instance.currentUser?.photoURL != null
-                      ? NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!)
-                      : null,
+                  backgroundImage:
+                      FirebaseAuth.instance.currentUser?.photoURL != null
+                          ? NetworkImage(
+                              FirebaseAuth.instance.currentUser!.photoURL!)
+                          : null,
                   child: FirebaseAuth.instance.currentUser?.photoURL == null
                       ? const Icon(Icons.person, size: 16)
                       : null,
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Campo de texto
                 Expanded(
                   child: TextField(
@@ -390,15 +419,16 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                       ),
                       filled: true,
                       fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                     ),
                     maxLines: 1,
                     textCapitalization: TextCapitalization.sentences,
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
-                
+
                 // Botón de enviar
                 IconButton(
                   icon: _isSubmitting
@@ -417,4 +447,4 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
       ),
     );
   }
-} 
+}
