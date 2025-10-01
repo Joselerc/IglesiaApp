@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart'; // Asegúrate que la ruta a tus colores es correcta
 import '../../theme/app_text_styles.dart'; // Asegúrate que la ruta a tus estilos de texto es correcta
+import '../../l10n/app_localizations.dart';
 import './family_list_screen.dart'; // <-- AÑADIR IMPORT
 import './visitor_list_screen.dart'; // <-- AÑADIR IMPORT
 import './room_list_screen.dart'; // <-- AÑADIR IMPORT
@@ -40,7 +41,7 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Administração Kids'),
+        title: Text(AppLocalizations.of(context)!.kidsAdministration),
         centerTitle: true,
         backgroundColor: AppColors.primary, // O el color que uses para admin
         foregroundColor: Colors.white,
@@ -57,7 +58,7 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
             const SizedBox(height: 24),
 
             // 3. Sección "Asistencia" (Placeholder)
-            _buildSectionTitle('Asistência', Icons.show_chart, () { print('Recarregar Asistência'); }),
+            _buildSectionTitle(AppLocalizations.of(context)!.attendance, Icons.show_chart, () { print('Recarregar Asistência'); }),
             // TODO: Implementar gráfico de asistencia
             Container(
               height: 150,
@@ -67,12 +68,12 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
                 border: Border.all(color: Colors.grey.shade300)
               ),
               alignment: Alignment.center,
-              child: Text('Gráfico de Asistência (pendente)', style: AppTextStyles.bodyText2.copyWith(color: Colors.grey)),
+              child: Text(AppLocalizations.of(context)!.attendanceChart, style: AppTextStyles.bodyText2.copyWith(color: Colors.grey)),
             ),
             const SizedBox(height: 24),
 
             // 4. Sección "Cumpleañeros de la semana" (Placeholder)
-            _buildSectionTitle('Cumpleañeros da Semana', Icons.cake_outlined, () { print('Recarregar Cumpleañeros'); }),
+            _buildSectionTitle(AppLocalizations.of(context)!.weeklyBirthdays, Icons.cake_outlined, () { print('Recarregar Cumpleañeros'); }),
             // TODO: Implementar carrusel de cumpleañeros
             Container(
               height: 120,
@@ -82,7 +83,7 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
                 border: Border.all(color: Colors.grey.shade300)
               ),
               alignment: Alignment.center,
-              child: Text('Carrusel de Cumpleañeros (pendente)', style: AppTextStyles.bodyText2.copyWith(color: Colors.grey)),
+              child: Text(AppLocalizations.of(context)!.birthdayCarousel, style: AppTextStyles.bodyText2.copyWith(color: Colors.grey)),
             ),
           ],
         ),
@@ -106,7 +107,7 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.primary, size: 20),
             onPressed: onRefresh,
-            tooltip: 'Recarregar',
+            tooltip: AppLocalizations.of(context)!.reload,
           ),
         ],
       ),
@@ -117,10 +118,10 @@ class _KidsAdminScreenState extends State<KidsAdminScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildQuickAccessButton(Icons.family_restroom_outlined, 'Família', _navigateToFamilyManagement, Colors.orange.shade700),
-        _buildQuickAccessButton(Icons.person_add_alt_1_outlined, 'Visitante', _navigateToVisitorManagement, Colors.blue.shade700),
-        _buildQuickAccessButton(Icons.meeting_room_outlined, 'Salas', _navigateToRoomList, Colors.teal.shade700),
-        _buildQuickAccessButton(Icons.qr_code_scanner_outlined, 'Check-in', _navigateToQuickCheckin, Colors.green.shade700),
+        _buildQuickAccessButton(Icons.family_restroom_outlined, AppLocalizations.of(context)!.family, _navigateToFamilyManagement, Colors.orange.shade700),
+        _buildQuickAccessButton(Icons.person_add_alt_1_outlined, AppLocalizations.of(context)!.visitor, _navigateToVisitorManagement, Colors.blue.shade700),
+        _buildQuickAccessButton(Icons.meeting_room_outlined, AppLocalizations.of(context)!.rooms, _navigateToRoomList, Colors.teal.shade700),
+        _buildQuickAccessButton(Icons.qr_code_scanner_outlined, AppLocalizations.of(context)!.checkin, _navigateToQuickCheckin, Colors.green.shade700),
         // _buildQuickAccessButton(Icons.more_horiz_outlined, 'Ver mais', _navigateToMoreOptions, Colors.purple.shade700), // Comentado Ver Mais por ahora para hacer espacio
       ],
     );

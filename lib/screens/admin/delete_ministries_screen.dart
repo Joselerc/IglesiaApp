@@ -5,6 +5,7 @@ import '../../services/ministry_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class DeleteMinistriesScreen extends StatefulWidget {
   const DeleteMinistriesScreen({super.key});
@@ -22,7 +23,7 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eliminar Ministérios'),
+        title: Text(AppLocalizations.of(context)!.deleteMinistries),
         backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<bool>(
@@ -43,7 +44,7 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
                     const Icon(Icons.no_accounts, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
                     Text(
-                      'Você não tem permissão para excluir ministérios',
+                      AppLocalizations.of(context)!.noPermissionDeleteMinistries,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.headline3,
                     ),
@@ -69,7 +70,7 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
         
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro: ${snapshot.error}', style: AppTextStyles.bodyText1),
+            child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString()), style: AppTextStyles.bodyText1),
           );
         }
         
@@ -83,7 +84,7 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
                 const Icon(Icons.group_off, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há ministérios disponíveis',
+                  AppLocalizations.of(context)!.noMinistriesAvailable,
                   style: AppTextStyles.headline3,
                 ),
               ],
@@ -123,19 +124,19 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar eliminação'),
-        content: Text('Você tem certeza de que deseja excluir o ministério "${ministry.name}"? Esta ação não pode ser desfeita.'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteMinistry(ministry.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteMinistry(ministry.id);
             },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -150,13 +151,13 @@ class _DeleteMinistriesScreenState extends State<DeleteMinistriesScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ministério excluído com sucesso')),
+          SnackBar(content: Text('Ministerio eliminado con éxito')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir ministério: $e')),
+          SnackBar(content: Text('Error al eliminar ministerio: $e')),
         );
       }
     } finally {

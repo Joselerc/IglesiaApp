@@ -10,6 +10,7 @@ import '../../models/group.dart';
 import '../../models/notification.dart';
 import '../../theme/app_colors.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class PushNotificationScreen extends StatefulWidget {
   const PushNotificationScreen({Key? key}) : super(key: key);
@@ -237,20 +238,38 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
   void _showSuccessSnackbar(int recipientCount, {int failureCount = 0}) {
     if (!mounted) return;
     
-    String message = 'Notificação enviada a $recipientCount usuários';
+    String message = failureCount > 0 
+        ? AppLocalizations.of(context)!.notificationSentPartially
+        : AppLocalizations.of(context)!.notificationSentSuccessfully;
+    
+    String details = AppLocalizations.of(context)!.sentTo(recipientCount.toString());
     if (failureCount > 0) {
-      message += ' ($failureCount falharam)';
+      details += '\n${AppLocalizations.of(context)!.failedTo(failureCount.toString())}';
     }
     
     final snackBar = SnackBar(
       content: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          message,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              details,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
       ),
       backgroundColor: failureCount > 0 ? Colors.orange : Colors.green,
@@ -326,7 +345,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
     if (!hasPermission) {
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Você não tem permissão para enviar notificações.'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionSendNotificationsSnack), backgroundColor: Colors.red),
          );
       }
       return; // No continuar si no tiene permiso
@@ -350,8 +369,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
       
       if (targetUserIds.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No hay usuarios que cumplan con los criterios seleccionados'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noUsersMatchCriteria),
             backgroundColor: Colors.orange,
           ),
         );
@@ -406,7 +425,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al enviar: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.errorSending(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -421,7 +440,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Enviar Notificações Push'),
+        title: Text(AppLocalizations.of(context)!.sendPushNotifications),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -445,7 +464,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermissionNotification(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -462,7 +481,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Acesso não autorizado',
+                        AppLocalizations.of(context)!.accessNotAuthorized,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -471,7 +490,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Você não tem permissão para enviar notificações push.',
+                        AppLocalizations.of(context)!.noPermissionSendNotifications,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade600,
@@ -508,7 +527,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Enviar notificação',
+                                  AppLocalizations.of(context)!.sendNotification,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -524,15 +543,15 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                   ),
                                   child: TextFormField(
                                     controller: _titleController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Título',
+                                    decoration: InputDecoration(
+                                      labelText: AppLocalizations.of(context)!.title,
                                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                                       border: InputBorder.none,
                                       prefixIcon: Icon(Icons.title),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Por favor insira um título';
+                                        return AppLocalizations.of(context)!.pleaseEnterTitle;
                                       }
                                       return null;
                                     },
@@ -547,8 +566,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                   ),
                                   child: TextFormField(
                                     controller: _messageController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Mensagem',
+                                    decoration: InputDecoration(
+                                      labelText: AppLocalizations.of(context)!.message,
                                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                                       border: InputBorder.none,
                                       prefixIcon: Icon(Icons.message),
@@ -557,7 +576,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                     maxLines: 5,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Por favor insira uma mensagem';
+                                        return AppLocalizations.of(context)!.pleaseEnterMessage;
                                       }
                                       return null;
                                     },
@@ -583,7 +602,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Destinatários',
+                                  AppLocalizations.of(context)!.recipients,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -597,7 +616,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                   children: [
                                     // Todos los usuarios
                                     RadioListTile<String>(
-                                      title: const Text('Todos os membros'),
+                                      title: Text(AppLocalizations.of(context)!.allMembers),
                                       value: 'all',
                                       groupValue: _targetType,
                                       activeColor: AppColors.primary,
@@ -610,7 +629,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                     
                                     // Miembros de un ministerio
                                     RadioListTile<String>(
-                                      title: const Text('Membros de um ministério'),
+                                      title: Text(AppLocalizations.of(context)!.membersOfMinistry),
                                       value: 'ministry',
                                       groupValue: _targetType,
                                       activeColor: AppColors.primary,
@@ -635,8 +654,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                             border: Border.all(color: Colors.grey[300]!),
                                           ),
                                           child: DropdownButtonFormField<String>(
-                                            decoration: const InputDecoration(
-                                              labelText: 'Selecionar ministério',
+                                            decoration: InputDecoration(
+                                              labelText: AppLocalizations.of(context)!.selectMinistry,
                                               contentPadding: EdgeInsets.symmetric(horizontal: 12),
                                               border: InputBorder.none,
                                             ),
@@ -662,7 +681,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                             validator: _targetType == 'ministry'
                                                 ? (value) {
                                                     if (value == null || value.isEmpty) {
-                                                      return 'Por favor selecione um ministério';
+                                                      return AppLocalizations.of(context)!.pleaseSelectMinistry;
                                                     }
                                                     return null;
                                                   }
@@ -683,7 +702,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(
-                                                    'Selecionar membros (${_selectedMinistryMembers.values.where((selected) => selected).length}/${_ministryMembers.length})',
+                                                    AppLocalizations.of(context)!.selectMembers(_selectedMinistryMembers.values.where((selected) => selected).length.toString(), _ministryMembers.length.toString()),
                                                     style: const TextStyle(
                                                       fontWeight: FontWeight.w500,
                                                       fontSize: 14,
@@ -700,8 +719,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                                     },
                                                     child: Text(
                                                       _selectedMinistryMembers.values.every((selected) => selected)
-                                                          ? 'Desmarcar todos'
-                                                          : 'Selecionar todos',
+                                                          ? AppLocalizations.of(context)!.deselectAll
+                                                          : AppLocalizations.of(context)!.selectAll,
                                                       style: TextStyle(
                                                         color: AppColors.primary,
                                                         fontSize: 12,
@@ -749,7 +768,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                     
                                     // Miembros de un grupo
                                     RadioListTile<String>(
-                                      title: const Text('Membros de um grupo'),
+                                      title: Text(AppLocalizations.of(context)!.membersOfGroup),
                                       value: 'group',
                                       groupValue: _targetType,
                                       activeColor: AppColors.primary,
@@ -774,8 +793,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                             border: Border.all(color: Colors.grey[300]!),
                                           ),
                                           child: DropdownButtonFormField<String>(
-                                            decoration: const InputDecoration(
-                                              labelText: 'Selecionar grupo',
+                                            decoration: InputDecoration(
+                                              labelText: AppLocalizations.of(context)!.selectGroup,
                                               contentPadding: EdgeInsets.symmetric(horizontal: 12),
                                               border: InputBorder.none,
                                             ),
@@ -801,7 +820,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                             validator: _targetType == 'group'
                                                 ? (value) {
                                                     if (value == null || value.isEmpty) {
-                                                      return 'Por favor selecione um grupo';
+                                                      return AppLocalizations.of(context)!.pleaseSelectGroup;
                                                     }
                                                     return null;
                                                   }
@@ -822,7 +841,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(
-                                                    'Selecionar (${_selectedGroupMembers.values.where((selected) => selected).length}/${_groupMembers.length})',
+                                                    AppLocalizations.of(context)!.selectMembers(_selectedGroupMembers.values.where((selected) => selected).length.toString(), _groupMembers.length.toString()),
                                                     style: const TextStyle(
                                                       fontWeight: FontWeight.w500,
                                                       fontSize: 14,
@@ -839,8 +858,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                                                     },
                                                     child: Text(
                                                       _selectedGroupMembers.values.every((selected) => selected)
-                                                          ? 'Desmarcar todos'
-                                                          : 'Selecionar todos',
+                                                          ? AppLocalizations.of(context)!.deselectAll
+                                                          : AppLocalizations.of(context)!.selectAll,
                                                       style: TextStyle(
                                                         color: AppColors.primary,
                                                         fontSize: 12,
@@ -906,8 +925,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    'Receber também esta notificação',
+                                  child:                                   Text(
+                                    AppLocalizations.of(context)!.receiveThisNotificationToo,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
@@ -944,8 +963,8 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
                               ),
                               elevation: 2,
                             ),
-                            child: const Text(
-                              'ENVIAR NOTIFICAÇÃO',
+                            child: Text(
+                              AppLocalizations.of(context)!.sendNotificationButton,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

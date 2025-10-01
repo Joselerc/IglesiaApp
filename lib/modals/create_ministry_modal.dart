@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/permission_service.dart';
 import '../theme/app_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class CreateMinistryModal extends StatefulWidget {
   const CreateMinistryModal({super.key});
@@ -64,7 +65,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sem permissão para criar ministérios.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreateMinistries), backgroundColor: Colors.red),
         );
       }
       return;
@@ -97,7 +98,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Ministério criado com sucesso!'),
+              content: Text(AppLocalizations.of(context)!.ministryCreatedSuccessfully),
               backgroundColor: AppColors.success,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -110,7 +111,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao criar ministério: $e'),
+              content: Text(AppLocalizations.of(context)!.errorCreatingMinistry(e.toString())),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -194,13 +195,13 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                     ),
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Acesso Negado',
+                    Text(
+                      AppLocalizations.of(context)!.accessDenied,
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Você não tem permissão para criar ministérios.',
+                    Text(
+                      AppLocalizations.of(context)!.noPermissionCreateMinistriesLong,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -213,7 +214,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Entendi'),
+                      child: Text(AppLocalizations.of(context)!.understood),
                     ),
                   ],
                 ),
@@ -252,8 +253,8 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Text(
-                              'Criar Ministério',
+                            Text(
+                              AppLocalizations.of(context)!.createMinistry,
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -288,7 +289,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                           children: [
                             // Nombre del ministerio
                             Text(
-                              'Nome do Ministério',
+                              AppLocalizations.of(context)!.ministryName,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
@@ -299,7 +300,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                             TextFormField(
                               controller: _nameController,
                               decoration: InputDecoration(
-                                hintText: 'Digite o nome do ministério',
+                                hintText: AppLocalizations.of(context)!.enterMinistryName,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -325,7 +326,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               onChanged: (_) => setState(() {}),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Por favor, digite um nome';
+                                  return AppLocalizations.of(context)!.pleaseEnterMinistryName;
                                 }
                                 return null;
                               },

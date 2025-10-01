@@ -8,6 +8,7 @@ import './cult_detail_screen.dart';
 import '../../services/work_schedule_service.dart';
 import '../../theme/app_colors.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class CultsScreen extends StatefulWidget {
   final Service service;
@@ -173,7 +174,7 @@ class _CultsScreenState extends State<CultsScreen> {
                 ),
                 Center(
                   child: Text(
-                    'Criar Novo Culto',
+                    AppLocalizations.of(context)!.createNewCult,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -185,7 +186,7 @@ class _CultsScreenState extends State<CultsScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: 'Nome do Culto',
+                    labelText: AppLocalizations.of(context)!.cultName,
                     prefixIcon: const Icon(Icons.church),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -216,8 +217,8 @@ class _CultsScreenState extends State<CultsScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Data:',
+                Text(
+                  AppLocalizations.of(context)!.date,
                   style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
@@ -258,8 +259,8 @@ class _CultsScreenState extends State<CultsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Hora de início:',
+                          Text(
+                            AppLocalizations.of(context)!.startTime,
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
@@ -302,8 +303,8 @@ class _CultsScreenState extends State<CultsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Hora de fim:',
+                          Text(
+                            AppLocalizations.of(context)!.endTime,
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
@@ -320,7 +321,7 @@ class _CultsScreenState extends State<CultsScreen> {
                         });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('A hora de fim deve ser posterior à hora de início')),
+                          SnackBar(content: Text(AppLocalizations.of(context)!.endTimeMustBeAfterStart)),
                         );
                       }
                     }
@@ -695,7 +696,7 @@ class _CultsScreenState extends State<CultsScreen> {
               onPressed: () {
                           if (_nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Por favor, insira um nome para o culto')),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterCultName)),
                   );
                             return;
                           }
@@ -915,7 +916,7 @@ class _CultsScreenState extends State<CultsScreen> {
       bool hasPermission = await _permissionService.hasPermission('manage_cults');
       if (!hasPermission) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você não tem permissão para criar localizações')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreateLocations)),
         );
         return null;
       }
@@ -1040,7 +1041,7 @@ class _CultsScreenState extends State<CultsScreen> {
         if (permissionSnapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Cultos - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1061,7 +1062,7 @@ class _CultsScreenState extends State<CultsScreen> {
         if (permissionSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Cultos - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1075,14 +1076,14 @@ class _CultsScreenState extends State<CultsScreen> {
                 ),
               ),
             ),
-            body: Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}')),
+            body: Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString()))),
           );
         }
         
         if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Cultos - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1119,7 +1120,7 @@ class _CultsScreenState extends State<CultsScreen> {
           length: 2,
           child: Scaffold(
             appBar: AppBar(
-              title: Text('Cultos - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1153,7 +1154,7 @@ class _CultsScreenState extends State<CultsScreen> {
                       .orderBy('date')
                       .snapshots(),
                   builder: (context, snapshot) {
-                    return _buildCultsList(snapshot, 'Não há cultos próximos');
+                    return _buildCultsList(snapshot, AppLocalizations.of(context)!.noUpcomingCults);
                   },
                 ),
                 
@@ -1165,7 +1166,7 @@ class _CultsScreenState extends State<CultsScreen> {
                       .orderBy('date', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
-                    return _buildCultsList(snapshot, 'Não há cultos disponíveis');
+                    return _buildCultsList(snapshot, AppLocalizations.of(context)!.noAvailableCults);
                   },
                 ),
               ],
@@ -1230,7 +1231,7 @@ class _CultsScreenState extends State<CultsScreen> {
     
     if (cults.isEmpty) {
       return Center(
-        child: Text('Existem documentos, mas não puderam ser processados. $emptyMessage'),
+        child: Text(AppLocalizations.of(context)!.documentsExistButCouldNotProcess(emptyMessage)),
       );
     }
     
@@ -1463,7 +1464,7 @@ class _CultsScreenState extends State<CultsScreen> {
               final newName = editNameController.text.trim();
               if (newName.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('O nome não pode ficar vazio')),
+                  SnackBar(content: Text(AppLocalizations.of(context)!.nameCannotBeEmpty)),
                 );
                 return;
               }

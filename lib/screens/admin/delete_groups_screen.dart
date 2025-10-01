@@ -5,6 +5,7 @@ import '../../services/group_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class DeleteGroupsScreen extends StatefulWidget {
   const DeleteGroupsScreen({super.key});
@@ -22,7 +23,7 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eliminar Grupos'),
+        title: Text(AppLocalizations.of(context)!.deleteGroups),
         backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<bool>(
@@ -43,7 +44,7 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
                     const Icon(Icons.no_accounts, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
                     Text(
-                      'Você não tem permissão para excluir grupos',
+                      AppLocalizations.of(context)!.noPermissionDeleteGroups,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.headline3,
                     ),
@@ -69,7 +70,7 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
         
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro: ${snapshot.error}', style: AppTextStyles.bodyText1),
+            child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString()), style: AppTextStyles.bodyText1),
           );
         }
         
@@ -83,7 +84,7 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
                 const Icon(Icons.group_off, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há grupos disponíveis',
+                  AppLocalizations.of(context)!.noGroupsAvailable,
                   style: AppTextStyles.headline3,
                 ),
               ],
@@ -123,19 +124,19 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar eliminação'),
-        content: Text('Você tem certeza de que deseja excluir o grupo "${group.name}"? Esta ação não pode ser desfeita.'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteGroup(group.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteGroup(group.id);
             },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -150,13 +151,13 @@ class _DeleteGroupsScreenState extends State<DeleteGroupsScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Grupo excluído com sucesso')),
+          SnackBar(content: Text('Grupo eliminado con éxito')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir grupo: $e')),
+          SnackBar(content: Text('Error al eliminar grupo: $e')),
         );
       }
     } finally {

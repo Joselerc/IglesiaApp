@@ -318,12 +318,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String groupDeletedSuccessfully(String groupName) {
-    return 'Grupo \"$groupName\" eliminado com sucesso';
+    return 'Grupo excluído com sucesso';
   }
 
   @override
   String errorDeletingGroup(String error) {
-    return 'Erro ao eliminar o grupo: $error';
+    return 'Erro ao excluir grupo: $error';
   }
 
   @override
@@ -339,12 +339,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String ministryDeletedSuccessfully(String ministryName) {
-    return 'Ministério \"$ministryName\" eliminado com sucesso';
-  }
-
-  @override
-  String errorDeletingMinistry(Object error) {
-    return 'Erro ao eliminar o ministério: $error';
+    return 'Ministério excluído com sucesso';
   }
 
   @override
@@ -814,7 +809,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get pending => 'Pendentes';
+  String get pending => 'Pendente';
 
   @override
   String get accepted => 'Aceitos';
@@ -1015,7 +1010,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get confirmDeletion => 'Confirmar exclusão';
+  String get confirmDeletion => 'Confirmar eliminação';
 
   @override
   String get confirmDeleteAnnouncement =>
@@ -1128,7 +1123,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get attendanceRegisteredSuccessfully =>
-      'Presença registrada com sucesso!';
+      'Presença registrada com sucesso';
 
   @override
   String get couldNotOpenLink => 'Não foi possível abrir o link';
@@ -1878,7 +1873,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get number => 'Número';
 
   @override
-  String get date => 'Data';
+  String get date => 'Data:';
 
   @override
   String get select => 'Seleção';
@@ -2413,7 +2408,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get sectionTitleLabel => 'Título da Seção';
 
   @override
-  String get pleaseEnterTitle => 'Por favor, insira um título.';
+  String get pleaseEnterTitle => 'Por favor insira um título';
 
   @override
   String get pagesIncludedInSection => 'Páginas Incluídas nesta Seção';
@@ -2853,4 +2848,422 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sectionDeleted => 'Seção excluída';
+
+  @override
+  String get sendPushNotifications => 'Enviar Notificações Push';
+
+  @override
+  String errorVerifyingPermissionNotification(Object error) {
+    return 'Erro ao verificar permissão: $error';
+  }
+
+  @override
+  String get accessNotAuthorized => 'Acesso não autorizado';
+
+  @override
+  String get noPermissionSendNotifications =>
+      'Você não tem permissão para enviar notificações push.';
+
+  @override
+  String get sendNotification => 'Enviar notificação';
+
+  @override
+  String get title => 'Título';
+
+  @override
+  String get message => 'Mensagem';
+
+  @override
+  String get pleaseEnterMessage => 'Por favor insira uma mensagem';
+
+  @override
+  String get recipients => 'Destinatários';
+
+  @override
+  String get allMembers => 'Todos os membros';
+
+  @override
+  String get membersOfMinistry => 'Membros de um ministério';
+
+  @override
+  String get selectMinistry => 'Selecionar ministério';
+
+  @override
+  String get pleaseSelectMinistry => 'Por favor selecione um ministério';
+
+  @override
+  String selectMembers(Object selected, Object total) {
+    return 'Selecionar membros ($selected/$total)';
+  }
+
+  @override
+  String get selectAll => 'Selecionar todos';
+
+  @override
+  String get deselectAll => 'Desmarcar todos';
+
+  @override
+  String get membersOfGroup => 'Membros de um grupo';
+
+  @override
+  String get selectGroup => 'Selecionar grupo';
+
+  @override
+  String get pleaseSelectGroup => 'Por favor selecione um grupo';
+
+  @override
+  String get receiveThisNotificationToo => 'Receber também esta notificação';
+
+  @override
+  String get sendNotificationButton => 'ENVIAR NOTIFICAÇÃO';
+
+  @override
+  String get noPermissionSendNotificationsSnack =>
+      'Você não tem permissão para enviar notificações.';
+
+  @override
+  String get noUsersMatchCriteria =>
+      'Não há usuários que atendam aos critérios selecionados';
+
+  @override
+  String errorSending(Object error) {
+    return 'Erro ao enviar: $error';
+  }
+
+  @override
+  String get notificationSentSuccessfully =>
+      '✅ Notificação enviada com sucesso';
+
+  @override
+  String get notificationSentPartially => '⚠️ Notificação enviada parcialmente';
+
+  @override
+  String sentTo(Object count) {
+    return 'Enviada para $count usuários';
+  }
+
+  @override
+  String failedTo(Object count) {
+    return 'Falhou para $count usuários';
+  }
+
+  @override
+  String get noPermissionDeleteMinistries =>
+      'Você não tem permissão para excluir ministérios';
+
+  @override
+  String confirmDeleteMinistry(Object name) {
+    return 'Você tem certeza de que deseja excluir o ministério \"$name\"? Esta ação não pode ser desfeita.';
+  }
+
+  @override
+  String errorDeletingMinistry(Object error) {
+    return 'Erro ao excluir ministério: $error';
+  }
+
+  @override
+  String get noPermissionDeleteGroups =>
+      'Você não tem permissão para excluir grupos';
+
+  @override
+  String confirmDeleteGroup(Object name) {
+    return 'Você tem certeza de que deseja excluir o grupo \"$name\"? Esta ação não pode ser desfeita.';
+  }
+
+  @override
+  String get kidsAdministration => 'Administração Kids';
+
+  @override
+  String get attendance => 'Presença';
+
+  @override
+  String get reload => 'Recarregar';
+
+  @override
+  String get attendanceChart => 'Gráfico de Assistência (pendente)';
+
+  @override
+  String get weeklyBirthdays => 'Aniversários da Semana';
+
+  @override
+  String get birthdayCarousel => 'Carrossel de Aniversários (pendente)';
+
+  @override
+  String get family => 'Família';
+
+  @override
+  String get visitor => 'Visitante';
+
+  @override
+  String get rooms => 'Salas';
+
+  @override
+  String get checkin => 'Check-in';
+
+  @override
+  String get absenceRegisteredSuccessfully => 'Ausência registrada com sucesso';
+
+  @override
+  String errorRegisteringAttendance(Object error) {
+    return 'Erro ao registrar presença: $error';
+  }
+
+  @override
+  String get searchParticipants => 'Buscar participantes';
+
+  @override
+  String get confirmed => 'Confirmada';
+
+  @override
+  String get present => 'Presentes';
+
+  @override
+  String get absent => 'Ausentes';
+
+  @override
+  String get add => 'Adicionar';
+
+  @override
+  String get noMembersFound => 'Nenhum membro encontrado';
+
+  @override
+  String get confirmedStatus => 'Confirmado';
+
+  @override
+  String get presentStatus => 'Presente';
+
+  @override
+  String get absentStatus => 'Ausente';
+
+  @override
+  String errorSearchingUsers(Object error) {
+    return 'Erro ao buscar usuários: $error';
+  }
+
+  @override
+  String get participantAddedSuccessfully =>
+      'Participante adicionado com sucesso';
+
+  @override
+  String errorAddingParticipant(Object error) {
+    return 'Erro ao adicionar participante: $error';
+  }
+
+  @override
+  String get addParticipant => 'Adicionar Participante';
+
+  @override
+  String get searchUserByName => 'Buscar usuário por nome';
+
+  @override
+  String get typeAtLeastTwoCharacters =>
+      'Digite pelo menos 2 caracteres para buscar';
+
+  @override
+  String get noResultsFound => 'Nenhum resultado encontrado';
+
+  @override
+  String get tryAnotherName => 'Tente com outro nome ou sobrenome';
+
+  @override
+  String get recentUsers => 'Usuários recentes:';
+
+  @override
+  String get createNewCult => 'Criar Novo Culto';
+
+  @override
+  String get cultName => 'Nome do Culto';
+
+  @override
+  String get startTime => 'Hora de início:';
+
+  @override
+  String get endTime => 'Hora de fim:';
+
+  @override
+  String get endTimeMustBeAfterStart =>
+      'A hora de fim deve ser posterior à hora de início';
+
+  @override
+  String get pleaseEnterCultName => 'Por favor, insira um nome para o culto';
+
+  @override
+  String get noPermissionCreateLocations =>
+      'Você não tem permissão para criar localizações';
+
+  @override
+  String get noCultsFound => 'Nenhum culto encontrado';
+
+  @override
+  String get createFirstCult => 'Criar Primeiro Culto';
+
+  @override
+  String get location => 'Localização:';
+
+  @override
+  String get selectLocation => 'Selecionar localização';
+
+  @override
+  String get addNewLocation => 'Adicionar nova localização';
+
+  @override
+  String get locationName => 'Nome da localização';
+
+  @override
+  String get street => 'Rua';
+
+  @override
+  String get complement => 'Complemento';
+
+  @override
+  String get neighborhood => 'Bairro';
+
+  @override
+  String get city => 'Cidade';
+
+  @override
+  String get state => 'Estado';
+
+  @override
+  String get postalCode => 'CEP';
+
+  @override
+  String get country => 'País';
+
+  @override
+  String get saveThisLocation => 'Salvar esta localização para uso futuro';
+
+  @override
+  String get createCult => 'Criar Culto';
+
+  @override
+  String get noUpcomingCults => 'Não há cultos próximos';
+
+  @override
+  String get noAvailableCults => 'Não há cultos disponíveis';
+
+  @override
+  String get nameCannotBeEmpty => 'O nome não pode ficar vazio';
+
+  @override
+  String documentsExistButCouldNotProcess(Object message) {
+    return 'Existem documentos, mas não puderam ser processados. $message';
+  }
+
+  @override
+  String get noPermissionCreateMinistries =>
+      'Sem permissão para criar ministérios.';
+
+  @override
+  String get ministryCreatedSuccessfully => 'Ministério criado com sucesso!';
+
+  @override
+  String errorCreatingMinistry(Object error) {
+    return 'Erro ao criar ministério: $error';
+  }
+
+  @override
+  String get noPermissionCreateMinistriesLong =>
+      'Você não tem permissão para criar ministérios.';
+
+  @override
+  String get ministryName => 'Nome do Ministério';
+
+  @override
+  String get enterMinistryName => 'Digite o nome do ministério';
+
+  @override
+  String get pleaseEnterMinistryName =>
+      'Por favor, digite um nome para o ministério';
+
+  @override
+  String get ministryDescription => 'Descrição do Ministério';
+
+  @override
+  String get describeMinistryPurpose =>
+      'Descreva o propósito e atividades do ministério';
+
+  @override
+  String get administrators => 'Administradores';
+
+  @override
+  String get selectAdministrators => 'Selecionar administradores (opcional)';
+
+  @override
+  String get searchUsers => 'Buscar usuários...';
+
+  @override
+  String get noUsersFound => 'Nenhum usuário encontrado';
+
+  @override
+  String get selectedAdministrators => 'Administradores selecionados';
+
+  @override
+  String get noAdministratorsSelected => 'Nenhum administrador selecionado';
+
+  @override
+  String get creating => 'Criando...';
+
+  @override
+  String charactersRemaining(Object count) {
+    return '$count caracteres restantes';
+  }
+
+  @override
+  String get understood => 'Entendi';
+
+  @override
+  String get cancelConsultation => 'Cancelar Consulta';
+
+  @override
+  String get sureToCancel => 'Tem certeza que deseja cancelar esta consulta?';
+
+  @override
+  String get yesCancelConsultation => 'Sim, cancelar';
+
+  @override
+  String get consultationCancelledSuccessfully =>
+      'Consulta cancelada com sucesso';
+
+  @override
+  String get myAppointments => 'Minhas Consultas';
+
+  @override
+  String get requestAppointment => 'Solicitar Consulta';
+
+  @override
+  String get pastorAvailability => 'Disponibilidade do Pastor';
+
+  @override
+  String get noAppointmentsScheduled => 'Nenhuma consulta agendada';
+
+  @override
+  String get scheduleFirstAppointment => 'Agende sua primeira consulta';
+
+  @override
+  String get scheduleAppointment => 'Agendar Consulta';
+
+  @override
+  String get cancelled => 'Cancelada';
+
+  @override
+  String get completed => 'Concluída';
+
+  @override
+  String get withPreposition => 'com';
+
+  @override
+  String get requestedOn => 'Solicitada em';
+
+  @override
+  String get scheduledFor => 'Agendada para';
+
+  @override
+  String get reason => 'Motivo';
+
+  @override
+  String get contactPastor => 'Contatar Pastor';
+
+  @override
+  String get cancelAppointment => 'Cancelar Consulta';
 }

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/event_attendance_service.dart';
 import '../../models/event_attendance.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventAttendanceScreen extends StatefulWidget {
   final String eventId;
@@ -112,7 +113,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar dados: $e'),
+            content: Text(AppLocalizations.of(context)!.errorLoadingData(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -142,8 +143,8 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(attended
-                ? 'Presença registrada com sucesso'
-                : 'Ausência registrada com sucesso'),
+                ? AppLocalizations.of(context)!.attendanceRegisteredSuccessfully
+                : AppLocalizations.of(context)!.absenceRegisteredSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -156,7 +157,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao registrar presença: $e'),
+            content: Text(AppLocalizations.of(context)!.errorRegisteringAttendance(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -199,7 +200,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('Presença - ${widget.eventTitle}'),
+        title: Text('${AppLocalizations.of(context)!.attendance} - ${widget.eventTitle}'),
         backgroundColor: primaryColor,
         foregroundColor: AppColors.textOnDark,
         elevation: 0,
@@ -219,7 +220,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Buscar participantes',
+                      hintText: AppLocalizations.of(context)!.searchParticipants,
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -242,21 +243,21 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                   child: Row(
                     children: [
                       _buildStatCard(
-                        'Confirmados',
+                        AppLocalizations.of(context)!.confirmed,
                         _confirmedAttendees.length.toString(),
                         Icons.event_available,
                         AppColors.primary,
                       ),
                       const SizedBox(width: 10),
                       _buildStatCard(
-                        'Presentes',
+                        AppLocalizations.of(context)!.present,
                         _attendance.where((a) => a.attended).length.toString(),
                         Icons.check_circle,
                         AppColors.success,
                       ),
                       const SizedBox(width: 10),
                       _buildStatCard(
-                        'Ausentes',
+                        AppLocalizations.of(context)!.absent,
                         _attendance.where((a) => !a.attended).length.toString(),
                         Icons.cancel,
                         AppColors.error,
@@ -273,8 +274,8 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Gerenciar Presença',
+                      Text(
+                        AppLocalizations.of(context)!.manageAttendance,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -283,7 +284,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                       ElevatedButton.icon(
                         onPressed: _showAddAttendeeModal,
                         icon: const Icon(Icons.person_add, color: AppColors.textOnDark),
-                        label: const Text('Adicionar'),
+                        label: Text(AppLocalizations.of(context)!.add),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: AppColors.textOnDark,
@@ -306,8 +307,8 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                                 color: AppColors.mutedGray,
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                'Nenhum membro encontrado',
+                              Text(
+                                AppLocalizations.of(context)!.noMembersFound,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -375,7 +376,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                                             Icon(Icons.event_available, size: 10, color: AppColors.primary),
                                             const SizedBox(width: 2),
                                             Text(
-                                              'Confirmado',
+                                              AppLocalizations.of(context)!.confirmedStatus,
                                               style: TextStyle(
                                                 fontSize: 9,
                                                 color: AppColors.primary,
@@ -401,7 +402,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                                             ),
                                             const SizedBox(width: 2),
                                             Text(
-                                              attendanceRecord.attended ? 'Presente' : 'Ausente',
+                                              attendanceRecord.attended ? AppLocalizations.of(context)!.presentStatus : AppLocalizations.of(context)!.absentStatus,
                                               style: TextStyle(
                                                 fontSize: 10,
                                                 color: attendanceRecord.attended ? AppColors.success : AppColors.error,
@@ -567,7 +568,7 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar usuários: $e'),
+            content: Text(AppLocalizations.of(context)!.errorLoadingUsers(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -610,7 +611,7 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao buscar usuários: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSearchingUsers(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -639,8 +640,8 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Participante adicionado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.participantAddedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -653,7 +654,7 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao adicionar participante: $e'),
+            content: Text(AppLocalizations.of(context)!.errorAddingParticipant(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -684,8 +685,8 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Adicionar Participante',
+              Text(
+                AppLocalizations.of(context)!.addParticipant,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -701,7 +702,7 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Buscar usuário por nome',
+              hintText: AppLocalizations.of(context)!.searchUserByName,
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -727,9 +728,9 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
               child: CircularProgressIndicator(),
             )
           else if (_searchController.text.isNotEmpty && _searchController.text.length < 2)
-            const Center(
+            Center(
               child: Text(
-                'Digite pelo menos 2 caracteres para buscar',
+                AppLocalizations.of(context)!.typeAtLeastTwoCharacters,
                 style: TextStyle(
                   color: AppColors.textSecondary,
                 ),
@@ -746,16 +747,16 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
                     color: AppColors.mutedGray,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Nenhum resultado encontrado',
+                  Text(
+                    AppLocalizations.of(context)!.noResultsFound,
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Tente com outro nome ou sobrenome',
+                  Text(
+                    AppLocalizations.of(context)!.tryAnotherName,
                     style: TextStyle(
                       color: AppColors.textSecondary,
                     ),
@@ -769,10 +770,10 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_searchController.text.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(bottom: 8.0),
                       child: Text(
-                        'Usuários recentes:',
+                        AppLocalizations.of(context)!.recentUsers,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textSecondary,
