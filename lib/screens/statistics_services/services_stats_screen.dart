@@ -5,6 +5,7 @@ import '../../models/user_stats.dart';
 import '../../services/user_stats_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ServicesStatsScreen extends StatefulWidget {
   const ServicesStatsScreen({Key? key}) : super(key: key);
@@ -600,7 +601,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Buscar Serviço'),
+        title: Text(AppLocalizations.of(context)!.searchService),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -613,7 +614,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {

@@ -3376,4 +3376,73 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get inactive => 'Inativo';
+
+  @override
+  String get servicesStatistics => 'Estatísticas de Serviços';
+
+  @override
+  String get searchService => 'Buscar Serviço';
+
+  @override
+  String get users => 'Usuários';
+
+  @override
+  String get totalInvitations => 'Total de Convites';
+
+  @override
+  String get acceptedInvitations => 'Convites Aceitos';
+
+  @override
+  String get rejectedInvitations => 'Convites Rejeitados';
+
+  @override
+  String get totalAttendances => 'Total de Presenças';
+
+  @override
+  String get totalAbsences => 'Total de Ausências';
+
+  @override
+  String get acceptanceRate => 'Taxa de Aceitação';
+
+  @override
+  String get attendanceRate => 'Taxa de Presença';
+
+  @override
+  String get sortBy => 'Ordenar por';
+
+  @override
+  String get invitations => 'Convites';
+
+  @override
+  String get acceptances => 'Aceitações';
+
+  @override
+  String get attendances => 'Presenças';
+
+  @override
+  String get ascending => 'Crescente';
+
+  @override
+  String get descending => 'Decrescente';
+
+  @override
+  String get dateFilter => 'Filtro de Data';
+
+  @override
+  String get startDate => 'Data de Início';
+
+  @override
+  String get endDate => 'Data de Fim';
+
+  @override
+  String get applyFilter => 'Aplicar Filtro';
+
+  @override
+  String get clearFilter => 'Limpar Filtro';
+
+  @override
+  String get noServicesFound => 'Nenhum serviço encontrado';
+
+  @override
+  String get statistics => 'Estatísticas';
 }

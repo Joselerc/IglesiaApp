@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../../services/course_stats_service.dart';
 import '../../models/course.dart'; // Importar Course

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme/app_colors.dart';
 import '../../models/ministry.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 import 'tabs/new/ministry_history_tab.dart';
 import 'tabs/new/ministry_events_tab.dart';
 import 'package:intl/intl.dart';

@@ -6025,6 +6025,144 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Inactivo'**
   String get inactive;
+
+  /// No description provided for @servicesStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Servicios'**
+  String get servicesStatistics;
+
+  /// No description provided for @searchService.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar Servicio'**
+  String get searchService;
+
+  /// No description provided for @users.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios'**
+  String get users;
+
+  /// No description provided for @totalInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Invitaciones'**
+  String get totalInvitations;
+
+  /// No description provided for @acceptedInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones Aceptadas'**
+  String get acceptedInvitations;
+
+  /// No description provided for @rejectedInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones Rechazadas'**
+  String get rejectedInvitations;
+
+  /// No description provided for @totalAttendances.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Asistencias'**
+  String get totalAttendances;
+
+  /// No description provided for @totalAbsences.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Ausencias'**
+  String get totalAbsences;
+
+  /// No description provided for @acceptanceRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Tasa de Aceptación'**
+  String get acceptanceRate;
+
+  /// No description provided for @attendanceRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Tasa de Asistencia'**
+  String get attendanceRate;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar por'**
+  String get sortBy;
+
+  /// No description provided for @invitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones'**
+  String get invitations;
+
+  /// No description provided for @acceptances.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptaciones'**
+  String get acceptances;
+
+  /// No description provided for @attendances.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencias'**
+  String get attendances;
+
+  /// No description provided for @ascending.
+  ///
+  /// In es, this message translates to:
+  /// **'Ascendente'**
+  String get ascending;
+
+  /// No description provided for @descending.
+  ///
+  /// In es, this message translates to:
+  /// **'Descendente'**
+  String get descending;
+
+  /// No description provided for @dateFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtro de Fecha'**
+  String get dateFilter;
+
+  /// No description provided for @startDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de Inicio'**
+  String get startDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de Fin'**
+  String get endDate;
+
+  /// No description provided for @applyFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicar Filtro'**
+  String get applyFilter;
+
+  /// No description provided for @clearFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar Filtro'**
+  String get clearFilter;
+
+  /// No description provided for @noServicesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron servicios'**
+  String get noServicesFound;
+
+  /// No description provided for @statistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
+  String get statistics;
 }
 
 class _AppLocalizationsDelegate

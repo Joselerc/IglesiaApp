@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class UsersStatsSkeleton extends StatelessWidget {
   const UsersStatsSkeleton({Key? key}) : super(key: key);
