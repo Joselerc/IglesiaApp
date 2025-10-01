@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user_model.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'user_detail_screen.dart';
 
 class UserInfoScreen extends StatefulWidget {
@@ -110,7 +111,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Informação de Usuários'),
+        title: Text(AppLocalizations.of(context)!.userInformation),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -134,7 +135,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -151,7 +152,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Acesso não autorizado',
+                        AppLocalizations.of(context)!.unauthorizedAccess,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

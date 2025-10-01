@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @email.
   ///
   /// In es, this message translates to:
-  /// **'E-mail'**
+  /// **'Email'**
   String get email;
 
   /// No description provided for @yourEmailExample.
@@ -4631,7 +4631,7 @@ abstract class AppLocalizations {
   /// No description provided for @active.
   ///
   /// In es, this message translates to:
-  /// **'Activos'**
+  /// **'Activo'**
   String get active;
 
   /// No description provided for @inactiveExpired.
@@ -5815,6 +5815,216 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cancelar Cita'**
   String get cancelAppointment;
+
+  /// No description provided for @noPermissionRespondPrivatePrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para responder oraciones privadas'**
+  String get noPermissionRespondPrivatePrayers;
+
+  /// No description provided for @noPermissionCreatePredefinedMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para crear mensajes predefinidos'**
+  String get noPermissionCreatePredefinedMessages;
+
+  /// No description provided for @noPermissionManagePrivatePrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar oraciones privadas'**
+  String get noPermissionManagePrivatePrayers;
+
+  /// No description provided for @prayerRequestAcceptedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de oración aceptada con éxito'**
+  String get prayerRequestAcceptedSuccessfully;
+
+  /// No description provided for @pendingPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones Pendientes'**
+  String get pendingPrayers;
+
+  /// No description provided for @acceptedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones Aceptadas'**
+  String get acceptedPrayers;
+
+  /// No description provided for @rejectedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones Rechazadas'**
+  String get rejectedPrayers;
+
+  /// No description provided for @noPendingPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay oraciones pendientes'**
+  String get noPendingPrayers;
+
+  /// No description provided for @noAcceptedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay oraciones aceptadas'**
+  String get noAcceptedPrayers;
+
+  /// No description provided for @noRejectedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay oraciones rechazadas'**
+  String get noRejectedPrayers;
+
+  /// No description provided for @requestedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitada por'**
+  String get requestedBy;
+
+  /// No description provided for @acceptPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar Oración'**
+  String get acceptPrayer;
+
+  /// No description provided for @rejectPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar Oración'**
+  String get rejectPrayer;
+
+  /// No description provided for @respondToPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Responder a Oración'**
+  String get respondToPrayer;
+
+  /// No description provided for @viewResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Respuesta'**
+  String get viewResponse;
+
+  /// No description provided for @predefinedMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensajes Predefinidos'**
+  String get predefinedMessages;
+
+  /// No description provided for @createPredefinedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Mensaje Predefinido'**
+  String get createPredefinedMessage;
+
+  /// No description provided for @prayerStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Oraciones'**
+  String get prayerStats;
+
+  /// No description provided for @totalRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Solicitudes'**
+  String get totalRequests;
+
+  /// No description provided for @acceptedRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes Aceptadas'**
+  String get acceptedRequests;
+
+  /// No description provided for @rejectedRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes Rechazadas'**
+  String get rejectedRequests;
+
+  /// No description provided for @responseRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Tasa de Respuesta'**
+  String get responseRate;
+
+  /// No description provided for @userInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información de Usuarios'**
+  String get userInformation;
+
+  /// No description provided for @unauthorizedAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Acceso no autorizado'**
+  String get unauthorizedAccess;
+
+  /// No description provided for @noPermissionViewUserInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para ver información de usuarios.'**
+  String get noPermissionViewUserInfo;
+
+  /// No description provided for @totalUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Usuarios'**
+  String get totalUsers;
+
+  /// No description provided for @activeUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios Activos'**
+  String get activeUsers;
+
+  /// No description provided for @inactiveUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios Inactivos'**
+  String get inactiveUsers;
+
+  /// No description provided for @userDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles del Usuario'**
+  String get userDetails;
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Detalles'**
+  String get viewDetails;
+
+  /// No description provided for @lastActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actividad'**
+  String get lastActive;
+
+  /// No description provided for @joinedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Se unió el'**
+  String get joinedOn;
+
+  /// No description provided for @role.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol'**
+  String get role;
+
+  /// No description provided for @status.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado'**
+  String get status;
+
+  /// No description provided for @inactive.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo'**
+  String get inactive;
 }
 
 class _AppLocalizationsDelegate

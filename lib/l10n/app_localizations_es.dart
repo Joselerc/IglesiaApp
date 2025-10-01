@@ -557,7 +557,7 @@ class AppLocalizationsEs extends AppLocalizations {
       '¡Bienvenido de nuevo! Por favor, inicia sesión para continuar';
 
   @override
-  String get email => 'E-mail';
+  String get email => 'Email';
 
   @override
   String get yourEmailExample => 'tu.email@ejemplo.com';
@@ -2612,7 +2612,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get manageAnnouncements => 'Administrar Anuncios';
 
   @override
-  String get active => 'Activos';
+  String get active => 'Activo';
 
   @override
   String get inactiveExpired => 'Inactivos/Vencidos';
@@ -3278,4 +3278,114 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancelAppointment => 'Cancelar Cita';
+
+  @override
+  String get noPermissionRespondPrivatePrayers =>
+      'No tienes permiso para responder oraciones privadas';
+
+  @override
+  String get noPermissionCreatePredefinedMessages =>
+      'No tienes permiso para crear mensajes predefinidos';
+
+  @override
+  String get noPermissionManagePrivatePrayers =>
+      'No tienes permiso para gestionar oraciones privadas';
+
+  @override
+  String get prayerRequestAcceptedSuccessfully =>
+      'Solicitud de oración aceptada con éxito';
+
+  @override
+  String get pendingPrayers => 'Oraciones Pendientes';
+
+  @override
+  String get acceptedPrayers => 'Oraciones Aceptadas';
+
+  @override
+  String get rejectedPrayers => 'Oraciones Rechazadas';
+
+  @override
+  String get noPendingPrayers => 'No hay oraciones pendientes';
+
+  @override
+  String get noAcceptedPrayers => 'No hay oraciones aceptadas';
+
+  @override
+  String get noRejectedPrayers => 'No hay oraciones rechazadas';
+
+  @override
+  String get requestedBy => 'Solicitada por';
+
+  @override
+  String get acceptPrayer => 'Aceptar Oración';
+
+  @override
+  String get rejectPrayer => 'Rechazar Oración';
+
+  @override
+  String get respondToPrayer => 'Responder a Oración';
+
+  @override
+  String get viewResponse => 'Ver Respuesta';
+
+  @override
+  String get predefinedMessages => 'Mensajes Predefinidos';
+
+  @override
+  String get createPredefinedMessage => 'Crear Mensaje Predefinido';
+
+  @override
+  String get prayerStats => 'Estadísticas de Oraciones';
+
+  @override
+  String get totalRequests => 'Total de Solicitudes';
+
+  @override
+  String get acceptedRequests => 'Solicitudes Aceptadas';
+
+  @override
+  String get rejectedRequests => 'Solicitudes Rechazadas';
+
+  @override
+  String get responseRate => 'Tasa de Respuesta';
+
+  @override
+  String get userInformation => 'Información de Usuarios';
+
+  @override
+  String get unauthorizedAccess => 'Acceso no autorizado';
+
+  @override
+  String get noPermissionViewUserInfo =>
+      'No tienes permiso para ver información de usuarios.';
+
+  @override
+  String get totalUsers => 'Total de Usuarios';
+
+  @override
+  String get activeUsers => 'Usuarios Activos';
+
+  @override
+  String get inactiveUsers => 'Usuarios Inactivos';
+
+  @override
+  String get userDetails => 'Detalles del Usuario';
+
+  @override
+  String get viewDetails => 'Ver Detalles';
+
+  @override
+  String get lastActive => 'Última actividad';
+
+  @override
+  String get joinedOn => 'Se unió el';
+
+  @override
+  String get role => 'Rol';
+
+  @override
+  String get status => 'Estado';
+
+  @override
+  String get inactive => 'Inactivo';
 }

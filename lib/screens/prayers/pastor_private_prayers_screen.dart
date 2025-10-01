@@ -5,6 +5,7 @@ import '../../models/private_prayer.dart';
 import '../../services/prayer_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'modals/respond_prayer_modal.dart';
 import 'modals/create_predefined_message_modal.dart';
 import 'package:intl/intl.dart';
@@ -130,7 +131,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
     bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você não tem permissão para responder orações privadas')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionRespondPrivatePrayers)),
       );
       return;
     }
@@ -154,7 +155,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
     bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você não tem permissão para criar mensagens predefinidas')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreatePredefinedMessages)),
       );
       return;
     }
@@ -179,7 +180,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
     bool hasPermission = await _permissionService.hasPermission('manage_private_prayers');
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você não tem permissão para gerenciar orações privadas')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionManagePrivatePrayers)),
       );
       return;
     }
@@ -199,7 +200,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Solicitação de oração aceita com sucesso'),
+              content: Text(AppLocalizations.of(context)!.prayerRequestAcceptedSuccessfully),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
