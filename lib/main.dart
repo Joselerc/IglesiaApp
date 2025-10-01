@@ -195,7 +195,7 @@ class MyApp extends StatelessWidget {
           Locale('es', ''),
           Locale('pt', ''),
         ],
-        // locale: initialLocale, // Usar el idioma cargado o el predeterminado
+        locale: const Locale('es', ''), // Forzar español por defecto
         routes: {
           '/auth': (context) => const AuthWrapper(),
           '/login': (context) => const LoginScreen(),

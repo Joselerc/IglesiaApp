@@ -39,7 +39,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get birthDate => 'Fecha de Nacimiento';
 
   @override
-  String get selectDate => 'Seleccionar fecha';
+  String get selectDate => 'Selecciona una fecha';
 
   @override
   String get gender => 'Sexo';
@@ -188,7 +188,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Crear y gestionar eventos de la iglesia';
 
   @override
-  String get manageVideos => 'Gestionar Videos';
+  String get manageVideos => 'Gestionar vídeos';
 
   @override
   String get administerChurchSectionsVideos =>
@@ -438,7 +438,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get calendar => 'Calendario';
 
   @override
-  String get videos => 'videos';
+  String get videos => 'Vídeos';
 
   @override
   String get profile => 'Perfil';
@@ -500,14 +500,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorLoadingEvents(String error) {
-    return 'Error al cargar los eventos';
+    return 'Error al cargar eventos: $error';
   }
 
   @override
   String get calendars => 'Calendarios';
 
   @override
-  String get events => 'eventos';
+  String get events => 'Eventos';
 
   @override
   String get services => 'Servicios';
@@ -519,7 +519,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get manageSections => 'Gestionar secciones';
 
   @override
-  String get recentVideos => 'Videos Recientes';
+  String get recentVideos => 'Vídeos Recientes';
 
   @override
   String errorInSection(Object error) {
@@ -562,7 +562,7 @@ class AppLocalizationsEs extends AppLocalizations {
       '¡Bienvenido de nuevo! Por favor, inicia sesión para continuar';
 
   @override
-  String get email => 'Email';
+  String get email => 'E-mail';
 
   @override
   String get yourEmailExample => 'tu.email@ejemplo.com';
@@ -893,7 +893,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get responseDate => 'Fecha de respuesta';
 
   @override
-  String get announcements => 'anuncios';
+  String get announcements => 'Anuncios';
 
   @override
   String get errorLoadingAnnouncements => 'Error al cargar los anuncios';
@@ -933,8 +933,8 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count lecciones',
-      one: '1 lección',
+      other: '$count Lecciones',
+      one: '1 Lección',
     );
     return '$_temp0';
   }
@@ -962,7 +962,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Participa en los ministerios de la iglesia';
 
   @override
-  String get connect => 'Conectar';
+  String get connect => 'Connect';
 
   @override
   String get connectWithChurchGroups =>
@@ -1015,7 +1015,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get confirmDeletion => 'Confirmar Eliminación';
+  String get confirmDeletion => 'Confirmar eliminación';
 
   @override
   String get confirmDeleteAnnouncement =>
@@ -1030,11 +1030,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get announcementDeletedSuccessfully => 'Anuncio eliminado con éxito.';
+  String get announcementDeletedSuccessfully =>
+      'Anuncio eliminado correctamente';
 
   @override
   String errorDeletingAnnouncement(String error) {
-    return 'Error al eliminar anuncio: $error';
+    return 'Error al eliminar el anuncio: $error';
   }
 
   @override
@@ -1325,7 +1326,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorPublishingComment(String error) {
-    return 'Error al publicar el comentario: $error';
+    return 'Error al publicar el comentario';
   }
 
   @override
@@ -1687,7 +1688,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noSectionsFound => 'Ninguna sección encontrada.';
 
   @override
-  String get scheduledCults => 'cultos programados';
+  String get scheduledCults => 'Cultos programados';
 
   @override
   String get pages => 'páginas';
@@ -1818,13 +1819,13 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get published => 'Publicados';
+  String get published => 'Publicado';
 
   @override
   String get drafts => 'Borradores';
 
   @override
-  String get archived => 'Archivados';
+  String get archived => 'Archivado';
 
   @override
   String get edit => 'Editar';
@@ -1841,4 +1842,1026 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get makeCourseVisibleToAllUsers =>
       'Hacer el curso visible para todos los usuarios';
+
+  @override
+  String get createProfileField => 'Crear Campo de Perfil';
+
+  @override
+  String get editProfileField => 'Editar Campo de Perfil';
+
+  @override
+  String get fieldActive => 'Campo Activo';
+
+  @override
+  String get showThisFieldInProfile => 'Mostrar este campo en el perfil';
+
+  @override
+  String get saveChanges => 'Guardar Cambios';
+
+  @override
+  String get fieldCreatedSuccessfully => 'Campo creado con éxito';
+
+  @override
+  String get fieldUpdatedSuccessfully => 'Campo actualizado con éxito';
+
+  @override
+  String get userNotAuthenticated => 'Usuario no autenticado';
+
+  @override
+  String get noProfileFieldsDefined => 'No hay campos de perfil definidos';
+
+  @override
+  String get fieldType => 'Tipo de Campo';
+
+  @override
+  String get text => 'Texto';
+
+  @override
+  String get number => 'Número';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get select => 'Selección';
+
+  @override
+  String get donationSettings => 'Configuración de Donaciones';
+
+  @override
+  String get enableDonations => 'Habilitar donaciones';
+
+  @override
+  String get showDonationSection =>
+      'Mostrar sección de donaciones en la aplicación';
+
+  @override
+  String get bankName => 'Nombre del Banco';
+
+  @override
+  String get accountNumber => 'Número de Cuenta';
+
+  @override
+  String get clabe => 'CLABE (México)';
+
+  @override
+  String get paypalMeLink => 'Enlace PayPal.Me';
+
+  @override
+  String get mercadoPagoAlias => 'Alias Mercado Pago';
+
+  @override
+  String get stripePublishableKey => 'Clave Publicable de Stripe';
+
+  @override
+  String get donationInformation => 'Información de Donación';
+
+  @override
+  String get saveDonationSettings => 'Guardar Configuración de Donaciones';
+
+  @override
+  String get donationSettingsUpdated =>
+      'Configuración de donaciones actualizada con éxito.';
+
+  @override
+  String errorUpdatingDonationSettings(Object error) {
+    return 'Error al actualizar la configuración de donaciones: $error';
+  }
+
+  @override
+  String get enterBankName => 'Ingrese el nombre del banco';
+
+  @override
+  String get enterAccountNumber => 'Ingrese el número de cuenta';
+
+  @override
+  String get enterClabe => 'Ingrese la CLABE';
+
+  @override
+  String get enterPaypalMeLink => 'Ingrese el enlace de PayPal.Me';
+
+  @override
+  String get enterMercadoPagoAlias => 'Ingrese el alias de Mercado Pago';
+
+  @override
+  String get enterStripePublishableKey =>
+      'Ingrese la clave publicable de Stripe';
+
+  @override
+  String get cnpj => 'CNPJ';
+
+  @override
+  String get cpf => 'CPF';
+
+  @override
+  String get random => 'Aleatoria';
+
+  @override
+  String get filterBy => 'Filtrar por:';
+
+  @override
+  String get createNewCourse => 'Crear nuevo curso';
+
+  @override
+  String get noCoursesFound => 'Ningún curso encontrado';
+
+  @override
+  String get clickToCreateNewCourse =>
+      'Haz clic en el botón \'+\' para crear un nuevo curso';
+
+  @override
+  String get draft => 'Borrador';
+
+  @override
+  String get featured => 'Destacado';
+
+  @override
+  String modules(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Módulos',
+      one: '1 Módulo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String optionsFor(Object courseTitle) {
+    return 'Opciones para \"$courseTitle\"';
+  }
+
+  @override
+  String get unpublishCourse => 'Despublicar (volver a borrador)';
+
+  @override
+  String get makeCourseInvisible =>
+      'Hacer el curso invisible para los usuarios';
+
+  @override
+  String get removeFeatured => 'Quitar de destacados';
+
+  @override
+  String get addFeatured => 'Destacar curso';
+
+  @override
+  String get removeFromFeatured => 'Quitar de la sección de destacados';
+
+  @override
+  String get addToFeatured => 'Mostrar el curso en la sección de destacados';
+
+  @override
+  String get deleteCourse => 'Eliminar curso';
+
+  @override
+  String get thisActionIsIrreversible => 'Esta acción no puede ser deshecha';
+
+  @override
+  String areYouSureYouWantToDelete(Object courseTitle) {
+    return '¿Seguro que quieres eliminar el curso \"$courseTitle\"?';
+  }
+
+  @override
+  String get irreversibleActionWarning =>
+      'Esta acción es irreversible y eliminará todos los módulos, lecciones, materiales y progreso de los usuarios asociados a este curso.';
+
+  @override
+  String get courseDeletedSuccessfully => 'Curso eliminado con éxito';
+
+  @override
+  String errorDeletingCourse(Object error) {
+    return 'Error al eliminar el curso: $error';
+  }
+
+  @override
+  String get coursePublishedSuccessfully => 'Curso publicado con éxito';
+
+  @override
+  String get courseUnpublishedSuccessfully => 'Curso despublicado con éxito';
+
+  @override
+  String get courseFeaturedSuccessfully => 'Curso destacado con éxito';
+
+  @override
+  String get featuredRemovedSuccessfully => 'Destacado eliminado con éxito';
+
+  @override
+  String errorUpdatingFeatured(Object error) {
+    return 'Error al actualizar el destacado: $error';
+  }
+
+  @override
+  String get instructor => 'Instructor';
+
+  @override
+  String get duration => 'Duración';
+
+  @override
+  String get lessonsLabel => 'Lecciones';
+
+  @override
+  String get category => 'Categoría';
+
+  @override
+  String get enroll => 'Inscribirse';
+
+  @override
+  String get alreadyEnrolled => 'Ya estás inscrito';
+
+  @override
+  String get courseContent => 'Contenido del Curso';
+
+  @override
+  String get lesson => 'Lección';
+
+  @override
+  String get materials => 'Materiales';
+
+  @override
+  String get comments => 'Comentarios';
+
+  @override
+  String get course => 'Curso';
+
+  @override
+  String get markAsCompleted => 'Marcar como completada';
+
+  @override
+  String get processing => 'Procesando...';
+
+  @override
+  String get evaluateThisLesson => 'Evaluar esta lección';
+
+  @override
+  String get averageRating => 'Evaluación media';
+
+  @override
+  String get lessonCompleted => 'Lección completada';
+
+  @override
+  String get alreadyCompleted => 'Ya has completado esta lección';
+
+  @override
+  String get errorCompletingLesson =>
+      'Error al marcar la lección como completada';
+
+  @override
+  String get noMaterialsForThisLesson => 'No hay materiales para esta lección';
+
+  @override
+  String get noCommentsForThisLesson => 'No hay comentarios para esta lección';
+
+  @override
+  String get addYourComment => 'Añade tu comentario...';
+
+  @override
+  String get commentPublished => 'Comentario publicado';
+
+  @override
+  String get loginToComment => 'Inicia sesión para comentar';
+
+  @override
+  String get rateTheLesson => 'Evalúa la lección';
+
+  @override
+  String get ratingSaved => 'Evaluación guardada';
+
+  @override
+  String get errorSavingRating => 'Error al guardar la evaluación';
+
+  @override
+  String get loginToRate => 'Inicia sesión para evaluar';
+
+  @override
+  String get courseNotFound => 'Curso no encontrado';
+
+  @override
+  String get courseNotFoundDetails => 'El curso no existe o fue eliminado';
+
+  @override
+  String get errorLoadingLessonCount =>
+      'Error al cargar el conteo de lecciones';
+
+  @override
+  String errorTogglingFavorite(Object error) {
+    return 'Error al cambiar favorito: $error';
+  }
+
+  @override
+  String errorLoadingModules(Object error) {
+    return 'Error al cargar módulos: $error';
+  }
+
+  @override
+  String get noModulesAvailable => 'No hay módulos disponibles';
+
+  @override
+  String errorLoadingLessons(Object error) {
+    return 'Error al cargar lecciones: $error';
+  }
+
+  @override
+  String get noLessonsAvailableInModule => 'No hay lecciones disponibles';
+
+  @override
+  String errorEnrolling(Object error) {
+    return 'Error al inscribirse: $error';
+  }
+
+  @override
+  String get enrollToAccessLesson =>
+      'Inscríbete al curso para acceder a esta lección';
+
+  @override
+  String get noLessonsAvailable => 'No hay lecciones disponibles en este curso';
+
+  @override
+  String get loginToEnroll => 'Debes iniciar sesión para inscribirte';
+
+  @override
+  String get enrolledSuccess => '¡Te has inscrito al curso!';
+
+  @override
+  String get startCourse => 'Comenzar Curso';
+
+  @override
+  String get continueCourse => 'Continuar Curso';
+
+  @override
+  String progress(Object completed, Object percentage, Object total) {
+    return 'Progreso: $percentage% ($completed/$total)';
+  }
+
+  @override
+  String instructorLabel(Object name) {
+    return 'Instructor: $name';
+  }
+
+  @override
+  String get lessonNotFound => 'Lección no encontrada';
+
+  @override
+  String get lessonNotFoundDetails =>
+      'No fue posible encontrar la lección solicitada';
+
+  @override
+  String durationLabel(Object duration) {
+    return 'Duración: $duration';
+  }
+
+  @override
+  String get unmarkAsCompleted => 'Desmarcar como completada';
+
+  @override
+  String get lessonUnmarked => 'Lección desmarcada como completada';
+
+  @override
+  String get noVideoAvailable => 'Ningún vídeo disponible';
+
+  @override
+  String get clickToWatchVideo => 'Haz clic para ver el vídeo';
+
+  @override
+  String get noDescription => 'Sin descripción.';
+
+  @override
+  String get commentsDisabled =>
+      'Los comentarios están desactivados para esta lección';
+
+  @override
+  String get noCommentsYet => 'Ningún comentario aún';
+
+  @override
+  String get beTheFirstToComment => 'Sé el primero en comentar';
+
+  @override
+  String get you => 'Tú';
+
+  @override
+  String get reply => 'respuesta';
+
+  @override
+  String get replies => 'respuestas';
+
+  @override
+  String get repliesFunctionality =>
+      'Funcionalidad de respuestas en desarrollo';
+
+  @override
+  String get confirmDeleteComment =>
+      '¿Seguro que quieres eliminar este comentario?';
+
+  @override
+  String get yesterday => 'Ayer';
+
+  @override
+  String daysAgo(Object days) {
+    return 'Hace $days días';
+  }
+
+  @override
+  String get linkCopiedToClipboard => 'Enlace copiado al portapapeles';
+
+  @override
+  String get open => 'Abrir';
+
+  @override
+  String get copyLink => 'Copiar enlace';
+
+  @override
+  String get managePagesTitle => 'Gestionar Páginas';
+
+  @override
+  String get noPermissionManagePages =>
+      'No tienes permiso para gestionar páginas.';
+
+  @override
+  String errorLoadingPages(Object error) {
+    return 'Error al cargar páginas: $error';
+  }
+
+  @override
+  String get noCustomPagesYet => 'Ninguna página personalizada creada aún.';
+
+  @override
+  String get tapPlusToCreateFirst => 'Toca el botón + para crear la primera.';
+
+  @override
+  String get pageWithoutTitle => 'Página sin Título';
+
+  @override
+  String get noPermissionEditPages => 'Sin permiso para editar páginas.';
+
+  @override
+  String get noPermissionCreatePages => 'Sin permiso para crear páginas.';
+
+  @override
+  String get createNewPage => 'Crear Nueva Página';
+
+  @override
+  String get editPageTitle => 'Editar Página';
+
+  @override
+  String get pageTitle => 'Título de la Página';
+
+  @override
+  String get pageTitleHint => 'Ej: Sobre Nosotros';
+
+  @override
+  String get appearanceInPageList => 'Apariencia en la Lista de Páginas';
+
+  @override
+  String get visualizationType => 'Tipo de Visualización en la Lista';
+
+  @override
+  String get iconAndTitle => 'Ícono y Título';
+
+  @override
+  String get coverImage16x9 => 'Imagen de Portada (16:9)';
+
+  @override
+  String get icon => 'Ícono';
+
+  @override
+  String get coverImageLabel => 'Imagen de Portada (16:9)';
+
+  @override
+  String get changeImage => 'Cambiar Imagen';
+
+  @override
+  String get selectImage => 'Seleccionar Imagen';
+
+  @override
+  String get pageContentLabel => 'Contenido de la Página';
+
+  @override
+  String get typePageContentHere => 'Escribe el contenido de la página aquí...';
+
+  @override
+  String get insertImage => 'Insertar Imagen';
+
+  @override
+  String get savePage => 'Guardar Página';
+
+  @override
+  String get pleaseEnterPageTitle =>
+      'Por favor, introduce un título para la página.';
+
+  @override
+  String get pleaseSelectIcon =>
+      'Por favor, selecciona un icono para la página.';
+
+  @override
+  String get pleaseUploadCoverImage =>
+      'Por favor, sube una imagen para la portada.';
+
+  @override
+  String errorInsertingImage(Object error) {
+    return 'Error al insertar imagen: $error';
+  }
+
+  @override
+  String get coverImageUploaded => '¡Imagen de portada cargada!';
+
+  @override
+  String errorUploadingCoverImage(Object error) {
+    return 'Error al cargar imagen de portada: $error';
+  }
+
+  @override
+  String get pageSavedSuccessfully => '¡Página guardada con éxito!';
+
+  @override
+  String errorSavingPage(Object error) {
+    return 'Error al guardar página: $error';
+  }
+
+  @override
+  String get discardChanges => '¿Descartar Cambios?';
+
+  @override
+  String get unsavedChangesConfirm =>
+      'Tienes cambios sin guardar. ¿Quieres salir de todos modos?';
+
+  @override
+  String get discardAndExit => 'Descartar y Salir';
+
+  @override
+  String get restoreDraft => '¿Restaurar Borrador?';
+
+  @override
+  String get unsavedChangesFound =>
+      'Encontramos cambios no guardados. ¿Quieres restaurarlos?';
+
+  @override
+  String get discardDraft => 'Descartar Borrador';
+
+  @override
+  String get restore => 'Restaurar';
+
+  @override
+  String get imageUploadFailed => 'Error al cargar la imagen.';
+
+  @override
+  String errorLoadingPage(Object error) {
+    return 'Error al cargar página: $error';
+  }
+
+  @override
+  String get editSectionTitle => 'Editar Sección';
+
+  @override
+  String get createNewSection => 'Crear Nueva Sección';
+
+  @override
+  String get deleteSection => 'Eliminar sección';
+
+  @override
+  String get sectionTitleLabel => 'Título de la Sección';
+
+  @override
+  String get pleaseEnterTitle => 'Por favor, introduce un título.';
+
+  @override
+  String get pagesIncludedInSection => 'Páginas Incluidas en esta Sección';
+
+  @override
+  String get noCustomPagesFound =>
+      'Ninguna página personalizada encontrada para seleccionar.';
+
+  @override
+  String pageWithoutTitleShort(Object id) {
+    return 'Página sin título ($id...)';
+  }
+
+  @override
+  String get selectAtLeastOnePage => 'Selecciona al menos una página.';
+
+  @override
+  String errorSavingSection(Object error) {
+    return 'Error al guardar sección: $error';
+  }
+
+  @override
+  String get deleteSectionConfirm => '¿Eliminar Sección?';
+
+  @override
+  String deleteSectionMessage(Object title) {
+    return '¿Estás seguro de que quieres eliminar la sección \"$title\"? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String errorDeleting(Object error) {
+    return 'Error al eliminar: $error';
+  }
+
+  @override
+  String get sectionNameUpdated =>
+      '¡Nombre de la sección actualizado con éxito!';
+
+  @override
+  String typeLabel(Object type) {
+    return 'Tipo: $type';
+  }
+
+  @override
+  String get sectionName => 'Nombre de la Sección';
+
+  @override
+  String sectionLabel(Object title) {
+    return 'Sección: $title';
+  }
+
+  @override
+  String get hideWhenNoContent => 'Ocultar sección cuando no haya contenido:';
+
+  @override
+  String get visibilityConfigUpdated =>
+      '¡Configuración de visibilidad actualizada!';
+
+  @override
+  String errorUpdatingConfig(Object error) {
+    return 'Error al actualizar configuración: $error';
+  }
+
+  @override
+  String get sectionCannotBeEditedHere =>
+      'Esta sección no se puede editar aquí.';
+
+  @override
+  String get createNewPageSection => 'Crear Nueva Sección de Páginas';
+
+  @override
+  String get noPermissionManageHomeSections =>
+      'No tienes permiso para gestionar las secciones de la pantalla de inicio.';
+
+  @override
+  String get editName => 'Editar nombre';
+
+  @override
+  String get hiddenWhenEmpty => 'Oculta cuando vacía';
+
+  @override
+  String get alwaysVisible => 'Siempre visible';
+
+  @override
+  String get liveStreamLabel => 'En Vivo';
+
+  @override
+  String get donations => 'Donaciones';
+
+  @override
+  String get onlineCourses => 'Cursos Online';
+
+  @override
+  String get customPages => 'Páginas Personalizadas';
+
+  @override
+  String get unknownSection => 'Sección Desconocida';
+
+  @override
+  String get servicesGridObsolete => 'Cuadrícula de Servicios (Obsoleto)';
+
+  @override
+  String get liveStreamType => 'Transmisión en vivo';
+
+  @override
+  String get courses => 'Cursos';
+
+  @override
+  String get pageList => 'Lista de Páginas';
+
+  @override
+  String get sectionWillBeDisplayed =>
+      'La sección se mostrará siempre, aunque no haya contenido.';
+
+  @override
+  String errorVerifyingPermission(Object error) {
+    return 'Error al verificar permiso: $error';
+  }
+
+  @override
+  String get configureAvailability => 'Configurar Disponibilidad';
+
+  @override
+  String get consultationSettings => 'Configuraciones de consulta';
+
+  @override
+  String get noPermissionManageAvailability =>
+      'No tienes permiso para gestionar disponibilidad';
+
+  @override
+  String errorLoadingAvailability(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get timeSlots => 'Franjas de Horario';
+
+  @override
+  String get confirmDeleteAllTimeSlots =>
+      '¿Estás seguro de que quieres eliminar todas las franjas de horario?';
+
+  @override
+  String get deleteSlot => 'Eliminar franja';
+
+  @override
+  String get unavailableForConsultations => 'No disponible para consultas';
+
+  @override
+  String get dayMarkedAvailableAddTimeSlots =>
+      'Día marcado como disponible, añade franjas de horario';
+
+  @override
+  String get weekOf => 'Semana de';
+
+  @override
+  String get copyToNextWeek => 'Copiar para próxima semana';
+
+  @override
+  String get counselingConfiguration => 'Configuración de Asesoramiento';
+
+  @override
+  String get counselingDuration => 'Duración del Asesoramiento';
+
+  @override
+  String get configureCounselingDuration =>
+      'Configura cuánto tiempo durará cada Asesoramiento';
+
+  @override
+  String get intervalBetweenConsultations => 'Intervalo entre Consultas';
+
+  @override
+  String get configureRestTimeBetweenConsultations =>
+      'Configura cuánto tiempo de descanso habrá entre consultas';
+
+  @override
+  String get configurationSavedSuccessfully =>
+      'Configuración guardada con éxito';
+
+  @override
+  String get dayUpdatedSuccessfully => 'Día actualizado con éxito';
+
+  @override
+  String errorCopying(Object error) {
+    return 'Error al copiar: $error';
+  }
+
+  @override
+  String get addTimeSlots => 'Añadir franjas de horario';
+
+  @override
+  String get editAvailability => 'Editar disponibilidad';
+
+  @override
+  String get manageAnnouncements => 'Administrar Anuncios';
+
+  @override
+  String get active => 'Activos';
+
+  @override
+  String get inactiveExpired => 'Inactivos/Vencidos';
+
+  @override
+  String get regular => 'Regulares';
+
+  @override
+  String get confirmAnnouncementDeletion => 'Confirmar eliminación';
+
+  @override
+  String get confirmDeleteAnnouncementMessage =>
+      '¿Estás seguro de que quieres eliminar este anuncio? Esta acción no se puede deshacer.';
+
+  @override
+  String get noActiveAnnouncements => 'No hay anuncios activos';
+
+  @override
+  String get noInactiveExpiredAnnouncements =>
+      'No hay anuncios inactivos/vencidos';
+
+  @override
+  String get managedEvents => 'Eventos Administrados';
+
+  @override
+  String get update => 'Actualizar';
+
+  @override
+  String get noPermissionManageEventAttendance =>
+      'No tienes permiso para gestionar la asistencia de eventos.';
+
+  @override
+  String get manageAttendance => 'Gestionar Presencia';
+
+  @override
+  String get noEventsMinistries => 'de ministerios';
+
+  @override
+  String get noEventsGroups => 'de grupos';
+
+  @override
+  String noEventsMessage(Object filter) {
+    return 'No hay eventos $filter';
+  }
+
+  @override
+  String get eventsYouAdministerWillAppearHere =>
+      'Los eventos que administras aparecerán aquí';
+
+  @override
+  String get noTitle => 'Sin título';
+
+  @override
+  String get ministry => 'Ministerio';
+
+  @override
+  String get group => 'Grupo';
+
+  @override
+  String get noPermissionManageVideos =>
+      'No tienes permiso para gestionar vídeos.';
+
+  @override
+  String get noVideosFound => 'Ningún vídeo encontrado';
+
+  @override
+  String get deleteVideo => 'Eliminar Vídeo';
+
+  @override
+  String deleteVideoConfirmation(Object title) {
+    return '¿Estás seguro de que quieres eliminar el vídeo \"$title\"?';
+  }
+
+  @override
+  String get videoDeletedSuccessfully => 'Vídeo eliminado con éxito';
+
+  @override
+  String errorDeletingVideo(Object error) {
+    return 'Error al eliminar vídeo: $error';
+  }
+
+  @override
+  String minutesAgo(Object minutes) {
+    return 'Hace $minutes minutos';
+  }
+
+  @override
+  String hoursAgo(Object hours) {
+    return 'Hace $hours horas';
+  }
+
+  @override
+  String get createAnnouncement => 'Crear Anuncio';
+
+  @override
+  String errorVerifyingPermissionAnnouncement(Object error) {
+    return 'Error al verificar permiso: $error';
+  }
+
+  @override
+  String get noPermissionCreateAnnouncements =>
+      'No tienes permiso para crear anuncios.';
+
+  @override
+  String errorSelectingImage(Object error) {
+    return 'Error al seleccionar imagen: $error';
+  }
+
+  @override
+  String get confirm => 'Confirmar';
+
+  @override
+  String get announcementCreatedSuccessfully => 'Anuncio creado con éxito';
+
+  @override
+  String errorCreatingAnnouncement(Object error) {
+    return 'Error al crear anuncio: $error';
+  }
+
+  @override
+  String get addImage => 'Añadir imagen';
+
+  @override
+  String get recommended16x9 => 'Recomendado: 16:9 (1920x1080)';
+
+  @override
+  String get announcementTitle => 'Título del Anuncio';
+
+  @override
+  String get enterClearConciseTitle => 'Introduce un título claro y conciso';
+
+  @override
+  String get pleasEnterTitle => 'Por favor, introduce un título';
+
+  @override
+  String get provideAnnouncementDetails =>
+      'Proporciona detalles sobre el anuncio';
+
+  @override
+  String get pleaseEnterDescription => 'Por favor, introduce una descripción';
+
+  @override
+  String get announcementExpirationDate => 'Fecha del anuncio/expiración';
+
+  @override
+  String get optionalSelectDate => 'Opcional: Selecciona una fecha';
+
+  @override
+  String get pleaseSelectAnnouncementImage =>
+      'Por favor, selecciona una imagen para el anuncio';
+
+  @override
+  String get publishAnnouncement => 'Publicar Anuncio';
+
+  @override
+  String get createEvent => 'Crear Evento';
+
+  @override
+  String get upcoming => 'Próximos';
+
+  @override
+  String get thisWeek => 'Esta semana';
+
+  @override
+  String get thisMonth => 'Este mes';
+
+  @override
+  String get noEventsFound => 'Ningún evento encontrado';
+
+  @override
+  String get tryAnotherFilterOrCreateEvent =>
+      'Prueba otro filtro o crea un nuevo evento';
+
+  @override
+  String get trySelectingAnotherFilter => 'Prueba seleccionando otro filtro';
+
+  @override
+  String get noLocation => 'Sin ubicación';
+
+  @override
+  String get tickets => 'Entradas';
+
+  @override
+  String get seeDetails => 'Ver Detalles';
+
+  @override
+  String get videoSections => 'Secciones de Vídeos';
+
+  @override
+  String get reorderSections => 'Reordenar secciones';
+
+  @override
+  String get saveOrder => 'Guardar orden';
+
+  @override
+  String get dragSectionsToReorder =>
+      'Arrastra las secciones para reordenarlas';
+
+  @override
+  String get noSectionCreated => 'Ninguna sección creada';
+
+  @override
+  String get createFirstSection => 'Crear Primera Sección';
+
+  @override
+  String get dragToReorderPressWhenDone =>
+      'Arrastra para reordenar. Presiona el botón concluido cuando termines.';
+
+  @override
+  String get defaultSectionNotEditable => 'Sección por defecto (no editable)';
+
+  @override
+  String get allVideos => 'Todos los vídeos';
+
+  @override
+  String get defaultSection => '• Sección por defecto';
+
+  @override
+  String get editSection => 'Editar sección';
+
+  @override
+  String get newSection => 'Nueva Sección';
+
+  @override
+  String get mostRecent => 'Más recientes';
+
+  @override
+  String get mostPopular => 'Más populares';
+
+  @override
+  String get custom => 'Personalizada';
+
+  @override
+  String get recentVideosCannotBeReordered =>
+      'La sección \"Vídeos Recientes\" no puede ser reordenada';
+
+  @override
+  String get deleteVideoSection => 'Eliminar Sección';
+
+  @override
+  String confirmDeleteSection(Object title) {
+    return '¿Estás seguro de que quieres eliminar la sección \"$title\"?';
+  }
+
+  @override
+  String get sectionDeleted => 'Sección eliminada';
 }

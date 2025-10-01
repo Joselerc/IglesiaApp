@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../theme/app_colors.dart';
 import '../../services/permission_service.dart';
 import 'event_attendance_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class AdminEventsListScreen extends StatefulWidget {
   final String initialFilterType;
@@ -119,10 +120,10 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
                 if (eventData['date'] != null) {
                   allEvents.add({
                     'id': event.id,
-                    'title': eventData['title'] ?? 'Sem título',
+                    'title': eventData['title'] ?? 'Sin título',
                     'date': (eventData['date'] as Timestamp).toDate(),
                     'entityId': ministry.id,
-                    'entityName': ministryData['name'] ?? 'Ministério',
+                    'entityName': ministryData['name'] ?? 'Ministerio',
                     'entityType': 'ministry',
                     'imageUrl': eventData['imageUrl'] ?? '',
                     'description': eventData['description'] ?? '',
@@ -179,7 +180,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
                 if (eventData['date'] != null) {
                   allEvents.add({
                     'id': event.id,
-                    'title': eventData['title'] ?? 'Sem título',
+                    'title': eventData['title'] ?? 'Sin título',
                     'date': (eventData['date'] as Timestamp).toDate(),
                     'entityId': group.id,
                     'entityName': groupData['name'] ?? 'Grupo',
@@ -214,7 +215,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar eventos: $e'),
+            content: Text(AppLocalizations.of(context)!.errorLoadingEvents(e.toString())),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -271,7 +272,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eventos Administrados'),
+        title: Text(AppLocalizations.of(context)!.managedEvents),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -290,7 +291,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadEvents,
-            tooltip: 'Atualizar',
+            tooltip: AppLocalizations.of(context)!.update,
           ),
         ],
       ),
@@ -302,7 +303,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -314,9 +315,9 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar a assistência de eventos.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionManageEventAttendance, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -348,11 +349,11 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildFilterChip('Todos', 'all'),
+                          _buildFilterChip(AppLocalizations.of(context)!.all, 'all'),
                           const SizedBox(width: 8),
-                          _buildFilterChip('Ministérios', 'ministry'),
+                          _buildFilterChip(AppLocalizations.of(context)!.ministries, 'ministry'),
                           const SizedBox(width: 8),
-                          _buildFilterChip('Grupos', 'group'),
+                          _buildFilterChip(AppLocalizations.of(context)!.groups, 'group'),
                         ],
                       ),
                     ),
@@ -634,7 +635,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
                                                       ),
                                                       elevation: 1,
                                                     ),
-                                                    child: const Text('Gerenciar Presença'),
+                                                    child: Text(AppLocalizations.of(context)!.manageAttendance),
                                                   ),
                                                 ),
                                               ],
@@ -693,7 +694,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Não há eventos ${_filterType == 'all' ? '' : _filterType == 'ministry' ? 'de ministérios' : 'de grupos'}',
+            AppLocalizations.of(context)!.noEventsMessage(_filterType == 'all' ? '' : _filterType == 'ministry' ? AppLocalizations.of(context)!.noEventsMinistries : AppLocalizations.of(context)!.noEventsGroups),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -703,7 +704,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Os eventos que você administra serão exibidos aqui',
+            AppLocalizations.of(context)!.eventsYouAdministerWillAppearHere,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -714,7 +715,7 @@ class _AdminEventsListScreenState extends State<AdminEventsListScreen> {
           ElevatedButton.icon(
             onPressed: _loadEvents,
             icon: const Icon(Icons.refresh),
-            label: const Text('Atualizar'),
+            label: Text(AppLocalizations.of(context)!.update),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

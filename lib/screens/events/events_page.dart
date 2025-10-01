@@ -10,6 +10,7 @@ import '../../theme/app_text_styles.dart';
 import '../../services/auth_service.dart';
 import '../../services/permission_service.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -88,7 +89,7 @@ class _EventsPageState extends State<EventsPage> {
             backgroundColor: AppColors.primary,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Eventos',
+                AppLocalizations.of(context)!.events,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -145,7 +146,7 @@ class _EventsPageState extends State<EventsPage> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: IconButton(
                     icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
-                    tooltip: 'Criar Evento',
+                    tooltip: AppLocalizations.of(context)!.createEvent,
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
@@ -184,8 +185,8 @@ class _EventsPageState extends State<EventsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Filtrar por:',
+                  Text(
+                    AppLocalizations.of(context)!.filterBy,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textSecondary,
@@ -330,7 +331,7 @@ class _EventsPageState extends State<EventsPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Nenhum evento encontrado',
+            AppLocalizations.of(context)!.noEventsFound,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -342,7 +343,7 @@ class _EventsPageState extends State<EventsPage> {
           // El texto de crear evento solo aparece si tiene permiso
           if (_canCreateEvents)
             Text(
-              'Tente outro filtro ou crie um novo evento',
+              AppLocalizations.of(context)!.tryAnotherFilterOrCreateEvent,
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
@@ -351,7 +352,7 @@ class _EventsPageState extends State<EventsPage> {
             )
           else
             Text(
-              'Tente selecionar outro filtro',
+              AppLocalizations.of(context)!.trySelectingAnotherFilter,
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
@@ -379,7 +380,7 @@ class _EventsPageState extends State<EventsPage> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Criar Evento'),
+              label: Text(AppLocalizations.of(context)!.createEvent),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -402,9 +403,9 @@ class _EventsPageState extends State<EventsPage> {
     final eventTime = "${timeFormat.format(event.startDate)} - ${timeFormat.format(event.endDate)}";
     
     // Preparar dirección formateada
-    String locationText = "Sem localização";
+    String locationText = AppLocalizations.of(context)!.noLocation;
     if (event.eventType == 'online') {
-      locationText = "Evento online";
+      locationText = AppLocalizations.of(context)!.onlineEvent;
     } else if (event.city != null && event.street != null) {
       locationText = "${event.street}, ${event.city}";
       if (event.number != null) {
@@ -709,7 +710,7 @@ class _EventsPageState extends State<EventsPage> {
                             );
                           },
                           icon: const Icon(Icons.confirmation_number, size: 16),
-                          label: const Text('Ingressos'),
+                          label: Text(AppLocalizations.of(context)!.tickets),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             side: BorderSide(color: AppColors.primary),
@@ -732,7 +733,7 @@ class _EventsPageState extends State<EventsPage> {
                           );
                         },
                         icon: const Icon(Icons.info_outline, size: 16),
-                        label: const Text('Ver Detalhes'),
+                        label: Text(AppLocalizations.of(context)!.seeDetails),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.primary,
@@ -782,12 +783,12 @@ class _EventsPageState extends State<EventsPage> {
   String _getEventTypeLabel(String eventType) {
     switch (eventType) {
       case 'online':
-        return 'Online';
+        return AppLocalizations.of(context)!.online;
       case 'hybrid':
-        return 'Híbrido';
+        return AppLocalizations.of(context)!.hybrid;
       case 'presential':
       default:
-        return 'Presencial';
+        return AppLocalizations.of(context)!.inPerson;
     }
   }
 }

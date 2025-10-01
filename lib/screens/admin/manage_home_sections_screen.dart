@@ -68,7 +68,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
       print('❌ Error al actualizar orden en Firestore: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar a nova ordem: $e'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingNewOrder(e.toString())))
         );
       }
     }
@@ -186,20 +186,20 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Editar Nome da Seção'),
+        title: Text(AppLocalizations.of(context)!.editSectionName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Tipo: ${_getSectionTypeDisplay(section.type)}',
+              AppLocalizations.of(context)!.typeLabel(_getSectionTypeDisplay(section.type)),
               style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Nome da Seção',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.sectionName,
+                border: const OutlineInputBorder(),
               ),
               maxLength: 50,
               autofocus: true,
@@ -224,13 +224,13 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         await _sectionsCollection.doc(section.id).update({'title': result});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nome da seção atualizado com sucesso!')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.sectionNameUpdated)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar nome: $e')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingName(e.toString()))),
           );
         }
       }
@@ -255,19 +255,19 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Configurar Visibilidade'),
+          title: Text(AppLocalizations.of(context)!.configureVisibility),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
                               Text(
-                  'Seção: ${_getSectionDisplayTitle(section)}',
+                  AppLocalizations.of(context)!.sectionLabel(_getSectionDisplayTitle(section)),
                   style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Ocultar seção quando não houver conteúdo:',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  AppLocalizations.of(context)!.hideWhenNoContent,
+                  style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -276,7 +276,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                       child: Text(
                         hideWhenEmpty 
                           ? AppLocalizations.of(context)!.sectionWillBeHiddenWhen(_getContentTypeText(context, section.type))
-                          : 'A seção será sempre exibida, mesmo sem conteúdo.',
+                          : AppLocalizations.of(context)!.sectionWillBeDisplayed,
                         style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
                       ),
                     ),
@@ -312,13 +312,13 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         await _sectionsCollection.doc(section.id).update({'hideWhenEmpty': result});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Configuração de visibilidade atualizada!')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.visibilityConfigUpdated)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar configuração: $e')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingConfig(e.toString()))),
           );
         }
       }
@@ -340,16 +340,16 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
              return const Center(child: CircularProgressIndicator());
            }
            if (permissionSnapshot.hasError) {
-             return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+             return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
            }
            if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-             return const Center(
+             return Center(
                child: Padding(
-                 padding: EdgeInsets.all(16.0),
+                 padding: const EdgeInsets.all(16.0),
                  child: Text(
-                   'Você não tem permissão para gerenciar as seções da tela inicial.',
+                   AppLocalizations.of(context)!.noPermissionManageHomeSections,
                    textAlign: TextAlign.center,
-                   style: TextStyle(fontSize: 16, color: Colors.red),
+                   style: const TextStyle(fontSize: 16, color: Colors.red),
                  ),
                ),
              );
@@ -359,13 +359,13 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
              stream: _sectionsCollection.orderBy('order').snapshots(),
              builder: (context, snapshot) {
                if (snapshot.hasError) {
-                 return Center(child: Text('Erro: ${snapshot.error}'));
+                 return Center(child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())));
                }
                if (snapshot.connectionState == ConnectionState.waiting) {
                  return const Center(child: CircularProgressIndicator());
                }
                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                 return const Center(child: Text('Nenhuma seção encontrada.'));
+                 return Center(child: Text(AppLocalizations.of(context)!.noSectionsFound));
                }
 
                _localSections = snapshot.data!.docs
@@ -408,7 +408,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                            IconButton(
                              icon: const Icon(Icons.edit, size: 20),
                              onPressed: () => _showEditTitleDialog(section),
-                             tooltip: 'Editar nome',
+                             tooltip: AppLocalizations.of(context)!.editName,
                            ),
                          ],
                        ),
@@ -431,7 +431,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                                  ),
                                  const SizedBox(width: 4),
                                  Text(
-                                   section.hideWhenEmpty ? 'Oculta quando vazio' : 'Sempre visível',
+                                   section.hideWhenEmpty ? AppLocalizations.of(context)!.hiddenWhenEmpty : AppLocalizations.of(context)!.alwaysVisible,
                                    style: AppTextStyles.caption.copyWith(
                                      color: section.hideWhenEmpty ? Colors.orange : Colors.green,
                                    ),
@@ -457,7 +457,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                            if (!hasPerm) {
                              if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                   const SnackBar(content: Text('Sem permissão para alterar status.'), backgroundColor: Colors.red),
+                                   SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionChangeStatus), backgroundColor: Colors.red),
                                  );
                              }
                              return;
@@ -466,7 +466,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                              await _sectionsCollection.doc(section.id).update({'isActive': value});
                            } catch (e) {
                              ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text('Erro ao atualizar status: $e'))
+                               SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingStatus(e.toString())))
                              );
                            }
                          },
@@ -490,7 +490,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                            );
                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(content: Text('Esta seção não pode ser editada aqui.'))
+                             SnackBar(content: Text(AppLocalizations.of(context)!.sectionCannotBeEditedHere))
                            );
                          }
                        },
@@ -524,7 +524,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                  if (!hasPerm) {
                    if (mounted) {
                      ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(content: Text('Sem permissão para criar seções.'), backgroundColor: Colors.red),
+                       SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreateSections), backgroundColor: Colors.red),
                      );
                    }
                    return;
@@ -539,7 +539,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                backgroundColor: AppColors.primary,
                foregroundColor: Colors.white,
                child: const Icon(Icons.add),
-               tooltip: 'Criar Nova Seção de Páginas',
+               tooltip: AppLocalizations.of(context)!.createNewPageSection,
              );
            } else {
              return const SizedBox.shrink();
@@ -569,35 +569,35 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
   String _getDefaultSectionTitle(HomeScreenSectionType type) {
     switch (type) {
       case HomeScreenSectionType.announcements:
-        return 'Anúncios';
+        return AppLocalizations.of(context)!.announcements;
       case HomeScreenSectionType.cults:
-        return 'Programação de Cultos';
+        return AppLocalizations.of(context)!.scheduledCults;
       case HomeScreenSectionType.servicesGrid:
-        return 'Serviços';
+        return AppLocalizations.of(context)!.services;
       case HomeScreenSectionType.events:
-        return 'Eventos';
+        return AppLocalizations.of(context)!.events;
       case HomeScreenSectionType.counseling:
-        return 'Aconselhamento';
+        return AppLocalizations.of(context)!.counseling;
       case HomeScreenSectionType.videos:
-        return 'Vídeos';
+        return AppLocalizations.of(context)!.videos;
       case HomeScreenSectionType.liveStream:
-        return 'Ao Vivo';
+        return AppLocalizations.of(context)!.liveStreamLabel;
       case HomeScreenSectionType.donations:
-        return 'Doações';
+        return AppLocalizations.of(context)!.donations;
       case HomeScreenSectionType.courses:
-        return 'Cursos Online';
+        return AppLocalizations.of(context)!.onlineCourses;
       case HomeScreenSectionType.ministries:
-        return 'Ministérios';
+        return AppLocalizations.of(context)!.ministries;
       case HomeScreenSectionType.groups:
-        return 'Connect';
+        return AppLocalizations.of(context)!.connect;
       case HomeScreenSectionType.privatePrayer:
-        return 'Oração Privada';
+        return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:
-        return 'Oração Pública';
+        return AppLocalizations.of(context)!.publicPrayer;
       case HomeScreenSectionType.customPageList:
-        return 'Páginas Personalizadas';
+        return AppLocalizations.of(context)!.customPages;
       default:
-        return 'Seção Desconhecida';
+        return AppLocalizations.of(context)!.unknownSection;
     }
   }
   
@@ -605,33 +605,33 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
   String _getSectionTypeDisplay(HomeScreenSectionType type) {
     switch (type) {
       case HomeScreenSectionType.announcements:
-        return 'Anúncios';
+        return AppLocalizations.of(context)!.announcements;
       case HomeScreenSectionType.cults:
-        return 'Cultos';
+        return AppLocalizations.of(context)!.cults;
       case HomeScreenSectionType.servicesGrid:
-        return 'Grade de Serviços (Obsoleto)';
+        return AppLocalizations.of(context)!.servicesGridObsolete;
       case HomeScreenSectionType.events:
-        return 'Eventos';
+        return AppLocalizations.of(context)!.events;
       case HomeScreenSectionType.counseling:
-        return 'Aconselhamento';
+        return AppLocalizations.of(context)!.counseling;
       case HomeScreenSectionType.videos:
-        return 'Vídeos';
+        return AppLocalizations.of(context)!.videos;
       case HomeScreenSectionType.liveStream:
-        return 'Transmissão ao vivo';
+        return AppLocalizations.of(context)!.liveStreamType;
       case HomeScreenSectionType.donations:
-        return 'Doações';
+        return AppLocalizations.of(context)!.donations;
       case HomeScreenSectionType.courses:
-        return 'Cursos';
+        return AppLocalizations.of(context)!.courses;
       case HomeScreenSectionType.ministries:
-        return 'Ministérios';
+        return AppLocalizations.of(context)!.ministries;
       case HomeScreenSectionType.groups:
-        return 'Grupos';
+        return AppLocalizations.of(context)!.groups;
       case HomeScreenSectionType.privatePrayer:
-        return 'Oração Privada';
+        return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:
-        return 'Oração Pública';
+        return AppLocalizations.of(context)!.publicPrayer;
       case HomeScreenSectionType.customPageList:
-        return 'Lista de Páginas';
+        return AppLocalizations.of(context)!.pageList;
       default:
         return type.toString().split('.').last;
     }

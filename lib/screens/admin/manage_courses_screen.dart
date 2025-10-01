@@ -115,7 +115,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
         foregroundColor: Colors.white,
         onPressed: () => _navigateToCourseEdit(null),
         child: const Icon(Icons.add),
-        tooltip: 'Criar novo curso',
+        tooltip: AppLocalizations.of(context)!.createNewCourse,
       ),
     );
   }
@@ -139,7 +139,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Filtrar por:',
+            AppLocalizations.of(context)!.filterBy,
             style: AppTextStyles.bodyText2.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -303,13 +303,13 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                 Icon(Icons.school_outlined, size: 64, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
                 Text(
-                  'Nenhum curso encontrado',
+                  AppLocalizations.of(context)!.noCoursesFound,
                   style: AppTextStyles.headline3,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Clique no botão "+" para criar um novo curso',
-                  style: TextStyle(color: Colors.grey),
+                Text(
+                  AppLocalizations.of(context)!.clickToCreateNewCourse,
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ],
             ),
@@ -349,10 +349,10 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
 
   Widget _buildCourseCard(Course course) {
     final statusText = {
-      CourseStatus.draft: 'Rascunho',
-      CourseStatus.published: 'Publicado',
-      CourseStatus.archived: 'Arquivado',
-    }[course.status] ?? 'Desconhecido';
+      CourseStatus.draft: AppLocalizations.of(context)!.draft,
+      CourseStatus.published: AppLocalizations.of(context)!.published,
+      CourseStatus.archived: AppLocalizations.of(context)!.archived,
+    }[course.status] ?? AppLocalizations.of(context)!.unknown;
     
     final statusColor = {
       CourseStatus.draft: Colors.grey,
@@ -561,7 +561,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                             Icon(Icons.folder, size: 20, color: Colors.blueGrey[700]),
                             const SizedBox(height: 4),
                             Text(
-                              '${course.totalModules} Módulos',
+                              AppLocalizations.of(context)!.modules(course.totalModules),
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.blueGrey[700],
                                 fontWeight: FontWeight.w500,
@@ -583,7 +583,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                             Icon(Icons.menu_book, size: 20, color: Colors.blueGrey[700]),
                             const SizedBox(height: 4),
                             Text(
-                              '${course.totalLessons} Lições',
+                              AppLocalizations.of(context)!.lessons(course.totalLessons),
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.blueGrey[700],
                                 fontWeight: FontWeight.w500,
@@ -710,7 +710,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                   ),
                 ),
                 child: Text(
-                  'Opções para "${course.title}"',
+                  AppLocalizations.of(context)!.optionsFor(course.title),
                   style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -743,8 +743,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                     ),
                     child: const Icon(Icons.unpublished, color: Colors.orange),
                   ),
-                  title: const Text('Despublicar (voltar para rascunho)'),
-                  subtitle: const Text('Torne o curso invisível para os usuários'),
+                  title: Text(AppLocalizations.of(context)!.unpublishCourse),
+                  subtitle: Text(AppLocalizations.of(context)!.makeCourseInvisible),
                   onTap: () {
                     _updateCourseStatus(course, CourseStatus.draft);
                     Navigator.pop(context);
@@ -764,10 +764,10 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                     color: Colors.amber,
                   ),
                 ),
-                title: Text(course.isFeatured ? 'Remover destaque' : 'Destacar curso'),
+                title: Text(course.isFeatured ? AppLocalizations.of(context)!.removeFeatured : AppLocalizations.of(context)!.addFeatured),
                 subtitle: Text(course.isFeatured 
-                  ? 'Remover da seção de destaque na tela inicial' 
-                  : 'Mostrar o curso na seção de destaque na tela inicial'),
+                  ? AppLocalizations.of(context)!.removeFromFeatured
+                  : AppLocalizations.of(context)!.addToFeatured),
                 onTap: () {
                   _toggleFeatureCourse(course);
                   Navigator.pop(context);
@@ -784,8 +784,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
                   ),
                   child: const Icon(Icons.delete_forever, color: Colors.red),
                 ),
-                title: const Text('Excluir curso'),
-                subtitle: const Text('Esta ação não pode ser desfeita'),
+                title: Text(AppLocalizations.of(context)!.deleteCourse),
+                subtitle: Text(AppLocalizations.of(context)!.thisActionIsIrreversible),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmDeleteCourse(course);
@@ -815,8 +815,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
           SnackBar(
             content: Text(
               newStatus == CourseStatus.published
-                  ? 'Curso publicado com sucesso'
-                  : 'Curso despublicado com sucesso'
+                  ? AppLocalizations.of(context)!.coursePublishedSuccessfully
+                  : AppLocalizations.of(context)!.courseUnpublishedSuccessfully
             ),
             backgroundColor: Colors.green,
           ),
@@ -826,7 +826,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atualizar status: $e'),
+            content: Text(AppLocalizations.of(context)!.errorUpdatingStatus(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -854,8 +854,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
           SnackBar(
             content: Text(
               updatedCourse.isFeatured
-                  ? 'Curso destacado com sucesso'
-                  : 'Destaque removido com sucesso'
+                  ? AppLocalizations.of(context)!.courseFeaturedSuccessfully
+                  : AppLocalizations.of(context)!.featuredRemovedSuccessfully
             ),
             backgroundColor: Colors.green,
           ),
@@ -865,7 +865,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atualizar destaque: $e'),
+            content: Text(AppLocalizations.of(context)!.errorUpdatingFeatured(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -881,23 +881,23 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tem certeza que deseja excluir o curso "${course.title}"?'),
+            Text(AppLocalizations.of(context)!.areYouSureYouWantToDelete(course.title)),
             const SizedBox(height: 16),
-            const Text(
-              'Esta ação é irreversível e excluirá todos os módulos, lições, materiais e progresso dos usuários associados a este curso.',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.irreversibleActionWarning,
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -905,7 +905,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
               _deleteCourse(course);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -920,8 +920,8 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Curso excluído com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.courseDeletedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -930,7 +930,7 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> with SingleTi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao excluir curso: $e'),
+            content: Text(AppLocalizations.of(context)!.errorDeletingCourse(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

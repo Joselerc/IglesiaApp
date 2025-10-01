@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateAnnouncementModal extends StatefulWidget {
   const CreateAnnouncementModal({Key? key}) : super(key: key);
@@ -56,7 +57,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = "Erro ao verificar permissão: $e";
+          _errorMessage = AppLocalizations.of(context)!.errorVerifyingPermissionAnnouncement(e.toString());
           _isCheckingPermission = false;
           _hasPermission = false;
         });
@@ -81,7 +82,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Erro ao selecionar imagem: $e';
+        _errorMessage = AppLocalizations.of(context)!.errorSelectingImage(e.toString());
       });
     }
   }
@@ -93,9 +94,9 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
       initialDate: _selectedDate ?? now,
       firstDate: now,
       lastDate: now.add(const Duration(days: 365)),
-      helpText: 'Selecione uma data',
-      cancelText: 'Cancelar',
-      confirmText: 'Confirmar',
+      helpText: AppLocalizations.of(context)!.selectDate,
+      cancelText: AppLocalizations.of(context)!.cancel,
+      confirmText: AppLocalizations.of(context)!.confirm,
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -107,7 +108,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
   Future<void> _createAnnouncement() async {
     if (!_hasPermission) {
       setState(() { 
-         _errorMessage = 'Você não tem permissão para criar anúncios.'; 
+         _errorMessage = AppLocalizations.of(context)!.noPermissionCreateAnnouncements; 
          _isLoading = false;
       });
       return;
@@ -119,7 +120,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
     
     if (_selectedImage == null) {
       setState(() {
-        _errorMessage = 'Por favor, selecione uma imagem para o anúncio';
+        _errorMessage = AppLocalizations.of(context)!.pleaseSelectAnnouncementImage;
       });
       return;
     }
@@ -132,7 +133,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuário não autenticado');
+        throw Exception(AppLocalizations.of(context)!.userNotAuthenticated);
       }
       
       // 1. Subir la imagen a Firebase Storage
@@ -160,8 +161,8 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
       if (mounted) {
         Navigator.pop(context, true); // Cerrar el modal con resultado exitoso
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Anúncio criado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.announcementCreatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -169,7 +170,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Erro ao criar anúncio: $e';
+        _errorMessage = AppLocalizations.of(context)!.errorCreatingAnnouncement(e.toString());
       });
     }
   }
@@ -229,7 +230,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Criar Anúncio',
+                      AppLocalizations.of(context)!.createAnnouncement,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -269,7 +270,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                             Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                             SizedBox(height: 8),
                             Text(
-                              _errorMessage ?? 'Você não tem permissão para criar anúncios.',
+                              _errorMessage ?? AppLocalizations.of(context)!.noPermissionCreateAnnouncements,
                               textAlign: TextAlign.center,
                             ),
                          ],
@@ -312,7 +313,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                                         Icon(Icons.add_photo_alternate_outlined, size: 56, color: Colors.grey[400]),
                                         const SizedBox(height: 12),
                                         Text(
-                                          'Adicionar imagem',
+                                          AppLocalizations.of(context)!.addImage,
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: Colors.grey[600],
@@ -321,7 +322,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Recomendado: 16:9 (1920x1080)',
+                                          AppLocalizations.of(context)!.recommended16x9,
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[500],
@@ -338,8 +339,8 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                           TextFormField(
                             controller: _titleController,
                             decoration: InputDecoration(
-                              labelText: 'Título do Anúncio',
-                              hintText: 'Digite um título claro e conciso',
+                              labelText: AppLocalizations.of(context)!.announcementTitle,
+                              hintText: AppLocalizations.of(context)!.enterClearConciseTitle,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -362,7 +363,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Por favor, digite um título';
+                                return AppLocalizations.of(context)!.pleasEnterTitle;
                               }
                               return null;
                             },
@@ -373,8 +374,8 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                           TextFormField(
                             controller: _descriptionController,
                             decoration: InputDecoration(
-                              labelText: 'Descrição',
-                              hintText: 'Forneça detalhes sobre o anúncio',
+                              labelText: AppLocalizations.of(context)!.description,
+                              hintText: AppLocalizations.of(context)!.provideAnnouncementDetails,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -399,7 +400,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                             maxLines: 5,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Por favor, digite uma descrição';
+                                return AppLocalizations.of(context)!.pleaseEnterDescription;
                               }
                               return null;
                             },
@@ -412,8 +413,8 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                             onTap: () => _selectDate(context),
                             child: InputDecorator(
                               decoration: InputDecoration(
-                                labelText: 'Data do anúncio/expiração',
-                                hintText: 'Selecione uma data',
+                                labelText: AppLocalizations.of(context)!.announcementExpirationDate,
+                                hintText: AppLocalizations.of(context)!.selectDate,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -439,7 +440,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                                   Text(
                                     _selectedDate != null 
                                         ? DateFormat('dd/MM/yyyy', 'pt_BR').format(_selectedDate!)
-                                        : 'Opcional: Selecione uma data',
+                                        : AppLocalizations.of(context)!.optionalSelectDate,
                                     style: TextStyle(
                                       color: _selectedDate != null 
                                           ? Colors.black87
@@ -534,7 +535,7 @@ class _CreateAnnouncementModalState extends State<CreateAnnouncementModal> {
                           Icon(Icons.publish_rounded),
                           SizedBox(width: 8),
                           Text(
-                            'Publicar Anúncio',
+                            AppLocalizations.of(context)!.publishAnnouncement,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

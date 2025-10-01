@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageAllVideosScreen extends StatefulWidget {
   const ManageAllVideosScreen({super.key});
@@ -35,11 +36,11 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
                   Icon(Icons.lock_outline, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Acesso Negado',
+                    AppLocalizations.of(context)!.accessDenied,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
-                  const Text('Você não tem permissão para gerenciar vídeos.'),
+                  Text(AppLocalizations.of(context)!.noPermissionManageVideos),
                 ],
               ),
             );
@@ -68,11 +69,11 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
                           icon: const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Center(
                             child: Text(
-                              'Vídeos Recentes',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.recentVideos,
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -110,7 +111,7 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Nenhum vídeo encontrado',
+                              AppLocalizations.of(context)!.noVideosFound,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey[600],
@@ -131,7 +132,7 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
                         final video = videos[index];
                         final videoData = video.data() as Map<String, dynamic>;
                         final videoId = video.id;
-                        final title = videoData['title'] ?? 'Sem título';
+                        final title = videoData['title'] ?? AppLocalizations.of(context)!.noTitle;
                         final thumbnailUrl = videoData['thumbnailUrl'] ?? '';
                         final createdAt = videoData['createdAt'] as Timestamp?;
                         
@@ -193,7 +194,7 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
                                 : null,
                             trailing: IconButton(
                               icon: Icon(Icons.delete_outline, color: Colors.red[400]),
-                              tooltip: 'Excluir vídeo',
+                              tooltip: AppLocalizations.of(context)!.deleteVideo,
                               onPressed: () => _confirmDeleteVideo(videoId, title),
                             ),
                           ),
@@ -216,13 +217,13 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
 
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
-        return 'Há ${difference.inMinutes} minutos';
+        return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes.toString());
       }
-      return 'Há ${difference.inHours} horas';
+      return AppLocalizations.of(context)!.hoursAgo(difference.inHours.toString());
     } else if (difference.inDays == 1) {
-      return 'Ontem';
+      return AppLocalizations.of(context)!.yesterday;
     } else if (difference.inDays < 7) {
-      return 'Há ${difference.inDays} dias';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays.toString());
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
@@ -232,8 +233,8 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Vídeo'),
-        content: Text('Tem certeza que deseja excluir o vídeo "$title"?'),
+        title: Text(AppLocalizations.of(context)!.deleteVideo),
+        content: Text(AppLocalizations.of(context)!.deleteVideoConfirmation(title)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -278,14 +279,14 @@ class _ManageAllVideosScreenState extends State<ManageAllVideosScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Vídeo excluído com sucesso')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.videoDeletedSuccessfully)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao excluir vídeo: $e'),
+              content: Text(AppLocalizations.of(context)!.errorDeletingVideo(e.toString())),
               backgroundColor: Colors.red,
             ),
           );

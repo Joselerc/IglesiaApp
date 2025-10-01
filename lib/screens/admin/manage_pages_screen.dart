@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import 'edit_page_screen.dart'; // Importar la futura pantalla de edición
+import '../../l10n/app_localizations.dart';
 
 class ManagePagesScreen extends StatefulWidget {
   const ManagePagesScreen({super.key});
@@ -20,7 +21,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gerenciar Páginas'),
+        title: Text(AppLocalizations.of(context)!.managePagesTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -42,32 +43,32 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                    mainAxisAlignment: MainAxisAlignment.center,
                    children: [
-                      Icon(
+                      const Icon(
                         Icons.lock_outline,
                         size: 64,
                         color: Colors.grey,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
-                        'Acesso Negado',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.accessDenied,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.grey,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
-                        'Você não tem permissão para gerenciar páginas.',
+                        AppLocalizations.of(context)!.noPermissionManagePages,
                         textAlign: TextAlign.center,
                       ),
                    ],
@@ -80,7 +81,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
             stream: _pagesCollection.orderBy('title').snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(child: Text('Erro ao carregar páginas: ${snapshot.error}'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorLoadingPages(snapshot.error.toString())));
               }
 
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -88,21 +89,21 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.edit_document, size: 60, color: Colors.grey),
-                      SizedBox(height: 16),
+                      const Icon(Icons.edit_document, size: 60, color: Colors.grey),
+                      const SizedBox(height: 16),
                       Text(
-                        'Nenhuma página personalizada criada ainda.',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        AppLocalizations.of(context)!.noCustomPagesYet,
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
                         textAlign: TextAlign.center,
                       ),
-                       SizedBox(height: 8),
+                       const SizedBox(height: 8),
                       Text(
-                        'Toque no botão + para criar a primeira.',
-                         style: TextStyle(fontSize: 14, color: Colors.grey),
+                        AppLocalizations.of(context)!.tapPlusToCreateFirst,
+                         style: const TextStyle(fontSize: 14, color: Colors.grey),
                          textAlign: TextAlign.center,
                       ),
                     ],
@@ -118,7 +119,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
                 itemBuilder: (context, index) {
                   final pageDoc = pages[index];
                   final pageData = pageDoc.data() as Map<String, dynamic>?; // Safe cast
-                  final title = pageData?['title'] as String? ?? 'Página sem Título';
+                  final title = pageData?['title'] as String? ?? AppLocalizations.of(context)!.pageWithoutTitle;
                   final pageId = pageDoc.id;
 
                   return Card(
@@ -132,7 +133,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
                         if (!hasPerm) {
                           if (mounted) {
                              ScaffoldMessenger.of(context).showSnackBar(
-                               const SnackBar(content: Text('Sem permissão para editar páginas.'), backgroundColor: Colors.red),
+                               SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionEditPages), backgroundColor: Colors.red),
                              );
                           }
                           return;
@@ -165,7 +166,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
                   if (!hasPerm) {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Sem permissão para criar páginas.'), backgroundColor: Colors.red),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreatePages), backgroundColor: Colors.red),
                       );
                     }
                     return;
@@ -180,7 +181,7 @@ class _ManagePagesScreenState extends State<ManagePagesScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 child: const Icon(Icons.add),
-                tooltip: 'Criar Nova Página',
+                tooltip: AppLocalizations.of(context)!.createNewPage,
               );
             } else {
               return const SizedBox.shrink();

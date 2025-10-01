@@ -4,6 +4,7 @@ import '../../models/home_screen_section.dart';
 import '../../models/page_content_model.dart'; // Asumiendo que tienes un modelo para pageContent
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditCustomSectionScreen extends StatefulWidget {
   final HomeScreenSection? section; // Null si es nueva sección
@@ -53,7 +54,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
       // Mostrar error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar páginas: $e'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingPages(e.toString())))
         );
       }
     } finally {
@@ -67,7 +68,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedPageIds.isEmpty) {
        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Selecione pelo menos uma página.'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.selectAtLeastOnePage))
         );
        return;
     }
@@ -125,7 +126,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
       print('Error guardando sección: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar seção: $e'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingSection(e.toString())))
         );
       }
     } finally {
@@ -142,13 +143,13 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
       final confirm = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-              title: const Text('Excluir Seção?'),
-              content: Text('Tem certeza que deseja excluir a seção "${widget.section!.title}"? Esta ação não pode ser desfeita.'),
+              title: Text(AppLocalizations.of(context)!.deleteSectionConfirm),
+              content: Text(AppLocalizations.of(context)!.deleteSectionMessage(widget.section!.title)),
               actions: [
-                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+                  TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
                   TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+                      child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
                   ),
               ],
           ),
@@ -165,7 +166,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
           } catch (e) {
               print('Error eliminando sección: $e');
               if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao excluir: $e')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.errorDeleting(e.toString()))));
                   setState(() => _isSaving = false);
               }
           }
@@ -176,7 +177,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Seção' : 'Criar Nova Seção'),
+        title: Text(_isEditing ? AppLocalizations.of(context)!.editSectionTitle : AppLocalizations.of(context)!.createNewSection),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -184,7 +185,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
            if (_isEditing)
              IconButton(
                  icon: const Icon(Icons.delete_outline),
-                 tooltip: 'Excluir Seção',
+                 tooltip: AppLocalizations.of(context)!.deleteSection,
                  onPressed: _isSaving ? null : _deleteSection,
              ),
           // Botón de guardar
@@ -192,7 +193,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
             icon: _isSaving 
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                 : const Icon(Icons.save),
-            tooltip: 'Salvar',
+            tooltip: AppLocalizations.of(context)!.save,
             onPressed: _isSaving ? null : _saveSection,
           ),
         ],
@@ -206,25 +207,25 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
                 children: [
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título da Seção',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.sectionTitleLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Por favor, insira um título.';
+                        return AppLocalizations.of(context)!.pleaseEnterTitle;
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Páginas Incluídas nesta Seção',
+                    AppLocalizations.of(context)!.pagesIncludedInSection,
                     style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   if (_availablePages.isEmpty)
-                    const Text('Nenhuma página personalizada encontrada para selecionar.')
+                    Text(AppLocalizations.of(context)!.noCustomPagesFound)
                   else
                     // Lista de Checkboxes para seleccionar páginas
                     ListView.builder(
@@ -235,7 +236,7 @@ class _EditCustomSectionScreenState extends State<EditCustomSectionScreen> {
                         final page = _availablePages[index];
                         final bool isSelected = _selectedPageIds.contains(page.id);
                         return CheckboxListTile(
-                          title: Text(page.title.isNotEmpty ? page.title : 'Página sem título (${page.id.substring(0,5)}...)'),
+                          title: Text(page.title.isNotEmpty ? page.title : AppLocalizations.of(context)!.pageWithoutTitleShort(page.id.substring(0,5))),
                           value: isSelected,
                           onChanged: (bool? value) {
                             setState(() {

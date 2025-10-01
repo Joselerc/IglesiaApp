@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar fecha'**
+  /// **'Selecciona una fecha'**
   String get selectDate;
 
   /// No description provided for @gender.
@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageVideos.
   ///
   /// In es, this message translates to:
-  /// **'Gestionar Videos'**
+  /// **'Gestionar vídeos'**
   String get manageVideos;
 
   /// No description provided for @administerChurchSectionsVideos.
@@ -869,7 +869,7 @@ abstract class AppLocalizations {
   /// No description provided for @videos.
   ///
   /// In es, this message translates to:
-  /// **'videos'**
+  /// **'Vídeos'**
   String get videos;
 
   /// No description provided for @profile.
@@ -977,7 +977,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingEvents.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar los eventos'**
+  /// **'Error al cargar eventos: {error}'**
   String errorLoadingEvents(String error);
 
   /// No description provided for @calendars.
@@ -989,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @events.
   ///
   /// In es, this message translates to:
-  /// **'eventos'**
+  /// **'Eventos'**
   String get events;
 
   /// No description provided for @services.
@@ -1013,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentVideos.
   ///
   /// In es, this message translates to:
-  /// **'Videos Recientes'**
+  /// **'Vídeos Recientes'**
   String get recentVideos;
 
   /// No description provided for @errorInSection.
@@ -1085,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @email.
   ///
   /// In es, this message translates to:
-  /// **'Email'**
+  /// **'E-mail'**
   String get email;
 
   /// No description provided for @yourEmailExample.
@@ -1685,7 +1685,7 @@ abstract class AppLocalizations {
   /// No description provided for @announcements.
   ///
   /// In es, this message translates to:
-  /// **'anuncios'**
+  /// **'Anuncios'**
   String get announcements;
 
   /// No description provided for @errorLoadingAnnouncements.
@@ -1757,7 +1757,7 @@ abstract class AppLocalizations {
   /// No description provided for @lessons.
   ///
   /// In es, this message translates to:
-  /// **'{count, plural, =1{1 lección} other{{count} lecciones}}'**
+  /// **'{count,plural, =1{1 Lección}other{{count} Lecciones}}'**
   String lessons(int count);
 
   /// No description provided for @minutes.
@@ -1793,7 +1793,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect.
   ///
   /// In es, this message translates to:
-  /// **'Conectar'**
+  /// **'Connect'**
   String get connect;
 
   /// No description provided for @connectWithChurchGroups.
@@ -1877,7 +1877,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeletion.
   ///
   /// In es, this message translates to:
-  /// **'Confirmar Eliminación'**
+  /// **'Confirmar eliminación'**
   String get confirmDeletion;
 
   /// No description provided for @confirmDeleteAnnouncement.
@@ -1901,13 +1901,13 @@ abstract class AppLocalizations {
   /// No description provided for @announcementDeletedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Anuncio eliminado con éxito.'**
+  /// **'Anuncio eliminado correctamente'**
   String get announcementDeletedSuccessfully;
 
   /// No description provided for @errorDeletingAnnouncement.
   ///
   /// In es, this message translates to:
-  /// **'Error al eliminar anuncio: {error}'**
+  /// **'Error al eliminar el anuncio: {error}'**
   String errorDeletingAnnouncement(String error);
 
   /// No description provided for @cultAnnouncement.
@@ -2411,7 +2411,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorPublishingComment.
   ///
   /// In es, this message translates to:
-  /// **'Error al publicar el comentario: {error}'**
+  /// **'Error al publicar el comentario'**
   String errorPublishingComment(String error);
 
   /// No description provided for @deleteOwnCommentsOnly.
@@ -3029,7 +3029,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduledCults.
   ///
   /// In es, this message translates to:
-  /// **'cultos programados'**
+  /// **'Cultos programados'**
   String get scheduledCults;
 
   /// No description provided for @pages.
@@ -3233,7 +3233,7 @@ abstract class AppLocalizations {
   /// No description provided for @published.
   ///
   /// In es, this message translates to:
-  /// **'Publicados'**
+  /// **'Publicado'**
   String get published;
 
   /// No description provided for @drafts.
@@ -3245,7 +3245,7 @@ abstract class AppLocalizations {
   /// No description provided for @archived.
   ///
   /// In es, this message translates to:
-  /// **'Archivados'**
+  /// **'Archivado'**
   String get archived;
 
   /// No description provided for @edit.
@@ -3277,6 +3277,1800 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Hacer el curso visible para todos los usuarios'**
   String get makeCourseVisibleToAllUsers;
+
+  /// No description provided for @createProfileField.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Campo de Perfil'**
+  String get createProfileField;
+
+  /// No description provided for @editProfileField.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Campo de Perfil'**
+  String get editProfileField;
+
+  /// No description provided for @fieldActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo Activo'**
+  String get fieldActive;
+
+  /// No description provided for @showThisFieldInProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar este campo en el perfil'**
+  String get showThisFieldInProfile;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Cambios'**
+  String get saveChanges;
+
+  /// No description provided for @fieldCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo creado con éxito'**
+  String get fieldCreatedSuccessfully;
+
+  /// No description provided for @fieldUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo actualizado con éxito'**
+  String get fieldUpdatedSuccessfully;
+
+  /// No description provided for @userNotAuthenticated.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario no autenticado'**
+  String get userNotAuthenticated;
+
+  /// No description provided for @noProfileFieldsDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay campos de perfil definidos'**
+  String get noProfileFieldsDefined;
+
+  /// No description provided for @fieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de Campo'**
+  String get fieldType;
+
+  /// No description provided for @text.
+  ///
+  /// In es, this message translates to:
+  /// **'Texto'**
+  String get text;
+
+  /// No description provided for @number.
+  ///
+  /// In es, this message translates to:
+  /// **'Número'**
+  String get number;
+
+  /// No description provided for @date.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get date;
+
+  /// No description provided for @select.
+  ///
+  /// In es, this message translates to:
+  /// **'Selección'**
+  String get select;
+
+  /// No description provided for @donationSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de Donaciones'**
+  String get donationSettings;
+
+  /// No description provided for @enableDonations.
+  ///
+  /// In es, this message translates to:
+  /// **'Habilitar donaciones'**
+  String get enableDonations;
+
+  /// No description provided for @showDonationSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar sección de donaciones en la aplicación'**
+  String get showDonationSection;
+
+  /// No description provided for @bankName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Banco'**
+  String get bankName;
+
+  /// No description provided for @accountNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de Cuenta'**
+  String get accountNumber;
+
+  /// No description provided for @clabe.
+  ///
+  /// In es, this message translates to:
+  /// **'CLABE (México)'**
+  String get clabe;
+
+  /// No description provided for @paypalMeLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Enlace PayPal.Me'**
+  String get paypalMeLink;
+
+  /// No description provided for @mercadoPagoAlias.
+  ///
+  /// In es, this message translates to:
+  /// **'Alias Mercado Pago'**
+  String get mercadoPagoAlias;
+
+  /// No description provided for @stripePublishableKey.
+  ///
+  /// In es, this message translates to:
+  /// **'Clave Publicable de Stripe'**
+  String get stripePublishableKey;
+
+  /// No description provided for @donationInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información de Donación'**
+  String get donationInformation;
+
+  /// No description provided for @saveDonationSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Configuración de Donaciones'**
+  String get saveDonationSettings;
+
+  /// No description provided for @donationSettingsUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de donaciones actualizada con éxito.'**
+  String get donationSettingsUpdated;
+
+  /// No description provided for @errorUpdatingDonationSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar la configuración de donaciones: {error}'**
+  String errorUpdatingDonationSettings(Object error);
+
+  /// No description provided for @enterBankName.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el nombre del banco'**
+  String get enterBankName;
+
+  /// No description provided for @enterAccountNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el número de cuenta'**
+  String get enterAccountNumber;
+
+  /// No description provided for @enterClabe.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese la CLABE'**
+  String get enterClabe;
+
+  /// No description provided for @enterPaypalMeLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el enlace de PayPal.Me'**
+  String get enterPaypalMeLink;
+
+  /// No description provided for @enterMercadoPagoAlias.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el alias de Mercado Pago'**
+  String get enterMercadoPagoAlias;
+
+  /// No description provided for @enterStripePublishableKey.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese la clave publicable de Stripe'**
+  String get enterStripePublishableKey;
+
+  /// No description provided for @cnpj.
+  ///
+  /// In es, this message translates to:
+  /// **'CNPJ'**
+  String get cnpj;
+
+  /// No description provided for @cpf.
+  ///
+  /// In es, this message translates to:
+  /// **'CPF'**
+  String get cpf;
+
+  /// No description provided for @random.
+  ///
+  /// In es, this message translates to:
+  /// **'Aleatoria'**
+  String get random;
+
+  /// No description provided for @filterBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar por:'**
+  String get filterBy;
+
+  /// No description provided for @createNewCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nuevo curso'**
+  String get createNewCourse;
+
+  /// No description provided for @noCoursesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún curso encontrado'**
+  String get noCoursesFound;
+
+  /// No description provided for @clickToCreateNewCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Haz clic en el botón \'+\' para crear un nuevo curso'**
+  String get clickToCreateNewCourse;
+
+  /// No description provided for @draft.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrador'**
+  String get draft;
+
+  /// No description provided for @featured.
+  ///
+  /// In es, this message translates to:
+  /// **'Destacado'**
+  String get featured;
+
+  /// No description provided for @modules.
+  ///
+  /// In es, this message translates to:
+  /// **'{count,plural, =1{1 Módulo}other{{count} Módulos}}'**
+  String modules(num count);
+
+  /// No description provided for @optionsFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Opciones para \"{courseTitle}\"'**
+  String optionsFor(Object courseTitle);
+
+  /// No description provided for @unpublishCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Despublicar (volver a borrador)'**
+  String get unpublishCourse;
+
+  /// No description provided for @makeCourseInvisible.
+  ///
+  /// In es, this message translates to:
+  /// **'Hacer el curso invisible para los usuarios'**
+  String get makeCourseInvisible;
+
+  /// No description provided for @removeFeatured.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de destacados'**
+  String get removeFeatured;
+
+  /// No description provided for @addFeatured.
+  ///
+  /// In es, this message translates to:
+  /// **'Destacar curso'**
+  String get addFeatured;
+
+  /// No description provided for @removeFromFeatured.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de la sección de destacados'**
+  String get removeFromFeatured;
+
+  /// No description provided for @addToFeatured.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar el curso en la sección de destacados'**
+  String get addToFeatured;
+
+  /// No description provided for @deleteCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar curso'**
+  String get deleteCourse;
+
+  /// No description provided for @thisActionIsIrreversible.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción no puede ser deshecha'**
+  String get thisActionIsIrreversible;
+
+  /// No description provided for @areYouSureYouWantToDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que quieres eliminar el curso \"{courseTitle}\"?'**
+  String areYouSureYouWantToDelete(Object courseTitle);
+
+  /// No description provided for @irreversibleActionWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción es irreversible y eliminará todos los módulos, lecciones, materiales y progreso de los usuarios asociados a este curso.'**
+  String get irreversibleActionWarning;
+
+  /// No description provided for @courseDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso eliminado con éxito'**
+  String get courseDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar el curso: {error}'**
+  String errorDeletingCourse(Object error);
+
+  /// No description provided for @coursePublishedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso publicado con éxito'**
+  String get coursePublishedSuccessfully;
+
+  /// No description provided for @courseUnpublishedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso despublicado con éxito'**
+  String get courseUnpublishedSuccessfully;
+
+  /// No description provided for @courseFeaturedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso destacado con éxito'**
+  String get courseFeaturedSuccessfully;
+
+  /// No description provided for @featuredRemovedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Destacado eliminado con éxito'**
+  String get featuredRemovedSuccessfully;
+
+  /// No description provided for @errorUpdatingFeatured.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar el destacado: {error}'**
+  String errorUpdatingFeatured(Object error);
+
+  /// No description provided for @instructor.
+  ///
+  /// In es, this message translates to:
+  /// **'Instructor'**
+  String get instructor;
+
+  /// No description provided for @duration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración'**
+  String get duration;
+
+  /// No description provided for @lessonsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Lecciones'**
+  String get lessonsLabel;
+
+  /// No description provided for @category.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get category;
+
+  /// No description provided for @enroll.
+  ///
+  /// In es, this message translates to:
+  /// **'Inscribirse'**
+  String get enroll;
+
+  /// No description provided for @alreadyEnrolled.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya estás inscrito'**
+  String get alreadyEnrolled;
+
+  /// No description provided for @courseContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido del Curso'**
+  String get courseContent;
+
+  /// No description provided for @lesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección'**
+  String get lesson;
+
+  /// No description provided for @materials.
+  ///
+  /// In es, this message translates to:
+  /// **'Materiales'**
+  String get materials;
+
+  /// No description provided for @comments.
+  ///
+  /// In es, this message translates to:
+  /// **'Comentarios'**
+  String get comments;
+
+  /// No description provided for @course.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso'**
+  String get course;
+
+  /// No description provided for @markAsCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar como completada'**
+  String get markAsCompleted;
+
+  /// No description provided for @processing.
+  ///
+  /// In es, this message translates to:
+  /// **'Procesando...'**
+  String get processing;
+
+  /// No description provided for @evaluateThisLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Evaluar esta lección'**
+  String get evaluateThisLesson;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In es, this message translates to:
+  /// **'Evaluación media'**
+  String get averageRating;
+
+  /// No description provided for @lessonCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección completada'**
+  String get lessonCompleted;
+
+  /// No description provided for @alreadyCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya has completado esta lección'**
+  String get alreadyCompleted;
+
+  /// No description provided for @errorCompletingLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al marcar la lección como completada'**
+  String get errorCompletingLesson;
+
+  /// No description provided for @noMaterialsForThisLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay materiales para esta lección'**
+  String get noMaterialsForThisLesson;
+
+  /// No description provided for @noCommentsForThisLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay comentarios para esta lección'**
+  String get noCommentsForThisLesson;
+
+  /// No description provided for @addYourComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Añade tu comentario...'**
+  String get addYourComment;
+
+  /// No description provided for @commentPublished.
+  ///
+  /// In es, this message translates to:
+  /// **'Comentario publicado'**
+  String get commentPublished;
+
+  /// No description provided for @loginToComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para comentar'**
+  String get loginToComment;
+
+  /// No description provided for @rateTheLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Evalúa la lección'**
+  String get rateTheLesson;
+
+  /// No description provided for @ratingSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Evaluación guardada'**
+  String get ratingSaved;
+
+  /// No description provided for @errorSavingRating.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar la evaluación'**
+  String get errorSavingRating;
+
+  /// No description provided for @loginToRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para evaluar'**
+  String get loginToRate;
+
+  /// No description provided for @courseNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso no encontrado'**
+  String get courseNotFound;
+
+  /// No description provided for @courseNotFoundDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'El curso no existe o fue eliminado'**
+  String get courseNotFoundDetails;
+
+  /// No description provided for @errorLoadingLessonCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar el conteo de lecciones'**
+  String get errorLoadingLessonCount;
+
+  /// No description provided for @errorTogglingFavorite.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cambiar favorito: {error}'**
+  String errorTogglingFavorite(Object error);
+
+  /// No description provided for @errorLoadingModules.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar módulos: {error}'**
+  String errorLoadingModules(Object error);
+
+  /// No description provided for @noModulesAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay módulos disponibles'**
+  String get noModulesAvailable;
+
+  /// No description provided for @errorLoadingLessons.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar lecciones: {error}'**
+  String errorLoadingLessons(Object error);
+
+  /// No description provided for @noLessonsAvailableInModule.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay lecciones disponibles'**
+  String get noLessonsAvailableInModule;
+
+  /// No description provided for @errorEnrolling.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al inscribirse: {error}'**
+  String errorEnrolling(Object error);
+
+  /// No description provided for @enrollToAccessLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Inscríbete al curso para acceder a esta lección'**
+  String get enrollToAccessLesson;
+
+  /// No description provided for @noLessonsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay lecciones disponibles en este curso'**
+  String get noLessonsAvailable;
+
+  /// No description provided for @loginToEnroll.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para inscribirte'**
+  String get loginToEnroll;
+
+  /// No description provided for @enrolledSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Te has inscrito al curso!'**
+  String get enrolledSuccess;
+
+  /// No description provided for @startCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Comenzar Curso'**
+  String get startCourse;
+
+  /// No description provided for @continueCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar Curso'**
+  String get continueCourse;
+
+  /// No description provided for @progress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso: {percentage}% ({completed}/{total})'**
+  String progress(Object completed, Object percentage, Object total);
+
+  /// No description provided for @instructorLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Instructor: {name}'**
+  String instructorLabel(Object name);
+
+  /// No description provided for @lessonNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección no encontrada'**
+  String get lessonNotFound;
+
+  /// No description provided for @lessonNotFoundDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'No fue posible encontrar la lección solicitada'**
+  String get lessonNotFoundDetails;
+
+  /// No description provided for @durationLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración: {duration}'**
+  String durationLabel(Object duration);
+
+  /// No description provided for @unmarkAsCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Desmarcar como completada'**
+  String get unmarkAsCompleted;
+
+  /// No description provided for @lessonUnmarked.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección desmarcada como completada'**
+  String get lessonUnmarked;
+
+  /// No description provided for @noVideoAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún vídeo disponible'**
+  String get noVideoAvailable;
+
+  /// No description provided for @clickToWatchVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'Haz clic para ver el vídeo'**
+  String get clickToWatchVideo;
+
+  /// No description provided for @noDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin descripción.'**
+  String get noDescription;
+
+  /// No description provided for @commentsDisabled.
+  ///
+  /// In es, this message translates to:
+  /// **'Los comentarios están desactivados para esta lección'**
+  String get commentsDisabled;
+
+  /// No description provided for @noCommentsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún comentario aún'**
+  String get noCommentsYet;
+
+  /// No description provided for @beTheFirstToComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Sé el primero en comentar'**
+  String get beTheFirstToComment;
+
+  /// No description provided for @you.
+  ///
+  /// In es, this message translates to:
+  /// **'Tú'**
+  String get you;
+
+  /// No description provided for @reply.
+  ///
+  /// In es, this message translates to:
+  /// **'respuesta'**
+  String get reply;
+
+  /// No description provided for @replies.
+  ///
+  /// In es, this message translates to:
+  /// **'respuestas'**
+  String get replies;
+
+  /// No description provided for @repliesFunctionality.
+  ///
+  /// In es, this message translates to:
+  /// **'Funcionalidad de respuestas en desarrollo'**
+  String get repliesFunctionality;
+
+  /// No description provided for @confirmDeleteComment.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que quieres eliminar este comentario?'**
+  String get confirmDeleteComment;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer'**
+  String get yesterday;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace {days} días'**
+  String daysAgo(Object days);
+
+  /// No description provided for @linkCopiedToClipboard.
+  ///
+  /// In es, this message translates to:
+  /// **'Enlace copiado al portapapeles'**
+  String get linkCopiedToClipboard;
+
+  /// No description provided for @open.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir'**
+  String get open;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar enlace'**
+  String get copyLink;
+
+  /// No description provided for @managePagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Páginas'**
+  String get managePagesTitle;
+
+  /// No description provided for @noPermissionManagePages.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar páginas.'**
+  String get noPermissionManagePages;
+
+  /// No description provided for @errorLoadingPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar páginas: {error}'**
+  String errorLoadingPages(Object error);
+
+  /// No description provided for @noCustomPagesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna página personalizada creada aún.'**
+  String get noCustomPagesYet;
+
+  /// No description provided for @tapPlusToCreateFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca el botón + para crear la primera.'**
+  String get tapPlusToCreateFirst;
+
+  /// No description provided for @pageWithoutTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Página sin Título'**
+  String get pageWithoutTitle;
+
+  /// No description provided for @noPermissionEditPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin permiso para editar páginas.'**
+  String get noPermissionEditPages;
+
+  /// No description provided for @noPermissionCreatePages.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin permiso para crear páginas.'**
+  String get noPermissionCreatePages;
+
+  /// No description provided for @createNewPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nueva Página'**
+  String get createNewPage;
+
+  /// No description provided for @editPageTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Página'**
+  String get editPageTitle;
+
+  /// No description provided for @pageTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título de la Página'**
+  String get pageTitle;
+
+  /// No description provided for @pageTitleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Sobre Nosotros'**
+  String get pageTitleHint;
+
+  /// No description provided for @appearanceInPageList.
+  ///
+  /// In es, this message translates to:
+  /// **'Apariencia en la Lista de Páginas'**
+  String get appearanceInPageList;
+
+  /// No description provided for @visualizationType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de Visualización en la Lista'**
+  String get visualizationType;
+
+  /// No description provided for @iconAndTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ícono y Título'**
+  String get iconAndTitle;
+
+  /// No description provided for @coverImage16x9.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de Portada (16:9)'**
+  String get coverImage16x9;
+
+  /// No description provided for @icon.
+  ///
+  /// In es, this message translates to:
+  /// **'Ícono'**
+  String get icon;
+
+  /// No description provided for @coverImageLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de Portada (16:9)'**
+  String get coverImageLabel;
+
+  /// No description provided for @changeImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar Imagen'**
+  String get changeImage;
+
+  /// No description provided for @selectImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Imagen'**
+  String get selectImage;
+
+  /// No description provided for @pageContentLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido de la Página'**
+  String get pageContentLabel;
+
+  /// No description provided for @typePageContentHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe el contenido de la página aquí...'**
+  String get typePageContentHere;
+
+  /// No description provided for @insertImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Insertar Imagen'**
+  String get insertImage;
+
+  /// No description provided for @savePage.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Página'**
+  String get savePage;
+
+  /// No description provided for @pleaseEnterPageTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce un título para la página.'**
+  String get pleaseEnterPageTitle;
+
+  /// No description provided for @pleaseSelectIcon.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona un icono para la página.'**
+  String get pleaseSelectIcon;
+
+  /// No description provided for @pleaseUploadCoverImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, sube una imagen para la portada.'**
+  String get pleaseUploadCoverImage;
+
+  /// No description provided for @errorInsertingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al insertar imagen: {error}'**
+  String errorInsertingImage(Object error);
+
+  /// No description provided for @coverImageUploaded.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Imagen de portada cargada!'**
+  String get coverImageUploaded;
+
+  /// No description provided for @errorUploadingCoverImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar imagen de portada: {error}'**
+  String errorUploadingCoverImage(Object error);
+
+  /// No description provided for @pageSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Página guardada con éxito!'**
+  String get pageSavedSuccessfully;
+
+  /// No description provided for @errorSavingPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar página: {error}'**
+  String errorSavingPage(Object error);
+
+  /// No description provided for @discardChanges.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Descartar Cambios?'**
+  String get discardChanges;
+
+  /// No description provided for @unsavedChangesConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Tienes cambios sin guardar. ¿Quieres salir de todos modos?'**
+  String get unsavedChangesConfirm;
+
+  /// No description provided for @discardAndExit.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar y Salir'**
+  String get discardAndExit;
+
+  /// No description provided for @restoreDraft.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Restaurar Borrador?'**
+  String get restoreDraft;
+
+  /// No description provided for @unsavedChangesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Encontramos cambios no guardados. ¿Quieres restaurarlos?'**
+  String get unsavedChangesFound;
+
+  /// No description provided for @discardDraft.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar Borrador'**
+  String get discardDraft;
+
+  /// No description provided for @restore.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar'**
+  String get restore;
+
+  /// No description provided for @imageUploadFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar la imagen.'**
+  String get imageUploadFailed;
+
+  /// No description provided for @errorLoadingPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar página: {error}'**
+  String errorLoadingPage(Object error);
+
+  /// No description provided for @editSectionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Sección'**
+  String get editSectionTitle;
+
+  /// No description provided for @createNewSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nueva Sección'**
+  String get createNewSection;
+
+  /// No description provided for @deleteSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar sección'**
+  String get deleteSection;
+
+  /// No description provided for @sectionTitleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Título de la Sección'**
+  String get sectionTitleLabel;
+
+  /// No description provided for @pleaseEnterTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce un título.'**
+  String get pleaseEnterTitle;
+
+  /// No description provided for @pagesIncludedInSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas Incluidas en esta Sección'**
+  String get pagesIncludedInSection;
+
+  /// No description provided for @noCustomPagesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna página personalizada encontrada para seleccionar.'**
+  String get noCustomPagesFound;
+
+  /// No description provided for @pageWithoutTitleShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Página sin título ({id}...)'**
+  String pageWithoutTitleShort(Object id);
+
+  /// No description provided for @selectAtLeastOnePage.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona al menos una página.'**
+  String get selectAtLeastOnePage;
+
+  /// No description provided for @errorSavingSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar sección: {error}'**
+  String errorSavingSection(Object error);
+
+  /// No description provided for @deleteSectionConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar Sección?'**
+  String get deleteSectionConfirm;
+
+  /// No description provided for @deleteSectionMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar la sección \"{title}\"? Esta acción no se puede deshacer.'**
+  String deleteSectionMessage(Object title);
+
+  /// No description provided for @errorDeleting.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar: {error}'**
+  String errorDeleting(Object error);
+
+  /// No description provided for @sectionNameUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Nombre de la sección actualizado con éxito!'**
+  String get sectionNameUpdated;
+
+  /// No description provided for @typeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo: {type}'**
+  String typeLabel(Object type);
+
+  /// No description provided for @sectionName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la Sección'**
+  String get sectionName;
+
+  /// No description provided for @sectionLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección: {title}'**
+  String sectionLabel(Object title);
+
+  /// No description provided for @hideWhenNoContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar sección cuando no haya contenido:'**
+  String get hideWhenNoContent;
+
+  /// No description provided for @visibilityConfigUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Configuración de visibilidad actualizada!'**
+  String get visibilityConfigUpdated;
+
+  /// No description provided for @errorUpdatingConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar configuración: {error}'**
+  String errorUpdatingConfig(Object error);
+
+  /// No description provided for @sectionCannotBeEditedHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta sección no se puede editar aquí.'**
+  String get sectionCannotBeEditedHere;
+
+  /// No description provided for @createNewPageSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nueva Sección de Páginas'**
+  String get createNewPageSection;
+
+  /// No description provided for @noPermissionManageHomeSections.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar las secciones de la pantalla de inicio.'**
+  String get noPermissionManageHomeSections;
+
+  /// No description provided for @editName.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar nombre'**
+  String get editName;
+
+  /// No description provided for @hiddenWhenEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Oculta cuando vacía'**
+  String get hiddenWhenEmpty;
+
+  /// No description provided for @alwaysVisible.
+  ///
+  /// In es, this message translates to:
+  /// **'Siempre visible'**
+  String get alwaysVisible;
+
+  /// No description provided for @liveStreamLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'En Vivo'**
+  String get liveStreamLabel;
+
+  /// No description provided for @donations.
+  ///
+  /// In es, this message translates to:
+  /// **'Donaciones'**
+  String get donations;
+
+  /// No description provided for @onlineCourses.
+  ///
+  /// In es, this message translates to:
+  /// **'Cursos Online'**
+  String get onlineCourses;
+
+  /// No description provided for @customPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas Personalizadas'**
+  String get customPages;
+
+  /// No description provided for @unknownSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección Desconocida'**
+  String get unknownSection;
+
+  /// No description provided for @servicesGridObsolete.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrícula de Servicios (Obsoleto)'**
+  String get servicesGridObsolete;
+
+  /// No description provided for @liveStreamType.
+  ///
+  /// In es, this message translates to:
+  /// **'Transmisión en vivo'**
+  String get liveStreamType;
+
+  /// No description provided for @courses.
+  ///
+  /// In es, this message translates to:
+  /// **'Cursos'**
+  String get courses;
+
+  /// No description provided for @pageList.
+  ///
+  /// In es, this message translates to:
+  /// **'Lista de Páginas'**
+  String get pageList;
+
+  /// No description provided for @sectionWillBeDisplayed.
+  ///
+  /// In es, this message translates to:
+  /// **'La sección se mostrará siempre, aunque no haya contenido.'**
+  String get sectionWillBeDisplayed;
+
+  /// No description provided for @errorVerifyingPermission.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al verificar permiso: {error}'**
+  String errorVerifyingPermission(Object error);
+
+  /// No description provided for @configureAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar Disponibilidad'**
+  String get configureAvailability;
+
+  /// No description provided for @consultationSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuraciones de consulta'**
+  String get consultationSettings;
+
+  /// No description provided for @noPermissionManageAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar disponibilidad'**
+  String get noPermissionManageAvailability;
+
+  /// No description provided for @errorLoadingAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'Error: {error}'**
+  String errorLoadingAvailability(Object error);
+
+  /// No description provided for @timeSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'Franjas de Horario'**
+  String get timeSlots;
+
+  /// No description provided for @confirmDeleteAllTimeSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar todas las franjas de horario?'**
+  String get confirmDeleteAllTimeSlots;
+
+  /// No description provided for @deleteSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar franja'**
+  String get deleteSlot;
+
+  /// No description provided for @unavailableForConsultations.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible para consultas'**
+  String get unavailableForConsultations;
+
+  /// No description provided for @dayMarkedAvailableAddTimeSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'Día marcado como disponible, añade franjas de horario'**
+  String get dayMarkedAvailableAddTimeSlots;
+
+  /// No description provided for @weekOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana de'**
+  String get weekOf;
+
+  /// No description provided for @copyToNextWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar para próxima semana'**
+  String get copyToNextWeek;
+
+  /// No description provided for @counselingConfiguration.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de Asesoramiento'**
+  String get counselingConfiguration;
+
+  /// No description provided for @counselingDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración del Asesoramiento'**
+  String get counselingDuration;
+
+  /// No description provided for @configureCounselingDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Configura cuánto tiempo durará cada Asesoramiento'**
+  String get configureCounselingDuration;
+
+  /// No description provided for @intervalBetweenConsultations.
+  ///
+  /// In es, this message translates to:
+  /// **'Intervalo entre Consultas'**
+  String get intervalBetweenConsultations;
+
+  /// No description provided for @configureRestTimeBetweenConsultations.
+  ///
+  /// In es, this message translates to:
+  /// **'Configura cuánto tiempo de descanso habrá entre consultas'**
+  String get configureRestTimeBetweenConsultations;
+
+  /// No description provided for @configurationSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración guardada con éxito'**
+  String get configurationSavedSuccessfully;
+
+  /// No description provided for @dayUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Día actualizado con éxito'**
+  String get dayUpdatedSuccessfully;
+
+  /// No description provided for @errorCopying.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al copiar: {error}'**
+  String errorCopying(Object error);
+
+  /// No description provided for @addTimeSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir franjas de horario'**
+  String get addTimeSlots;
+
+  /// No description provided for @editAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar disponibilidad'**
+  String get editAvailability;
+
+  /// No description provided for @manageAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrar Anuncios'**
+  String get manageAnnouncements;
+
+  /// No description provided for @active.
+  ///
+  /// In es, this message translates to:
+  /// **'Activos'**
+  String get active;
+
+  /// No description provided for @inactiveExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivos/Vencidos'**
+  String get inactiveExpired;
+
+  /// No description provided for @regular.
+  ///
+  /// In es, this message translates to:
+  /// **'Regulares'**
+  String get regular;
+
+  /// No description provided for @confirmAnnouncementDeletion.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar eliminación'**
+  String get confirmAnnouncementDeletion;
+
+  /// No description provided for @confirmDeleteAnnouncementMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar este anuncio? Esta acción no se puede deshacer.'**
+  String get confirmDeleteAnnouncementMessage;
+
+  /// No description provided for @noActiveAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay anuncios activos'**
+  String get noActiveAnnouncements;
+
+  /// No description provided for @noInactiveExpiredAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay anuncios inactivos/vencidos'**
+  String get noInactiveExpiredAnnouncements;
+
+  /// No description provided for @managedEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos Administrados'**
+  String get managedEvents;
+
+  /// No description provided for @update.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar'**
+  String get update;
+
+  /// No description provided for @noPermissionManageEventAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar la asistencia de eventos.'**
+  String get noPermissionManageEventAttendance;
+
+  /// No description provided for @manageAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Presencia'**
+  String get manageAttendance;
+
+  /// No description provided for @noEventsMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'de ministerios'**
+  String get noEventsMinistries;
+
+  /// No description provided for @noEventsGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'de grupos'**
+  String get noEventsGroups;
+
+  /// No description provided for @noEventsMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos {filter}'**
+  String noEventsMessage(Object filter);
+
+  /// No description provided for @eventsYouAdministerWillAppearHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Los eventos que administras aparecerán aquí'**
+  String get eventsYouAdministerWillAppearHere;
+
+  /// No description provided for @noTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin título'**
+  String get noTitle;
+
+  /// No description provided for @ministry.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio'**
+  String get ministry;
+
+  /// No description provided for @group.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo'**
+  String get group;
+
+  /// No description provided for @noPermissionManageVideos.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar vídeos.'**
+  String get noPermissionManageVideos;
+
+  /// No description provided for @noVideosFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún vídeo encontrado'**
+  String get noVideosFound;
+
+  /// No description provided for @deleteVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Vídeo'**
+  String get deleteVideo;
+
+  /// No description provided for @deleteVideoConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar el vídeo \"{title}\"?'**
+  String deleteVideoConfirmation(Object title);
+
+  /// No description provided for @videoDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Vídeo eliminado con éxito'**
+  String get videoDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar vídeo: {error}'**
+  String errorDeletingVideo(Object error);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace {minutes} minutos'**
+  String minutesAgo(Object minutes);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace {hours} horas'**
+  String hoursAgo(Object hours);
+
+  /// No description provided for @createAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Anuncio'**
+  String get createAnnouncement;
+
+  /// No description provided for @errorVerifyingPermissionAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al verificar permiso: {error}'**
+  String errorVerifyingPermissionAnnouncement(Object error);
+
+  /// No description provided for @noPermissionCreateAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para crear anuncios.'**
+  String get noPermissionCreateAnnouncements;
+
+  /// No description provided for @errorSelectingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al seleccionar imagen: {error}'**
+  String errorSelectingImage(Object error);
+
+  /// No description provided for @confirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get confirm;
+
+  /// No description provided for @announcementCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncio creado con éxito'**
+  String get announcementCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear anuncio: {error}'**
+  String errorCreatingAnnouncement(Object error);
+
+  /// No description provided for @addImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir imagen'**
+  String get addImage;
+
+  /// No description provided for @recommended16x9.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomendado: 16:9 (1920x1080)'**
+  String get recommended16x9;
+
+  /// No description provided for @announcementTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del Anuncio'**
+  String get announcementTitle;
+
+  /// No description provided for @enterClearConciseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce un título claro y conciso'**
+  String get enterClearConciseTitle;
+
+  /// No description provided for @pleasEnterTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce un título'**
+  String get pleasEnterTitle;
+
+  /// No description provided for @provideAnnouncementDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Proporciona detalles sobre el anuncio'**
+  String get provideAnnouncementDetails;
+
+  /// No description provided for @pleaseEnterDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce una descripción'**
+  String get pleaseEnterDescription;
+
+  /// No description provided for @announcementExpirationDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha del anuncio/expiración'**
+  String get announcementExpirationDate;
+
+  /// No description provided for @optionalSelectDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Opcional: Selecciona una fecha'**
+  String get optionalSelectDate;
+
+  /// No description provided for @pleaseSelectAnnouncementImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona una imagen para el anuncio'**
+  String get pleaseSelectAnnouncementImage;
+
+  /// No description provided for @publishAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar Anuncio'**
+  String get publishAnnouncement;
+
+  /// No description provided for @createEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Evento'**
+  String get createEvent;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximos'**
+  String get upcoming;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta semana'**
+  String get thisWeek;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Este mes'**
+  String get thisMonth;
+
+  /// No description provided for @noEventsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún evento encontrado'**
+  String get noEventsFound;
+
+  /// No description provided for @tryAnotherFilterOrCreateEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Prueba otro filtro o crea un nuevo evento'**
+  String get tryAnotherFilterOrCreateEvent;
+
+  /// No description provided for @trySelectingAnotherFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Prueba seleccionando otro filtro'**
+  String get trySelectingAnotherFilter;
+
+  /// No description provided for @noLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin ubicación'**
+  String get noLocation;
+
+  /// No description provided for @tickets.
+  ///
+  /// In es, this message translates to:
+  /// **'Entradas'**
+  String get tickets;
+
+  /// No description provided for @seeDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Detalles'**
+  String get seeDetails;
+
+  /// No description provided for @videoSections.
+  ///
+  /// In es, this message translates to:
+  /// **'Secciones de Vídeos'**
+  String get videoSections;
+
+  /// No description provided for @reorderSections.
+  ///
+  /// In es, this message translates to:
+  /// **'Reordenar secciones'**
+  String get reorderSections;
+
+  /// No description provided for @saveOrder.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar orden'**
+  String get saveOrder;
+
+  /// No description provided for @dragSectionsToReorder.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra las secciones para reordenarlas'**
+  String get dragSectionsToReorder;
+
+  /// No description provided for @noSectionCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna sección creada'**
+  String get noSectionCreated;
+
+  /// No description provided for @createFirstSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Primera Sección'**
+  String get createFirstSection;
+
+  /// No description provided for @dragToReorderPressWhenDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra para reordenar. Presiona el botón concluido cuando termines.'**
+  String get dragToReorderPressWhenDone;
+
+  /// No description provided for @defaultSectionNotEditable.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección por defecto (no editable)'**
+  String get defaultSectionNotEditable;
+
+  /// No description provided for @allVideos.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los vídeos'**
+  String get allVideos;
+
+  /// No description provided for @defaultSection.
+  ///
+  /// In es, this message translates to:
+  /// **'• Sección por defecto'**
+  String get defaultSection;
+
+  /// No description provided for @editSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar sección'**
+  String get editSection;
+
+  /// No description provided for @newSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva Sección'**
+  String get newSection;
+
+  /// No description provided for @mostRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Más recientes'**
+  String get mostRecent;
+
+  /// No description provided for @mostPopular.
+  ///
+  /// In es, this message translates to:
+  /// **'Más populares'**
+  String get mostPopular;
+
+  /// No description provided for @custom.
+  ///
+  /// In es, this message translates to:
+  /// **'Personalizada'**
+  String get custom;
+
+  /// No description provided for @recentVideosCannotBeReordered.
+  ///
+  /// In es, this message translates to:
+  /// **'La sección \"Vídeos Recientes\" no puede ser reordenada'**
+  String get recentVideosCannotBeReordered;
+
+  /// No description provided for @deleteVideoSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Sección'**
+  String get deleteVideoSection;
+
+  /// No description provided for @confirmDeleteSection.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar la sección \"{title}\"?'**
+  String confirmDeleteSection(Object title);
+
+  /// No description provided for @sectionDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección eliminada'**
+  String get sectionDeleted;
 }
 
 class _AppLocalizationsDelegate

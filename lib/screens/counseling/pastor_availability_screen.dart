@@ -7,6 +7,7 @@ import 'widgets/day_schedule_dialog.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class PastorAvailabilityScreen extends StatefulWidget {
   const PastorAvailabilityScreen({super.key});
@@ -90,7 +91,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('Usuario no autenticado');
+        throw Exception(AppLocalizations.of(context)!.userNotAuthenticated);
       }
       
       _pastorId = user.uid;
@@ -98,7 +99,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       // Verificar si el usuario tiene permiso
       final hasPermission = await _permissionService.hasPermission('manage_counseling_availability');
       if (!hasPermission) {
-        throw Exception('Você não tem permissão para gerenciar disponibilidade');
+        throw Exception(AppLocalizations.of(context)!.noPermissionManageAvailability);
       }
       
       // Buscar disponibilidad existente
@@ -160,7 +161,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingAvailability(e.toString()))),
         );
       }
     } finally {
@@ -616,8 +617,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                       color: Colors.blue.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Hoy',
+                    child: Text(
+                      AppLocalizations.of(context)!.today,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -673,8 +674,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        'Faixas de Horário',
+                      Text(
+                        AppLocalizations.of(context)!.timeSlots,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -701,7 +702,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                       if (schedule.timeSlots.length > 1)
                         ElevatedButton.icon(
                           icon: const Icon(Icons.delete_outline, size: 14),
-                          label: const Text('Eliminar todas', style: TextStyle(fontSize: 12)),
+                          label: Text(AppLocalizations.of(context)!.deleteAll, style: const TextStyle(fontSize: 12)),
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.red,
@@ -713,8 +714,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text('Confirmar exclusão'),
-                                content: const Text('Tem certeza que deseja excluir todas as faixas de horário?'),
+                                title: Text(AppLocalizations.of(context)!.confirmDeletion),
+                                content: Text(AppLocalizations.of(context)!.confirmDeleteAllTimeSlots),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
@@ -854,7 +855,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Indisponível para consultas',
+                      AppLocalizations.of(context)!.unavailableForConsultations,
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
@@ -890,7 +891,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Dia marcado como disponível, adicione faixas de horário',
+                      AppLocalizations.of(context)!.dayMarkedAvailableAddTimeSlots,
                       style: TextStyle(
                         color: Colors.orange.shade700,
                         fontWeight: FontWeight.w500,
@@ -911,11 +912,11 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configurar Disponibilidade'),
+        title: Text(AppLocalizations.of(context)!.configureAvailability),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            tooltip: 'Configurações de consulta',
+            tooltip: AppLocalizations.of(context)!.consultationSettings,
             onPressed: _showGlobalSettingsDialog,
           ),
         ],
@@ -998,7 +999,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    'Semana de',
+                                    AppLocalizations.of(context)!.weekOf,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey.shade600,
@@ -1046,7 +1047,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                         // Botón de copiar a siguiente semana
                         OutlinedButton.icon(
                           icon: const Icon(Icons.copy_all_rounded, size: 16),
-                          label: const Text('Copiar para próxima semana'),
+                          label: Text(AppLocalizations.of(context)!.copyToNextWeek),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Theme.of(context).primaryColor,
                             side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
@@ -1205,7 +1206,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
           }
           
           return AlertDialog(
-            title: const Text('Configuração de Aconselhamento'),
+            title: Text(AppLocalizations.of(context)!.counselingConfiguration),
             content: SizedBox(
               width: double.maxFinite,
               child: Column(
@@ -1213,8 +1214,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Duración de la cita
-                  const Text(
-                    'Duração do Aconselhamento',
+                  Text(
+                    AppLocalizations.of(context)!.counselingDuration,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -1222,7 +1223,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Configure quanto tempo durará cada Aconselhamento',
+                    AppLocalizations.of(context)!.configureCounselingDuration,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,
@@ -1247,16 +1248,16 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   const SizedBox(height: 24),
                   
                   // Tiempo entre citas
-                  const Text(
-                    'Intervalo entre Consultas',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.intervalBetweenConsultations,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Configure quanto tempo de descanso haverá entre consultas',
+                    AppLocalizations.of(context)!.configureRestTimeBetweenConsultations,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,

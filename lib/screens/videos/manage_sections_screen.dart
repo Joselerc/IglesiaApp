@@ -6,6 +6,7 @@ import './manage_all_videos_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageSectionsScreen extends StatefulWidget {
   const ManageSectionsScreen({super.key});
@@ -66,7 +67,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -78,9 +79,9 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar vídeos.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionManageVideos, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -116,8 +117,8 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                           ),
                           Expanded(
                             child: Center(
-                              child: const Text(
-                                'Seções de Vídeos',
+                              child: Text(
+                                AppLocalizations.of(context)!.videoSections,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -128,7 +129,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                           ),
                           IconButton(
                             icon: Icon(_isReordering ? Icons.done : Icons.reorder, color: Colors.white),
-                            tooltip: _isReordering ? 'Salvar ordem' : 'Reordenar seções',
+                            tooltip: _isReordering ? AppLocalizations.of(context)!.saveOrder : AppLocalizations.of(context)!.reorderSections,
                             onPressed: () {
                               setState(() {
                                 _isReordering = !_isReordering;
@@ -136,8 +137,8 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                               
                               if (_isReordering) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Arraste as seções para reordená-las'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.dragSectionsToReorder),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -182,7 +183,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Nenhuma seção criada',
+                                AppLocalizations.of(context)!.noSectionCreated,
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.grey[600],
@@ -193,7 +194,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                               ElevatedButton.icon(
                                 onPressed: () => _navigateToEditSection(context),
                                 icon: const Icon(Icons.add),
-                                label: const Text('Criar Primeira Seção'),
+                                label: Text(AppLocalizations.of(context)!.createFirstSection),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
@@ -264,7 +265,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                           ),
                                         ),
                                         subtitle: Text(
-                                          'Seção padrão (não editável)',
+                                          AppLocalizations.of(context)!.defaultSectionNotEditable,
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 12,
@@ -350,7 +351,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                                   borderRadius: BorderRadius.circular(4),
                                                 ),
                                                 child: Text(
-                                                  'Todos os vídeos',
+                                                  AppLocalizations.of(context)!.allVideos,
                                                   style: TextStyle(
                                                     color: Colors.blue[700],
                                                     fontSize: 12,
@@ -360,7 +361,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
-                                                '• Seção padrão',
+                                                AppLocalizations.of(context)!.defaultSection,
                                                 style: TextStyle(
                                                   color: Colors.grey[600],
                                                   fontSize: 12,
@@ -371,7 +372,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                         ),
                                         trailing: IconButton(
                                           icon: Icon(Icons.manage_search, color: Colors.blue[700]),
-                                          tooltip: 'Gerenciar vídeos',
+                                          tooltip: AppLocalizations.of(context)!.manageVideos,
                                           onPressed: () {
                                             Navigator.push(
                                               context,
@@ -415,7 +416,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                         children: [
                                           IconButton(
                                             icon: Icon(Icons.edit, color: AppColors.primary),
-                                            tooltip: 'Editar seção',
+                                            tooltip: AppLocalizations.of(context)!.editSection,
                                             onPressed: () => _navigateToEditSection(
                                               context,
                                               section: section,
@@ -423,7 +424,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
                                           ),
                                           IconButton(
                                             icon: Icon(Icons.delete, color: Colors.red[400]),
-                                            tooltip: 'Excluir seção',
+                                            tooltip: AppLocalizations.of(context)!.deleteSection,
                                             onPressed: () => _confirmDeleteSection(section),
                                           ),
                                         ],
@@ -447,7 +448,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
           ? FloatingActionButton.extended(
               onPressed: () => _navigateToEditSection(context),
               icon: const Icon(Icons.add),
-              label: const Text('Nova Seção'),
+              label: Text(AppLocalizations.of(context)!.newSection),
               backgroundColor: AppColors.primary,
             )
           : null,
@@ -496,20 +497,20 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
   }
 
   Widget _buildSectionTypeLabel(String type) {
-    String label = 'Desconhecido';
+    String label = AppLocalizations.of(context)!.unknown;
     Color color = Colors.grey;
     
     switch (type) {
       case 'latest':
-        label = 'Mais recentes';
+        label = AppLocalizations.of(context)!.mostRecent;
         color = Colors.blue;
         break;
       case 'favorites':
-        label = 'Mais populares';
+        label = AppLocalizations.of(context)!.mostPopular;
         color = Colors.red;
         break;
       case 'custom':
-        label = 'Personalizada';
+        label = AppLocalizations.of(context)!.custom;
         color = Colors.purple;
         break;
     }
@@ -545,8 +546,8 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
     if (oldItem is Map<String, dynamic> && oldItem['type'] == 'default') {
       // No permitir mover la sección predeterminada
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('A seção "Vídeos Recentes" não pode ser reordenada'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.recentVideosCannotBeReordered),
           backgroundColor: Colors.orange,
         ),
       );
@@ -615,8 +616,8 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Seção'),
-        content: Text('Tem certeza que deseja excluir a seção "${section.title}"?'),
+        title: Text(AppLocalizations.of(context)!.deleteVideoSection),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteSection(section.title)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -644,7 +645,7 @@ class _ManageSectionsScreenState extends State<ManageSectionsScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Seção excluída')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.sectionDeleted)),
         );
       }
     }

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/announcement_model.dart';
 import 'create_announcement_modal.dart';
 import 'edit_announcement_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class AnnouncementAdminScreen extends StatefulWidget {
   const AnnouncementAdminScreen({Key? key}) : super(key: key);
@@ -74,8 +75,8 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Confirmar eliminación'),
-          content: const Text('¿Estás seguro de que deseas eliminar este anuncio? Esta acción no se puede deshacer.'),
+          title: Text(AppLocalizations.of(context)!.confirmAnnouncementDeletion),
+          content: Text(AppLocalizations.of(context)!.confirmDeleteAnnouncementMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -117,8 +118,8 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
       // Mostrar mensaje de éxito
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Anuncio eliminado correctamente'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.announcementDeletedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -128,7 +129,7 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar el anuncio: $e'),
+          content: Text(AppLocalizations.of(context)!.errorDeletingAnnouncement(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -149,12 +150,12 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Administrar Anuncios'),
+        title: Text(AppLocalizations.of(context)!.manageAnnouncements),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Activos'),
-            Tab(text: 'Inactivos/Vencidos'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.active),
+            Tab(text: AppLocalizations.of(context)!.inactiveExpired),
           ],
         ),
         actions: [
@@ -225,8 +226,8 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
                 const SizedBox(height: 16),
                 Text(
                   isActive 
-                      ? 'No hay anuncios activos' 
-                      : 'No hay anuncios inactivos/vencidos',
+                      ? AppLocalizations.of(context)!.noActiveAnnouncements
+                      : AppLocalizations.of(context)!.noInactiveExpiredAnnouncements,
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[600],
@@ -279,8 +280,8 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
                 const SizedBox(height: 16),
                 Text(
                   isActive 
-                      ? 'No hay anuncios activos' 
-                      : 'No hay anuncios inactivos/vencidos',
+                      ? AppLocalizations.of(context)!.noActiveAnnouncements
+                      : AppLocalizations.of(context)!.noInactiveExpiredAnnouncements,
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[600],
@@ -355,7 +356,7 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                announcement.type == 'cult' ? 'Culto' : 'Regular',
+                                announcement.type == 'cult' ? AppLocalizations.of(context)!.cult : AppLocalizations.of(context)!.regular,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -444,7 +445,7 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
                                 );
                               },
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              label: const Text('Editar'),
+                              label: Text(AppLocalizations.of(context)!.edit),
                             ),
                             const SizedBox(width: 8),
                             

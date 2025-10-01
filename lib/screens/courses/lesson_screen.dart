@@ -11,6 +11,7 @@ import '../../services/course_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/common/shimmer_loading.dart';
+import '../../l10n/app_localizations.dart';
 
 class LessonScreen extends StatefulWidget {
   final String courseId;
@@ -159,12 +160,12 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
     if (_lesson == null || _course == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Lição não encontrada'),
+          title: Text(AppLocalizations.of(context)!.lessonNotFound),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
         ),
-        body: const Center(
-          child: Text('Não foi possível encontrar a lição solicitada'),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.lessonNotFoundDetails),
         ),
       );
     }
@@ -179,10 +180,10 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.8),
           indicatorColor: Colors.white,
-          tabs: const [
-            Tab(text: 'Lição'),
-            Tab(text: 'Materiais'),
-            Tab(text: 'Comentários'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.lesson),
+            Tab(text: AppLocalizations.of(context)!.materials),
+            Tab(text: AppLocalizations.of(context)!.comments),
           ],
         ),
       ),
@@ -235,7 +236,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Curso: ${_course!.title}',
+                      '${AppLocalizations.of(context)!.course}: ${_course!.title}',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -252,7 +253,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Duração: ${_formatDuration(_lesson!.duration)}',
+                      AppLocalizations.of(context)!.durationLabel(_formatDuration(_lesson!.duration)),
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -270,7 +271,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                       ? ElevatedButton.icon(
                           onPressed: _isMarkingComplete ? null : _toggleLessonCompletion,
                           icon: const Icon(Icons.check_circle),
-                          label: Text(_isMarkingComplete ? 'Processando...' : 'Desmarcar como concluída'),
+                          label: Text(_isMarkingComplete ? AppLocalizations.of(context)!.processing : AppLocalizations.of(context)!.unmarkAsCompleted),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -287,7 +288,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                       : ElevatedButton.icon(
                           onPressed: _isMarkingComplete ? null : _toggleLessonCompletion,
                           icon: const Icon(Icons.check_circle_outline),
-                          label: Text(_isMarkingComplete ? 'Processando...' : 'Marcar como concluída'),
+                          label: Text(_isMarkingComplete ? AppLocalizations.of(context)!.processing : AppLocalizations.of(context)!.markAsCompleted),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -309,7 +310,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                 
                 // Descripción de la lección
                 Text(
-                  'Descrição',
+                  AppLocalizations.of(context)!.description,
                   style: AppTextStyles.headline3.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -332,7 +333,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                           Icon(Icons.info_outline, color: Colors.grey.shade600, size: 18),
                           const SizedBox(width: 8),
                           Text(
-                            'Sem descrição.',
+                            AppLocalizations.of(context)!.noDescription,
                             style: TextStyle(color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                           ),
                         ],
@@ -356,19 +357,19 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
   // Tab de materiales complementarios
   Widget _buildMaterialsTab() {
     if (_lesson!.complementaryMaterialUrls.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.folder_outlined,
               size: 64,
               color: Colors.grey,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Não há materiais complementares',
-              style: TextStyle(fontSize: 16),
+              AppLocalizations.of(context)!.noMaterialsForThisLesson,
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
@@ -402,12 +403,12 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                 IconButton(
                   icon: const Icon(Icons.launch, color: AppColors.primary),
                   onPressed: () => _openUrl(url),
-                  tooltip: 'Abrir',
+                  tooltip: AppLocalizations.of(context)!.open,
                 ),
                 IconButton(
                   icon: const Icon(Icons.copy, color: AppColors.primary),
                   onPressed: () => _copyToClipboard(url),
-                  tooltip: 'Copiar link',
+                  tooltip: AppLocalizations.of(context)!.copyLink,
                 ),
               ],
             ),
@@ -420,19 +421,19 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
   // Tab de comentarios
   Widget _buildCommentsTab() {
     if (!_lesson!.hasComments) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.chat_bubble_outline,
               size: 64,
               color: Colors.grey,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Os comentários estão desativados para esta lição',
-              style: TextStyle(fontSize: 16),
+              AppLocalizations.of(context)!.commentsDisabled,
+              style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
           ],
@@ -452,7 +453,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                   child: TextField(
                     controller: _commentController,
                     decoration: InputDecoration(
-                      hintText: 'Adicionar um comentário...',
+                      hintText: AppLocalizations.of(context)!.addYourComment,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -496,24 +497,24 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
               final comments = snapshot.data ?? [];
               
               if (comments.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.chat_bubble_outline,
                         size: 64,
                         color: Colors.grey,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
-                        'Nenhum comentário ainda',
-                        style: TextStyle(fontSize: 16),
+                        AppLocalizations.of(context)!.noCommentsYet,
+                        style: const TextStyle(fontSize: 16),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
-                        'Seja o primeiro a comentar',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.beTheFirstToComment,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),
@@ -546,8 +547,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
         decoration: BoxDecoration(
           color: Colors.grey[300],
         ),
-        child: const Center(
-          child: Text('Nenhum vídeo disponível'),
+        child: Center(
+          child: Text(AppLocalizations.of(context)!.noVideoAvailable),
         ),
       );
     }
@@ -711,10 +712,10 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
           height: playerHeight,
           width: screenWidth,
           color: Colors.grey[700],
-          child: const Stack(
+          child: Stack(
             alignment: Alignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.video_library,
                 size: 64,
                 color: Colors.white70,
@@ -722,8 +723,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
               Positioned(
                 bottom: 20,
                 child: Text(
-                  'Clique para assistir ao vídeo',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.clickToWatchVideo,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -744,7 +745,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Avaliar esta lição',
+          AppLocalizations.of(context)!.evaluateThisLesson,
           style: AppTextStyles.headline3.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -792,7 +793,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Avaliação média',
+                    AppLocalizations.of(context)!.averageRating,
                     style: AppTextStyles.bodyText2.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -922,7 +923,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'Você',
+                              AppLocalizations.of(context)!.you,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: AppColors.primary,
@@ -1007,7 +1008,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
                     color: Colors.grey[600],
                   ),
                   label: Text(
-                    '${comment.replyCount} ${comment.replyCount == 1 ? 'resposta' : 'respostas'}',
+                    '${comment.replyCount} ${comment.replyCount == 1 ? AppLocalizations.of(context)!.reply : AppLocalizations.of(context)!.replies}',
                     style: TextStyle(
                       color: Colors.grey[600],
                     ),
@@ -1047,8 +1048,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Lição desmarcada como concluída'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.lessonUnmarked),
               backgroundColor: Colors.blue,
             ),
           );
@@ -1063,8 +1064,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Lição marcada como concluída!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.lessonCompleted),
               backgroundColor: Colors.green,
             ),
           );
@@ -1135,7 +1136,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
   void _viewReplies(CourseComment comment) {
     // Implementar esto cuando hagamos la pantalla de respuestas
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Funcionalidade de respostas em desenvolvimento')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.repliesFunctionality)),
     );
   }
   
@@ -1144,8 +1145,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir comentário'),
-        content: const Text('Tem certeza que deseja excluir este comentário?'),
+        title: Text(AppLocalizations.of(context)!.deleteComment),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteComment),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1173,8 +1174,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Comentário excluído'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.commentDeleted),
             backgroundColor: Colors.green,
           ),
         );
@@ -1212,8 +1213,8 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
     
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Link copiado para a área de transferência'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.linkCopiedToClipboard),
           backgroundColor: Colors.green,
         ),
       );
@@ -1271,7 +1272,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
       // Ignorar errores al parsear
     }
     
-    return 'Desconhecido';
+    return AppLocalizations.of(context)!.unknown;
   }
   
   // Formatear fecha
@@ -1280,11 +1281,11 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
     final difference = DateTime.now().difference(date).inDays;
     
     if (difference == 0) {
-      return 'Hoje';
+      return AppLocalizations.of(context)!.today;
     } else if (difference == 1) {
-      return 'Ontem';
+      return AppLocalizations.of(context)!.yesterday;
     } else if (difference < 7) {
-      return 'Há $difference dias';
+      return AppLocalizations.of(context)!.daysAgo(difference);
     } else {
       // Formatear como dd/mm/yyyy
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -1295,7 +1296,7 @@ class _LessonScreenState extends State<LessonScreen> with SingleTickerProviderSt
   Widget _buildLoadingScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Carregando...'),
+        title: Text(AppLocalizations.of(context)!.loading),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),

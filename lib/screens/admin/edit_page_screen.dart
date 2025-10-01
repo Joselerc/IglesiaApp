@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_colors.dart';
 import '../../services/image_service.dart'; 
 import '../../utils/icon_utils.dart';
+import '../../l10n/app_localizations.dart';
 import 'dart:async';
 import 'package:flutter/rendering.dart';
 // Importar embeds estándar
@@ -111,7 +112,7 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
        debugPrint('❌ Error al subir imagen del editor (Quill Callback): $e');
        if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Erro ao inserir imagem: $e'), backgroundColor: Colors.red),
+           SnackBar(content: Text(AppLocalizations.of(context)!.errorInsertingImage(e.toString())), backgroundColor: Colors.red),
          );
        }
        downloadUrl = null; 
@@ -190,11 +191,11 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
              context: context,
              barrierDismissible: false, 
              builder: (context) => AlertDialog(
-              title: const Text('Restaurar Borrador?'),
-              content: const Text('Encontramos alterações não salvas. Deseja restaurá-las?'),
+              title: Text(AppLocalizations.of(context)!.restoreDraft),
+              content: Text(AppLocalizations.of(context)!.unsavedChangesFound),
               actions: [
-                TextButton( child: const Text('Descartar Borrador'), onPressed: () => Navigator.of(context).pop(false) ),
-                ElevatedButton( child: const Text('Restaurar'), onPressed: () => Navigator.of(context).pop(true), style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white) ),
+                TextButton( child: Text(AppLocalizations.of(context)!.discardDraft), onPressed: () => Navigator.of(context).pop(false) ),
+                ElevatedButton( child: Text(AppLocalizations.of(context)!.restore), onPressed: () => Navigator.of(context).pop(true), style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white) ),
               ],
             ),
           );
@@ -321,7 +322,7 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
         _quillController.updateSelection(const TextSelection.collapsed(offset: 0), ChangeSource.local);
         _hasUnsavedChanges = false;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar página: $e'), backgroundColor: Colors.red)
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingPage(e.toString())), backgroundColor: Colors.red)
         );
       }
     } finally {
@@ -364,13 +365,13 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
 
       if (mounted) {
         setState(() { _cardImageUrl = downloadUrl; _selectedCardImageFile = null; _isUploadingCardImage = false; });
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Imagem da capa carregada!'), backgroundColor: Colors.green) );
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.coverImageUploaded), backgroundColor: Colors.green) );
       }
     } catch (e) {
       debugPrint('Error al subir imagen de capa: $e');
       if (mounted) {
         setState(() { _selectedCardImageFile = null; _isUploadingCardImage = false; });
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Erro ao carregar imagem da capa: $e'), backgroundColor: Colors.red) );
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingCoverImage(e.toString())), backgroundColor: Colors.red) );
       }
     } 
   } 
@@ -380,18 +381,18 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
   void _savePage() async {
     // Validar título 
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Por favor, insira um título para a página.'), backgroundColor: Colors.red) );
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterPageTitle), backgroundColor: Colors.red) );
       return; 
     }
     // Validaciones de la tarjeta 
     if (_cardDisplayType == 'icon' && _cardIconName.isEmpty) { 
       // Añadir SnackBar para feedback
-      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Por favor, selecione um ícone para a página.'), backgroundColor: Colors.red) );
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectIcon), backgroundColor: Colors.red) );
       return; 
     }
     if (_cardDisplayType == 'image' && _cardImageUrl == null) { 
       // Añadir SnackBar para feedback
-      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Por favor, carregue uma imagem para a capa.'), backgroundColor: Colors.red) );
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.pleaseUploadCoverImage), backgroundColor: Colors.red) );
       return; 
     }
 
@@ -452,14 +453,14 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
          debugPrint("💾 Intentando establecer _hasUnsavedChanges = false");
          setState(() { _hasUnsavedChanges = false; }); 
          debugPrint("💾 Estado _hasUnsavedChanges debería ser false ahora: $_hasUnsavedChanges");
-         ScaffoldMessenger.of(context).showSnackBar( const SnackBar(content: Text('Página salva com sucesso!'), backgroundColor: Colors.green) );
+         ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.pageSavedSuccessfully), backgroundColor: Colors.green) );
          debugPrint("💾 Navegando hacia atrás...");
          Navigator.pop(context); 
       }
     } catch (e) { 
        debugPrint('❌ Error al guardar la página (Quill) en Firestore: $e');
        if (mounted) { 
-         ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text('Erro ao salvar página: $e'), backgroundColor: Colors.red) );
+         ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingPage(e.toString())), backgroundColor: Colors.red) );
        }
     } 
     finally { 
@@ -476,11 +477,11 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
      final bool? shouldDiscard = await showDialog<bool>( 
         context: context,
         builder: (context) => AlertDialog(
-           title: const Text('Descartar Alterações?'),
-           content: const Text('Você tem alterações não salvas. Deseja sair mesmo assim?'),
+           title: Text(AppLocalizations.of(context)!.discardChanges),
+           content: Text(AppLocalizations.of(context)!.unsavedChangesConfirm),
            actions: <Widget>[
-              TextButton( child: const Text('Cancelar'), onPressed: () => Navigator.of(context).pop(false) ),
-              TextButton( child: const Text('Descartar e Sair', style: TextStyle(color: Colors.red)), onPressed: () => Navigator.of(context).pop(true) ),
+              TextButton( child: Text(AppLocalizations.of(context)!.cancel), onPressed: () => Navigator.of(context).pop(false) ),
+              TextButton( child: Text(AppLocalizations.of(context)!.discardAndExit, style: const TextStyle(color: Colors.red)), onPressed: () => Navigator.of(context).pop(true) ),
            ],
         ),
      );
@@ -520,7 +521,7 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.pageId == null ? 'Criar Nova Página' : 'Editar Página'),
+          title: Text(widget.pageId == null ? AppLocalizations.of(context)!.createNewPage : AppLocalizations.of(context)!.editPageTitle),
           flexibleSpace: Container( decoration: BoxDecoration( gradient: LinearGradient( colors: [ AppColors.primary, AppColors.primary.withOpacity(0.7) ] ) ) ),
           foregroundColor: Colors.white,
           actions: [
@@ -533,7 +534,7 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
                 debugPrint("🔘 Botón Salvar Pulsado! Llamando a _savePage...");
                 _savePage(); 
               },
-              tooltip: 'Salvar Página',
+              tooltip: AppLocalizations.of(context)!.savePage,
             ),
           ],
         ),
@@ -548,27 +549,27 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
                     children: [
                       TextFormField(
                         controller: _titleController,
-                        decoration: const InputDecoration( labelText: 'Título da Página', border: OutlineInputBorder(), hintText: 'Ex: Sobre Nós', ),
+                        decoration: InputDecoration( labelText: AppLocalizations.of(context)!.pageTitle, border: const OutlineInputBorder(), hintText: AppLocalizations.of(context)!.pageTitleHint, ),
                         onChanged: (_) => _markAsChanged(), 
                       ),
                       const SizedBox(height: 24),
-                      Text( 'Aparência na Lista de Páginas', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600) ),
+                      Text( AppLocalizations.of(context)!.appearanceInPageList, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600) ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(16), decoration: BoxDecoration( border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8), color: Colors.grey.shade50, ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [ 
-                            DropdownButtonFormField<String>( value: _cardDisplayType, isExpanded: true, items: const [ DropdownMenuItem(value: 'icon', child: Text('Ícone e Título', overflow: TextOverflow.ellipsis)), DropdownMenuItem(value: 'image', child: Text('Imagem de Capa (16:9)', overflow: TextOverflow.ellipsis)), ], onChanged: (value) { if (value != null && value != _cardDisplayType) { setState(() { _cardDisplayType = value; }); _markAsChanged(); } }, decoration: const InputDecoration( labelText: 'Tipo de Visualização na Lista', border: OutlineInputBorder(), isDense: true, ), ),
+                            DropdownButtonFormField<String>( value: _cardDisplayType, isExpanded: true, items: [ DropdownMenuItem(value: 'icon', child: Text(AppLocalizations.of(context)!.iconAndTitle, overflow: TextOverflow.ellipsis)), DropdownMenuItem(value: 'image', child: Text(AppLocalizations.of(context)!.coverImage16x9, overflow: TextOverflow.ellipsis)), ], onChanged: (value) { if (value != null && value != _cardDisplayType) { setState(() { _cardDisplayType = value; }); _markAsChanged(); } }, decoration: InputDecoration( labelText: AppLocalizations.of(context)!.visualizationType, border: const OutlineInputBorder(), isDense: true, ), ),
                             const SizedBox(height: 16),
-                            if (_cardDisplayType == 'icon') ...[ DropdownButtonFormField<String>( value: _cardIconName, items: IconUtils.getAvailableIconNames().map((name) { return DropdownMenuItem( value: name, child: Row( children: [ Icon(IconUtils.getIconDataFromString(name), size: 20), const SizedBox(width: 10), Text(name), ], ), ); }).toList(), onChanged: (value) { if (value != null && value != _cardIconName) { setState(() { _cardIconName = value; }); _markAsChanged(); } }, decoration: const InputDecoration( labelText: 'Ícone', border: OutlineInputBorder(), isDense: true, ), isExpanded: true, ), ] else ...[ const Text('Imagem de Capa (16:9)', style: TextStyle(fontWeight: FontWeight.w500)), const SizedBox(height: 8), AspectRatio( aspectRatio: 16 / 9, child: Container( decoration: BoxDecoration( border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(4), color: Colors.grey.shade200, ), child: Stack( alignment: Alignment.center, children: [ if (_selectedCardImageFile != null) Image.file(_selectedCardImageFile!, fit: BoxFit.cover) else if (_cardImageUrl != null) Image.network(_cardImageUrl!, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.broken_image, color: Colors.grey, size: 30), loadingBuilder: (context, child, loadingProgress) { if (loadingProgress == null) return child; return const Center(child: CircularProgressIndicator(strokeWidth: 2)); }, ) else const Icon(Icons.image_search, size: 40, color: Colors.grey), if (_isUploadingCardImage) Container( color: Colors.black.withOpacity(0.5), child: const Center(child: CircularProgressIndicator(color: Colors.white)), ), ], ), ), ), const SizedBox(height: 8), Center( child: OutlinedButton.icon( icon: const Icon(Icons.upload_file, size: 18), label: Text(_cardImageUrl != null ? 'Trocar Imagem' : 'Selecionar Imagem'), onPressed: _isUploadingCardImage ? null : _pickAndUploadCardImage, ), ), ],
+                            if (_cardDisplayType == 'icon') ...[ DropdownButtonFormField<String>( value: _cardIconName, items: IconUtils.getAvailableIconNames().map((name) { return DropdownMenuItem( value: name, child: Row( children: [ Icon(IconUtils.getIconDataFromString(name), size: 20), const SizedBox(width: 10), Text(name), ], ), ); }).toList(), onChanged: (value) { if (value != null && value != _cardIconName) { setState(() { _cardIconName = value; }); _markAsChanged(); } }, decoration: InputDecoration( labelText: AppLocalizations.of(context)!.icon, border: const OutlineInputBorder(), isDense: true, ), isExpanded: true, ), ] else ...[ Text(AppLocalizations.of(context)!.coverImageLabel, style: const TextStyle(fontWeight: FontWeight.w500)), const SizedBox(height: 8), AspectRatio( aspectRatio: 16 / 9, child: Container( decoration: BoxDecoration( border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(4), color: Colors.grey.shade200, ), child: Stack( alignment: Alignment.center, children: [ if (_selectedCardImageFile != null) Image.file(_selectedCardImageFile!, fit: BoxFit.cover) else if (_cardImageUrl != null) Image.network(_cardImageUrl!, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.broken_image, color: Colors.grey, size: 30), loadingBuilder: (context, child, loadingProgress) { if (loadingProgress == null) return child; return const Center(child: CircularProgressIndicator(strokeWidth: 2)); }, ) else const Icon(Icons.image_search, size: 40, color: Colors.grey), if (_isUploadingCardImage) Container( color: Colors.black.withOpacity(0.5), child: const Center(child: CircularProgressIndicator(color: Colors.white)), ), ], ), ), ), const SizedBox(height: 8), Center( child: OutlinedButton.icon( icon: const Icon(Icons.upload_file, size: 18), label: Text(_cardImageUrl != null ? AppLocalizations.of(context)!.changeImage : AppLocalizations.of(context)!.selectImage), onPressed: _isUploadingCardImage ? null : _pickAndUploadCardImage, ), ), ],
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
                       const Divider(),
                       const SizedBox(height: 16),
-                      Text( 'Conteúdo da Página', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600) ),
+                      Text( AppLocalizations.of(context)!.pageContentLabel, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600) ),
                       const SizedBox(height: 8),
                       SizedBox( 
                         height: 400,
@@ -617,13 +618,13 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
                                         } else {
                                           if (mounted) {
                                             ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Falha ao carregar imagem.'), backgroundColor: Colors.red)
+                                              SnackBar(content: Text(AppLocalizations.of(context)!.imageUploadFailed), backgroundColor: Colors.red)
                                             );
                                           }
                                         }
                                       },
                                     ),
-                                    tooltip: 'Inserir Imagem',
+                                    tooltip: AppLocalizations.of(context)!.insertImage,
                                   ),
                                 ),
                                 buttonOptions: QuillSimpleToolbarButtonOptions(
@@ -641,7 +642,7 @@ class _EditPageScreenState extends State<EditPageScreen> with WidgetsBindingObse
                                   scrollController: ScrollController(), // Editor tiene su propio scroll interno
                                   config: QuillEditorConfig(
                                     padding: const EdgeInsets.all(12),
-                                    placeholder: 'Digite o conteúdo da página aqui...',
+                                    placeholder: AppLocalizations.of(context)!.typePageContentHere,
                                     expands: true, 
                                     embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                                   ),

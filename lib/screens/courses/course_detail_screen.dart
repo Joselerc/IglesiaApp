@@ -9,6 +9,7 @@ import '../../services/course_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/common/shimmer_loading.dart';
+import '../../l10n/app_localizations.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final String courseId;
@@ -61,12 +62,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         if (course == null) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Curso não encontrado'),
+              title: Text(AppLocalizations.of(context)!.courseNotFound),
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            body: const Center(
-              child: Text('O curso não existe ou foi excluído'),
+            body: Center(
+              child: Text(AppLocalizations.of(context)!.courseNotFoundDetails),
             ),
           );
         }
@@ -80,7 +81,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 return _buildLoadingScreen();
               }
               if (lessonCountSnapshot.hasError) {
-                return Center(child: Text('Erro ao carregar contagem de lições'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorLoadingLessonCount));
               }
               final realTotalLessons = lessonCountSnapshot.data ?? course.totalLessons;
 
@@ -146,7 +147,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                                 child: Text(
-                                  'Conteúdo do Curso',
+                                  AppLocalizations.of(context)!.courseContent,
                                   style: AppTextStyles.headline3.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.textPrimary, // Asegurar color
@@ -234,7 +235,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro: $e')),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.errorTogglingFavorite(e.toString()))),
                   );
                 }
               }
@@ -276,7 +277,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             const Icon(Icons.person, size: 16, color: AppColors.textSecondary),
             const SizedBox(width: 4),
             Text(
-              'Instrutor: ${course.instructorName}',
+              AppLocalizations.of(context)!.instructorLabel(course.instructorName),
               style: AppTextStyles.bodyText2.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -294,7 +295,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                'Progresso: ${completionPercentage.toInt()}% ($completedCount/$realTotalLessons)',
+                AppLocalizations.of(context)!.progress(completionPercentage.toInt(), completedCount, realTotalLessons),
                 style: AppTextStyles.bodyText2.copyWith(
                   color: Colors.blue[700],
                   fontWeight: FontWeight.w500,
@@ -320,17 +321,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         children: [
           _buildInfoItem(
             icon: Icons.access_time,
-            title: 'Duração',
+            title: AppLocalizations.of(context)!.duration,
             value: _formatDuration(course.totalDuration),
           ),
           _buildInfoItem(
             icon: Icons.menu_book,
-            title: 'Lecciones',
+            title: AppLocalizations.of(context)!.lessonsLabel,
             value: '$realTotalLessons', // Usar conteo real
           ),
           _buildInfoItem(
             icon: Icons.category,
-            title: 'Categoria',
+            title: AppLocalizations.of(context)!.category,
             value: course.category,
           ),
         ],
@@ -394,9 +395,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              progress.completedLessons.isEmpty
-                  ? 'Começar Curso'
-                  : 'Continuar Curso',
+                progress.completedLessons.isEmpty
+                    ? AppLocalizations.of(context)!.startCourse
+                    : AppLocalizations.of(context)!.continueCourse,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -426,14 +427,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.school),
-                  SizedBox(width: 8),
+                  const Icon(Icons.school),
+                  const SizedBox(width: 8),
                   Text(
-                    'Inscrever-se',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.enroll,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -457,17 +458,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
 
         if (modulesSnapshot.hasError) {
           return SliverToBoxAdapter(
-            child: Center(child: Text('Erro ao carregar módulos: ${modulesSnapshot.error}')),
+              child: Center(child: Text(AppLocalizations.of(context)!.errorLoadingModules(modulesSnapshot.error.toString()))),
           );
         }
 
         final modules = modulesSnapshot.data ?? [];
         if (modules.isEmpty) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Center(
-                child: Text('No hay módulos disponibles'),
+                  child: Text(AppLocalizations.of(context)!.noModulesAvailable),
               ),
             ),
           );
@@ -530,7 +531,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       ),
                     ),
                     Text(
-                      '${module.totalLessons} ${module.totalLessons == 1 ? 'lección' : 'lecciones'}',
+                      AppLocalizations.of(context)!.lessons(module.totalLessons),
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -562,16 +563,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Text('Error: ${lessonsSnapshot.error}'),
+                        child: Text(AppLocalizations.of(context)!.errorLoadingLessons(lessonsSnapshot.error.toString())),
                       ),
                     );
                   }
 
                   final lessons = lessonsSnapshot.data ?? [];
                   if (lessons.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text('No hay lecciones disponibles'),
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(AppLocalizations.of(context)!.noLessonsAvailableInModule),
                     );
                   }
 
@@ -619,11 +620,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       onTap: _isEnrolled
         ? () => _navigateToLesson(lesson.courseId, lesson.id)
         : () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Inscríbete al curso para acceder a esta lección'),
-              ),
-            );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.enrollToAccessLesson),
+                ),
+              );
           },
     );
   }
@@ -694,12 +695,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Mostrar mensaje de error cuando no hay contenido
   void _showNoContentMessage() {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay lecciones disponibles en este curso'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noLessonsAvailable),
+            backgroundColor: Colors.orange,
+          ),
+        );
     }
   }
   
@@ -731,7 +732,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   Widget _buildLoadingScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cargando...'),
+        title: Text(AppLocalizations.of(context)!.loading),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -816,8 +817,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   Future<void> _enrollInCourse(String courseId) async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debes iniciar sesión para inscribirte'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.loginToEnroll),
         ),
       );
       return;
@@ -835,8 +836,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('¡Te has inscrito al curso!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.enrolledSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -845,7 +846,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al inscribirse: $e'),
+            content: Text(AppLocalizations.of(context)!.errorEnrolling(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

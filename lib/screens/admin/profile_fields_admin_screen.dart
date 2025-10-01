@@ -467,7 +467,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.initialField == null ? 'Campo criado com sucesso' : 'Campo atualizado com sucesso'),
+            content: Text(widget.initialField == null ? AppLocalizations.of(context)!.fieldCreatedSuccessfully : AppLocalizations.of(context)!.fieldUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -519,7 +519,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
             Padding(
               padding: const EdgeInsets.only(bottom: 24.0),
               child: Text(
-                widget.initialField == null ? 'Criar Campo de Perfil' : 'Editar Campo de Perfil',
+                widget.initialField == null ? AppLocalizations.of(context)!.createProfileField : AppLocalizations.of(context)!.editProfileField,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -584,7 +584,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                         // Este print es solo para lógica, no devuelve widget
                         () { print('PRINT DEBUG: Rendering UI for select options'); return const SizedBox.shrink(); }(), // <--- PRINT 3 (CORREGIDO)
                         const SizedBox(height: 20),
-                        Text('Opções de Seleção', style: Theme.of(context).textTheme.titleMedium),
+                        Text(AppLocalizations.of(context)!.select, style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -610,7 +610,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                                   });
                                 } else if (optionText.isNotEmpty && _currentOptions.contains(optionText)) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Esta opção já foi adicionada.'), backgroundColor: Colors.orange),
+                                    SnackBar(content: Text('Esta opción ya fue añadida.'), backgroundColor: Colors.orange),
                                   );
                                 }
                               },
@@ -621,7 +621,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                         ),
                         const SizedBox(height: 12),
                         if (_currentOptions.isEmpty)
-                          const Text('Nenhuma opção adicionada ainda.', style: TextStyle(color: Colors.grey))
+                          Text('Ninguna opción añadida aún.', style: TextStyle(color: Colors.grey))
                         else
                           Wrap(
                             spacing: 8.0,
@@ -644,8 +644,8 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       ],
                       const SizedBox(height: 20),
                       SwitchListTile(
-                        title: const Text('Campo Obrigatório'),
-                        subtitle: const Text('Os usuários devem preencher este campo'),
+                        title: Text(AppLocalizations.of(context)!.requiredField),
+                        subtitle: Text('Los usuarios deben rellenar este campo'),
                         value: _isRequired,
                         activeColor: AppColors.primary,
                         contentPadding: EdgeInsets.zero,
@@ -653,8 +653,8 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       ),
                       const SizedBox(height: 8),
                       SwitchListTile(
-                        title: const Text('Campo Ativo'),
-                        subtitle: const Text('Mostrar este campo no perfil'),
+                        title: Text(AppLocalizations.of(context)!.fieldActive),
+                        subtitle: Text(AppLocalizations.of(context)!.showThisFieldInProfile),
                         value: _isActive,
                         activeColor: AppColors.primary,
                         contentPadding: EdgeInsets.zero,
@@ -674,7 +674,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       ? Container(width: 20, height: 20, padding: const EdgeInsets.all(2.0), child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
                       : const Icon(Icons.save, color: Colors.white),
                   label: Text(
-                    widget.initialField == null ? 'Criar Campo' : 'Salvar Alterações', 
+                    widget.initialField == null ? AppLocalizations.of(context)!.createField : AppLocalizations.of(context)!.saveChanges, 
                     style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
                   ),
                   style: ElevatedButton.styleFrom(
