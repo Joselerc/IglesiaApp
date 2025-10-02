@@ -234,14 +234,14 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Resumo Geral de Finalização', style: AppTextStyles.headline3),
+            Text(AppLocalizations.of(context)!.completionSummary, style: AppTextStyles.headline3),
             const SizedBox(height: 12),
-            _buildStatRow('Tempo Médio Global:', _formatDuration(globalAverageTime) ?? 'N/A'),
-            _buildStatRow('Taxa de Conclusão Global:', '${overallRate.toStringAsFixed(1)}%'),
+            _buildStatRow(AppLocalizations.of(context)!.globalAverageTime, _formatDuration(globalAverageTime) ?? 'N/A'),
+            _buildStatRow(AppLocalizations.of(context)!.globalCompletionRate, '${overallRate.toStringAsFixed(1)}%'),
             if (fastest != null) 
-              _buildStatRow('Conclusão Mais Rápida:', '${fastest.course.title} (${_formatDuration(fastest.averageCompletionTime)})'),
+              _buildStatRow(AppLocalizations.of(context)!.fastestCompletion, '${fastest.course.title} (${_formatDuration(fastest.averageCompletionTime)})'),
             if (slowest != null) 
-              _buildStatRow('Conclusão Mais Lenta:', '${slowest.course.title} (${_formatDuration(slowest.averageCompletionTime)})'),
+              _buildStatRow(AppLocalizations.of(context)!.slowestCompletion, '${slowest.course.title} (${_formatDuration(slowest.averageCompletionTime)})'),
             const Divider(height: 24, thickness: 0.5),
             
             // Filtros
@@ -281,10 +281,10 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
           dataRowMaxHeight: 60,
           columnSpacing: 16,
           columns: [
-            _buildSortableHeader('Curso', 'title'),
-            _buildSortableHeader('Tempo Médio', 'averageCompletionTime'),
-            _buildSortableHeader('Completaram', 'completedCount', isNumeric: true),
-            _buildSortableHeader('Taxa Conclusão (%)', 'completionRate', isNumeric: true),
+            _buildSortableHeader(AppLocalizations.of(context)!.course, 'title'),
+            _buildSortableHeader(AppLocalizations.of(context)!.averageTime, 'averageCompletionTime'),
+            _buildSortableHeader(AppLocalizations.of(context)!.completed, 'completedCount', isNumeric: true),
+            _buildSortableHeader(AppLocalizations.of(context)!.completionRate, 'completionRate', isNumeric: true),
           ],
           rows: courseStats.map((stat) {
             final completionRate = stat.completionMilestones['100'] ?? 0;
@@ -346,11 +346,18 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtrar por Data de Inscrição', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.filterByEnrollmentDate, 
+                    style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
-                    label: const Text('Limpar', style: TextStyle(color: Colors.red)),
+                    label: Text(AppLocalizations.of(context)!.clear, style: const TextStyle(color: Colors.red)),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -365,7 +372,7 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
               children: [
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Inicial',
+                    label: AppLocalizations.of(context)!.startDate,
                     date: _startDate,
                     onDatePicked: (pickedDate) => setState(() {
                       _startDate = pickedDate;
@@ -379,7 +386,7 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Final',
+                    label: AppLocalizations.of(context)!.endDate,
                     date: _endDate,
                     onDatePicked: (pickedDate) => setState(() {
                       _endDate = pickedDate;
@@ -443,7 +450,7 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
           initialDate: date ?? DateTime.now(),
           firstDate: firstDate,
           lastDate: lastDate,
-          locale: const Locale('pt', 'BR'),
+          locale: Localizations.localeOf(context),
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(

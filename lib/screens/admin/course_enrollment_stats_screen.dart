@@ -162,10 +162,10 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Resumo Geral', style: AppTextStyles.headline3),
+            Text(AppLocalizations.of(context)!.generalSummary, style: AppTextStyles.headline3),
             const SizedBox(height: 12),
-            _buildStatRow('Total de Inscrições:', '$totalEnrollments'),
-            _buildStatRow('Cursos com Inscrições:', '$coursesWithEnrollment'),
+            _buildStatRow(AppLocalizations.of(context)!.totalEnrollments, '$totalEnrollments'),
+            _buildStatRow(AppLocalizations.of(context)!.coursesWithEnrollments, '$coursesWithEnrollment'),
             const Divider(height: 24, thickness: 0.5),
             
             // Filtros (integrados)
@@ -175,7 +175,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Buscar curso...',
+                      hintText: AppLocalizations.of(context)!.searchCourse,
                       prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -206,13 +206,13 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                 IconButton(
                   icon: Icon(Icons.calendar_today, 
                          color: (_startDate != null || _endDate != null) ? AppColors.primary : Colors.grey[600]),
-                  tooltip: 'Filtrar por Data',
+                  tooltip: AppLocalizations.of(context)!.filterByDate,
                   onPressed: _showDateFilterDialog,
                 ),
                 if (_startDate != null || _endDate != null)
                   IconButton(
                     icon: const Icon(Icons.filter_alt_off, color: Colors.red, size: 20),
-                    tooltip: 'Limpar Filtro de Data',
+                    tooltip: AppLocalizations.of(context)!.clear,
                     onPressed: _clearDateFilter,
                   ),
               ],
@@ -250,8 +250,8 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
         dataRowMaxHeight: 60,
         columnSpacing: 24,
         columns: [
-          _buildSortableHeader('Curso', 'title'),
-          _buildSortableHeader('Inscritos', 'enrollmentCount', isNumeric: true),
+          _buildSortableHeader(AppLocalizations.of(context)!.course, 'title'),
+          _buildSortableHeader(AppLocalizations.of(context)!.enrolled, 'enrollmentCount', isNumeric: true),
         ],
         rows: filteredCourseStats.map((stat) {
           return DataRow(
@@ -295,7 +295,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
           : null,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      locale: const Locale('pt', 'BR'), // Asegurar localización
+      locale: Localizations.localeOf(context), // Asegurar localización
       builder: (context, child) {
         // Aplicar tema si es necesario
         return Theme(
@@ -353,7 +353,14 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtrar por Data de Inscrição', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.filterByEnrollmentDate, 
+                    style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
@@ -378,7 +385,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                         initialDate: _startDate ?? DateTime.now(),
                         firstDate: DateTime(2020),
                         lastDate: _endDate ?? DateTime.now(),
-                        locale: const Locale('pt', 'BR'),
+                        locale: Localizations.localeOf(context),
                         builder: (context, child) {
                           return Theme(
                             data: Theme.of(context).copyWith(
@@ -406,7 +413,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _startDate != null ? formatter.format(_startDate!) : 'Data inicial',
+                            _startDate != null ? formatter.format(_startDate!) : AppLocalizations.of(context)!.startDate,
                             style: TextStyle(
                               color: _startDate != null ? AppColors.textPrimary : Colors.grey[600],
                               fontSize: 14,
@@ -431,7 +438,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                         initialDate: _endDate ?? _startDate ?? DateTime.now(),
                         firstDate: _startDate ?? DateTime(2020),
                         lastDate: DateTime.now(),
-                        locale: const Locale('pt', 'BR'),
+                        locale: Localizations.localeOf(context),
                         builder: (context, child) {
                           return Theme(
                             data: Theme.of(context).copyWith(
@@ -459,7 +466,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _endDate != null ? formatter.format(_endDate!) : 'Data final',
+                            _endDate != null ? formatter.format(_endDate!) : AppLocalizations.of(context)!.endDate,
                             style: TextStyle(
                               color: _endDate != null ? AppColors.textPrimary : Colors.grey[600],
                               fontSize: 14,

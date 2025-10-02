@@ -3256,7 +3256,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancelled => 'Canceladas';
 
   @override
-  String get completed => 'Concluídos';
+  String get completed => 'Completaram';
 
   @override
   String get withPreposition => 'com';
@@ -3442,10 +3442,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dateFilter => 'Filtro de Data';
 
   @override
-  String get startDate => 'Data de Início';
+  String get startDate => 'Data inicial';
 
   @override
-  String get endDate => 'Data de Fim';
+  String get endDate => 'Data final';
 
   @override
   String get applyFilter => 'Aplicar Filtro';
@@ -3884,7 +3884,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addTimeSlot => 'Adicionar Faixa de Horário';
 
   @override
-  String get searchUser => 'Buscar usuário...';
+  String get searchUser => 'Buscar usuário';
 
   @override
   String get enterNameOrEmail => 'Digite nome ou email';
@@ -4144,7 +4144,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get averageProgress => 'Progresso Médio:';
+  String get averageProgress => 'Progresso Médio';
 
   @override
   String get averageLessonsCompleted => 'Lições Médias Completadas:';
@@ -4153,7 +4153,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get globalAverageProgress => 'Progresso Médio Global:';
 
   @override
-  String get highestProgress => 'Maior Progresso:';
+  String get highestProgress => 'Maior Progresso';
 
   @override
   String get progressPercentage => 'Progresso (%)';
@@ -4470,7 +4470,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Você não tem permissão para visualizar estatísticas de grupos';
 
   @override
-  String get filterByDate => 'Filtrar por data';
+  String get filterByDate => 'Filtrar por Data';
 
   @override
   String get initialDate => 'Data inicial';
@@ -4759,7 +4759,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get searchCourses => 'Buscar cursos...';
 
   @override
-  String get totalEnrollments => 'Total de Inscrições';
+  String get totalEnrollments => 'Total de Inscrições:';
 
   @override
   String get averageEnrollmentsPerCourse => 'Média de Inscrições por Curso';
@@ -4780,28 +4780,28 @@ class AppLocalizationsPt extends AppLocalizations {
   String get globalAverageTime => 'Tempo Médio Global:';
 
   @override
-  String get fastestCompletion => 'Finalização Mais Rápida:';
+  String get fastestCompletion => 'Conclusão Mais Rápida:';
 
   @override
-  String get slowestCompletion => 'Finalização Mais Lenta:';
+  String get slowestCompletion => 'Conclusão Mais Lenta:';
 
   @override
   String get completionTime => 'Tempo de Finalização';
 
   @override
-  String get completionRate => 'Taxa de Finalização';
+  String get completionRate => 'Taxa de Conclusão';
 
   @override
-  String get reach25Percent => 'Alcançam 25%:';
+  String get reach25Percent => 'Alcançam 25% (Média):';
 
   @override
-  String get reach50Percent => 'Alcançam 50%:';
+  String get reach50Percent => 'Alcançam 50% (Média):';
 
   @override
-  String get reach75Percent => 'Alcançam 75%:';
+  String get reach75Percent => 'Alcançam 75% (Média):';
 
   @override
-  String get reach90Percent => 'Alcançam 90%:';
+  String get reach90Percent => 'Alcançam 90% (Média):';
 
   @override
   String get complete100Percent => 'Completam 100%:';
@@ -4950,4 +4950,106 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get userList => 'Lista de usuários';
+
+  @override
+  String get generalSummary => 'Resumo Geral';
+
+  @override
+  String get enrollmentSummary => 'Resumo de Inscrições';
+
+  @override
+  String get progressSummary => 'Resumo Geral de Progresso';
+
+  @override
+  String get completionSummary => 'Resumo Geral de Finalização';
+
+  @override
+  String get milestoneSummary => 'Resumo Geral de Hitos';
+
+  @override
+  String get coursesWithEnrollments => 'Cursos com Inscrições:';
+
+  @override
+  String get globalCompletionRate => 'Taxa de Conclusão Global:';
+
+  @override
+  String get reach100Percent => 'Alcançam 100% (Média):';
+
+  @override
+  String get highestCompletionRate => 'Maior Taxa de Conclusão:';
+
+  @override
+  String get enrolled => 'Inscritos';
+
+  @override
+  String get averageTime => 'Tempo Médio';
+
+  @override
+  String get progressPercent => 'Progresso (%)';
+
+  @override
+  String get moreThan1Min => 'Mais de 1 min';
+
+  @override
+  String get searchCourse => 'Buscar curso...';
+
+  @override
+  String errorLoadingCourseStats(Object error) {
+    return 'Erro ao carregar estatísticas: $error';
+  }
+
+  @override
+  String get noStatsAvailable =>
+      'Nenhuma estatística disponível para este curso.';
+
+  @override
+  String get lowestProgress => 'Menor Progresso';
+
+  @override
+  String get courseRanking => 'Ranking de Cursos';
+
+  @override
+  String get enterNameSurnameEmail => 'Digite nome, sobrenome ou email';
+
+  @override
+  String get totalRegisteredUsers => 'Total de Usuários Inscritos';
+
+  @override
+  String get genderDistribution => 'Distribuição por Gênero';
+
+  @override
+  String get ageDistribution => 'Distribuição por Idade';
+
+  @override
+  String get masculine => 'Masculino';
+
+  @override
+  String get feminine => 'Feminino';
+
+  @override
+  String get notInformed => 'Não informado';
+
+  @override
+  String get years => 'anos';
+
+  @override
+  String get ageNotInformed => 'Idade não informada';
+
+  @override
+  String get usersInMinistries => 'Usuários em Ministérios';
+
+  @override
+  String get usersInConnects => 'Usuários em Connects';
+
+  @override
+  String get usersInCourses => 'Usuários em Cursos';
+
+  @override
+  String ofUsers(Object total) {
+    return 'de $total usuários';
+  }
+
+  @override
+  String get noPermissionViewStatistics =>
+      'Você não tem permissão para visualizar estas estatísticas.';
 }

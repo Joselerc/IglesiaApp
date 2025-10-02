@@ -180,7 +180,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
 
     for (var user in _allUsers) {
       // Género
-      final gender = user.gender?.isNotEmpty == true ? user.gender! : 'Não informado';
+      final gender = user.gender?.isNotEmpty == true ? user.gender! : AppLocalizations.of(context)!.notInformed;
       _genderDistribution[gender] = (_genderDistribution[gender] ?? 0) + 1;
 
       // Edad
@@ -220,14 +220,18 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
 
     // Ordenar _genderDistribution: Masculino, Feminino, Não informado
     Map<String, int> sortedGenderMap = {};
-    if (_genderDistribution.containsKey('Masculino')) {
-      sortedGenderMap['Masculino'] = _genderDistribution['Masculino']!;
+    final masculine = AppLocalizations.of(context)!.masculine;
+    final feminine = AppLocalizations.of(context)!.feminine;
+    final notInformed = AppLocalizations.of(context)!.notInformed;
+    
+    if (_genderDistribution.containsKey(masculine)) {
+      sortedGenderMap[masculine] = _genderDistribution[masculine]!;
     }
-    if (_genderDistribution.containsKey('Feminino')) {
-      sortedGenderMap['Feminino'] = _genderDistribution['Feminino']!;
+    if (_genderDistribution.containsKey(feminine)) {
+      sortedGenderMap[feminine] = _genderDistribution[feminine]!;
     }
-    if (_genderDistribution.containsKey('Não informado')) {
-      sortedGenderMap['Não informado'] = _genderDistribution['Não informado']!;
+    if (_genderDistribution.containsKey(notInformed)) {
+      sortedGenderMap[notInformed] = _genderDistribution[notInformed]!;
     }
     // Añadir cualquier otra categoría de género que pudiera existir
     _genderDistribution.forEach((key, value) {
@@ -278,13 +282,13 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                 Icon(Icons.lock_outline, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'Acesso Negado',
+                  AppLocalizations.of(context)!.accessDenied,
                   style: AppTextStyles.headline3.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Você não tem permissão para visualizar estas estatísticas.',
+                  AppLocalizations.of(context)!.noPermissionViewStatistics,
                   style: AppTextStyles.bodyText1.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
@@ -322,43 +326,43 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                   _buildTotalUsersStatisticCard(),
                   const SizedBox(height: 16),
                   _buildDistributionCard(
-                    title: 'Distribuição por Gênero',
+                    title: AppLocalizations.of(context)!.genderDistribution,
                     distribution: _genderDistribution,
                     icon: Icons.wc,
                     color: Colors.pink,
                   ),
                   const SizedBox(height: 16),
                   _buildDistributionCard(
-                    title: 'Distribuição por Idade',
+                    title: AppLocalizations.of(context)!.ageDistribution,
                     distribution: _ageDistribution,
                     icon: Icons.cake,
                     color: Colors.orange,
                   ),
                   const SizedBox(height: 16),
                   _buildStatisticCard(
-                    title: 'Usuários em Ministérios',
+                    title: AppLocalizations.of(context)!.usersInMinistries,
                     value: '${_usersInMinistries}',
                     icon: Icons.work,
                     color: Colors.green,
-                    subtitle: _totalUsers > 0 ? 'de ${_totalUsers} usuários' : null,
+                    subtitle: _totalUsers > 0 ? AppLocalizations.of(context)!.ofUsers(_totalUsers.toString()) : null,
                     percentage: _totalUsers > 0 ? (_usersInMinistries / _totalUsers) * 100 : 0,
                   ),
                   const SizedBox(height: 16),
                   _buildStatisticCard(
-                    title: 'Usuários em Connects',
+                    title: AppLocalizations.of(context)!.usersInConnects,
                     value: '${_usersInConnects}',
                     icon: Icons.group_work,
                     color: Colors.purple,
-                    subtitle: _totalUsers > 0 ? 'de ${_totalUsers} usuários' : null,
+                    subtitle: _totalUsers > 0 ? AppLocalizations.of(context)!.ofUsers(_totalUsers.toString()) : null,
                     percentage: _totalUsers > 0 ? (_usersInConnects / _totalUsers) * 100 : 0,
                   ),
                   const SizedBox(height: 16),
                   _buildStatisticCard(
-                    title: 'Usuários em Cursos',
+                    title: AppLocalizations.of(context)!.usersInCourses,
                     value: '${_usersInCourses}',
                     icon: Icons.school,
                     color: Colors.teal,
-                    subtitle: _totalUsers > 0 ? 'de ${_totalUsers} usuários' : null,
+                    subtitle: _totalUsers > 0 ? AppLocalizations.of(context)!.ofUsers(_totalUsers.toString()) : null,
                     percentage: _totalUsers > 0 ? (_usersInCourses / _totalUsers) * 100 : 0,
                   ),
                 ],
@@ -384,7 +388,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Total de Usuários Inscritos',
+              AppLocalizations.of(context)!.totalRegisteredUsers,
               style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               textAlign: TextAlign.center,
             ),
@@ -509,9 +513,9 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
             else
               ...displayDistribution.entries.map((entry) {
                 IconData? genderIcon;
-                if (title == 'Distribuição por Gênero') {
-                  if (entry.key.toString() == 'Masculino') genderIcon = Icons.male;
-                  if (entry.key.toString() == 'Feminino') genderIcon = Icons.female;
+                if (title == AppLocalizations.of(context)!.genderDistribution) {
+                  if (entry.key.toString() == AppLocalizations.of(context)!.masculine) genderIcon = Icons.male;
+                  if (entry.key.toString() == AppLocalizations.of(context)!.feminine) genderIcon = Icons.female;
                   // Para 'Não informado' u otros, genderIcon seguirá siendo null
                 }
 
@@ -521,10 +525,10 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                     padding: const EdgeInsets.only(right: 8.0),
                     child: Icon(genderIcon, color: color.withOpacity(0.7), size: 18),
                   );
-                } else if (title == 'Distribuição por Idade') {
+                } else if (title == AppLocalizations.of(context)!.ageDistribution) {
                   // Para Edad, queremos un espacio vacío para alinear con otros que podrían tener icono
                   leadingWidget = const SizedBox(width: 18 + 8.0); // Ancho del icono + padding
-                } else if (title != 'Distribuição por Gênero') {
+                } else if (title != AppLocalizations.of(context)!.genderDistribution) {
                   // Icono genérico para otras distribuciones (si no es Género y no es Edad)
                   leadingWidget = Padding(
                     padding: const EdgeInsets.only(right: 8.0),
@@ -544,7 +548,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                         ),
                       ),
                       Text(
-                        _getDistributionValueLabel(entry.value, title == 'Distribuição por Idade' && entry.key is int ? entry.key as int : null),
+                        _getDistributionValueLabel(entry.value, title == AppLocalizations.of(context)!.ageDistribution && entry.key is int ? entry.key as int : null),
                         style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary)
                       ),
                     ],
@@ -552,7 +556,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                 );
               }).toList(),
             // Mostrar el gráfico de barras si es la distribución por edad y hay datos
-            if (title == 'Distribuição por Idade' && distribution.keys.any((k) => k is int && (distribution[k] ?? 0) > 0) ) 
+            if (title == AppLocalizations.of(context)!.ageDistribution && distribution.keys.any((k) => k is int && (distribution[k] ?? 0) > 0) ) 
               Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 10.0),
                 child: SizedBox(
@@ -565,7 +569,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                 ),
               ),
             // Mostrar el gráfico de barras para Género
-            if (title == 'Distribuição por Gênero' && distribution.isNotEmpty)
+            if (title == AppLocalizations.of(context)!.genderDistribution && distribution.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 10.0),
                 child: SizedBox(
@@ -580,9 +584,9 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
   }
 
   String _getDistributionKeyLabel(String cardTitle, dynamic key) {
-    if (cardTitle == 'Distribuição por Idade') {
-      if (key is int) return '$key anos';
-      if (key == 'Não informou') return 'Idade não informada';
+    if (cardTitle == AppLocalizations.of(context)!.ageDistribution) {
+      if (key is int) return '$key ${AppLocalizations.of(context)!.years}';
+      if (key == 'Não informou') return AppLocalizations.of(context)!.ageNotInformed;
       return key.toString(); // Fallback
     }
     return key.toString();
@@ -667,7 +671,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
               // Necesitamos mapear este índice de vuelta a la edad real.
               int ageKey = sortedAges[group.x.toInt()];
               return BarTooltipItem(
-                '$ageKey anos\n',
+                '$ageKey ${AppLocalizations.of(context)!.years}\n',
                 const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                 children: <TextSpan>[
                   TextSpan(
@@ -745,7 +749,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
   Widget _buildGenderBarChart(Map<String, int> genderData, Color chartColor) {
     // Filtrar "Não informado" solo para el gráfico
     Map<String, int> chartGenderData = Map.from(genderData);
-    chartGenderData.remove('Não informado');
+    chartGenderData.remove(AppLocalizations.of(context)!.notInformed);
 
     if (chartGenderData.isEmpty) return const SizedBox.shrink();
 

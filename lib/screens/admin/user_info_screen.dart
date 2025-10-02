@@ -203,8 +203,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          labelText: 'Buscar usuário',
-                          hintText: 'Digite nome, sobrenome ou email',
+                          labelText: AppLocalizations.of(context)!.searchUser,
+                          hintText: AppLocalizations.of(context)!.enterNameSurnameEmail,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -288,12 +288,18 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                 leading: CircleAvatar(
                                   radius: 24,
                                   backgroundColor: AppColors.primary.withOpacity(0.1),
-                                  backgroundImage: user.photoUrl != null
+                                  backgroundImage: user.photoUrl != null && 
+                                      user.photoUrl!.isNotEmpty && 
+                                      Uri.tryParse(user.photoUrl!) != null
                                       ? NetworkImage(user.photoUrl!)
                                       : null,
-                                  child: user.photoUrl == null
+                                  child: !(user.photoUrl != null && 
+                                      user.photoUrl!.isNotEmpty && 
+                                      Uri.tryParse(user.photoUrl!) != null)
                                       ? Text(
-                                          user.name?[0] ?? user.email[0],
+                                          user.name?.isNotEmpty == true 
+                                              ? user.name![0] 
+                                              : (user.email.isNotEmpty ? user.email[0] : '?'),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,

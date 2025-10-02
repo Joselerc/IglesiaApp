@@ -199,15 +199,15 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Resumo Geral de Hitos', style: AppTextStyles.headline3),
+            Text(AppLocalizations.of(context)!.milestoneSummary, style: AppTextStyles.headline3),
             const SizedBox(height: 12),
-            _buildStatRow('Alcançam 25% (Média):', '${globalMilestones['25']?.toStringAsFixed(1) ?? '0'}%'),
-            _buildStatRow('Alcançam 50% (Média):', '${globalMilestones['50']?.toStringAsFixed(1) ?? '0'}%'),
-            _buildStatRow('Alcançam 75% (Média):', '${globalMilestones['75']?.toStringAsFixed(1) ?? '0'}%'),
-            _buildStatRow('Alcançam 90% (Média):', '${globalMilestones['90']?.toStringAsFixed(1) ?? '0'}%'),
-            _buildStatRow('Concluem 100% (Média):', '${globalMilestones['100']?.toStringAsFixed(1) ?? '0'}%'),
+            _buildStatRow(AppLocalizations.of(context)!.reach25Percent, '${globalMilestones['25']?.toStringAsFixed(1) ?? '0'}%'),
+            _buildStatRow(AppLocalizations.of(context)!.reach50Percent, '${globalMilestones['50']?.toStringAsFixed(1) ?? '0'}%'),
+            _buildStatRow(AppLocalizations.of(context)!.reach75Percent, '${globalMilestones['75']?.toStringAsFixed(1) ?? '0'}%'),
+            _buildStatRow(AppLocalizations.of(context)!.reach90Percent, '${globalMilestones['90']?.toStringAsFixed(1) ?? '0'}%'),
+            _buildStatRow(AppLocalizations.of(context)!.reach100Percent, '${globalMilestones['100']?.toStringAsFixed(1) ?? '0'}%'),
             if(topCompletionCourse != null)
-              _buildStatRow('Maior Taxa de Conclusão:', '${topCompletionCourse.course.title} (${topCompletionCourse.completionMilestones['100']?.toStringAsFixed(1)}%)'),
+              _buildStatRow(AppLocalizations.of(context)!.highestCompletionRate, '${topCompletionCourse.course.title} (${topCompletionCourse.completionMilestones['100']?.toStringAsFixed(1)}%)'),
             const Divider(height: 24, thickness: 0.5),
             
             // Filtros
@@ -247,7 +247,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
           dataRowMaxHeight: 60,
           columnSpacing: 18,
           columns: [
-            _buildSortableHeader('Curso', 'title'),
+            _buildSortableHeader(AppLocalizations.of(context)!.course, 'title'),
             _buildSortableHeader('>= 25%', '25', isNumeric: true),
             _buildSortableHeader('>= 50%', '50', isNumeric: true),
             _buildSortableHeader('>= 75%', '75', isNumeric: true),
@@ -314,11 +314,18 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtrar por Data de Inscrição', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.filterByEnrollmentDate, 
+                    style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
-                    label: const Text('Limpar', style: TextStyle(color: Colors.red)),
+                    label: Text(AppLocalizations.of(context)!.clear, style: const TextStyle(color: Colors.red)),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -333,7 +340,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
               children: [
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Inicial',
+                    label: AppLocalizations.of(context)!.startDate,
                     date: _startDate,
                     onDatePicked: (pickedDate) => setState(() {
                       _startDate = pickedDate;
@@ -347,7 +354,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Final',
+                    label: AppLocalizations.of(context)!.endDate,
                     date: _endDate,
                     onDatePicked: (pickedDate) => setState(() {
                       _endDate = pickedDate;
@@ -411,7 +418,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
           initialDate: date ?? DateTime.now(),
           firstDate: firstDate,
           lastDate: lastDate,
-          locale: const Locale('pt', 'BR'),
+          locale: Localizations.localeOf(context),
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(

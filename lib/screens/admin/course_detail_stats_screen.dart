@@ -71,10 +71,10 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorLoadingCourseStats(snapshot.error.toString())));
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Nenhuma estatística disponível para este curso.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noStatsAvailable));
           }
           
           final stats = snapshot.data!;

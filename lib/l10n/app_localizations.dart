@@ -3503,7 +3503,7 @@ abstract class AppLocalizations {
   /// No description provided for @noCoursesFound.
   ///
   /// In es, this message translates to:
-  /// **'Ningún curso encontrado'**
+  /// **'No se encontraron cursos'**
   String get noCoursesFound;
 
   /// No description provided for @clickToCreateNewCourse.
@@ -5777,7 +5777,7 @@ abstract class AppLocalizations {
   /// No description provided for @completed.
   ///
   /// In es, this message translates to:
-  /// **'Completados'**
+  /// **'Completaron'**
   String get completed;
 
   /// No description provided for @withPreposition.
@@ -6131,13 +6131,13 @@ abstract class AppLocalizations {
   /// No description provided for @startDate.
   ///
   /// In es, this message translates to:
-  /// **'Fecha de Inicio'**
+  /// **'Fecha inicial'**
   String get startDate;
 
   /// No description provided for @endDate.
   ///
   /// In es, this message translates to:
-  /// **'Fecha de Fin'**
+  /// **'Fecha final'**
   String get endDate;
 
   /// No description provided for @applyFilter.
@@ -6983,7 +6983,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchUser.
   ///
   /// In es, this message translates to:
-  /// **'Buscar usuario...'**
+  /// **'Buscar usuario'**
   String get searchUser;
 
   /// No description provided for @enterNameOrEmail.
@@ -7457,7 +7457,7 @@ abstract class AppLocalizations {
   /// No description provided for @averageProgress.
   ///
   /// In es, this message translates to:
-  /// **'Progreso Medio:'**
+  /// **'Progreso Medio'**
   String get averageProgress;
 
   /// No description provided for @averageLessonsCompleted.
@@ -7475,7 +7475,7 @@ abstract class AppLocalizations {
   /// No description provided for @highestProgress.
   ///
   /// In es, this message translates to:
-  /// **'Mayor Progreso:'**
+  /// **'Mayor Progreso'**
   String get highestProgress;
 
   /// No description provided for @progressPercentage.
@@ -8051,7 +8051,7 @@ abstract class AppLocalizations {
   /// No description provided for @filterByDate.
   ///
   /// In es, this message translates to:
-  /// **'Filtrar por fecha'**
+  /// **'Filtrar por Fecha'**
   String get filterByDate;
 
   /// No description provided for @initialDate.
@@ -8543,7 +8543,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalEnrollments.
   ///
   /// In es, this message translates to:
-  /// **'Total de Inscripciones'**
+  /// **'Total de Inscripciones:'**
   String get totalEnrollments;
 
   /// No description provided for @averageEnrollmentsPerCourse.
@@ -8585,13 +8585,13 @@ abstract class AppLocalizations {
   /// No description provided for @fastestCompletion.
   ///
   /// In es, this message translates to:
-  /// **'Finalización Más Rápida:'**
+  /// **'Conclusión Más Rápida:'**
   String get fastestCompletion;
 
   /// No description provided for @slowestCompletion.
   ///
   /// In es, this message translates to:
-  /// **'Finalización Más Lenta:'**
+  /// **'Conclusión Más Lenta:'**
   String get slowestCompletion;
 
   /// No description provided for @completionTime.
@@ -8603,31 +8603,31 @@ abstract class AppLocalizations {
   /// No description provided for @completionRate.
   ///
   /// In es, this message translates to:
-  /// **'Tasa de Finalización'**
+  /// **'Tasa de Conclusión'**
   String get completionRate;
 
   /// No description provided for @reach25Percent.
   ///
   /// In es, this message translates to:
-  /// **'Alcanzan 25%:'**
+  /// **'Alcanzan 25% (Media):'**
   String get reach25Percent;
 
   /// No description provided for @reach50Percent.
   ///
   /// In es, this message translates to:
-  /// **'Alcanzan 50%:'**
+  /// **'Alcanzan 50% (Media):'**
   String get reach50Percent;
 
   /// No description provided for @reach75Percent.
   ///
   /// In es, this message translates to:
-  /// **'Alcanzan 75%:'**
+  /// **'Alcanzan 75% (Media):'**
   String get reach75Percent;
 
   /// No description provided for @reach90Percent.
   ///
   /// In es, this message translates to:
-  /// **'Alcanzan 90%:'**
+  /// **'Alcanzan 90% (Media):'**
   String get reach90Percent;
 
   /// No description provided for @complete100Percent.
@@ -8887,6 +8887,198 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Lista de usuarios'**
   String get userList;
+
+  /// No description provided for @generalSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen General'**
+  String get generalSummary;
+
+  /// No description provided for @enrollmentSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de Inscripciones'**
+  String get enrollmentSummary;
+
+  /// No description provided for @progressSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen General de Progreso'**
+  String get progressSummary;
+
+  /// No description provided for @completionSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen General de Finalización'**
+  String get completionSummary;
+
+  /// No description provided for @milestoneSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen General de Hitos'**
+  String get milestoneSummary;
+
+  /// No description provided for @coursesWithEnrollments.
+  ///
+  /// In es, this message translates to:
+  /// **'Cursos con Inscripciones:'**
+  String get coursesWithEnrollments;
+
+  /// No description provided for @globalCompletionRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Tasa de Conclusión Global:'**
+  String get globalCompletionRate;
+
+  /// No description provided for @reach100Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzan 100% (Media):'**
+  String get reach100Percent;
+
+  /// No description provided for @highestCompletionRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Mayor Tasa de Conclusión:'**
+  String get highestCompletionRate;
+
+  /// No description provided for @enrolled.
+  ///
+  /// In es, this message translates to:
+  /// **'Inscritos'**
+  String get enrolled;
+
+  /// No description provided for @averageTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Medio'**
+  String get averageTime;
+
+  /// No description provided for @progressPercent.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso (%)'**
+  String get progressPercent;
+
+  /// No description provided for @moreThan1Min.
+  ///
+  /// In es, this message translates to:
+  /// **'Más de 1 min'**
+  String get moreThan1Min;
+
+  /// No description provided for @searchCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar curso...'**
+  String get searchCourse;
+
+  /// No description provided for @errorLoadingCourseStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar estadísticas: {error}'**
+  String errorLoadingCourseStats(Object error);
+
+  /// No description provided for @noStatsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna estadística disponible para este curso.'**
+  String get noStatsAvailable;
+
+  /// No description provided for @lowestProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Menor Progreso'**
+  String get lowestProgress;
+
+  /// No description provided for @courseRanking.
+  ///
+  /// In es, this message translates to:
+  /// **'Ranking de Cursos'**
+  String get courseRanking;
+
+  /// No description provided for @enterNameSurnameEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese nombre, apellido o email'**
+  String get enterNameSurnameEmail;
+
+  /// No description provided for @totalRegisteredUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Usuarios Registrados'**
+  String get totalRegisteredUsers;
+
+  /// No description provided for @genderDistribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución por Género'**
+  String get genderDistribution;
+
+  /// No description provided for @ageDistribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución por Edad'**
+  String get ageDistribution;
+
+  /// No description provided for @masculine.
+  ///
+  /// In es, this message translates to:
+  /// **'Masculino'**
+  String get masculine;
+
+  /// No description provided for @feminine.
+  ///
+  /// In es, this message translates to:
+  /// **'Femenino'**
+  String get feminine;
+
+  /// No description provided for @notInformed.
+  ///
+  /// In es, this message translates to:
+  /// **'No informado'**
+  String get notInformed;
+
+  /// No description provided for @years.
+  ///
+  /// In es, this message translates to:
+  /// **'años'**
+  String get years;
+
+  /// No description provided for @ageNotInformed.
+  ///
+  /// In es, this message translates to:
+  /// **'Edad no informada'**
+  String get ageNotInformed;
+
+  /// No description provided for @usersInMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios en Ministerios'**
+  String get usersInMinistries;
+
+  /// No description provided for @usersInConnects.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios en Grupos'**
+  String get usersInConnects;
+
+  /// No description provided for @usersInCourses.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios en Cursos'**
+  String get usersInCourses;
+
+  /// No description provided for @ofUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'de {total} usuarios'**
+  String ofUsers(Object total);
+
+  /// No description provided for @noPermissionViewStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para visualizar estas estadísticas.'**
+  String get noPermissionViewStatistics;
 }
 
 class _AppLocalizationsDelegate

@@ -224,7 +224,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Resumo Geral de Progresso', style: AppTextStyles.headline3),
+            Text(AppLocalizations.of(context)!.progressSummary, style: AppTextStyles.headline3),
             const SizedBox(height: 12),
             _buildStatRow(AppLocalizations.of(context)!.globalAverageProgress, '${globalAverageProgress.toStringAsFixed(1)}%'),
             _buildStatRow(AppLocalizations.of(context)!.averageLessonsCompleted, globalAverageLessons.toStringAsFixed(1)),
@@ -241,7 +241,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Buscar curso...',
+                      hintText: AppLocalizations.of(context)!.searchCourse,
                       prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -271,13 +271,13 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
                 IconButton(
                   icon: Icon(Icons.calendar_today, 
                          color: (_startDate != null || _endDate != null) ? AppColors.primary : Colors.grey[600]),
-                  tooltip: 'Filtrar por Data de Inscrição',
+                  tooltip: AppLocalizations.of(context)!.filterByEnrollmentDate,
                   onPressed: _showDateFilterDialog,
                 ),
                 if (_startDate != null || _endDate != null)
                   IconButton(
                     icon: const Icon(Icons.filter_alt_off, color: Colors.red, size: 20),
-                    tooltip: 'Limpar Filtro de Data',
+                    tooltip: AppLocalizations.of(context)!.clear,
                     onPressed: _clearDateFilter,
                   ),
               ],
@@ -374,7 +374,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
           : null,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      locale: const Locale('pt', 'BR'), // Asegurar localización
+      locale: Localizations.localeOf(context), // Asegurar localización
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -433,11 +433,18 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtrar por Data de Inscrição', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.filterByEnrollmentDate, 
+                    style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
-                    label: const Text('Limpar', style: TextStyle(color: Colors.red)),
+                    label: Text(AppLocalizations.of(context)!.clear, style: const TextStyle(color: Colors.red)),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -452,7 +459,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
               children: [
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Inicial',
+                    label: AppLocalizations.of(context)!.startDate,
                     date: _startDate,
                     onDatePicked: (pickedDate) => setState(() => _startDate = pickedDate),
                     firstDate: DateTime(2020),
@@ -462,7 +469,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Final',
+                    label: AppLocalizations.of(context)!.endDate,
                     date: _endDate,
                     onDatePicked: (pickedDate) => setState(() => _endDate = pickedDate),
                     firstDate: _startDate ?? DateTime(2020),

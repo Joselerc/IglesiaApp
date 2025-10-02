@@ -1956,7 +1956,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createNewCourse => 'Crear Nuevo Curso';
 
   @override
-  String get noCoursesFound => 'Ningún curso encontrado';
+  String get noCoursesFound => 'No se encontraron cursos';
 
   @override
   String get clickToCreateNewCourse =>
@@ -3266,7 +3266,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cancelled => 'Canceladas';
 
   @override
-  String get completed => 'Completados';
+  String get completed => 'Completaron';
 
   @override
   String get withPreposition => 'con';
@@ -3452,10 +3452,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dateFilter => 'Filtro de Fecha';
 
   @override
-  String get startDate => 'Fecha de Inicio';
+  String get startDate => 'Fecha inicial';
 
   @override
-  String get endDate => 'Fecha de Fin';
+  String get endDate => 'Fecha final';
 
   @override
   String get applyFilter => 'Aplicar Filtro';
@@ -3898,7 +3898,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addTimeSlot => 'Añadir Franja Horaria';
 
   @override
-  String get searchUser => 'Buscar usuario...';
+  String get searchUser => 'Buscar usuario';
 
   @override
   String get enterNameOrEmail => 'Introduce nombre o email';
@@ -4156,7 +4156,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get averageProgress => 'Progreso Medio:';
+  String get averageProgress => 'Progreso Medio';
 
   @override
   String get averageLessonsCompleted => 'Lecciones Medias Completadas:';
@@ -4165,7 +4165,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get globalAverageProgress => 'Progreso Medio Global:';
 
   @override
-  String get highestProgress => 'Mayor Progreso:';
+  String get highestProgress => 'Mayor Progreso';
 
   @override
   String get progressPercentage => 'Progreso (%)';
@@ -4483,7 +4483,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'No tienes permiso para visualizar estadísticas de grupos';
 
   @override
-  String get filterByDate => 'Filtrar por fecha';
+  String get filterByDate => 'Filtrar por Fecha';
 
   @override
   String get initialDate => 'Fecha inicial';
@@ -4773,7 +4773,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get searchCourses => 'Buscar cursos...';
 
   @override
-  String get totalEnrollments => 'Total de Inscripciones';
+  String get totalEnrollments => 'Total de Inscripciones:';
 
   @override
   String get averageEnrollmentsPerCourse =>
@@ -4795,28 +4795,28 @@ class AppLocalizationsEs extends AppLocalizations {
   String get globalAverageTime => 'Tiempo Medio Global:';
 
   @override
-  String get fastestCompletion => 'Finalización Más Rápida:';
+  String get fastestCompletion => 'Conclusión Más Rápida:';
 
   @override
-  String get slowestCompletion => 'Finalización Más Lenta:';
+  String get slowestCompletion => 'Conclusión Más Lenta:';
 
   @override
   String get completionTime => 'Tiempo de Finalización';
 
   @override
-  String get completionRate => 'Tasa de Finalización';
+  String get completionRate => 'Tasa de Conclusión';
 
   @override
-  String get reach25Percent => 'Alcanzan 25%:';
+  String get reach25Percent => 'Alcanzan 25% (Media):';
 
   @override
-  String get reach50Percent => 'Alcanzan 50%:';
+  String get reach50Percent => 'Alcanzan 50% (Media):';
 
   @override
-  String get reach75Percent => 'Alcanzan 75%:';
+  String get reach75Percent => 'Alcanzan 75% (Media):';
 
   @override
-  String get reach90Percent => 'Alcanzan 90%:';
+  String get reach90Percent => 'Alcanzan 90% (Media):';
 
   @override
   String get complete100Percent => 'Completan 100%:';
@@ -4965,4 +4965,106 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get userList => 'Lista de usuarios';
+
+  @override
+  String get generalSummary => 'Resumen General';
+
+  @override
+  String get enrollmentSummary => 'Resumen de Inscripciones';
+
+  @override
+  String get progressSummary => 'Resumen General de Progreso';
+
+  @override
+  String get completionSummary => 'Resumen General de Finalización';
+
+  @override
+  String get milestoneSummary => 'Resumen General de Hitos';
+
+  @override
+  String get coursesWithEnrollments => 'Cursos con Inscripciones:';
+
+  @override
+  String get globalCompletionRate => 'Tasa de Conclusión Global:';
+
+  @override
+  String get reach100Percent => 'Alcanzan 100% (Media):';
+
+  @override
+  String get highestCompletionRate => 'Mayor Tasa de Conclusión:';
+
+  @override
+  String get enrolled => 'Inscritos';
+
+  @override
+  String get averageTime => 'Tiempo Medio';
+
+  @override
+  String get progressPercent => 'Progreso (%)';
+
+  @override
+  String get moreThan1Min => 'Más de 1 min';
+
+  @override
+  String get searchCourse => 'Buscar curso...';
+
+  @override
+  String errorLoadingCourseStats(Object error) {
+    return 'Error al cargar estadísticas: $error';
+  }
+
+  @override
+  String get noStatsAvailable =>
+      'Ninguna estadística disponible para este curso.';
+
+  @override
+  String get lowestProgress => 'Menor Progreso';
+
+  @override
+  String get courseRanking => 'Ranking de Cursos';
+
+  @override
+  String get enterNameSurnameEmail => 'Ingrese nombre, apellido o email';
+
+  @override
+  String get totalRegisteredUsers => 'Total de Usuarios Registrados';
+
+  @override
+  String get genderDistribution => 'Distribución por Género';
+
+  @override
+  String get ageDistribution => 'Distribución por Edad';
+
+  @override
+  String get masculine => 'Masculino';
+
+  @override
+  String get feminine => 'Femenino';
+
+  @override
+  String get notInformed => 'No informado';
+
+  @override
+  String get years => 'años';
+
+  @override
+  String get ageNotInformed => 'Edad no informada';
+
+  @override
+  String get usersInMinistries => 'Usuarios en Ministerios';
+
+  @override
+  String get usersInConnects => 'Usuarios en Grupos';
+
+  @override
+  String get usersInCourses => 'Usuarios en Cursos';
+
+  @override
+  String ofUsers(Object total) {
+    return 'de $total usuarios';
+  }
+
+  @override
+  String get noPermissionViewStatistics =>
+      'No tienes permiso para visualizar estas estadísticas.';
 }

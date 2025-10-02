@@ -229,7 +229,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
           
           if (permissionSnapshot.hasError) {
             return Center(
-              child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'),
+              child: Text('${AppLocalizations.of(context)!.errorCheckingPermissions}: ${permissionSnapshot.error}'),
             );
           }
           
@@ -266,7 +266,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
+                  return Center(child: Text(AppLocalizations.of(context)!.errorLoadingCourseStats(snapshot.error.toString())));
                 }
                 if (!snapshot.hasData || snapshot.data == null) {
                   return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
@@ -325,11 +325,11 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
   
   Widget _buildEnrollmentSummary(int totalEnrollments, List<CourseStats> topCourses) {
     return _buildDashboardCard(
-      title: 'Resumo de Inscrições',
+      title: AppLocalizations.of(context)!.enrollmentSummary,
       icon: Icons.group_add_outlined,
       iconColor: Colors.blue,
       children: [
-        _buildStatRow('Total de Inscrições:', '$totalEnrollments'),
+        _buildStatRow(AppLocalizations.of(context)!.totalEnrollments, '$totalEnrollments'),
         const SizedBox(height: 12),
         Text(AppLocalizations.of(context)!.top3CoursesEnrolled, style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
@@ -369,7 +369,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
 
   Widget _buildProgressSummary(double globalAvgProgress, double globalAvgLessons, CourseStats? highest, CourseStats? lowest) {
     return _buildDashboardCard(
-      title: 'Progresso Médio',
+      title: AppLocalizations.of(context)!.averageProgress,
       icon: Icons.show_chart_outlined,
       iconColor: Colors.green,
       children: [
@@ -377,9 +377,9 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
         _buildStatRow(AppLocalizations.of(context)!.averageLessonsCompleted, globalAvgLessons.toStringAsFixed(1)),
         const SizedBox(height: 12),
         if (highest != null) 
-          _buildStatRow('Maior Progresso:', '${highest.course.title} (${highest.averageProgressPercentage.toStringAsFixed(1)}%)'),
+          _buildStatRow('${AppLocalizations.of(context)!.highestProgress}:', '${highest.course.title} (${highest.averageProgressPercentage.toStringAsFixed(1)}%)'),
         if (lowest != null) 
-          _buildStatRow('Menor Progresso:', '${lowest.course.title} (${lowest.averageProgressPercentage.toStringAsFixed(1)}%)'),
+          _buildStatRow('${AppLocalizations.of(context)!.lowestProgress}:', '${lowest.course.title} (${lowest.averageProgressPercentage.toStringAsFixed(1)}%)'),
       ],
       onSeeMore: () {
         // Navegar a la pantalla de detalles de progreso
@@ -391,16 +391,16 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
 
   Widget _buildCompletionSummary(Duration? globalAvgTime, CourseStats? fastest, CourseStats? slowest) {
     return _buildDashboardCard(
-      title: 'Finalização',
+      title: AppLocalizations.of(context)!.completion,
       icon: Icons.hourglass_bottom_outlined,
       iconColor: Colors.orange,
       children: [
-        _buildStatRow('Tempo Médio Global:', _formatDuration(globalAvgTime) ?? 'N/A'),
+        _buildStatRow(AppLocalizations.of(context)!.globalAverageTime, _formatDuration(globalAvgTime) ?? 'N/A'),
         const SizedBox(height: 12),
         if (fastest != null)
-          _buildStatRow('Conclusão Mais Rápida:', '${fastest.course.title} (${_formatDuration(fastest.averageCompletionTime)})'),
+          _buildStatRow(AppLocalizations.of(context)!.fastestCompletion, '${fastest.course.title} (${_formatDuration(fastest.averageCompletionTime)})'),
         if (slowest != null)
-          _buildStatRow('Conclusão Mais Lenta:', '${slowest.course.title} (${_formatDuration(slowest.averageCompletionTime)})'),
+          _buildStatRow(AppLocalizations.of(context)!.slowestCompletion, '${slowest.course.title} (${_formatDuration(slowest.averageCompletionTime)})')
       ],
       onSeeMore: () {
         // Navegar a la pantalla de detalles de finalización
@@ -412,15 +412,15 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
 
   Widget _buildMilestonesSummary(Map<String, double> milestones) {
     return _buildDashboardCard(
-      title: 'Hitos de Conclusão',
+      title: AppLocalizations.of(context)!.completionMilestones,
       icon: Icons.flag_outlined,
       iconColor: Colors.purple,
       children: [
-        _buildStatRow('Alcançam 25%:', '${milestones['25']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançam 50%:', '${milestones['50']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançam 75%:', '${milestones['75']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançam 90%:', '${milestones['90']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Concluem 100%:', '${milestones['100']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reach25Percent, '${milestones['25']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reach50Percent, '${milestones['50']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reach75Percent, '${milestones['75']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reach90Percent, '${milestones['90']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reach100Percent, '${milestones['100']?.toStringAsFixed(1) ?? '0'}%'),
       ],
       onSeeMore: () {
         // Navegar a la pantalla de detalles de hitos
@@ -434,7 +434,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
     final top5Courses = courseStatsList.take(5).toList();
     
     return _buildDashboardCard(
-      title: 'Ranking de Cursos',
+      title: AppLocalizations.of(context)!.courseRanking,
       icon: Icons.emoji_events_outlined,
       iconColor: Colors.teal,
       children: [
@@ -445,10 +445,10 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
             sortAscending: _rankingSortAscending,
             columnSpacing: 20, // Ajustar espacio entre columnas
             columns: [
-              _buildSortableHeader('Curso', 'title', isNumeric: false),
-              _buildSortableHeader('Inscritos', 'enrollmentCount', isNumeric: true),
-              _buildSortableHeader('Progresso (%)', 'averageProgressPercentage', isNumeric: true),
-              _buildSortableHeader('Tempo Médio', 'averageCompletionTime', isNumeric: false),
+              _buildSortableHeader(AppLocalizations.of(context)!.course, 'title', isNumeric: false),
+              _buildSortableHeader(AppLocalizations.of(context)!.enrolled, 'enrollmentCount', isNumeric: true),
+              _buildSortableHeader(AppLocalizations.of(context)!.progressPercent, 'averageProgressPercentage', isNumeric: true),
+              _buildSortableHeader(AppLocalizations.of(context)!.averageTime, 'averageCompletionTime', isNumeric: false),
             ],
             rows: top5Courses.map((stat) {
               return DataRow(
@@ -498,12 +498,21 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(icon, color: iconColor, size: 20),
-                    const SizedBox(width: 8),
-                    Text(title, style: AppTextStyles.headline3.copyWith(fontSize: 18)),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(icon, color: iconColor, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title, 
+                          style: AppTextStyles.headline3.copyWith(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 if (onSeeMore != null)
                   TextButton(
@@ -565,9 +574,13 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Filtrar por Data de Inscrição',
-                  style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.filterByEnrollmentDate,
+                    style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
@@ -621,7 +634,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _startDate != null ? formatter.format(_startDate!) : 'Data inicial',
+                            _startDate != null ? formatter.format(_startDate!) : AppLocalizations.of(context)!.startDate,
                             style: TextStyle(
                               color: _startDate != null ? AppColors.textPrimary : Colors.grey[600],
                               fontSize: 14,
@@ -674,7 +687,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _endDate != null ? formatter.format(_endDate!) : 'Data final',
+                            _endDate != null ? formatter.format(_endDate!) : AppLocalizations.of(context)!.endDate,
                             style: TextStyle(
                               color: _endDate != null ? AppColors.textPrimary : Colors.grey[600],
                               fontSize: 14,
