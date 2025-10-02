@@ -356,7 +356,7 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> with 
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                announcement.type == 'cult' ? AppLocalizations.of(context)!.cult : AppLocalizations.of(context)!.regular,
+                                announcement.type == 'cult' ? AppLocalizations.of(context)!.cult('') : AppLocalizations.of(context)!.regular,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

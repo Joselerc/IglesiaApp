@@ -85,7 +85,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success ? 'Papel excluído com sucesso' : 'Falha ao excluir papel'),
+            content: Text(success ? AppLocalizations.of(context)!.roleDeletedSuccessfully : AppLocalizations.of(context)!.failedDeleteRole),
             backgroundColor: success ? Colors.green : Colors.red,
           ),
         );
@@ -176,10 +176,10 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(role.description ?? 'Sem descrição'),
+                            Text(role.description ?? AppLocalizations.of(context)!.noDescription),
                             const SizedBox(height: 4),
                             Text(
-                              '${role.permissions.length} permissões atribuídas',
+                              AppLocalizations.of(context)!.permissionsAssigned(role.permissions.length.toString()),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
@@ -194,7 +194,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              tooltip: 'Editar perfil',
+                              tooltip: AppLocalizations.of(context)!.editProfile,
                               onPressed: () {
                                 Navigator.push(
                                   context, 
@@ -204,7 +204,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
-                              tooltip: 'Excluir papel',
+                              tooltip: AppLocalizations.of(context)!.deleteRole,
                               onPressed: () => _showDeleteConfirmation(context, role),
                             ),
                           ],
@@ -232,7 +232,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateEditRoleScreen()));
         },
-        tooltip: 'Criar Novo Papel',
+        tooltip: AppLocalizations.of(context)!.createNewRole,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),

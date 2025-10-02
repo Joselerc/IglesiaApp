@@ -51,7 +51,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   List<UserStats> _filteredUsersStats = []; // Lista filtrada para la búsqueda
   List<Map<String, dynamic>> _availableMinistries = [];
   String _selectedMinistryId = 'all_ministries';
-  String _selectedMinistryName = 'Todos os Ministérios';
+  String _selectedMinistryName = 'Todos os Ministérios'; // Will be translated in initState
   String _userSortBy = 'name';
   bool _userSortAscending = true;
   String _userSearchQuery = '';
@@ -296,7 +296,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
         // Inicializar el servicio con datos básicos
         processedServices[serviceId] = {
           'id': serviceId,
-          'name': serviceData['name'] ?? 'Servicio sin nombre',
+          'name': serviceData['name'] ?? 'Servicio sin nombre', // Will be translated in UI
           'description': serviceData['description'] ?? '',
           'createdAt': (serviceData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
           'totalInvitations': 0,
@@ -604,9 +604,9 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
         title: Text(AppLocalizations.of(context)!.searchService),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Nome do serviço',
-            hintText: 'Ex: Culto Dominical',
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.serviceName,
+            hintText: AppLocalizations.of(context)!.serviceNameHint,
             prefixIcon: Icon(Icons.search),
           ),
           autofocus: true,
@@ -625,7 +625,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
               _loadStatistics();
               Navigator.pop(context);
             },
-            child: const Text('Buscar'),
+            child: Text(AppLocalizations.of(context)!.search),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -665,7 +665,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estatísticas de Escalas'),
+        title: Text(AppLocalizations.of(context)!.scaleStatisticsTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -684,9 +684,9 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.7),
-          tabs: const [
-            Tab(text: 'Escalas'),
-            Tab(text: 'Usuários'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.scales),
+            Tab(text: AppLocalizations.of(context)!.users),
           ],
         ),
       ),
@@ -698,21 +698,21 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.lock_outline, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
-                    SizedBox(height: 8),
-                    Text('Você não tem permissão para visualizar estatísticas de escalas.', textAlign: TextAlign.center),
+                    const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    Text(AppLocalizations.of(context)!.noPermissionViewScaleStats, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -763,7 +763,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filtrar por data',
+                        AppLocalizations.of(context)!.filterByDate,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -774,7 +774,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                         TextButton.icon(
                           onPressed: _clearDateFilter,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpar filtro'),
+                          label: Text(AppLocalizations.of(context)!.clearFilter),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red[700],
                             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -824,7 +824,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                 Text(
                                   _startDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                      : 'Data inicial',
+                                      : AppLocalizations.of(context)!.initialDate,
                                   style: TextStyle(
                                     color: _startDate != null
                                         ? Colors.black87
@@ -881,7 +881,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                 Text(
                                   _endDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                      : 'Data final',
+                                      : AppLocalizations.of(context)!.finalDate,
                                   style: TextStyle(
                                     color: _endDate != null
                                         ? Colors.black87
@@ -916,7 +916,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Buscar servicio...',
+                    hintText: AppLocalizations.of(context)!.searchService,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -964,7 +964,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                             Icon(Icons.search_off, size: 64, color: Colors.grey[300]),
                             const SizedBox(height: 16),
                             Text(
-                              'Nenhum serviço encontrado',
+                              AppLocalizations.of(context)!.noServiceFound,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -973,7 +973,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tente com outro filtro de busca',
+                              AppLocalizations.of(context)!.tryAnotherFilter,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[600],
@@ -1030,7 +1030,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  '${service['cultsCount']} cultos',
+                                  AppLocalizations.of(context)!.cultsCount(service['cultsCount'].toString()),
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -1056,8 +1056,8 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                           ),
                                         ),
                                       
-                                      const Text(
-                                        'Estatísticas',
+                                      Text(
+                                        AppLocalizations.of(context)!.statistics,
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
@@ -1067,19 +1067,19 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                       
                                       // Estadísticas de invitaciones
                                       _buildStatRow(
-                                        'Convites enviados', 
+                                        AppLocalizations.of(context)!.invitesSent, 
                                         service['totalInvitations'], 
                                         Colors.blue,
                                         onTap: () => _showUsersList(service, 'invitations'),
                                       ),
                                       _buildStatRow(
-                                        'Convites aceitos', 
+                                        AppLocalizations.of(context)!.invitesAccepted, 
                                         service['acceptedInvitations'], 
                                         Colors.green,
                                         onTap: () => _showUsersList(service, 'accepted'),
                                       ),
                                       _buildStatRow(
-                                        'Convites rejeitados', 
+                                        AppLocalizations.of(context)!.invitesRejected, 
                                         service['rejectedInvitations'], 
                                         Colors.red,
                                         onTap: () => _showUsersList(service, 'rejected'),
@@ -1089,13 +1089,13 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                       
                                       // Estadísticas de asistencia
                                       _buildStatRow(
-                                        'Total presenças', 
+                                        AppLocalizations.of(context)!.totalAttendances, 
                                         service['totalAttendances'], 
                                         Colors.green,
                                         onTap: () => _showUsersList(service, 'attendances'),
                                       ),
                                       _buildStatRow(
-                                        'Total ausências', 
+                                        AppLocalizations.of(context)!.totalAbsences, 
                                         service['totalAbsences'], 
                                         Colors.orange,
                                         onTap: () => _showUsersList(service, 'absences'),
@@ -1108,7 +1108,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                             _navigateToCultsList(service);
                                           },
                                           icon: const Icon(Icons.visibility),
-                                          label: const Text('Ver cultos'),
+                                          label: Text(AppLocalizations.of(context)!.viewCults),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: AppColors.primary,
                                           ),
@@ -1158,7 +1158,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filtrar por data',
+                        AppLocalizations.of(context)!.filterByDate,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -1169,7 +1169,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                         TextButton.icon(
                           onPressed: _clearDateFilter,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpar filtro'),
+                          label: Text(AppLocalizations.of(context)!.clearFilter),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red[700],
                             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -1219,7 +1219,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                 Text(
                                   _startDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                      : 'Data inicial',
+                                      : AppLocalizations.of(context)!.initialDate,
                                   style: TextStyle(
                                     color: _startDate != null
                                         ? Colors.black87
@@ -1276,7 +1276,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                                 Text(
                                   _endDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                      : 'Data final',
+                                      : AppLocalizations.of(context)!.finalDate,
                                   style: TextStyle(
                                     color: _endDate != null
                                         ? Colors.black87
@@ -1356,7 +1356,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Buscar usuario...',
+                    hintText: AppLocalizations.of(context)!.searchUser,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1471,15 +1471,15 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            const Text('Ordenar por:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(AppLocalizations.of(context)!.sortBy, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(width: 8),
-            _buildUserSortButton('Nome', 'name'),
-            _buildUserSortButton('Convites', 'totalInvitations'),
-            _buildUserSortButton('Presenças', 'totalAttendances'),
-            _buildUserSortButton('Ausências', 'totalAbsences'),
-            _buildUserSortButton('Aceitos', 'acceptedInvitations'),
-            _buildUserSortButton('Rejeitados', 'rejectedInvitations'),
-            _buildUserSortButton('Pendentes', 'pendingInvitations'),
+            _buildUserSortButton(AppLocalizations.of(context)!.name, 'name'),
+            _buildUserSortButton(AppLocalizations.of(context)!.invites, 'totalInvitations'),
+            _buildUserSortButton(AppLocalizations.of(context)!.attendances, 'totalAttendances'),
+            _buildUserSortButton(AppLocalizations.of(context)!.absences, 'totalAbsences'),
+            _buildUserSortButton(AppLocalizations.of(context)!.accepted, 'acceptedInvitations'),
+            _buildUserSortButton(AppLocalizations.of(context)!.rejected, 'rejectedInvitations'),
+            _buildUserSortButton(AppLocalizations.of(context)!.pending, 'pendingInvitations'),
           ],
         ),
       ),
@@ -1642,37 +1642,37 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
               runAlignment: WrapAlignment.center,
               children: [
                 _buildUserStatItem(
-                  'Convites',
+                  AppLocalizations.of(context)!.invites,
                   stats.totalInvitations.toString(),
                   Icons.send,
                   Colors.blue,
                 ),
                 _buildUserStatItem(
-                  'Presenças',
+                  AppLocalizations.of(context)!.attendances,
                   stats.totalAttendances.toString(),
                   Icons.event_available,
                   Colors.green,
                 ),
                 _buildUserStatItem(
-                  'Ausências',
+                  AppLocalizations.of(context)!.absences,
                   stats.totalAbsences.toString(),
                   Icons.event_busy,
                   Colors.orange,
                 ),
                 _buildUserStatItem(
-                  'Aceitos',
+                  AppLocalizations.of(context)!.accepted,
                   stats.acceptedInvitations.toString(),
                   Icons.check_circle,
                   Colors.green,
                 ),
                 _buildUserStatItem(
-                  'Rejeitados',
+                  AppLocalizations.of(context)!.rejected,
                   stats.rejectedInvitations.toString(),
                   Icons.cancel,
                   Colors.red,
                 ),
                 _buildUserStatItem(
-                  'Pendentes',
+                  AppLocalizations.of(context)!.pending,
                   stats.pendingInvitations.toString(),
                   Icons.hourglass_empty,
                   Colors.purple,
@@ -1733,8 +1733,8 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Resumo Global',
+            Text(
+              AppLocalizations.of(context)!.globalSummary,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -1742,37 +1742,37 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
             ),
             const SizedBox(height: 16),
             Wrap(
-              spacing: 12, // espacio horizontal entre elementos
-              runSpacing: 12, // espacio vertical entre filas
+              spacing: 8, // espacio horizontal entre elementos
+              runSpacing: 8, // espacio vertical entre filas
               alignment: WrapAlignment.center,
               runAlignment: WrapAlignment.center,
               children: [
                 _buildStatItem(
-                  'Presenças',
+                  AppLocalizations.of(context)!.attendances,
                   _totalAttendances.toString(),
                   Icons.event_available,
                   Colors.green,
                 ),
                 _buildStatItem(
-                  'Ausências',
+                  AppLocalizations.of(context)!.absences,
                   _totalAbsences.toString(),
                   Icons.event_busy,
                   Colors.orange,
                 ),
                 _buildStatItem(
-                  'Convites',
+                  AppLocalizations.of(context)!.invites,
                   _totalInvitations.toString(),
                   Icons.send,
                   Colors.blue,
                 ),
                 _buildStatItem(
-                  'Aceitos',
+                  AppLocalizations.of(context)!.accepted,
                   _acceptedInvitations.toString(),
                   Icons.check_circle,
                   Colors.green,
                 ),
                 _buildStatItem(
-                  'Rejeitados',
+                  AppLocalizations.of(context)!.rejected,
                   _rejectedInvitations.toString(),
                   Icons.cancel,
                   Colors.red,
@@ -1787,8 +1787,8 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
 
   Widget _buildStatItem(String label, String value, IconData icon, MaterialColor color) {
     return Container(
-      width: 95,
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: 110,
+      margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: color[50],
@@ -1826,11 +1826,11 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
       ),
       child: Row(
         children: [
-          const Text('Ordenar por:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(AppLocalizations.of(context)!.sortBy, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(width: 8),
-          _buildSortButton('Nome', 'name'),
-          _buildSortButton('Data', 'createdAt'),
-          _buildSortButton('Convites', 'invitations'),
+          _buildSortButton(AppLocalizations.of(context)!.name, 'name'),
+          _buildSortButton(AppLocalizations.of(context)!.date, 'createdAt'),
+          _buildSortButton(AppLocalizations.of(context)!.invites, 'invitations'),
         ],
       ),
     );
@@ -1875,9 +1875,9 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
 
   Widget _buildServicesList() {
     if (_services.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'Nenhum serviço encontrado',
+          AppLocalizations.of(context)!.noServiceFound,
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
@@ -1928,7 +1928,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '${service['cultsCount']} cultos',
+                  AppLocalizations.of(context)!.cultsCount(service['cultsCount'].toString()),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -1954,8 +1954,8 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                           ),
                         ),
                       
-                      const Text(
-                        'Estatísticas',
+                      Text(
+                        AppLocalizations.of(context)!.statistics,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -1965,19 +1965,19 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                       
                       // Estadísticas de invitaciones
                       _buildStatRow(
-                        'Convites enviados', 
+                        AppLocalizations.of(context)!.invitesSent, 
                         service['totalInvitations'], 
                         Colors.blue,
                         onTap: () => _showUsersList(service, 'invitations'),
                       ),
                       _buildStatRow(
-                        'Convites aceitos', 
+                        AppLocalizations.of(context)!.invitesAccepted, 
                         service['acceptedInvitations'], 
                         Colors.green,
                         onTap: () => _showUsersList(service, 'accepted'),
                       ),
                       _buildStatRow(
-                        'Convites rejeitados', 
+                        AppLocalizations.of(context)!.invitesRejected, 
                         service['rejectedInvitations'], 
                         Colors.red,
                         onTap: () => _showUsersList(service, 'rejected'),
@@ -1987,13 +1987,13 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                       
                       // Estadísticas de asistencia
                       _buildStatRow(
-                        'Total presenças', 
+                        AppLocalizations.of(context)!.totalAttendances, 
                         service['totalAttendances'], 
                         Colors.green,
                         onTap: () => _showUsersList(service, 'attendances'),
                       ),
                       _buildStatRow(
-                        'Total ausências', 
+                        AppLocalizations.of(context)!.totalAbsences, 
                         service['totalAbsences'], 
                         Colors.orange,
                         onTap: () => _showUsersList(service, 'absences'),
@@ -2006,7 +2006,7 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
                             _navigateToCultsList(service);
                           },
                           icon: const Icon(Icons.visibility),
-                          label: const Text('Ver cultos'),
+                          label: Text(AppLocalizations.of(context)!.viewCults),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                           ),
@@ -2124,17 +2124,17 @@ class _ServicesStatsScreenState extends State<ServicesStatsScreen> with SingleTi
   String _getCategoryTitle(String category) {
     switch (category) {
       case 'invitations':
-        return 'Convites enviados';
+        return AppLocalizations.of(context)!.invitesSent;
       case 'accepted':
-        return 'Convites aceitos';
+        return AppLocalizations.of(context)!.invitesAccepted;
       case 'rejected':
-        return 'Convites rejeitados';
+        return AppLocalizations.of(context)!.invitesRejected;
       case 'attendances':
-        return 'Presenças';
+        return AppLocalizations.of(context)!.attendances;
       case 'absences':
-        return 'Ausências';
+        return AppLocalizations.of(context)!.absences;
       default:
-        return 'Lista de usuários';
+        return AppLocalizations.of(context)!.userList;
     }
   }
 }
@@ -2260,7 +2260,7 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error ao carregar cultos: $e');
+      debugPrint(AppLocalizations.of(context)!.errorLoadingCults(e.toString()));
       setState(() {
         _isLoading = false;
       });
@@ -2303,7 +2303,7 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cultos de ${widget.serviceName}'),
+        title: Text(AppLocalizations.of(context)!.cultsOf(widget.serviceName)),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -2333,11 +2333,11 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Text('Ordenar por:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text(AppLocalizations.of(context)!.sortBy, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       const SizedBox(width: 8),
-                      _buildSortButton('Nome', 'name'),
-                      _buildSortButton('Data', 'date'),
-                      _buildSortButton('Convites', 'invitations'),
+                      _buildSortButton(AppLocalizations.of(context)!.name, 'name'),
+                      _buildSortButton(AppLocalizations.of(context)!.date, 'date'),
+                      _buildSortButton(AppLocalizations.of(context)!.invites, 'invitations'),
                     ],
                   ),
                 ),
@@ -2345,7 +2345,7 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
                 // Lista de cultos
                 Expanded(
                   child: _cults.isEmpty
-                      ? const Center(child: Text('Nenhum culto disponível para este serviço'))
+                      ? Center(child: Text(AppLocalizations.of(context)!.noCultsAvailableForService))
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: _cults.length,
@@ -2441,7 +2441,7 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
         break;
       case 'finalizado':
         statusColor = Colors.purple; // Cambio de color para finalizado
-        statusText = 'Finalizado';
+        statusText = AppLocalizations.of(context)!.finished;
         break;
       case 'cancelado':
         statusColor = Colors.red;
@@ -2513,8 +2513,8 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Estatísticas',
+                  Text(
+                    AppLocalizations.of(context)!.statistics,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -2545,13 +2545,13 @@ class _CultsDetailScreenState extends State<CultsDetailScreen> {
                   const Divider(height: 16),
                   
                   _buildStatRow(
-                    'Total presenças', 
+                    AppLocalizations.of(context)!.totalAttendances, 
                     cult['totalAttendances'], 
                     Colors.green,
                     onTap: () => _showUsersList(cult, 'attendances'),
                   ),
                   _buildStatRow(
-                    'Total ausências', 
+                    AppLocalizations.of(context)!.totalAbsences, 
                     cult['totalAbsences'], 
                     Colors.orange,
                     onTap: () => _showUsersList(cult, 'absences'),
@@ -2941,15 +2941,15 @@ class _UsersListSheetState extends State<UsersListSheet> {
     
     switch (widget.category) {
       case 'invitations':
-        title = 'Convites enviados';
+        title = AppLocalizations.of(context)!.invitesSent;
         headerColor = Colors.blue;
         break;
       case 'accepted':
-        title = 'Convites aceitos';
+        title = AppLocalizations.of(context)!.invitesAccepted;
         headerColor = Colors.green;
         break;
       case 'rejected':
-        title = 'Convites rejeitados';
+        title = AppLocalizations.of(context)!.invitesRejected;
         headerColor = Colors.red;
         break;
       case 'attendances':

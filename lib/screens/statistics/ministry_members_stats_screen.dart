@@ -77,7 +77,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar ministérios: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingMinistries(e.toString()))),
         );
         setState(() {
           _isLoading = false;
@@ -90,7 +90,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estatísticas de Ministérios'),
+        title: Text(AppLocalizations.of(context)!.ministryStatisticsTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -109,10 +109,10 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.7),
-          tabs: const [
-            Tab(text: 'Membros'),
-            Tab(text: 'Histórico'),
-            Tab(text: 'Eventos'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.members),
+            Tab(text: AppLocalizations.of(context)!.history),
+            Tab(text: AppLocalizations.of(context)!.events),
           ],
         ),
       ),
@@ -124,7 +124,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -136,9 +136,9 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para visualizar estatísticas de ministérios.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionViewMinistryStats, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -188,7 +188,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filtrar por data',
+                        AppLocalizations.of(context)!.filterByDate,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -199,7 +199,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                         TextButton.icon(
                           onPressed: _clearDateFilter,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpar filtro'),
+                          label: Text(AppLocalizations.of(context)!.clearFilter),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red[700],
                             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -252,7 +252,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                                 Text(
                                   _startDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                      : 'Data inicial',
+                                      : AppLocalizations.of(context)!.initialDate,
                                   style: TextStyle(
                                     color: _startDate != null
                                         ? Colors.black87
@@ -312,7 +312,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                                 Text(
                                   _endDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                      : 'Data final',
+                                      : AppLocalizations.of(context)!.finalDate,
                                   style: TextStyle(
                                     color: _endDate != null
                                         ? Colors.black87
@@ -355,8 +355,8 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Total de Membros Únicos',
+                      Text(
+                        AppLocalizations.of(context)!.totalUniqueMembers,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -383,13 +383,13 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              const Text('Ordenar por: '),
+              Text(AppLocalizations.of(context)!.sortBy),
               DropdownButton<String>(
                 value: _sortField,
-                items: const [
-                  DropdownMenuItem(value: 'members', child: Text('Membros')),
-                  DropdownMenuItem(value: 'name', child: Text('Nome')),
-                  DropdownMenuItem(value: 'creation', child: Text('Data de criação')),
+                items: [
+                  DropdownMenuItem(value: 'members', child: Text(AppLocalizations.of(context)!.members)),
+                  DropdownMenuItem(value: 'name', child: Text(AppLocalizations.of(context)!.name)),
+                  DropdownMenuItem(value: 'creation', child: Text(AppLocalizations.of(context)!.creationDate)),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -434,7 +434,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
         // Lista de ministérios em acordeões
         Expanded(
           child: _ministries.isEmpty
-              ? const Center(child: Text('Não há ministérios disponíveis'))
+              ? Center(child: Text(AppLocalizations.of(context)!.noMinistriesAvailable))
               : ListView.builder(
                   itemCount: _ministries.length,
                   itemBuilder: (context, index) {
@@ -497,7 +497,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                        'Erro ao carregar membros: ${snapshot.error}',
+                        AppLocalizations.of(context)!.errorLoadingMembers(snapshot.error.toString()),
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
@@ -506,9 +506,9 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
 
               final members = snapshot.data ?? [];
               if (members.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.all(16.0),
-                    child: Text('Não há membros neste ministério'),
+                    child: Text(AppLocalizations.of(context)!.noMembersInMinistry),
                 );
               }
 
@@ -551,7 +551,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          '% Presença',
+                                          AppLocalizations.of(context)!.attendancePercentage,
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
@@ -589,7 +589,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          'Eventos',
+                                          AppLocalizations.of(context)!.eventsLabel,
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
@@ -642,7 +642,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                         title: Row(
                           children: [
                                 Text(
-                                  member['name'] ?? 'Usuário',
+                                  member['name'] ?? AppLocalizations.of(context)!.user,
                                   style: const TextStyle(fontWeight: FontWeight.w500),
                                 ),
                             if (member['isAdmin'] == true)
@@ -657,8 +657,8 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(color: Colors.blue),
                                 ),
-                                child: const Text(
-                                  'Admin',
+                                child: Text(
+                                  AppLocalizations.of(context)!.admin,
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.blue,
@@ -820,7 +820,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
           if (userData != null) {
             membersWithStats.add({
               'userId': memberId,
-              'name': userData['name'] ?? userData['displayName'] ?? 'Usuário',
+              'name': userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.user,
               'email': userData['email'] ?? '',
               'photoUrl': userData['photoUrl'] ?? '',
               'isAdmin': ministry.adminIds.contains(memberId),
@@ -921,7 +921,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
 
         membersWithStats.add({
           'userId': memberId,
-            'name': userData['name'] ?? userData['displayName'] ?? 'Usuário',
+            'name': userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.user,
           'email': userData['email'] ?? '',
           'photoUrl': userData['photoUrl'] ?? '',
             'isAdmin': ministry.adminIds.contains(memberId),

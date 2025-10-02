@@ -5,6 +5,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/user_model.dart'; // Asumiendo que existe
 import '../../services/permission_service.dart'; // <-- IMPORTAR PermissionService
+import '../../l10n/app_localizations.dart';
 
 class ChurchStatisticsScreen extends StatefulWidget {
   const ChurchStatisticsScreen({super.key});
@@ -157,7 +158,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
       debugPrint('Error al cargar estadísticas de la iglesia: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: $e'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingData(e.toString())))
         );
       }
     } finally {
@@ -252,7 +253,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
     if (_isCheckingPermission) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Estatísticas da Igreja'),
+          title: Text(AppLocalizations.of(context)!.churchStatisticsTitle),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
         ),
@@ -264,7 +265,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
       // Mostrar mensaje de acceso denegado simple
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Estatísticas da Igreja'),
+          title: Text(AppLocalizations.of(context)!.churchStatisticsTitle),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
         ),
@@ -296,7 +297,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estatísticas da Igreja'),
+        title: Text(AppLocalizations.of(context)!.churchStatisticsTitle),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -503,7 +504,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
             if (displayDistribution.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text('Dados não disponíveis', style: AppTextStyles.bodyText2.copyWith(color: AppColors.textSecondary)),
+                child: Text(AppLocalizations.of(context)!.dataNotAvailable, style: AppTextStyles.bodyText2.copyWith(color: AppColors.textSecondary)),
               )
             else
               ...displayDistribution.entries.map((entry) {

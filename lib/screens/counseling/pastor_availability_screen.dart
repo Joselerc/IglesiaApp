@@ -83,6 +83,25 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
     return days;
   }
 
+  // Obtener el nombre del día en español
+  String _getDayName(DateTime date) {
+    final dayNames = [
+      AppLocalizations.of(context)!.monday,
+      AppLocalizations.of(context)!.tuesday,
+      AppLocalizations.of(context)!.wednesday,
+      AppLocalizations.of(context)!.thursday,
+      AppLocalizations.of(context)!.friday,
+      AppLocalizations.of(context)!.saturday,
+      AppLocalizations.of(context)!.sunday,
+    ];
+    
+    final dayName = dayNames[date.weekday - 1];
+    final dayNumber = date.day;
+    final monthName = DateFormat('MMMM', 'es_ES').format(date);
+    
+    return '$dayName, $dayNumber de $monthName';
+  }
+
   Future<void> _loadAvailability() async {
     setState(() {
       _isLoading = true;
@@ -402,7 +421,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -436,8 +455,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
               
               // Mostrar mensaje de confirmación
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Dia atualizado com sucesso'),
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.dayUpdatedSuccessfully),
                   duration: Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -453,7 +472,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
               // Mostrar mensaje de error
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Erro ao salvar: $error'),
+                  content: Text(AppLocalizations.of(context)!.errorSaving(error.toString())),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -559,7 +578,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao copiar: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -569,7 +588,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
 
   Widget _buildDayScheduleCard(DateTime date, model.DaySchedule schedule) {
     // Formatear el nombre del día con la fecha
-    final dayName = DateFormat('EEEE, d \'de\' MMMM', 'pt_BR').format(date);
+    final dayName = _getDayName(date);
     final isToday = DateTime.now().day == date.day && 
                     DateTime.now().month == date.month && 
                     DateTime.now().year == date.year;
@@ -675,7 +694,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   Row(
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.timeSlots,
+                        AppLocalizations.of(context)!.timeSlots(schedule.timeSlots.length.toString()),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -929,7 +948,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text(AppLocalizations.of(context)!.errorVerifyingPermission(permissionSnapshot.error.toString())));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -999,7 +1018,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context)!.weekOf,
+                                    AppLocalizations.of(context)!.weekOf(DateFormat('dd/MM/yyyy').format(_selectedWeek)),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey.shade600,
@@ -1296,7 +1315,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                   _saveGlobalSettings();
                   Navigator.of(context).pop();
                 },
-                child: const Text('Salvar'),
+                child: Text(AppLocalizations.of(context)!.guardar),
               ),
             ],
             shape: RoundedRectangleBorder(
@@ -1326,8 +1345,8 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       // Mostrar confirmación
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Configuração salva com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.settingsSavedSuccessfully),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1336,7 +1355,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );

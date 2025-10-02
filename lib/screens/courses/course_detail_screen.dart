@@ -295,7 +295,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                AppLocalizations.of(context)!.progress(completionPercentage.toInt(), completedCount, realTotalLessons),
+                AppLocalizations.of(context)!.progressWithDetails(completionPercentage.toInt(), completedCount, realTotalLessons),
                 style: AppTextStyles.bodyText2.copyWith(
                   color: Colors.blue[700],
                   fontWeight: FontWeight.w500,

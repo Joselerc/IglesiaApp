@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/permission_service.dart';
 import '../theme/app_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class CreateGroupModal extends StatefulWidget {
   const CreateGroupModal({super.key});
@@ -27,7 +28,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
   int get _nameRemainingChars => 100 - (_nameController.text.length);
   int get _descriptionRemainingChars => 250 - (_descriptionController.text.length);
   
-  static const Color primaryColor = AppColors.secondary; // Verde Sage
+  static const Color primaryColor = AppColors.primary; // Usar el mismo color que ministerios
   
   @override
   void initState() {
@@ -66,7 +67,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sem permissão para criar grupos.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionCreateGroups), backgroundColor: Colors.red),
         );
       }
       return;
@@ -99,7 +100,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Grupo criado com sucesso!'),
+              content: Text(AppLocalizations.of(context)!.groupCreatedSuccessfully),
               backgroundColor: AppColors.success,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -112,7 +113,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao criar grupo: $e'),
+              content: Text(AppLocalizations.of(context)!.errorCreatingGroup(e.toString())),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -196,13 +197,13 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                     ),
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Acesso Negado',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                    Text(
+                      AppLocalizations.of(context)!.accessDenied,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Você não tem permissão para criar grupos.',
+                    Text(
+                      AppLocalizations.of(context)!.noPermissionCreateGroupsLong,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -215,7 +216,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Entendi'),
+                      child: Text(AppLocalizations.of(context)!.understood),
                     ),
                   ],
                 ),
@@ -254,9 +255,9 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Criar Connect',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.createGroup,
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: primaryColor,
@@ -289,9 +290,9 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Nombre del grupo
-                          const Text(
-                            'Nome do Grupo',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.groupName,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
                               color: AppColors.textPrimary,
@@ -301,7 +302,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              hintText: 'Digite o nome do grupo',
+                              hintText: AppLocalizations.of(context)!.enterGroupName,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -327,7 +328,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             onChanged: (_) => setState(() {}),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Por favor, digite um nome';
+                                return AppLocalizations.of(context)!.pleaseEnterGroupName;
                               }
                               return null;
                             },
@@ -350,7 +351,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           
                           // Descripción
                           Text(
-                            'Descrição',
+                            AppLocalizations.of(context)!.groupDescription,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
@@ -361,7 +362,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           TextFormField(
                             controller: _descriptionController,
                             decoration: InputDecoration(
-                              hintText: 'Digite a descrição do grupo',
+                              hintText: AppLocalizations.of(context)!.enterGroupDescription,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -388,7 +389,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             onChanged: (_) => setState(() {}),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Por favor, digite uma descrição';
+                                return AppLocalizations.of(context)!.pleaseEnterDescription;
                               }
                               return null;
                             },
@@ -410,8 +411,8 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           ),
                           
                           // Selección de administradores
-                          const Text(
-                            'Selecionar Administradores',
+                          Text(
+                            AppLocalizations.of(context)!.selectAdministrators,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
@@ -420,7 +421,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Os administradores podem gerenciar o grupo, seus membros e eventos.',
+                            AppLocalizations.of(context)!.administratorsCanManage,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
@@ -433,8 +434,8 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             icon: Icon(Icons.person_add, color: primaryColor),
                             label: Text(
                               _selectedAdmins.isEmpty 
-                                ? 'Adicionar administradores' 
-                                : '${_selectedAdmins.length} administradores selecionados',
+                                ? AppLocalizations.of(context)!.addAdministrators 
+                                : AppLocalizations.of(context)!.administratorsSelected(_selectedAdmins.length.toString()),
                               style: const TextStyle(color: primaryColor),
                             ),
                             style: OutlinedButton.styleFrom(
@@ -459,12 +460,12 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Row(
+                                  Row(
                                     children: [
-                                      Icon(Icons.people, color: primaryColor, size: 20),
-                                      SizedBox(width: 8),
+                                      const Icon(Icons.people, color: primaryColor, size: 20),
+                                      const SizedBox(width: 8),
                                       Text(
-                                        'Administradores selecionados:',
+                                        AppLocalizations.of(context)!.selectedAdministrators,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           color: primaryColor,
@@ -480,20 +481,20 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                                       future: _selectedAdmins[index].get(),
                                       builder: (context, snapshot) {
                                         if (!snapshot.hasData) {
-                                          return const ListTile(
-                                            leading: CircleAvatar(
-                                              backgroundColor: AppColors.secondary,
+                                          return ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: AppColors.primary,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 1, 
                                                 color: Colors.white,
                                               ),
                                             ),
-                                            title: Text('Carregando...'),
+                                            title: Text(AppLocalizations.of(context)!.loading),
                                           );
                                         }
                                         
                                         final userData = snapshot.data!.data() as Map<String, dynamic>;
-                                        final name = userData['name'] ?? 'Usuário desconhecido';
+                                        final name = userData['name'] ?? AppLocalizations.of(context)!.unknownUser;
                                         final photoUrl = userData['photoUrl'] ?? '';
                                         
                                         return ListTile(
@@ -544,8 +545,7 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Ao criar um grupo, você será automaticamente membro e administrador. '
-                                    'Você poderá personalizar a imagem e outras configurações após a criação.',
+                                    AppLocalizations.of(context)!.autoMemberInfo,
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.blue[700],
@@ -597,13 +597,13 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
                             strokeWidth: 2,
                           ),
                         )
-                      : const Row(
+                      : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.check_circle_outline, color: Colors.white),
-                            SizedBox(width: 8),
+                            const Icon(Icons.check_circle_outline, color: Colors.white),
+                            const SizedBox(width: 8),
                             Text(
-                              'Criar Grupo',
+                              AppLocalizations.of(context)!.createGroup,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -687,8 +687,8 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Selecionar Administradores',
+                Text(
+                  AppLocalizations.of(context)!.selectAdministrators,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -713,7 +713,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Buscar usuários...',
+                hintText: AppLocalizations.of(context)!.searchUsers,
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -752,7 +752,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                         Icon(Icons.person_off, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 12),
                         Text(
-                          'Nenhum usuário disponível',
+                          AppLocalizations.of(context)!.noUsersAvailable,
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -778,7 +778,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                         Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 12),
                         Text(
-                          'Nenhum resultado encontrado para "$_searchQuery"',
+                          AppLocalizations.of(context)!.noResultsFound(_searchQuery),
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -792,7 +792,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   itemBuilder: (context, index) {
                     final doc = users[index];
                     final userData = doc.data() as Map<String, dynamic>;
-                    final name = userData['name'] ?? 'Usuário';
+                    final name = userData['name'] ?? AppLocalizations.of(context)!.user;
                     final email = userData['email'] ?? '';
                     final photoUrl = userData['photoUrl'] ?? '';
                     final userRef = FirebaseFirestore.instance.collection('users').doc(doc.id);
@@ -876,7 +876,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                     foregroundColor: Colors.grey[700],
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  child: const Text('Cancelar'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, _selectedAdmins),
@@ -890,8 +890,8 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   ),
                   icon: const Icon(Icons.check, color: Colors.white),
                   label: Text(_selectedAdmins.isEmpty 
-                    ? 'Confirmar' 
-                    : 'Selecionar (${_selectedAdmins.length})'),
+                    ? AppLocalizations.of(context)!.confirm 
+                    : AppLocalizations.of(context)!.select(_selectedAdmins.length.toString())),
                 ),
               ],
             ),

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class PastorRequestsScreen extends StatefulWidget {
   const PastorRequestsScreen({super.key});
@@ -51,8 +52,8 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Você não tem permissão para gerenciar solicitações de aconselhamento'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noPermissionManageCounselingRequests),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -74,7 +75,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Agendamento ${_getStatusText(status)}'),
+            content: Text(AppLocalizations.of(context)!.appointmentStatus(_getStatusText(status))),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -87,7 +88,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorLabel} $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -108,11 +109,11 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
   String _getStatusText(String status) {
     switch (status) {
       case 'confirmed':
-        return 'confirmado';
+        return AppLocalizations.of(context)!.appointmentConfirmed;
       case 'cancelled':
-        return 'cancelado';
+        return AppLocalizations.of(context)!.appointmentCancelled;
       case 'completed':
-        return 'concluído';
+        return AppLocalizations.of(context)!.appointmentCompleted;
       default:
         return status;
     }
@@ -122,7 +123,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
     if (_pastorId.isEmpty) {
       return Center(
         child: Text(
-          'Carregando...',
+          AppLocalizations.of(context)!.loading,
           style: AppTextStyles.bodyText1,
         ),
       );
@@ -147,7 +148,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Erro: ${snapshot.error}',
+              '${AppLocalizations.of(context)!.errorLabel} ${snapshot.error}',
               style: AppTextStyles.bodyText1.copyWith(color: Colors.red),
             ),
           );
@@ -162,10 +163,10 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                 const SizedBox(height: 16),
                 Text(
                   status == 'pending'
-                      ? 'Não há solicitações pendentes'
+                      ? AppLocalizations.of(context)!.noPendingRequests
                       : status == 'confirmed'
-                          ? 'Não há agendamentos confirmados'
-                          : 'Não há agendamentos concluídos',
+                          ? AppLocalizations.of(context)!.noConfirmedAppointments
+                          : AppLocalizations.of(context)!.noCompletedAppointments,
                   style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -191,7 +192,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                     : date.add(Duration(minutes: data['sessionDuration'] as int? ?? 60));
                 final userRef = data['userId'] as DocumentReference;
                 final type = data['type'] as String? ?? 'online';
-                final reason = data['reason'] as String? ?? 'Nenhum motivo especificado';
+                final reason = data['reason'] as String? ?? AppLocalizations.of(context)!.noReasonSpecified;
                 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -242,8 +243,8 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                     : Colors.green.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Text(
-                                type == 'online' ? 'Online' : 'Presencial',
+                                child: Text(
+                                type == 'online' ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.inPerson,
                                 style: AppTextStyles.caption.copyWith(
                                   color: type == 'online' ? Colors.blue : Colors.green,
                                   fontWeight: FontWeight.bold,
@@ -265,14 +266,14 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                               builder: (context, userSnapshot) {
                                 if (!userSnapshot.hasData) {
                                   return Text(
-                                    'Carregando usuário...',
+                                    AppLocalizations.of(context)!.loadingUser,
                                     style: AppTextStyles.bodyText2,
                                   );
                                 }
                                 
                                 final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
-                                final userName = userData?['name'] as String? ?? 'Usuário desconhecido';
-                                final userEmail = userData?['email'] as String? ?? 'Sem email';
+                                final userName = userData?['name'] as String? ?? AppLocalizations.of(context)!.unknownUser;
+                                final userEmail = userData?['email'] as String? ?? AppLocalizations.of(context)!.noEmail;
                                 final userPhone = userData?['phoneComplete'] as String? ?? userData?['phone'] as String? ?? '';
                                 
                                 return Column(
@@ -322,7 +323,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                                   if (mounted) {
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       SnackBar(
-                                                        content: const Text('Não foi possível abrir o telefone'),
+                                                        content: Text(AppLocalizations.of(context)!.couldNotOpenPhone),
                                                         backgroundColor: Colors.red,
                                                         behavior: SnackBarBehavior.floating,
                                                         shape: RoundedRectangleBorder(
@@ -333,7 +334,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                                   }
                                                 }
                                               },
-                                              tooltip: 'Ligar',
+                                              tooltip: AppLocalizations.of(context)!.callTooltip,
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(),
                                             ),
@@ -352,7 +353,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                                   if (mounted) {
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       SnackBar(
-                                                        content: const Text('Não foi possível abrir o WhatsApp'),
+                                                        content: Text(AppLocalizations.of(context)!.couldNotOpenWhatsApp),
                                                         backgroundColor: Colors.red,
                                                         behavior: SnackBarBehavior.floating,
                                                         shape: RoundedRectangleBorder(
@@ -363,7 +364,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                                   }
                                                 }
                                               },
-                                              tooltip: 'WhatsApp',
+                                              tooltip: AppLocalizations.of(context)!.whatsAppTooltip,
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(),
                                             ),
@@ -377,7 +378,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Motivo:',
+                              AppLocalizations.of(context)!.reasonLabel,
                               style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
@@ -405,7 +406,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Recusar'),
+                                child: Text(AppLocalizations.of(context)!.reject),
                               ),
                               const SizedBox(width: 16),
                               ElevatedButton(
@@ -417,7 +418,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Aceitar'),
+                                child: Text(AppLocalizations.of(context)!.accept),
                               ),
                             ],
                           ),
@@ -437,7 +438,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Cancelar'),
+                                child: Text(AppLocalizations.of(context)!.cancel),
                               ),
                               const SizedBox(width: 16),
                               ElevatedButton(
@@ -449,7 +450,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Concluir'),
+                                child: Text(AppLocalizations.of(context)!.complete),
                               ),
                             ],
                           ),
@@ -486,11 +487,11 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
         if (permissionSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Solicitações de Aconselhamento'),
+              title: Text(AppLocalizations.of(context)!.counselingRequestsTitle),
               backgroundColor: AppColors.primary,
             ),
             body: Center(
-              child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'),
+              child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())),
             ),
           );
         }
@@ -498,7 +499,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
         if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Solicitações de Aconselhamento'),
+              title: Text(AppLocalizations.of(context)!.counselingRequestsTitle),
               backgroundColor: AppColors.primary,
             ),
             body: Center(
@@ -509,9 +510,9 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar solicitações de aconselhamento.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionManageCounselingRequests, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -522,7 +523,7 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('Solicitações de Aconselhamento'),
+            title: Text(AppLocalizations.of(context)!.counselingRequestsTitle),
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 2,
@@ -533,10 +534,10 @@ class _PastorRequestsScreenState extends State<PastorRequestsScreen> with Single
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white.withOpacity(0.8),
               labelStyle: AppTextStyles.button.copyWith(fontSize: 14),
-              tabs: const [
-                Tab(text: 'Pendentes'),
-                Tab(text: 'Confirmados'),
-                Tab(text: 'Concluídos'),
+              tabs: [
+                Tab(text: AppLocalizations.of(context)!.pending),
+                Tab(text: AppLocalizations.of(context)!.confirmed),
+                Tab(text: AppLocalizations.of(context)!.completed),
               ],
             ),
           ),

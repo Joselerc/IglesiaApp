@@ -439,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              AppLocalizations.of(context)!.errorLoadingMinistries,
+                                              AppLocalizations.of(context)!.errorLoadingMinistries(''),
                                               style: TextStyle(
                                                 color: Colors.red.shade700,
                                               ),
@@ -767,7 +767,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              AppLocalizations.of(context)!.errorLoadingGroups,
+                                              AppLocalizations.of(context)!.errorLoadingGroups(''),
                                               style: TextStyle(
                                                 color: Colors.red.shade700,
                                               ),

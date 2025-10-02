@@ -167,7 +167,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Progresso Médio por Curso'),
+        title: Text(AppLocalizations.of(context)!.progressStatisticsTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -181,7 +181,7 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
             return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Nenhuma estatística disponível.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
           }
           
           final stats = snapshot.data!;
@@ -226,10 +226,10 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
           children: [
             Text('Resumo Geral de Progresso', style: AppTextStyles.headline3),
             const SizedBox(height: 12),
-            _buildStatRow('Progresso Médio Global:', '${globalAverageProgress.toStringAsFixed(1)}%'),
-            _buildStatRow('Lições Médias Concluídas:', globalAverageLessons.toStringAsFixed(1)),
+            _buildStatRow(AppLocalizations.of(context)!.globalAverageProgress, '${globalAverageProgress.toStringAsFixed(1)}%'),
+            _buildStatRow(AppLocalizations.of(context)!.averageLessonsCompleted, globalAverageLessons.toStringAsFixed(1)),
             if (highest != null) 
-              _buildStatRow('Maior Progresso:', '${highest.course.title} (${highest.averageProgressPercentage.toStringAsFixed(1)}%)'),
+              _buildStatRow(AppLocalizations.of(context)!.highestProgress, '${highest.course.title} (${highest.averageProgressPercentage.toStringAsFixed(1)}%)'),
             if (lowest != null) 
               _buildStatRow('Menor Progresso:', '${lowest.course.title} (${lowest.averageProgressPercentage.toStringAsFixed(1)}%)'),
             const Divider(height: 24, thickness: 0.5),
@@ -318,10 +318,10 @@ class _CourseProgressStatsScreenState extends State<CourseProgressStatsScreen> {
           dataRowMaxHeight: 60,
           columnSpacing: 18, // Reducir un poco el espacio entre columnas
           columns: [
-            _buildSortableHeader('Curso', 'title'),
-            _buildSortableHeader('Progresso (%)', 'averageProgressPercentage', isNumeric: true),
-            _buildSortableHeader('Lições Médias', 'averageCompletedLessons', isNumeric: true),
-            _buildSortableHeader('Total Lições', 'totalLessons', isNumeric: true),
+            _buildSortableHeader(AppLocalizations.of(context)!.course, 'title'),
+            _buildSortableHeader(AppLocalizations.of(context)!.progressPercentage, 'averageProgressPercentage', isNumeric: true),
+            _buildSortableHeader(AppLocalizations.of(context)!.averageLessons, 'averageCompletedLessons', isNumeric: true),
+            _buildSortableHeader(AppLocalizations.of(context)!.totalLessonsHeader, 'totalLessons', isNumeric: true),
           ],
           rows: courseStats.map((stat) {
             return DataRow(

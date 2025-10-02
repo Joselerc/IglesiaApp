@@ -109,7 +109,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inscrições por Curso'),
+        title: Text(AppLocalizations.of(context)!.enrollmentStatisticsTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -123,7 +123,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
             return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Nenhuma estatística disponível.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
           }
           
           final stats = snapshot.data!;
@@ -357,7 +357,7 @@ class _CourseEnrollmentStatsScreenState extends State<CourseEnrollmentStatsScree
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
-                    label: const Text('Limpar', style: TextStyle(color: Colors.red)),
+                    label: Text(AppLocalizations.of(context)!.clear, style: TextStyle(color: Colors.red)),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,

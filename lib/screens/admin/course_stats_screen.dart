@@ -216,7 +216,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estatísticas de Cursos'),
+        title: Text(AppLocalizations.of(context)!.courseStatisticsTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -242,10 +242,10 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', 
+                    Text(AppLocalizations.of(context)!.accessDenied, 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para visualizar estatísticas de cursos.',
+                    Text(AppLocalizations.of(context)!.noPermissionViewCourseStats,
                       textAlign: TextAlign.center),
                   ],
                 ),
@@ -269,7 +269,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                   return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data == null) {
-                  return const Center(child: Text('Nenhuma estatística disponível.'));
+                  return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
                 }
                 
                 final stats = snapshot.data!;
@@ -331,10 +331,10 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
       children: [
         _buildStatRow('Total de Inscrições:', '$totalEnrollments'),
         const SizedBox(height: 12),
-        Text('Top 3 Cursos (Inscritos):', style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.w600)),
+        Text(AppLocalizations.of(context)!.top3CoursesEnrolled, style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         if (topCourses.isEmpty)
-          const Text('Nenhum curso para mostrar.', style: TextStyle(color: Colors.grey))
+          Text(AppLocalizations.of(context)!.noCourseToShow, style: TextStyle(color: Colors.grey))
         else
           ...topCourses.map((stat) => 
             Padding(
@@ -373,8 +373,8 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
       icon: Icons.show_chart_outlined,
       iconColor: Colors.green,
       children: [
-        _buildStatRow('Progresso Médio Global:', '${globalAvgProgress.toStringAsFixed(1)}%'),
-        _buildStatRow('Lições Médias Concluídas:', globalAvgLessons.toStringAsFixed(1)),
+        _buildStatRow(AppLocalizations.of(context)!.globalAverageProgress, '${globalAvgProgress.toStringAsFixed(1)}%'),
+        _buildStatRow(AppLocalizations.of(context)!.averageLessonsCompleted, globalAvgLessons.toStringAsFixed(1)),
         const SizedBox(height: 12),
         if (highest != null) 
           _buildStatRow('Maior Progresso:', '${highest.course.title} (${highest.averageProgressPercentage.toStringAsFixed(1)}%)'),
@@ -511,10 +511,10 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                     style: TextButton.styleFrom(padding: EdgeInsets.zero),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text('Ver mais'),
-                        SizedBox(width: 4),
-                        Icon(Icons.arrow_forward_ios, size: 12),
+                      children: [
+                        Text(AppLocalizations.of(context)!.seeMore),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_ios, size: 12),
                       ],
                     ),
                   ),
@@ -572,7 +572,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16, color: Colors.red),
-                    label: const Text('Limpar', style: TextStyle(color: Colors.red)),
+                    label: Text(AppLocalizations.of(context)!.clear, style: TextStyle(color: Colors.red)),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
@@ -730,9 +730,9 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
 
   void _showNotImplemented() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tela de detalhes ainda não implementada.'),
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.detailsScreenNotImplemented),
+        duration: const Duration(seconds: 1),
       ),
     );
   }

@@ -149,7 +149,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hitos de Conclusão por Curso'),
+        title: Text(AppLocalizations.of(context)!.milestoneStatisticsTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -163,7 +163,7 @@ class _CourseMilestoneStatsScreenState extends State<CourseMilestoneStatsScreen>
             return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Nenhuma estatística disponível.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
           }
           
           final stats = snapshot.data!;

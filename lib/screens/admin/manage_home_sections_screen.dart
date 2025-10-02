@@ -607,7 +607,7 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
       case HomeScreenSectionType.announcements:
         return AppLocalizations.of(context)!.announcements;
       case HomeScreenSectionType.cults:
-        return AppLocalizations.of(context)!.cults;
+        return AppLocalizations.of(context)!.cults('');
       case HomeScreenSectionType.servicesGrid:
         return AppLocalizations.of(context)!.servicesGridObsolete;
       case HomeScreenSectionType.events:

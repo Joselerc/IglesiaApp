@@ -6,6 +6,7 @@ import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart'; // Para usar estilos definidos
+import '../../l10n/app_localizations.dart';
 // Importar la lista de permisos (la crearemos después o la definiremos aquí)
 // import 'permissions_list.dart'; 
 
@@ -71,61 +72,77 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
   };
 
   // --- Mapa de Traducciones para Permisos ---
-  final Map<String, String> _permissionTranslations = {
-    // Administração Geral
-    'manage_roles': 'Gerenciar Papéis',
-    'assign_user_roles': 'Atribuir Papéis a Usuários',
-    'manage_users': 'Gerenciar Usuários',
-    'view_user_list': 'Ver Lista de Usuários',
-    'view_user_details': 'Ver Detalhes de Usuários',
-    'send_push_notifications': 'Enviar Notificações Push',
-    
-    // Configuração Home
-    'manage_home_sections': 'Gerenciar Seções da Tela Inicial',
-    'manage_pages': 'Gerenciar Páginas',
-    'manage_donations_config': 'Configurar Doações',
-    'manage_livestream_config': 'Configurar Transmissões ao Vivo',
-    
-    // Conteúdo e Eventos
-    'manage_announcements': 'Gerenciar Anúncios',
-    'manage_videos': 'Gerenciar Vídeos',
-    'manage_cults': 'Gerenciar Cultos',
-    'manage_event_tickets': 'Gerenciar Ingressos de Eventos',
-    'manage_event_attendance': 'Gerenciar Presença em Eventos',
-    'create_events': 'Criar Eventos',
-    'delete_events': 'Excluir Eventos',
-    'manage_courses': 'Gerenciar Cursos',
-    
-    // Comunidade (Grupos)
-    'create_group': 'Criar Connect',
-    'delete_group': 'Excluir Connect',
-    
-    // Comunidade (Ministérios)
-    'create_ministry': 'Criar Ministérios',
-    'delete_ministry': 'Excluir Ministérios',
-    
-    // Aconselhamento e Oração
-    'manage_counseling_availability': 'Gerenciar Disponibilidade para Aconselhamento',
-    'manage_counseling_requests': 'Gerenciar Solicitações de Aconselhamento',
-    'manage_private_prayers': 'Gerenciar Orações Privadas',
-    'assign_cult_to_prayer': 'Atribuir Culto à Oração',
-    
-    // Relatórios e Estatísticas
-    'view_ministry_stats': 'Ver Estatísticas de Ministérios',
-    'view_group_stats': 'Ver Estatísticas de Grupos',
-    'view_schedule_stats': 'Ver Estatísticas de Escalas',
-    'view_course_stats': 'Ver Estatísticas de Cursos',
-    'view_church_statistics': 'Ver Estatísticas da Igreja',
-    'view_cult_stats': 'Ver Estatísticas de Cultos',
-    'view_work_stats': 'Ver Estatísticas de Trabalho',
-    
-    // MyKids (Gestão Infantil)
-    'manage_family_profiles': 'Gerenciar Perfis Familiares',
-    'manage_checkin_rooms': 'Gerenciar Salas e Check-in',
-    
-    // Outros
-    'manage_profile_fields': 'Gerenciar Campos de Perfil',
-  };
+  Map<String, String> _getPermissionTranslations(BuildContext context) {
+    return {
+      // Administración General
+      'manage_roles': AppLocalizations.of(context)!.manageRoles,
+      'assign_user_roles': AppLocalizations.of(context)!.assignUserRoles,
+      'manage_users': AppLocalizations.of(context)!.manageUsers,
+      'view_user_list': AppLocalizations.of(context)!.viewUserList,
+      'view_user_details': AppLocalizations.of(context)!.viewUserDetails,
+      'send_push_notifications': AppLocalizations.of(context)!.sendPushNotifications,
+      
+      // Configuración Home
+      'manage_home_sections': AppLocalizations.of(context)!.manageHomeSections,
+      'manage_pages': 'Gestionar Páginas',
+      'manage_donations_config': 'Configurar Donaciones',
+      'manage_livestream_config': 'Configurar Transmisiones en Vivo',
+      
+      // Contenido y Eventos
+      'manage_announcements': AppLocalizations.of(context)!.manageAnnouncements,
+      'manage_videos': AppLocalizations.of(context)!.manageVideos,
+      'manage_cults': AppLocalizations.of(context)!.manageCults,
+      'manage_event_tickets': AppLocalizations.of(context)!.manageEventTickets,
+      'manage_event_attendance': AppLocalizations.of(context)!.manageEventAttendance,
+      'create_events': AppLocalizations.of(context)!.createEvents,
+      'delete_events': AppLocalizations.of(context)!.deleteEvents,
+      'manage_courses': AppLocalizations.of(context)!.manageCourses,
+      
+      // Comunidad (Grupos)
+      'create_group': AppLocalizations.of(context)!.createGroup,
+      'delete_group': AppLocalizations.of(context)!.deleteGroup,
+      
+      // Comunidad (Ministerios)
+      'create_ministry': AppLocalizations.of(context)!.createMinistry,
+      'delete_ministry': AppLocalizations.of(context)!.deleteMinistry,
+      
+      // Asesoramiento y Oración
+      'manage_counseling_availability': AppLocalizations.of(context)!.manageCounselingAvailability,
+      'manage_counseling_requests': AppLocalizations.of(context)!.manageCounselingRequests,
+      'manage_private_prayers': AppLocalizations.of(context)!.managePrivatePrayers,
+      'assign_cult_to_prayer': AppLocalizations.of(context)!.assignCultToPrayer,
+      
+      // Informes y Estadísticas
+      'view_ministry_stats': AppLocalizations.of(context)!.viewMinistryStats,
+      'view_group_stats': AppLocalizations.of(context)!.viewGroupStats,
+      'view_schedule_stats': AppLocalizations.of(context)!.viewScheduleStats,
+      'view_course_stats': AppLocalizations.of(context)!.viewCourseStats,
+      'view_church_statistics': AppLocalizations.of(context)!.viewChurchStatistics,
+      'view_cult_stats': AppLocalizations.of(context)!.viewCultStats,
+      'view_work_stats': AppLocalizations.of(context)!.viewWorkStats,
+      
+      // MyKids (Gestión Infantil)
+      'manage_family_profiles': AppLocalizations.of(context)!.manageFamilyProfiles,
+      'manage_checkin_rooms': AppLocalizations.of(context)!.manageCheckinRooms,
+      
+      // Otros
+      'manage_profile_fields': AppLocalizations.of(context)!.manageProfileFields,
+    };
+  }
+
+  Map<String, String> _getCategoryTranslations(BuildContext context) {
+    return {
+      'Administração Geral': AppLocalizations.of(context)!.generalAdministration,
+      'Configuração Home': AppLocalizations.of(context)!.homeConfiguration,
+      'Conteúdo e Eventos': AppLocalizations.of(context)!.contentAndEvents,
+      'Comunidade (Grupos)': AppLocalizations.of(context)!.community + ' (Grupos)',
+      'Comunidade (Ministérios)': AppLocalizations.of(context)!.community + ' (Ministerios)',
+      'Aconselhamento e Oração': AppLocalizations.of(context)!.counselingAndPrayer,
+      'Relatórios e Estatísticas': AppLocalizations.of(context)!.reportsAndStatistics,
+      'MyKids (Gestão Infantil)': AppLocalizations.of(context)!.myKids,
+      'Outros': AppLocalizations.of(context)!.others,
+    };
+  }
 
   // Obtener lista plana de todos los permisos
   List<String> get _allPermissions => _permissionCategories.values.expand((x) => x).toList();
@@ -186,7 +203,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success ? 'Papel salvo com sucesso!' : 'Erro ao salvar papel.'),
+            content: Text(success ? AppLocalizations.of(context)!.roleSavedSuccessfully : AppLocalizations.of(context)!.errorSavingRole),
             backgroundColor: success ? Colors.green : Colors.red,
           ),
         );
@@ -235,7 +252,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Perfil' : 'Criar Novo Perfil'),
+        title: Text(_isEditing ? AppLocalizations.of(context)!.editProfile : AppLocalizations.of(context)!.createNewProfile),
          backgroundColor: AppColors.primary, 
          foregroundColor: Colors.white,
       ),
@@ -251,22 +268,22 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                 children: [
                   TextFormField( // Nombre del Rol
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome do Papel',
-                      hintText: 'Ex: Líder de Grupo, Editor',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.roleName,
+                      hintText: AppLocalizations.of(context)!.roleNameHint,
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) return 'O nome do papel é obrigatório.';
+                      if (value == null || value.trim().isEmpty) return AppLocalizations.of(context)!.roleNameRequired;
                       return null;
                     },
                   ),
                   const SizedBox(height: AppSpacing.md),
                   TextFormField( // Descripción
                     controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição (Opcional)',
-                      hintText: 'Responsabilidades deste papel...',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.optionalDescriptionRole,
+                      hintText: AppLocalizations.of(context)!.roleDescriptionHint,
                       border: OutlineInputBorder(),
                     ),
                      maxLines: 2,
@@ -280,14 +297,14 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Permissões',
+                        AppLocalizations.of(context)!.permissions,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       // Nuevo switch personalizado para Seleccionar/Deseleccionar Todos
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Todos', style: Theme.of(context).textTheme.bodySmall),
+                          Text(AppLocalizations.of(context)!.selectAll, style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(width: 8),
                           _SelectAllSwitch(
                             value: _areAllSelected(),
@@ -305,6 +322,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                   ..._permissionCategories.entries.map((categoryEntry) {
                       final categoryTitle = categoryEntry.key;
                       final categoryPermissions = categoryEntry.value;
+                      final categoryTranslations = _getCategoryTranslations(context);
 
                       return Column(
                          crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +331,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                            Padding(
                              padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
                              child: Text(
-                               categoryTitle,
+                               categoryTranslations[categoryTitle] ?? categoryTitle,
                                style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
                              ),
                            ),
@@ -322,7 +340,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                              return SmoothPermissionSwitch(
                                permission: permission,
                                initialValue: _selectedPermissions[permission] ?? false,
-                               permissionTranslations: _permissionTranslations,
+                               permissionTranslations: _getPermissionTranslations(context),
                                onChanged: (value) {
                                  _updatePermission(permission, value);
                                },
@@ -364,7 +382,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
                   ),
                   child: ElevatedButton.icon(
                     icon: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.save),
-                    label: Text(_isLoading ? 'Salvando...' : (_isEditing ? 'Salvar Alterações' : 'Criar Papel')),
+                    label: Text(_isLoading ? AppLocalizations.of(context)!.saving : (_isEditing ? AppLocalizations.of(context)!.saveChanges : AppLocalizations.of(context)!.createRole)),
                     onPressed: _isLoading ? null : _saveRole,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

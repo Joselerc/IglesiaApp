@@ -227,8 +227,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingMinistries.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar los ministerios'**
-  String get errorLoadingMinistries;
+  /// **'Error al cargar ministerios: {error}'**
+  String errorLoadingMinistries(Object error);
 
   /// No description provided for @mySchedules.
   ///
@@ -275,8 +275,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingGroups.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar los grupos'**
-  String get errorLoadingGroups;
+  /// **'Error al cargar grupos: {error}'**
+  String errorLoadingGroups(Object error);
 
   /// No description provided for @joinAnotherGroup.
   ///
@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageVideos.
   ///
   /// In es, this message translates to:
-  /// **'Gestionar vídeos'**
+  /// **'Gestionar Vídeos'**
   String get manageVideos;
 
   /// No description provided for @administerChurchSectionsVideos.
@@ -461,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @createMinistry.
   ///
   /// In es, this message translates to:
-  /// **'Crear Ministerio'**
+  /// **'Crear Ministerios'**
   String get createMinistry;
 
   /// No description provided for @createConnect.
@@ -641,7 +641,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteGroup.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar Grupo'**
+  /// **'Eliminar Connect'**
   String get deleteGroup;
 
   /// No description provided for @confirmDeleteGroupQuestion.
@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteMinistry.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar Ministerio'**
+  /// **'Eliminar Ministerios'**
   String get deleteMinistry;
 
   /// No description provided for @confirmDeleteMinistryQuestion.
@@ -743,7 +743,7 @@ abstract class AppLocalizations {
   /// No description provided for @requiredField.
   ///
   /// In es, this message translates to:
-  /// **'Campo obligatorio'**
+  /// **'Campo Obligatorio'**
   String get requiredField;
 
   /// No description provided for @selectLanguage.
@@ -839,7 +839,7 @@ abstract class AppLocalizations {
   /// No description provided for @serviceStatistics.
   ///
   /// In es, this message translates to:
-  /// **'Estadísticas de Servicios'**
+  /// **'Estadísticas de Escalas'**
   String get serviceStatistics;
 
   /// No description provided for @home.
@@ -989,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @services.
   ///
   /// In es, this message translates to:
-  /// **'Servicios'**
+  /// **'Escalas'**
   String get services;
 
   /// No description provided for @counseling.
@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @email.
   ///
   /// In es, this message translates to:
-  /// **'Email'**
+  /// **'Correo Electrónico'**
   String get email;
 
   /// No description provided for @yourEmailExample.
@@ -1529,7 +1529,7 @@ abstract class AppLocalizations {
   /// No description provided for @pending.
   ///
   /// In es, this message translates to:
-  /// **'Pendiente'**
+  /// **'Pendientes'**
   String get pending;
 
   /// No description provided for @accepted.
@@ -1751,13 +1751,13 @@ abstract class AppLocalizations {
   /// No description provided for @lessons.
   ///
   /// In es, this message translates to:
-  /// **'{count,plural, =1{1 Lección}other{{count} Lecciones}}'**
+  /// **'Lecciones'**
   String lessons(int count);
 
   /// No description provided for @minutes.
   ///
   /// In es, this message translates to:
-  /// **'{count} min'**
+  /// **'minutos'**
   String minutes(int count);
 
   /// No description provided for @hours.
@@ -1871,7 +1871,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeletion.
   ///
   /// In es, this message translates to:
-  /// **'Confirmar eliminación'**
+  /// **'Confirmar Eliminación'**
   String get confirmDeletion;
 
   /// No description provided for @confirmDeleteAnnouncement.
@@ -1931,13 +1931,13 @@ abstract class AppLocalizations {
   /// No description provided for @cult.
   ///
   /// In es, this message translates to:
-  /// **'Culto'**
-  String get cult;
+  /// **'Culto: {cultName}'**
+  String cult(Object cultName);
 
   /// No description provided for @publishedOn.
   ///
   /// In es, this message translates to:
-  /// **'Publicado el: {date}'**
+  /// **'Publicado el:'**
   String publishedOn(String date);
 
   /// No description provided for @cultDate.
@@ -2345,8 +2345,8 @@ abstract class AppLocalizations {
   /// No description provided for @cults.
   ///
   /// In es, this message translates to:
-  /// **'Cultos'**
-  String get cults;
+  /// **'{count} cultos'**
+  String cults(Object count);
 
   /// No description provided for @unknownSectionType.
   ///
@@ -2453,7 +2453,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalLessons.
   ///
   /// In es, this message translates to:
-  /// **'{count, plural, one {# lección} other {# lecciones}}'**
+  /// **'{count} Lecciones'**
   String totalLessons(int count);
 
   /// No description provided for @myKidsManagement.
@@ -2471,7 +2471,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageFamilyProfiles.
   ///
   /// In es, this message translates to:
-  /// **'Gestionar perfiles de padres y niños'**
+  /// **'Gestionar Perfiles Familiares'**
   String get manageFamilyProfiles;
 
   /// No description provided for @manageRoomsAndCheckin.
@@ -2525,7 +2525,7 @@ abstract class AppLocalizations {
   /// No description provided for @noRole.
   ///
   /// In es, this message translates to:
-  /// **'Sin rol'**
+  /// **'Sin Rol'**
   String get noRole;
 
   /// No description provided for @superUser.
@@ -2735,7 +2735,7 @@ abstract class AppLocalizations {
   /// No description provided for @tapToAddImage.
   ///
   /// In es, this message translates to:
-  /// **'Toca para agregar imagen\n(Recomendado 16:9)'**
+  /// **'Toca para añadir una imagen'**
   String get tapToAddImage;
 
   /// No description provided for @removeImage.
@@ -3059,7 +3059,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeleteField.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que deseas eliminar el campo \"{fieldName}\"?'**
+  /// **'¿Estás seguro de que quieres eliminar el campo \'{fieldName}\'?'**
   String confirmDeleteField(String fieldName);
 
   /// No description provided for @fieldDeletedSuccessfully.
@@ -3071,7 +3071,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorDeletingField.
   ///
   /// In es, this message translates to:
-  /// **'Error al eliminar el campo: {error}'**
+  /// **'Error al eliminar campo: {error}'**
   String errorDeletingField(String error);
 
   /// No description provided for @pleaseAddAtLeastOneOption.
@@ -3083,7 +3083,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermissionManageFields.
   ///
   /// In es, this message translates to:
-  /// **'Sin permiso para gestionar campos de perfil.'**
+  /// **'No tienes permiso para gestionar campos.'**
   String get noPermissionManageFields;
 
   /// No description provided for @manageRolesTitle.
@@ -3095,19 +3095,19 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeletionRole.
   ///
   /// In es, this message translates to:
-  /// **'Confirmar Eliminación'**
+  /// **'Confirmar Eliminación de Rol'**
   String get confirmDeletionRole;
 
   /// No description provided for @confirmDeleteRole.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres eliminar el perfil \"{roleName}\"?'**
+  /// **'¿Estás seguro de que quieres eliminar el rol \'{roleName}\'?'**
   String confirmDeleteRole(String roleName);
 
   /// No description provided for @warningDeleteRole.
   ///
   /// In es, this message translates to:
-  /// **'Atención: Esto puede afectar a usuarios que tienen este perfil asignado.'**
+  /// **'Esta acción no se puede deshacer y afectará a todos los usuarios con este rol.'**
   String get warningDeleteRole;
 
   /// No description provided for @noPermissionDeleteRoles.
@@ -3119,7 +3119,7 @@ abstract class AppLocalizations {
   /// No description provided for @roleDeletedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Perfil eliminado con éxito'**
+  /// **'Rol eliminado con éxito'**
   String get roleDeletedSuccessfully;
 
   /// No description provided for @errorDeletingRole.
@@ -3155,7 +3155,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermissionAccessPage.
   ///
   /// In es, this message translates to:
-  /// **'No tienes permiso para acceder a esta página'**
+  /// **'No tienes permiso para acceder a esta página.'**
   String get noPermissionAccessPage;
 
   /// No description provided for @errorCheckingPermissions.
@@ -3185,7 +3185,7 @@ abstract class AppLocalizations {
   /// No description provided for @cannotChangeOwnRole.
   ///
   /// In es, this message translates to:
-  /// **'No es posible cambiar tu propio perfil'**
+  /// **'No es posible cambiar tu propio rol'**
   String get cannotChangeOwnRole;
 
   /// No description provided for @userRoleUpdatedSuccessfully.
@@ -3353,8 +3353,8 @@ abstract class AppLocalizations {
   /// No description provided for @select.
   ///
   /// In es, this message translates to:
-  /// **'Selección'**
-  String get select;
+  /// **'Seleccionar ({count})'**
+  String select(Object count);
 
   /// No description provided for @donationSettings.
   ///
@@ -3497,7 +3497,7 @@ abstract class AppLocalizations {
   /// No description provided for @createNewCourse.
   ///
   /// In es, this message translates to:
-  /// **'Crear nuevo curso'**
+  /// **'Crear Nuevo Curso'**
   String get createNewCourse;
 
   /// No description provided for @noCoursesFound.
@@ -3890,11 +3890,11 @@ abstract class AppLocalizations {
   /// **'Continuar Curso'**
   String get continueCourse;
 
-  /// No description provided for @progress.
+  /// No description provided for @progressWithDetails.
   ///
   /// In es, this message translates to:
   /// **'Progreso: {percentage}% ({completed}/{total})'**
-  String progress(Object completed, Object percentage, Object total);
+  String progressWithDetails(Object completed, Object percentage, Object total);
 
   /// No description provided for @instructorLabel.
   ///
@@ -3947,7 +3947,7 @@ abstract class AppLocalizations {
   /// No description provided for @noDescription.
   ///
   /// In es, this message translates to:
-  /// **'Sin descripción.'**
+  /// **'Sin descripción'**
   String get noDescription;
 
   /// No description provided for @commentsDisabled.
@@ -4037,7 +4037,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermissionManagePages.
   ///
   /// In es, this message translates to:
-  /// **'No tienes permiso para gestionar páginas.'**
+  /// **'No tienes permiso para gestionar páginas personalizadas.'**
   String get noPermissionManagePages;
 
   /// No description provided for @errorLoadingPages.
@@ -4049,7 +4049,7 @@ abstract class AppLocalizations {
   /// No description provided for @noCustomPagesYet.
   ///
   /// In es, this message translates to:
-  /// **'Ninguna página personalizada creada aún.'**
+  /// **'Aún no hay páginas personalizadas.'**
   String get noCustomPagesYet;
 
   /// No description provided for @tapPlusToCreateFirst.
@@ -4061,25 +4061,25 @@ abstract class AppLocalizations {
   /// No description provided for @pageWithoutTitle.
   ///
   /// In es, this message translates to:
-  /// **'Página sin Título'**
+  /// **'Página sin título'**
   String get pageWithoutTitle;
 
   /// No description provided for @noPermissionEditPages.
   ///
   /// In es, this message translates to:
-  /// **'Sin permiso para editar páginas.'**
+  /// **'No tienes permiso para editar páginas.'**
   String get noPermissionEditPages;
 
   /// No description provided for @noPermissionCreatePages.
   ///
   /// In es, this message translates to:
-  /// **'Sin permiso para crear páginas.'**
+  /// **'No tienes permiso para crear páginas.'**
   String get noPermissionCreatePages;
 
   /// No description provided for @createNewPage.
   ///
   /// In es, this message translates to:
-  /// **'Crear Nueva Página'**
+  /// **'Crear nueva página'**
   String get createNewPage;
 
   /// No description provided for @editPageTitle.
@@ -4505,26 +4505,26 @@ abstract class AppLocalizations {
   /// No description provided for @consultationSettings.
   ///
   /// In es, this message translates to:
-  /// **'Configuraciones de consulta'**
+  /// **'Configuración de Consultas'**
   String get consultationSettings;
 
   /// No description provided for @noPermissionManageAvailability.
   ///
   /// In es, this message translates to:
-  /// **'No tienes permiso para gestionar disponibilidad'**
+  /// **'No tienes permiso para gestionar la disponibilidad.'**
   String get noPermissionManageAvailability;
 
   /// No description provided for @errorLoadingAvailability.
   ///
   /// In es, this message translates to:
-  /// **'Error: {error}'**
+  /// **'Error al cargar disponibilidad: {error}'**
   String errorLoadingAvailability(Object error);
 
   /// No description provided for @timeSlots.
   ///
   /// In es, this message translates to:
-  /// **'Franjas de Horario'**
-  String get timeSlots;
+  /// **'{count} franjas horarias'**
+  String timeSlots(Object count);
 
   /// No description provided for @confirmDeleteAllTimeSlots.
   ///
@@ -4553,13 +4553,13 @@ abstract class AppLocalizations {
   /// No description provided for @weekOf.
   ///
   /// In es, this message translates to:
-  /// **'Semana de'**
-  String get weekOf;
+  /// **'Semana del {date}'**
+  String weekOf(Object date);
 
   /// No description provided for @copyToNextWeek.
   ///
   /// In es, this message translates to:
-  /// **'Copiar para próxima semana'**
+  /// **'Copiar a la próxima semana'**
   String get copyToNextWeek;
 
   /// No description provided for @counselingConfiguration.
@@ -4625,7 +4625,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAnnouncements.
   ///
   /// In es, this message translates to:
-  /// **'Administrar Anuncios'**
+  /// **'Gestionar Anuncios'**
   String get manageAnnouncements;
 
   /// No description provided for @active.
@@ -4901,7 +4901,7 @@ abstract class AppLocalizations {
   /// No description provided for @upcoming.
   ///
   /// In es, this message translates to:
-  /// **'Próximos'**
+  /// **'Próximamente'**
   String get upcoming;
 
   /// No description provided for @thisWeek.
@@ -5105,7 +5105,7 @@ abstract class AppLocalizations {
   /// No description provided for @message.
   ///
   /// In es, this message translates to:
-  /// **'Mensaje'**
+  /// **'Mensaje:'**
   String get message;
 
   /// No description provided for @pleaseEnterMessage.
@@ -5153,7 +5153,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectAll.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar todos'**
+  /// **'Seleccionar Todos'**
   String get selectAll;
 
   /// No description provided for @deselectAll.
@@ -5345,14 +5345,14 @@ abstract class AppLocalizations {
   /// No description provided for @confirmed.
   ///
   /// In es, this message translates to:
-  /// **'Confirmada'**
+  /// **'Confirmados'**
   String get confirmed;
 
   /// No description provided for @present.
   ///
   /// In es, this message translates to:
-  /// **'Presentes'**
-  String get present;
+  /// **'Presentes: {count}'**
+  String present(Object count);
 
   /// No description provided for @absent.
   ///
@@ -5429,8 +5429,8 @@ abstract class AppLocalizations {
   /// No description provided for @noResultsFound.
   ///
   /// In es, this message translates to:
-  /// **'Ningún resultado encontrado'**
-  String get noResultsFound;
+  /// **'Ningún resultado encontrado para \"{query}\"'**
+  String noResultsFound(Object query);
 
   /// No description provided for @tryAnotherName.
   ///
@@ -5501,7 +5501,7 @@ abstract class AppLocalizations {
   /// No description provided for @location.
   ///
   /// In es, this message translates to:
-  /// **'Ubicación:'**
+  /// **'Local:'**
   String get location;
 
   /// No description provided for @selectLocation.
@@ -5645,7 +5645,7 @@ abstract class AppLocalizations {
   /// No description provided for @ministryDescription.
   ///
   /// In es, this message translates to:
-  /// **'Descripción del Ministerio'**
+  /// **'Descripción'**
   String get ministryDescription;
 
   /// No description provided for @describeMinistryPurpose.
@@ -5663,7 +5663,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectAdministrators.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar administradores (opcional)'**
+  /// **'Seleccionar Administradores'**
   String get selectAdministrators;
 
   /// No description provided for @searchUsers.
@@ -5681,7 +5681,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectedAdministrators.
   ///
   /// In es, this message translates to:
-  /// **'Administradores seleccionados'**
+  /// **'Administradores seleccionados:'**
   String get selectedAdministrators;
 
   /// No description provided for @noAdministratorsSelected.
@@ -5771,13 +5771,13 @@ abstract class AppLocalizations {
   /// No description provided for @cancelled.
   ///
   /// In es, this message translates to:
-  /// **'Cancelada'**
+  /// **'Canceladas'**
   String get cancelled;
 
   /// No description provided for @completed.
   ///
   /// In es, this message translates to:
-  /// **'Completada'**
+  /// **'Completados'**
   String get completed;
 
   /// No description provided for @withPreposition.
@@ -5801,8 +5801,8 @@ abstract class AppLocalizations {
   /// No description provided for @reason.
   ///
   /// In es, this message translates to:
-  /// **'Motivo'**
-  String get reason;
+  /// **'Razón: {reason}'**
+  String reason(Object reason);
 
   /// No description provided for @contactPastor.
   ///
@@ -5813,7 +5813,7 @@ abstract class AppLocalizations {
   /// No description provided for @cancelAppointment.
   ///
   /// In es, this message translates to:
-  /// **'Cancelar Cita'**
+  /// **'Cancelar Consulta'**
   String get cancelAppointment;
 
   /// No description provided for @noPermissionRespondPrivatePrayers.
@@ -5861,7 +5861,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPendingPrayers.
   ///
   /// In es, this message translates to:
-  /// **'No hay oraciones pendientes'**
+  /// **'Ninguna oración pendiente'**
   String get noPendingPrayers;
 
   /// No description provided for @noAcceptedPrayers.
@@ -5915,7 +5915,7 @@ abstract class AppLocalizations {
   /// No description provided for @createPredefinedMessage.
   ///
   /// In es, this message translates to:
-  /// **'Crear Mensaje Predefinido'**
+  /// **'Crear mensaje predefinido'**
   String get createPredefinedMessage;
 
   /// No description provided for @prayerStats.
@@ -6011,8 +6011,8 @@ abstract class AppLocalizations {
   /// No description provided for @role.
   ///
   /// In es, this message translates to:
-  /// **'Rol'**
-  String get role;
+  /// **'Función: {role}'**
+  String role(Object role);
 
   /// No description provided for @status.
   ///
@@ -6035,7 +6035,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchService.
   ///
   /// In es, this message translates to:
-  /// **'Buscar Servicio'**
+  /// **'Buscar servicio...'**
   String get searchService;
 
   /// No description provided for @users.
@@ -6065,13 +6065,13 @@ abstract class AppLocalizations {
   /// No description provided for @totalAttendances.
   ///
   /// In es, this message translates to:
-  /// **'Total de Asistencias'**
+  /// **'Total de asistencias'**
   String get totalAttendances;
 
   /// No description provided for @totalAbsences.
   ///
   /// In es, this message translates to:
-  /// **'Total de Ausencias'**
+  /// **'Total de ausencias'**
   String get totalAbsences;
 
   /// No description provided for @acceptanceRate.
@@ -6089,7 +6089,7 @@ abstract class AppLocalizations {
   /// No description provided for @sortBy.
   ///
   /// In es, this message translates to:
-  /// **'Ordenar por'**
+  /// **'Ordenar por:'**
   String get sortBy;
 
   /// No description provided for @invitations.
@@ -6149,13 +6149,13 @@ abstract class AppLocalizations {
   /// No description provided for @clearFilter.
   ///
   /// In es, this message translates to:
-  /// **'Limpiar Filtro'**
+  /// **'Limpiar filtro'**
   String get clearFilter;
 
   /// No description provided for @noServicesFound.
   ///
   /// In es, this message translates to:
-  /// **'No se encontraron servicios'**
+  /// **'No se encontraron escalas'**
   String get noServicesFound;
 
   /// No description provided for @statistics.
@@ -6163,6 +6163,2730 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Estadísticas'**
   String get statistics;
+
+  /// No description provided for @myCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis Consultas'**
+  String get myCounseling;
+
+  /// No description provided for @cancelCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar Consulta'**
+  String get cancelCounseling;
+
+  /// No description provided for @confirmCancelCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres cancelar esta consulta?'**
+  String get confirmCancelCounseling;
+
+  /// No description provided for @yesCancelCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, cancelar'**
+  String get yesCancelCounseling;
+
+  /// No description provided for @counselingCancelledSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Consulta cancelada con éxito'**
+  String get counselingCancelledSuccess;
+
+  /// No description provided for @loadingPastorInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando información del pastor...'**
+  String get loadingPastorInfo;
+
+  /// No description provided for @unknownPastor.
+  ///
+  /// In es, this message translates to:
+  /// **'Pastor desconocido'**
+  String get unknownPastor;
+
+  /// No description provided for @pastor.
+  ///
+  /// In es, this message translates to:
+  /// **'Pastor'**
+  String get pastor;
+
+  /// No description provided for @type.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo'**
+  String get type;
+
+  /// No description provided for @contact.
+  ///
+  /// In es, this message translates to:
+  /// **'Contacto'**
+  String get contact;
+
+  /// No description provided for @couldNotOpenPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir el teléfono'**
+  String get couldNotOpenPhone;
+
+  /// No description provided for @call.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamar'**
+  String get call;
+
+  /// No description provided for @couldNotOpenWhatsApp.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir WhatsApp'**
+  String get couldNotOpenWhatsApp;
+
+  /// No description provided for @whatsApp.
+  ///
+  /// In es, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsApp;
+
+  /// No description provided for @address.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección'**
+  String get address;
+
+  /// No description provided for @notConnected.
+  ///
+  /// In es, this message translates to:
+  /// **'No estás conectado'**
+  String get notConnected;
+
+  /// No description provided for @noUpcomingAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes consultas programadas'**
+  String get noUpcomingAppointments;
+
+  /// No description provided for @noCancelledAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes consultas canceladas'**
+  String get noCancelledAppointments;
+
+  /// No description provided for @noCompletedAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay citas completadas'**
+  String get noCompletedAppointments;
+
+  /// No description provided for @noAppointmentsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay consultas disponibles'**
+  String get noAppointmentsAvailable;
+
+  /// No description provided for @viewRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Solicitudes'**
+  String get viewRequests;
+
+  /// No description provided for @editCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Curso'**
+  String get editCourse;
+
+  /// No description provided for @fillCourseInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa la información del curso para ponerlo a disposición de los estudiantes'**
+  String get fillCourseInfo;
+
+  /// No description provided for @courseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del Curso'**
+  String get courseTitle;
+
+  /// No description provided for @courseTitleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Fundamentos de la Biblia'**
+  String get courseTitleHint;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El título es obligatorio'**
+  String get titleRequired;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Describe el contenido y objetivos del curso...'**
+  String get descriptionHint;
+
+  /// No description provided for @descriptionRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La descripción es obligatoria'**
+  String get descriptionRequired;
+
+  /// No description provided for @coverImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de Portada'**
+  String get coverImage;
+
+  /// No description provided for @coverImageDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta imagen se mostrará en la página de detalles del curso'**
+  String get coverImageDescription;
+
+  /// No description provided for @tapToChange.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para cambiar'**
+  String get tapToChange;
+
+  /// No description provided for @recommendedSize.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomendado: 16:9 (1920x1080px)'**
+  String get recommendedSize;
+
+  /// No description provided for @categoryHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Teología, Discipulado, Liderazgo'**
+  String get categoryHint;
+
+  /// No description provided for @categoryRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La categoría es obligatoria'**
+  String get categoryRequired;
+
+  /// No description provided for @instructorName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Instructor'**
+  String get instructorName;
+
+  /// No description provided for @instructorNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre completo del instructor'**
+  String get instructorNameHint;
+
+  /// No description provided for @instructorRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre del instructor es obligatorio'**
+  String get instructorRequired;
+
+  /// No description provided for @courseStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado del Curso'**
+  String get courseStatus;
+
+  /// No description provided for @allowComments.
+  ///
+  /// In es, this message translates to:
+  /// **'Permitir Comentarios'**
+  String get allowComments;
+
+  /// No description provided for @studentsCanComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Los estudiantes podrán comentar en las lecciones'**
+  String get studentsCanComment;
+
+  /// No description provided for @updateCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar Curso'**
+  String get updateCourse;
+
+  /// No description provided for @createCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Curso'**
+  String get createCourse;
+
+  /// No description provided for @courseDurationNote.
+  ///
+  /// In es, this message translates to:
+  /// **'La duración total del curso se calcula automáticamente basándose en la duración de las lecciones.'**
+  String get courseDurationNote;
+
+  /// No description provided for @manageModulesAndLessons.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Módulos y Lecciones'**
+  String get manageModulesAndLessons;
+
+  /// No description provided for @courseUpdatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Curso actualizado con éxito!'**
+  String get courseUpdatedSuccess;
+
+  /// No description provided for @courseCreatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Curso creado con éxito!'**
+  String get courseCreatedSuccess;
+
+  /// No description provided for @addModules.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir Módulos'**
+  String get addModules;
+
+  /// No description provided for @addModulesNow.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres añadir módulos al curso ahora?'**
+  String get addModulesNow;
+
+  /// No description provided for @later.
+  ///
+  /// In es, this message translates to:
+  /// **'Más tarde'**
+  String get later;
+
+  /// No description provided for @yesAddNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, añadir ahora'**
+  String get yesAddNow;
+
+  /// No description provided for @uploadingImages.
+  ///
+  /// In es, this message translates to:
+  /// **'Subiendo imágenes...'**
+  String get uploadingImages;
+
+  /// No description provided for @savingCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando curso...'**
+  String get savingCourse;
+
+  /// No description provided for @addModule.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir Módulo'**
+  String get addModule;
+
+  /// No description provided for @moduleTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Módulo: {title}'**
+  String moduleTitle(Object title);
+
+  /// No description provided for @moduleTitleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del módulo'**
+  String get moduleTitleHint;
+
+  /// No description provided for @moduleTitleRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El título del módulo es obligatorio'**
+  String get moduleTitleRequired;
+
+  /// No description provided for @summary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get summary;
+
+  /// No description provided for @summaryOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen (Opcional)'**
+  String get summaryOptional;
+
+  /// No description provided for @summaryHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Breve descripción del módulo...'**
+  String get summaryHint;
+
+  /// No description provided for @moduleCreatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Módulo creado con éxito!'**
+  String get moduleCreatedSuccess;
+
+  /// No description provided for @addLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir Lección'**
+  String get addLesson;
+
+  /// No description provided for @lessonTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título de la Lección'**
+  String get lessonTitle;
+
+  /// No description provided for @lessonTitleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la lección'**
+  String get lessonTitleHint;
+
+  /// No description provided for @lessonTitleRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El título de la lección es obligatorio'**
+  String get lessonTitleRequired;
+
+  /// No description provided for @lessonDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción de la Lección'**
+  String get lessonDescription;
+
+  /// No description provided for @lessonDescriptionHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Describe el contenido de esta lección...'**
+  String get lessonDescriptionHint;
+
+  /// No description provided for @lessonDescriptionRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La descripción de la lección es obligatoria'**
+  String get lessonDescriptionRequired;
+
+  /// No description provided for @durationHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración en minutos'**
+  String get durationHint;
+
+  /// No description provided for @durationRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La duración es obligatoria'**
+  String get durationRequired;
+
+  /// No description provided for @durationMustBeNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'La duración debe ser un número válido'**
+  String get durationMustBeNumber;
+
+  /// No description provided for @videoUrl.
+  ///
+  /// In es, this message translates to:
+  /// **'URL del Vídeo (YouTube o Vimeo)'**
+  String get videoUrl;
+
+  /// No description provided for @videoUrlHint.
+  ///
+  /// In es, this message translates to:
+  /// **'URL de YouTube o Vimeo'**
+  String get videoUrlHint;
+
+  /// No description provided for @videoUrlRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La URL del vídeo es obligatoria'**
+  String get videoUrlRequired;
+
+  /// No description provided for @lessonCreatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Lección creada con éxito!'**
+  String get lessonCreatedSuccess;
+
+  /// No description provided for @noModulesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay módulos en este curso.'**
+  String get noModulesYet;
+
+  /// No description provided for @tapAddToCreateFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca \'Añadir Módulo\' para crear el primero.'**
+  String get tapAddToCreateFirst;
+
+  /// No description provided for @noLessonsInModule.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay lecciones en este módulo aún.'**
+  String get noLessonsInModule;
+
+  /// No description provided for @tapToAddLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca + para añadir una lección.'**
+  String get tapToAddLesson;
+
+  /// No description provided for @min.
+  ///
+  /// In es, this message translates to:
+  /// **'min'**
+  String get min;
+
+  /// No description provided for @video.
+  ///
+  /// In es, this message translates to:
+  /// **'Vídeo'**
+  String get video;
+
+  /// No description provided for @manageMaterials.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Materiales'**
+  String get manageMaterials;
+
+  /// No description provided for @deleteModule.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Módulo'**
+  String get deleteModule;
+
+  /// No description provided for @confirmDeleteModule.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar este módulo?'**
+  String get confirmDeleteModule;
+
+  /// No description provided for @thisActionCannotBeUndone.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción no se puede deshacer.'**
+  String get thisActionCannotBeUndone;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, eliminar'**
+  String get yesDelete;
+
+  /// No description provided for @moduleDeletedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Módulo eliminado con éxito'**
+  String get moduleDeletedSuccess;
+
+  /// No description provided for @deleteLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Lección'**
+  String get deleteLesson;
+
+  /// No description provided for @confirmDeleteLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar esta lección?'**
+  String get confirmDeleteLesson;
+
+  /// No description provided for @lessonDeletedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección eliminada con éxito'**
+  String get lessonDeletedSuccess;
+
+  /// No description provided for @reorderModules.
+  ///
+  /// In es, this message translates to:
+  /// **'Reordenar Módulos'**
+  String get reorderModules;
+
+  /// No description provided for @reorderLessons.
+  ///
+  /// In es, this message translates to:
+  /// **'Reordenar Lecciones'**
+  String get reorderLessons;
+
+  /// No description provided for @done.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get done;
+
+  /// No description provided for @dragToReorder.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra para reordenar'**
+  String get dragToReorder;
+
+  /// No description provided for @orderUpdatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Orden actualizado con éxito!'**
+  String get orderUpdatedSuccess;
+
+  /// No description provided for @loadingCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando curso...'**
+  String get loadingCourse;
+
+  /// No description provided for @savingModule.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando módulo...'**
+  String get savingModule;
+
+  /// No description provided for @savingLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando lección...'**
+  String get savingLesson;
+
+  /// No description provided for @errorLoadingFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar los campos: {error}'**
+  String errorLoadingFields(Object error);
+
+  /// No description provided for @required.
+  ///
+  /// In es, this message translates to:
+  /// **'Obligatorio'**
+  String get required;
+
+  /// No description provided for @fieldName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Campo'**
+  String get fieldName;
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce un nombre'**
+  String get pleaseEnterName;
+
+  /// No description provided for @selectFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Selección'**
+  String get selectFieldType;
+
+  /// No description provided for @newOption.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva Opción'**
+  String get newOption;
+
+  /// No description provided for @enterOption.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce una opción...'**
+  String get enterOption;
+
+  /// No description provided for @optionAlreadyAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta opción ya fue añadida.'**
+  String get optionAlreadyAdded;
+
+  /// No description provided for @noOptionsAddedYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna opción añadida aún.'**
+  String get noOptionsAddedYet;
+
+  /// No description provided for @usersMustFillField.
+  ///
+  /// In es, this message translates to:
+  /// **'Los usuarios deben rellenar este campo'**
+  String get usersMustFillField;
+
+  /// No description provided for @copyToPreviousWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar a la semana anterior'**
+  String get copyToPreviousWeek;
+
+  /// No description provided for @monday.
+  ///
+  /// In es, this message translates to:
+  /// **'Lunes'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In es, this message translates to:
+  /// **'Martes'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In es, this message translates to:
+  /// **'Miércoles'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In es, this message translates to:
+  /// **'Jueves'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In es, this message translates to:
+  /// **'Viernes'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In es, this message translates to:
+  /// **'Sábado'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In es, this message translates to:
+  /// **'Domingo'**
+  String get sunday;
+
+  /// No description provided for @unavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible'**
+  String get unavailable;
+
+  /// No description provided for @available.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible'**
+  String get available;
+
+  /// No description provided for @sessionDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración de la Sesión'**
+  String get sessionDuration;
+
+  /// No description provided for @breakBetweenSessions.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso entre Sesiones'**
+  String get breakBetweenSessions;
+
+  /// No description provided for @appointmentTypes.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipos de Cita'**
+  String get appointmentTypes;
+
+  /// No description provided for @onlineAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'Citas en Línea'**
+  String get onlineAppointments;
+
+  /// No description provided for @inPersonAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'Citas Presenciales'**
+  String get inPersonAppointments;
+
+  /// No description provided for @locationHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección para citas presenciales'**
+  String get locationHint;
+
+  /// No description provided for @globalSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración Global'**
+  String get globalSettings;
+
+  /// No description provided for @settingsSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración guardada con éxito'**
+  String get settingsSavedSuccessfully;
+
+  /// No description provided for @notAvailableForConsultations.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible para consultas'**
+  String get notAvailableForConsultations;
+
+  /// No description provided for @configureAvailabilityForThisDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Configura la disponibilidad para este día'**
+  String get configureAvailabilityForThisDay;
+
+  /// No description provided for @thisDayMarkedUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Este día está marcado como no disponible para consultas'**
+  String get thisDayMarkedUnavailable;
+
+  /// No description provided for @unavailableDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible'**
+  String get unavailableDay;
+
+  /// No description provided for @thisDayMarkedAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Este día está marcado como disponible para consultas'**
+  String get thisDayMarkedAvailable;
+
+  /// No description provided for @timeSlotsSingular.
+  ///
+  /// In es, this message translates to:
+  /// **'Franjas Horarias'**
+  String get timeSlotsSingular;
+
+  /// No description provided for @timeSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Franja {number}'**
+  String timeSlot(Object number);
+
+  /// No description provided for @consultationType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de consulta:'**
+  String get consultationType;
+
+  /// No description provided for @onlineConsultation.
+  ///
+  /// In es, this message translates to:
+  /// **'En línea'**
+  String get onlineConsultation;
+
+  /// No description provided for @inPersonConsultation.
+  ///
+  /// In es, this message translates to:
+  /// **'Presencial'**
+  String get inPersonConsultation;
+
+  /// No description provided for @addTimeSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir Franja Horaria'**
+  String get addTimeSlot;
+
+  /// No description provided for @searchUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar usuario...'**
+  String get searchUser;
+
+  /// No description provided for @enterNameOrEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce nombre o email'**
+  String get enterNameOrEmail;
+
+  /// No description provided for @noPermissionAccessThisPage.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para acceder a esta página'**
+  String get noPermissionAccessThisPage;
+
+  /// No description provided for @noPermissionChangeRoles.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para cambiar roles'**
+  String get noPermissionChangeRoles;
+
+  /// No description provided for @selectRoleToAssign.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona el rol para asignar al usuario:'**
+  String get selectRoleToAssign;
+
+  /// No description provided for @permissionsAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} permisos asignados'**
+  String permissionsAssigned(Object count);
+
+  /// No description provided for @editProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Perfil'**
+  String get editProfile;
+
+  /// No description provided for @deleteRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar rol'**
+  String get deleteRole;
+
+  /// No description provided for @createNewRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nuevo Rol'**
+  String get createNewRole;
+
+  /// No description provided for @failedDeleteRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar rol'**
+  String get failedDeleteRole;
+
+  /// No description provided for @editModule.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Módulo'**
+  String get editModule;
+
+  /// No description provided for @moduleUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Módulo actualizado con éxito'**
+  String get moduleUpdatedSuccessfully;
+
+  /// No description provided for @sureDeleteModule.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar el módulo \"{title}\"?\n\nEsta acción no se puede deshacer y eliminará todas las lecciones asociadas.'**
+  String sureDeleteModule(Object title);
+
+  /// No description provided for @moduleDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Módulo eliminado con éxito'**
+  String get moduleDeletedSuccessfully;
+
+  /// No description provided for @moduleNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Módulo no encontrado'**
+  String get moduleNotFound;
+
+  /// No description provided for @lessonAddedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección añadida con éxito'**
+  String get lessonAddedSuccessfully;
+
+  /// No description provided for @optionalDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción (Opcional)'**
+  String get optionalDescription;
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración (minutos)'**
+  String get durationMinutes;
+
+  /// No description provided for @videoUrlExample.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: https://www.youtube.com/watch?v=...'**
+  String get videoUrlExample;
+
+  /// No description provided for @manageModules.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Módulos'**
+  String get manageModules;
+
+  /// No description provided for @finishReorder.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizar'**
+  String get finishReorder;
+
+  /// No description provided for @orderLessons.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden: {order} • {count} lecciones'**
+  String orderLessons(Object count, Object order);
+
+  /// No description provided for @editLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Lección'**
+  String get editLesson;
+
+  /// No description provided for @lessonUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección actualizada con éxito'**
+  String get lessonUpdatedSuccessfully;
+
+  /// No description provided for @sureDeleteLesson.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar la lección \"{title}\"?\n\nEsta acción no se puede deshacer.'**
+  String sureDeleteLesson(Object title);
+
+  /// No description provided for @lessonDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Lección eliminada con éxito'**
+  String get lessonDeletedSuccessfully;
+
+  /// No description provided for @moduleOrderUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden de los módulos actualizado'**
+  String get moduleOrderUpdated;
+
+  /// No description provided for @lessonOrderUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden de las lecciones actualizado'**
+  String get lessonOrderUpdated;
+
+  /// No description provided for @durationVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'{duration} • Vídeo'**
+  String durationVideo(Object duration);
+
+  /// No description provided for @durationVideoMaterials.
+  ///
+  /// In es, this message translates to:
+  /// **'{duration} • Vídeo • Materiales: {count}'**
+  String durationVideoMaterials(Object count, Object duration);
+
+  /// No description provided for @guardar.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get guardar;
+
+  /// No description provided for @sureDeleteModuleWithTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar el módulo \"{title}\"?\n\nEsta acción no se puede deshacer y eliminará todas las lecciones asociadas.'**
+  String sureDeleteModuleWithTitle(Object title);
+
+  /// No description provided for @sureDeleteLessonWithTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar la lección \"{title}\"?\n\nEsta acción no se puede deshacer.'**
+  String sureDeleteLessonWithTitle(Object title);
+
+  /// No description provided for @moduleTitleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del Módulo'**
+  String get moduleTitleLabel;
+
+  /// No description provided for @createNewProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nuevo Perfil'**
+  String get createNewProfile;
+
+  /// No description provided for @roleName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Rol'**
+  String get roleName;
+
+  /// No description provided for @roleNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Líder de Grupo, Editor'**
+  String get roleNameHint;
+
+  /// No description provided for @roleNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre del rol es obligatorio.'**
+  String get roleNameRequired;
+
+  /// No description provided for @optionalDescriptionRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción (Opcional)'**
+  String get optionalDescriptionRole;
+
+  /// No description provided for @roleDescriptionHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Responsabilidades de este rol...'**
+  String get roleDescriptionHint;
+
+  /// No description provided for @permissions.
+  ///
+  /// In es, this message translates to:
+  /// **'Permisos'**
+  String get permissions;
+
+  /// No description provided for @saving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get saving;
+
+  /// No description provided for @createRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Rol'**
+  String get createRole;
+
+  /// No description provided for @roleSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol guardado con éxito!'**
+  String get roleSavedSuccessfully;
+
+  /// No description provided for @errorSavingRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar rol.'**
+  String get errorSavingRole;
+
+  /// No description provided for @generalAdministration.
+  ///
+  /// In es, this message translates to:
+  /// **'Administración General'**
+  String get generalAdministration;
+
+  /// No description provided for @homeConfiguration.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración Home'**
+  String get homeConfiguration;
+
+  /// No description provided for @contentAndEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido y Eventos'**
+  String get contentAndEvents;
+
+  /// No description provided for @community.
+  ///
+  /// In es, this message translates to:
+  /// **'Comunidad'**
+  String get community;
+
+  /// No description provided for @counselingAndPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Asesoramiento y Oración'**
+  String get counselingAndPrayer;
+
+  /// No description provided for @reportsAndStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Informes y Estadísticas'**
+  String get reportsAndStatistics;
+
+  /// No description provided for @myKids.
+  ///
+  /// In es, this message translates to:
+  /// **'MyKids (Gestión Infantil)'**
+  String get myKids;
+
+  /// No description provided for @others.
+  ///
+  /// In es, this message translates to:
+  /// **'Otros'**
+  String get others;
+
+  /// No description provided for @assignUserRoles.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Roles a Usuarios'**
+  String get assignUserRoles;
+
+  /// No description provided for @manageUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Usuarios'**
+  String get manageUsers;
+
+  /// No description provided for @viewUserList.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Lista de Usuarios'**
+  String get viewUserList;
+
+  /// No description provided for @viewUserDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Detalles de Usuarios'**
+  String get viewUserDetails;
+
+  /// No description provided for @manageHomeSections.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Secciones de la Tela Inicial'**
+  String get manageHomeSections;
+
+  /// No description provided for @manageCults.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Cultos'**
+  String get manageCults;
+
+  /// No description provided for @manageEventTickets.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Entradas de Eventos'**
+  String get manageEventTickets;
+
+  /// No description provided for @createEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Eventos'**
+  String get createEvents;
+
+  /// No description provided for @deleteEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Eventos'**
+  String get deleteEvents;
+
+  /// No description provided for @manageCourses.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Cursos'**
+  String get manageCourses;
+
+  /// No description provided for @createGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Grupo'**
+  String get createGroup;
+
+  /// No description provided for @manageCounselingAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Disponibilidad para Asesoramiento'**
+  String get manageCounselingAvailability;
+
+  /// No description provided for @manageCounselingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Solicitudes de Asesoramiento'**
+  String get manageCounselingRequests;
+
+  /// No description provided for @managePrivatePrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Oraciones Privadas'**
+  String get managePrivatePrayers;
+
+  /// No description provided for @assignCultToPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Culto a la Oración'**
+  String get assignCultToPrayer;
+
+  /// No description provided for @viewMinistryStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Ministerios'**
+  String get viewMinistryStats;
+
+  /// No description provided for @viewGroupStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Grupos'**
+  String get viewGroupStats;
+
+  /// No description provided for @viewScheduleStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Escalas'**
+  String get viewScheduleStats;
+
+  /// No description provided for @viewCourseStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Cursos'**
+  String get viewCourseStats;
+
+  /// No description provided for @viewChurchStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de la Iglesia'**
+  String get viewChurchStatistics;
+
+  /// No description provided for @viewCultStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Cultos'**
+  String get viewCultStats;
+
+  /// No description provided for @viewWorkStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Estadísticas de Trabajo'**
+  String get viewWorkStats;
+
+  /// No description provided for @manageCheckinRooms.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Salas y Check-in'**
+  String get manageCheckinRooms;
+
+  /// No description provided for @manageDonationsConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar Donaciones'**
+  String get manageDonationsConfig;
+
+  /// No description provided for @manageLivestreamConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar Transmisiones en Vivo'**
+  String get manageLivestreamConfig;
+
+  /// No description provided for @lessonsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} lecciones'**
+  String lessonsCount(Object count);
+
+  /// No description provided for @averageProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso Medio:'**
+  String get averageProgress;
+
+  /// No description provided for @averageLessonsCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Lecciones Medias Completadas:'**
+  String get averageLessonsCompleted;
+
+  /// No description provided for @globalAverageProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso Medio Global:'**
+  String get globalAverageProgress;
+
+  /// No description provided for @highestProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Mayor Progreso:'**
+  String get highestProgress;
+
+  /// No description provided for @progressPercentage.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso (%)'**
+  String get progressPercentage;
+
+  /// No description provided for @averageLessons.
+  ///
+  /// In es, this message translates to:
+  /// **'Lecciones Medias'**
+  String get averageLessons;
+
+  /// No description provided for @totalLessonsHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'Total Lecciones'**
+  String get totalLessonsHeader;
+
+  /// No description provided for @allModuleLessonsWillBeDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las lecciones de este módulo también serán eliminadas. Esta acción no se puede deshacer.'**
+  String get allModuleLessonsWillBeDeleted;
+
+  /// No description provided for @groupName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Grupo'**
+  String get groupName;
+
+  /// No description provided for @enterGroupName.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce el nombre del grupo'**
+  String get enterGroupName;
+
+  /// No description provided for @pleaseEnterGroupName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce un nombre'**
+  String get pleaseEnterGroupName;
+
+  /// No description provided for @groupDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get groupDescription;
+
+  /// No description provided for @enterGroupDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce la descripción del grupo'**
+  String get enterGroupDescription;
+
+  /// No description provided for @administratorsCanManage.
+  ///
+  /// In es, this message translates to:
+  /// **'Los administradores pueden gestionar el grupo, sus miembros y eventos.'**
+  String get administratorsCanManage;
+
+  /// No description provided for @addAdministrators.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir administradores'**
+  String get addAdministrators;
+
+  /// No description provided for @administratorsSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} administradores seleccionados'**
+  String administratorsSelected(Object count);
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario desconocido'**
+  String get unknownUser;
+
+  /// No description provided for @autoMemberInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Al crear un grupo, serás automáticamente miembro y administrador. Podrás personalizar la imagen y otras configuraciones después de la creación.'**
+  String get autoMemberInfo;
+
+  /// No description provided for @groupCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo creado con éxito!'**
+  String get groupCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear grupo: {error}'**
+  String errorCreatingGroup(Object error);
+
+  /// No description provided for @noPermissionCreateGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin permiso para crear grupos.'**
+  String get noPermissionCreateGroups;
+
+  /// No description provided for @noPermissionCreateGroupsLong.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para crear grupos.'**
+  String get noPermissionCreateGroupsLong;
+
+  /// No description provided for @noUsersAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún usuario disponible'**
+  String get noUsersAvailable;
+
+  /// No description provided for @enterMinistryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce la descripción del ministerio'**
+  String get enterMinistryDescription;
+
+  /// No description provided for @pleaseEnterMinistryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce una descripción'**
+  String get pleaseEnterMinistryDescription;
+
+  /// No description provided for @administratorsCanManageMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Los administradores pueden gestionar el ministerio, sus miembros y eventos.'**
+  String get administratorsCanManageMinistry;
+
+  /// No description provided for @autoMemberMinistryInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Al crear un ministerio, serás automáticamente miembro y administrador. Podrás personalizar la imagen y otras configuraciones después de la creación.'**
+  String get autoMemberMinistryInfo;
+
+  /// No description provided for @textFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Texto'**
+  String get textFieldType;
+
+  /// No description provided for @numberFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Número'**
+  String get numberFieldType;
+
+  /// No description provided for @dateFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get dateFieldType;
+
+  /// No description provided for @emailFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Email'**
+  String get emailFieldType;
+
+  /// No description provided for @phoneFieldType.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get phoneFieldType;
+
+  /// No description provided for @selectionOptions.
+  ///
+  /// In es, this message translates to:
+  /// **'Opciones de Selección'**
+  String get selectionOptions;
+
+  /// No description provided for @noResultsFoundSimple.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron resultados'**
+  String get noResultsFoundSimple;
+
+  /// No description provided for @progress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso'**
+  String get progress;
+
+  /// No description provided for @detailedStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas Detalladas'**
+  String get detailedStatistics;
+
+  /// No description provided for @enrollments.
+  ///
+  /// In es, this message translates to:
+  /// **'Inscripciones'**
+  String get enrollments;
+
+  /// No description provided for @completion.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalización'**
+  String get completion;
+
+  /// No description provided for @completionMilestones.
+  ///
+  /// In es, this message translates to:
+  /// **'Hitos de Conclusión'**
+  String get completionMilestones;
+
+  /// No description provided for @filterByEnrollmentDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar por Fecha de Inscripción'**
+  String get filterByEnrollmentDate;
+
+  /// No description provided for @clear.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar'**
+  String get clear;
+
+  /// No description provided for @lessThan1Min.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos de 1 min'**
+  String get lessThan1Min;
+
+  /// No description provided for @totalEnrolledPeriod.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Inscritos (período):'**
+  String get totalEnrolledPeriod;
+
+  /// No description provided for @reached25Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzaron 25%:'**
+  String get reached25Percent;
+
+  /// No description provided for @reached50Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzaron 50%:'**
+  String get reached50Percent;
+
+  /// No description provided for @reached75Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzaron 75%:'**
+  String get reached75Percent;
+
+  /// No description provided for @reached90Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzaron 90%:'**
+  String get reached90Percent;
+
+  /// No description provided for @completed100Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Completaron 100%:'**
+  String get completed100Percent;
+
+  /// No description provided for @counselingRequestsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes de Asesoramiento'**
+  String get counselingRequestsTitle;
+
+  /// No description provided for @noPermissionManageCounselingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar solicitudes de asesoramiento'**
+  String get noPermissionManageCounselingRequests;
+
+  /// No description provided for @appointmentConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita confirmada'**
+  String get appointmentConfirmed;
+
+  /// No description provided for @appointmentCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita cancelada'**
+  String get appointmentCancelled;
+
+  /// No description provided for @appointmentCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita completada'**
+  String get appointmentCompleted;
+
+  /// No description provided for @errorLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Error:'**
+  String get errorLabel;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay solicitudes pendientes'**
+  String get noPendingRequests;
+
+  /// No description provided for @noConfirmedAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay citas confirmadas'**
+  String get noConfirmedAppointments;
+
+  /// No description provided for @loadingUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando usuario...'**
+  String get loadingUser;
+
+  /// No description provided for @callTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Llamar'**
+  String get callTooltip;
+
+  /// No description provided for @whatsAppTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsAppTooltip;
+
+  /// No description provided for @reasonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo:'**
+  String get reasonLabel;
+
+  /// No description provided for @noReasonSpecified.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún motivo especificado'**
+  String get noReasonSpecified;
+
+  /// No description provided for @complete.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar'**
+  String get complete;
+
+  /// No description provided for @appointmentStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita {status}'**
+  String appointmentStatus(Object status);
+
+  /// No description provided for @myPrivatePrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis Oraciones Privadas'**
+  String get myPrivatePrayers;
+
+  /// No description provided for @refresh.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar'**
+  String get refresh;
+
+  /// No description provided for @noApprovedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración aprobada'**
+  String get noApprovedPrayers;
+
+  /// No description provided for @noAnsweredPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración respondida'**
+  String get noAnsweredPrayers;
+
+  /// No description provided for @noPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración'**
+  String get noPrayers;
+
+  /// No description provided for @allPrayerRequestsAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas sus solicitudes de oración han sido atendidas'**
+  String get allPrayerRequestsAttended;
+
+  /// No description provided for @noApprovedPrayersWithoutResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración fue aprobada sin respuesta'**
+  String get noApprovedPrayersWithoutResponse;
+
+  /// No description provided for @noResponsesFromPastors.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no ha recibido respuestas de los pastores'**
+  String get noResponsesFromPastors;
+
+  /// No description provided for @requestPrivatePrayerFromPastors.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicite oración privada a los pastores'**
+  String get requestPrivatePrayerFromPastors;
+
+  /// No description provided for @approved.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobadas'**
+  String get approved;
+
+  /// No description provided for @answered.
+  ///
+  /// In es, this message translates to:
+  /// **'Respondidas'**
+  String get answered;
+
+  /// No description provided for @requestPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedir oración'**
+  String get requestPrayer;
+
+  /// No description provided for @errorLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar: {error}'**
+  String errorLoading(Object error);
+
+  /// No description provided for @loadingError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error cargando más oraciones para tab {tabIndex}: {error}'**
+  String loadingError(Object error, Object tabIndex);
+
+  /// No description provided for @privatePrayersTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones Privadas'**
+  String get privatePrayersTitle;
+
+  /// No description provided for @errorAcceptingRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al aceptar la solicitud'**
+  String get errorAcceptingRequest;
+
+  /// No description provided for @errorAcceptingRequestWithDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al aceptar la solicitud: {error}'**
+  String errorAcceptingRequestWithDetails(Object error);
+
+  /// No description provided for @loadingEllipsis.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando...'**
+  String get loadingEllipsis;
+
+  /// No description provided for @responded.
+  ///
+  /// In es, this message translates to:
+  /// **'Respondido'**
+  String get responded;
+
+  /// No description provided for @requestLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud:'**
+  String get requestLabel;
+
+  /// No description provided for @yourResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Su respuesta:'**
+  String get yourResponse;
+
+  /// No description provided for @respondedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Respondido el {date}'**
+  String respondedOn(Object date);
+
+  /// No description provided for @acceptAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar'**
+  String get acceptAction;
+
+  /// No description provided for @respondAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Responder'**
+  String get respondAction;
+
+  /// No description provided for @total.
+  ///
+  /// In es, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @prayersOverview.
+  ///
+  /// In es, this message translates to:
+  /// **'Visión General de las Oraciones'**
+  String get prayersOverview;
+
+  /// No description provided for @noPendingPrayersMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay oraciones pendientes'**
+  String get noPendingPrayersMessage;
+
+  /// No description provided for @allRequestsAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las solicitudes han sido atendidas'**
+  String get allRequestsAttended;
+
+  /// No description provided for @noApprovedPrayersWithoutResponseMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay oraciones aprobadas sin respuesta'**
+  String get noApprovedPrayersWithoutResponseMessage;
+
+  /// No description provided for @acceptRequestsToRespond.
+  ///
+  /// In es, this message translates to:
+  /// **'Acepte solicitudes para responder a los hermanos'**
+  String get acceptRequestsToRespond;
+
+  /// No description provided for @noAnsweredPrayersMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'No ha respondido a ninguna oración'**
+  String get noAnsweredPrayersMessage;
+
+  /// No description provided for @responsesWillAppearHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Sus respuestas aparecerán aquí'**
+  String get responsesWillAppearHere;
+
+  /// No description provided for @groupStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Grupos'**
+  String get groupStatisticsTitle;
+
+  /// No description provided for @members.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros'**
+  String get members;
+
+  /// No description provided for @history.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get history;
+
+  /// No description provided for @noPermissionViewGroupStats.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para visualizar estadísticas de grupos'**
+  String get noPermissionViewGroupStats;
+
+  /// No description provided for @filterByDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar por fecha'**
+  String get filterByDate;
+
+  /// No description provided for @initialDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha inicial'**
+  String get initialDate;
+
+  /// No description provided for @finalDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha final'**
+  String get finalDate;
+
+  /// No description provided for @totalUniqueMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Miembros Únicos'**
+  String get totalUniqueMembers;
+
+  /// No description provided for @creationDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de creación'**
+  String get creationDate;
+
+  /// No description provided for @memberCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} miembros'**
+  String memberCount(Object count);
+
+  /// No description provided for @errorLoadingMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar miembros: {error}'**
+  String errorLoadingMembers(Object error);
+
+  /// No description provided for @noMembersInGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay miembros en este grupo'**
+  String get noMembersInGroup;
+
+  /// No description provided for @attendancePercentage.
+  ///
+  /// In es, this message translates to:
+  /// **'% Asistencia'**
+  String get attendancePercentage;
+
+  /// No description provided for @eventsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos'**
+  String get eventsLabel;
+
+  /// No description provided for @admin.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @eventsAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos Asistidos'**
+  String get eventsAttended;
+
+  /// No description provided for @ministryStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Ministerios'**
+  String get ministryStatisticsTitle;
+
+  /// No description provided for @noPermissionViewMinistryStats.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para visualizar estadísticas de ministerios'**
+  String get noPermissionViewMinistryStats;
+
+  /// No description provided for @noMembersInMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay miembros en este ministerio'**
+  String get noMembersInMinistry;
+
+  /// No description provided for @noHistoryToShow.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay historial de miembros para mostrar'**
+  String get noHistoryToShow;
+
+  /// No description provided for @recordsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Registros encontrados: {count}'**
+  String recordsFound(Object count);
+
+  /// No description provided for @exits.
+  ///
+  /// In es, this message translates to:
+  /// **'Salidas'**
+  String get exits;
+
+  /// No description provided for @noHistoricalRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay registros históricos para este grupo'**
+  String get noHistoricalRecords;
+
+  /// No description provided for @noRecordsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay registros de {filterName}'**
+  String noRecordsOf(Object filterName);
+
+  /// No description provided for @currentMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros actuales'**
+  String get currentMembers;
+
+  /// No description provided for @totalEntries.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de entradas'**
+  String get totalEntries;
+
+  /// No description provided for @totalExits.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de salidas'**
+  String get totalExits;
+
+  /// No description provided for @entriesIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Entradas en {groupName}'**
+  String entriesIn(Object groupName);
+
+  /// No description provided for @addedByAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadidos por admin'**
+  String get addedByAdmin;
+
+  /// No description provided for @byRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por solicitud'**
+  String get byRequest;
+
+  /// No description provided for @close.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get close;
+
+  /// No description provided for @exitsFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'Salidas de {groupName}'**
+  String exitsFrom(Object groupName);
+
+  /// No description provided for @removedByAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Removidos por admin'**
+  String get removedByAdmin;
+
+  /// No description provided for @voluntaryExits.
+  ///
+  /// In es, this message translates to:
+  /// **'Salidas voluntarias'**
+  String get voluntaryExits;
+
+  /// No description provided for @exitedStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Salió'**
+  String get exitedStatus;
+
+  /// No description provided for @unknownStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Desconocido'**
+  String get unknownStatus;
+
+  /// No description provided for @unknownDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha desconocida'**
+  String get unknownDate;
+
+  /// No description provided for @addedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadido por:'**
+  String get addedBy;
+
+  /// No description provided for @administrator.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrador'**
+  String get administrator;
+
+  /// No description provided for @mode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo:'**
+  String get mode;
+
+  /// No description provided for @requestAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud aceptada'**
+  String get requestAccepted;
+
+  /// No description provided for @acceptedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptado por:'**
+  String get acceptedBy;
+
+  /// No description provided for @rejectedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazado por:'**
+  String get rejectedBy;
+
+  /// No description provided for @exitType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de salida:'**
+  String get exitType;
+
+  /// No description provided for @voluntary.
+  ///
+  /// In es, this message translates to:
+  /// **'Voluntaria'**
+  String get voluntary;
+
+  /// No description provided for @removed.
+  ///
+  /// In es, this message translates to:
+  /// **'Removido'**
+  String get removed;
+
+  /// No description provided for @removedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Removido por:'**
+  String get removedBy;
+
+  /// No description provided for @exitReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo de salida:'**
+  String get exitReason;
+
+  /// No description provided for @noEventsToShow.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos para mostrar'**
+  String get noEventsToShow;
+
+  /// No description provided for @eventsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos encontrados: {count}'**
+  String eventsFound(Object count);
+
+  /// No description provided for @unknownMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio desconocido'**
+  String get unknownMinistry;
+
+  /// No description provided for @eventsInPeriod.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} eventos en el período'**
+  String eventsInPeriod(Object count);
+
+  /// No description provided for @event.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento: {eventName}'**
+  String event(Object eventName);
+
+  /// No description provided for @locationNotInformed.
+  ///
+  /// In es, this message translates to:
+  /// **'Local no informado'**
+  String get locationNotInformed;
+
+  /// No description provided for @registered.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrados: {count}'**
+  String registered(Object count);
+
+  /// No description provided for @eventsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} eventos'**
+  String eventsCount(Object count);
+
+  /// No description provided for @eventsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos de {groupName}'**
+  String eventsOf(Object groupName);
+
+  /// No description provided for @time.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora:'**
+  String get time;
+
+  /// No description provided for @registeredCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrados: {count}'**
+  String registeredCount(Object count);
+
+  /// No description provided for @attendeesCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistentes: {count}'**
+  String attendeesCount(Object count);
+
+  /// No description provided for @noEventsFor.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos para {ministry}'**
+  String noEventsFor(Object ministry);
+
+  /// No description provided for @loadingUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando usuarios...'**
+  String get loadingUsers;
+
+  /// No description provided for @registeredUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios Registrados'**
+  String get registeredUsers;
+
+  /// No description provided for @confirmedAttendees.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistentes Confirmados'**
+  String get confirmedAttendees;
+
+  /// No description provided for @noUsersToShow.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuarios para mostrar'**
+  String get noUsersToShow;
+
+  /// No description provided for @noRecordsInSelectedDates.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay registros en las fechas seleccionadas'**
+  String get noRecordsInSelectedDates;
+
+  /// No description provided for @noEventsInSelectedDates.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos en las fechas seleccionadas'**
+  String get noEventsInSelectedDates;
+
+  /// No description provided for @recordsInPeriod.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} registros en el período'**
+  String recordsInPeriod(Object count);
+
+  /// No description provided for @scaleStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Escalas'**
+  String get scaleStatisticsTitle;
+
+  /// No description provided for @noPermissionViewScaleStats.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para visualizar estadísticas de escalas.'**
+  String get noPermissionViewScaleStats;
+
+  /// No description provided for @search.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar'**
+  String get search;
+
+  /// No description provided for @viewCults.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver cultos'**
+  String get viewCults;
+
+  /// No description provided for @cultsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Cultos de {serviceName}'**
+  String cultsOf(Object serviceName);
+
+  /// No description provided for @noCultsAvailableForService.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún culto disponible para esta escala'**
+  String get noCultsAvailableForService;
+
+  /// No description provided for @courseStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Cursos'**
+  String get courseStatisticsTitle;
+
+  /// No description provided for @noPermissionViewCourseStats.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para visualizar estadísticas de cursos.'**
+  String get noPermissionViewCourseStats;
+
+  /// No description provided for @noStatisticsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay estadísticas disponibles.'**
+  String get noStatisticsAvailable;
+
+  /// No description provided for @errorLoadingStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar estadísticas: {error}'**
+  String errorLoadingStatistics(Object error);
+
+  /// No description provided for @top3CoursesEnrolled.
+  ///
+  /// In es, this message translates to:
+  /// **'Top 3 Cursos (Inscritos):'**
+  String get top3CoursesEnrolled;
+
+  /// No description provided for @noCourseToShow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún curso para mostrar.'**
+  String get noCourseToShow;
+
+  /// No description provided for @detailsScreenNotImplemented.
+  ///
+  /// In es, this message translates to:
+  /// **'Pantalla de detalles aún no implementada.'**
+  String get detailsScreenNotImplemented;
+
+  /// No description provided for @enrollmentStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Inscripciones'**
+  String get enrollmentStatisticsTitle;
+
+  /// No description provided for @progressStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Progreso'**
+  String get progressStatisticsTitle;
+
+  /// No description provided for @completionStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Finalización'**
+  String get completionStatisticsTitle;
+
+  /// No description provided for @milestoneStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de Hitos'**
+  String get milestoneStatisticsTitle;
+
+  /// No description provided for @searchCourses.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar cursos...'**
+  String get searchCourses;
+
+  /// No description provided for @totalEnrollments.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de Inscripciones'**
+  String get totalEnrollments;
+
+  /// No description provided for @averageEnrollmentsPerCourse.
+  ///
+  /// In es, this message translates to:
+  /// **'Promedio de Inscripciones por Curso'**
+  String get averageEnrollmentsPerCourse;
+
+  /// No description provided for @courseWithMostEnrollments.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso con Más Inscripciones'**
+  String get courseWithMostEnrollments;
+
+  /// No description provided for @courseWithFewestEnrollments.
+  ///
+  /// In es, this message translates to:
+  /// **'Curso con Menos Inscripciones'**
+  String get courseWithFewestEnrollments;
+
+  /// No description provided for @enrollmentsOverTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Inscripciones a lo Largo del Tiempo'**
+  String get enrollmentsOverTime;
+
+  /// No description provided for @enrollmentDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de Inscripción'**
+  String get enrollmentDate;
+
+  /// No description provided for @globalAverageTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Medio Global:'**
+  String get globalAverageTime;
+
+  /// No description provided for @fastestCompletion.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalización Más Rápida:'**
+  String get fastestCompletion;
+
+  /// No description provided for @slowestCompletion.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalización Más Lenta:'**
+  String get slowestCompletion;
+
+  /// No description provided for @completionTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo de Finalización'**
+  String get completionTime;
+
+  /// No description provided for @completionRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Tasa de Finalización'**
+  String get completionRate;
+
+  /// No description provided for @reach25Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzan 25%:'**
+  String get reach25Percent;
+
+  /// No description provided for @reach50Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzan 50%:'**
+  String get reach50Percent;
+
+  /// No description provided for @reach75Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzan 75%:'**
+  String get reach75Percent;
+
+  /// No description provided for @reach90Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzan 90%:'**
+  String get reach90Percent;
+
+  /// No description provided for @complete100Percent.
+  ///
+  /// In es, this message translates to:
+  /// **'Completan 100%:'**
+  String get complete100Percent;
+
+  /// No description provided for @milestonePercentage.
+  ///
+  /// In es, this message translates to:
+  /// **'Porcentaje de Hito'**
+  String get milestonePercentage;
+
+  /// No description provided for @studentsReached.
+  ///
+  /// In es, this message translates to:
+  /// **'Estudiantes que Alcanzaron'**
+  String get studentsReached;
+
+  /// No description provided for @userNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario no encontrado'**
+  String get userNotFound;
+
+  /// No description provided for @servicesPerformed.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicios Realizados'**
+  String get servicesPerformed;
+
+  /// No description provided for @noConfirmedServicesInMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'No realizó servicios confirmados en este ministerio'**
+  String get noConfirmedServicesInMinistry;
+
+  /// No description provided for @service.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio: {serviceName}'**
+  String service(Object serviceName);
+
+  /// No description provided for @assignedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Designado por: {pastorName}'**
+  String assignedBy(Object pastorName);
+
+  /// No description provided for @notAttendedMinistryEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'No asistió a eventos de este ministerio'**
+  String get notAttendedMinistryEvents;
+
+  /// No description provided for @notAttendedGroupEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'No asistió a eventos de este grupo'**
+  String get notAttendedGroupEvents;
+
+  /// No description provided for @churchStatisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de la Iglesia'**
+  String get churchStatisticsTitle;
+
+  /// No description provided for @dataNotAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos no disponibles'**
+  String get dataNotAvailable;
+
+  /// No description provided for @requestApproved.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud aprobada'**
+  String get requestApproved;
+
+  /// No description provided for @attendees.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistentes: {count}'**
+  String attendees(Object count);
+
+  /// No description provided for @userNotInAnyGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'El usuario no pertenece a ningún grupo'**
+  String get userNotInAnyGroup;
+
+  /// No description provided for @generalStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas Generales'**
+  String get generalStatistics;
+
+  /// No description provided for @totalServicesPerformed.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de servicios realizados'**
+  String get totalServicesPerformed;
+
+  /// No description provided for @ministryEventsAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos de ministerio asistidos'**
+  String get ministryEventsAttended;
+
+  /// No description provided for @groupEventsAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos de grupo asistidos'**
+  String get groupEventsAttended;
+
+  /// No description provided for @userNotInAnyMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'El usuario no pertenece a ningún ministerio'**
+  String get userNotInAnyMinistry;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado: Confirmado'**
+  String get statusConfirmed;
+
+  /// No description provided for @statusPresent.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado: Presente'**
+  String get statusPresent;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'N/D'**
+  String get notAvailable;
+
+  /// No description provided for @allMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los Ministerios'**
+  String get allMinistries;
+
+  /// No description provided for @serviceWithoutName.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio sin nombre'**
+  String get serviceWithoutName;
+
+  /// No description provided for @errorLoadingUserStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar estadísticas de usuarios: {error}'**
+  String errorLoadingUserStats(Object error);
+
+  /// No description provided for @errorLoadingStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar estadísticas: {error}'**
+  String errorLoadingStats(Object error);
+
+  /// No description provided for @serviceName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del servicio'**
+  String get serviceName;
+
+  /// No description provided for @serviceNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Culto Dominical'**
+  String get serviceNameHint;
+
+  /// No description provided for @scales.
+  ///
+  /// In es, this message translates to:
+  /// **'Escalas'**
+  String get scales;
+
+  /// No description provided for @noServiceFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún servicio encontrado'**
+  String get noServiceFound;
+
+  /// No description provided for @tryAnotherFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'Intenta con otro filtro de búsqueda'**
+  String get tryAnotherFilter;
+
+  /// No description provided for @created.
+  ///
+  /// In es, this message translates to:
+  /// **'Creado: {date}'**
+  String created(Object date);
+
+  /// No description provided for @invitesSent.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones enviadas'**
+  String get invitesSent;
+
+  /// No description provided for @globalSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen Global'**
+  String get globalSummary;
+
+  /// No description provided for @absences.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausencias'**
+  String get absences;
+
+  /// No description provided for @invites.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones'**
+  String get invites;
+
+  /// No description provided for @invitesAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones aceptadas'**
+  String get invitesAccepted;
+
+  /// No description provided for @invitesRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones rechazadas'**
+  String get invitesRejected;
+
+  /// No description provided for @finished.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizado'**
+  String get finished;
+
+  /// No description provided for @errorLoadingCults.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar cultos: {error}'**
+  String errorLoadingCults(Object error);
+
+  /// No description provided for @cultsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} cultos'**
+  String cultsCount(Object count);
+
+  /// No description provided for @userList.
+  ///
+  /// In es, this message translates to:
+  /// **'Lista de usuarios'**
+  String get userList;
 }
 
 class _AppLocalizationsDelegate

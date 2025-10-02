@@ -8,6 +8,7 @@ import '../../models/work_assignment.dart';
 import '../../models/time_slot.dart';
 import '../../models/group.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final String userId;
@@ -558,14 +559,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       
       if (pastorDoc.exists) {
         final data = pastorDoc.data() as Map<String, dynamic>;
-        final pastorName = data['displayName'] ?? data['email'] ?? 'Desconocido';
+        final pastorName = data['displayName'] ?? data['email'] ?? AppLocalizations.of(context)!.unknown;
         _pastorNames[pastorId] = pastorName;
       } else {
-        _pastorNames[pastorId] = 'Desconocido';
+        _pastorNames[pastorId] = AppLocalizations.of(context)!.unknown;
       }
     } catch (e) {
       print('Error fetching pastor name: $e');
-      _pastorNames[pastorId] = 'Desconocido';
+      _pastorNames[pastorId] = AppLocalizations.of(context)!.unknown;
     }
   }
 
@@ -854,7 +855,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_user?.displayName ?? 'Detalhes do Usuário'),
+        title: Text(_user?.displayName ?? AppLocalizations.of(context)!.userDetails),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -877,7 +878,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _user == null 
-              ? const Center(child: Text('Usuário não encontrado'))
+              ? Center(child: Text(AppLocalizations.of(context)!.userNotFound))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -895,8 +896,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       
                       // Ministerios
                       Text(
-                        'Ministérios',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.ministries,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
@@ -910,7 +911,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       
                       // Grupos
                       Text(
-                        'Connect',
+                        AppLocalizations.of(context)!.groups,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -995,7 +996,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _user?.displayName ?? 'Sem nome',
+                        _user?.displayName ?? AppLocalizations.of(context)!.noName,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -1065,7 +1066,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             ),
             child: Text(
-              'Estatísticas Gerais',
+              AppLocalizations.of(context)!.generalStatistics,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1077,21 +1078,21 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           Divider(height: 1, color: Colors.grey.shade200),
           _buildStatRow(
             icon: Icons.work,
-            label: 'Total de serviços realizados',
+            label: AppLocalizations.of(context)!.totalServicesPerformed,
             value: _totalServices.toString(),
             iconColor: const Color(0xFF42A5F5),
           ),
           Divider(height: 1, color: Colors.grey.shade200),
           _buildStatRow(
             icon: Icons.event,
-            label: 'Eventos de ministério assistidos',
+            label: AppLocalizations.of(context)!.ministryEventsAttended,
             value: _totalMinistryEvents.toString(),
             iconColor: const Color(0xFF66BB6A),
           ),
           Divider(height: 1, color: Colors.grey.shade200),
           _buildStatRow(
             icon: Icons.groups,
-            label: 'Eventos de grupo assistidos',
+            label: AppLocalizations.of(context)!.groupEventsAttended,
             value: _totalGroupEvents.toString(),
             iconColor: const Color(0xFFFFA726),
             isLast: true,
@@ -1169,8 +1170,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                   child: Icon(Icons.info_outline, color: Colors.grey.shade400, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'O usuário não pertence a nenhum min...',
+                Text(
+                  AppLocalizations.of(context)!.userNotInAnyMinistry,
                   style: TextStyle(color: Colors.grey),
                 ),
               ],
@@ -1222,7 +1223,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               color: AppColors.primary,
             ),
           ),
-          subtitle: Text('${assignments.length} serviços realizados'),
+          subtitle: Text('${AppLocalizations.of(context)!.servicesPerformed}: ${assignments.length}'),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1231,7 +1232,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'Serviços Realizados',
+                AppLocalizations.of(context)!.servicesPerformed,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1240,9 +1241,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               ),
             ),
             sortedAssignments.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.only(bottom: 16),
-                    child: Text('Não realizou serviços confirmados neste ministério'),
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(AppLocalizations.of(context)!.noConfirmedServicesInMinistry),
                   )
                 : ListView.builder(
                     shrinkWrap: true,
@@ -1284,7 +1285,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                   Icon(Icons.person, size: 16, color: AppColors.primary),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Função: ${assignment.role}',
+                                    AppLocalizations.of(context)!.role(assignment.role),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1297,7 +1298,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                   children: [
                                     const Icon(Icons.event_note, size: 16, color: Colors.grey),
                                     const SizedBox(width: 8),
-                                    Text('Serviço: ${timeSlot.name}'),
+                                    Text(AppLocalizations.of(context)!.service(timeSlot.name)),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
@@ -1308,7 +1309,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     FutureBuilder<String>(
                                       future: _getCultName(timeSlot.entityId, timeSlot.entityType),
                                       builder: (context, snapshot) {
-                                        return Text('Culto: ${snapshot.data ?? "N/D"}');
+                                        return Text(AppLocalizations.of(context)!.cult(snapshot.data ?? AppLocalizations.of(context)!.notAvailable));
                                       },
                                     ),
                                   ],
@@ -1319,20 +1320,20 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                 children: [
                                   const Icon(Icons.person_pin, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
-                                  Text('Designado por: $pastorName'),
+                                  Text(AppLocalizations.of(context)!.assignedBy(pastorName)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    size: 16,
-                                    color: Colors.green,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Status: Confirmado',
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      size: 16,
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      AppLocalizations.of(context)!.statusConfirmed,
                                     style: TextStyle(
                                       color: Colors.green,
                                     ),
@@ -1349,11 +1350,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             const SizedBox(height: 16),
             
             // Eventos asistidos
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                'Eventos Assistidos',
-                style: TextStyle(
+Padding(
+               padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  AppLocalizations.of(context)!.eventsAttended,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -1361,7 +1362,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               ),
             ),
             confirmedAttendances.isEmpty
-                ? const Text('Não assistiu a eventos deste ministério')
+                ? Text(AppLocalizations.of(context)!.notAttendedMinistryEvents)
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -1383,14 +1384,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.event, size: 16, color: AppColors.primary),
+                                  const Icon(Icons.event, size: 16, color: AppColors.primary),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: FutureBuilder<String>(
                                       future: _getEventTitle(attendance.taskId),
                                       builder: (context, snapshot) {
                                         return Text(
-                                          'Evento: ${snapshot.data ?? "N/D"}',
+                                          AppLocalizations.of(context)!.event(snapshot.data ?? AppLocalizations.of(context)!.notAvailable),
                                           style: const TextStyle(fontWeight: FontWeight.bold),
                                         );
                                       },
@@ -1403,7 +1404,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                 children: [
                                   const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
-                                  Text('Data: ${_formatDate(attendance.date)}'),
+                                  Text('${AppLocalizations.of(context)!.date} ${_formatDate(attendance.date)}'),
                                 ],
                               ),
                               const SizedBox(height: 4),
@@ -1415,8 +1416,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     color: Colors.green,
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    'Status: Presente',
+                                  Text(
+                                    AppLocalizations.of(context)!.statusPresent,
                                     style: TextStyle(
                                       color: Colors.green,
                                     ),
@@ -1430,7 +1431,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     const Icon(Icons.comment, size: 16, color: Colors.grey),
                                     const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text('Razão: ${attendance.reason}'),
+                                      child: Text(AppLocalizations.of(context)!.reason(attendance.reason ?? '')),
                                     ),
                                   ],
                                 ),
@@ -1471,7 +1472,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'O usuário não pertence a nenhum Connect',
+                    AppLocalizations.of(context)!.userNotInAnyGroup,
                     style: const TextStyle(color: Colors.grey),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -1500,9 +1501,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           side: BorderSide(color: Colors.grey.shade200),
         ),
         child: ExpansionTile(
-          leading: CircleAvatar(
-            backgroundColor: const Color(0xFFE8F5E9), // Verde claro
-            child: const Icon(Icons.group, color: Color(0xFF43A047)),
+          leading: const CircleAvatar(
+            backgroundColor: Color(0xFFE8F5E9), // Verde claro
+            child: Icon(Icons.group, color: Color(0xFF43A047)),
           ),
           title: Text(
             group.name,
@@ -1515,7 +1516,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(group.description),
-              Text('${confirmedAttendances.length} eventos assistidos'),
+              Text('${AppLocalizations.of(context)!.eventsAttended}: ${confirmedAttendances.length}'),
             ],
           ),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1523,10 +1524,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           children: [
             const Divider(),
             // Eventos asistidos
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                'Eventos Assistidos',
+Padding(
+               padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  AppLocalizations.of(context)!.eventsAttended,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1535,7 +1536,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               ),
             ),
             confirmedAttendances.isEmpty
-                ? const Text('Não assistiu a eventos deste grupo')
+                ? Text(AppLocalizations.of(context)!.notAttendedGroupEvents)
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -1565,7 +1566,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                       future: _getEventTitle(attendance['eventId']),
                                       builder: (context, snapshot) {
                                         return Text(
-                                          'Evento: ${snapshot.data ?? "N/D"}',
+                                          AppLocalizations.of(context)!.event(snapshot.data ?? AppLocalizations.of(context)!.notAvailable),
                                           style: const TextStyle(fontWeight: FontWeight.bold),
                                         );
                                       },
@@ -1578,7 +1579,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                 children: [
                                   const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
-                                  Text('Data: ${_formatDate(date)}'),
+                                  Text('${AppLocalizations.of(context)!.date} ${_formatDate(date)}'),
                                 ],
                               ),
                               const SizedBox(height: 4),
@@ -1590,8 +1591,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     color: Colors.green,
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    'Status: Presente',
+                                  Text(
+                                    AppLocalizations.of(context)!.statusPresent,
                                     style: TextStyle(
                                       color: Colors.green,
                                     ),

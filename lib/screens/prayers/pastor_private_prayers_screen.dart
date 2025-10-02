@@ -211,7 +211,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Erro ao aceitar a solicitação'),
+              content: Text(AppLocalizations.of(context)!.errorAcceptingRequest),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -228,7 +228,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar a solicitação: $e'),
+            content: Text(AppLocalizations.of(context)!.errorAcceptingRequestWithDetails(e.toString())),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -271,14 +271,14 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               stream: prayer.userId.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const ListTile(
+                  return ListTile(
                     leading: CircularProgressIndicator(),
-                    title: Text('Carregando...'),
+                    title: Text(AppLocalizations.of(context)!.loadingEllipsis),
                   );
                 }
                 
                 final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                final userName = userData?['displayName'] ?? 'Usuário';
+                final userName = userData?['displayName'] ?? AppLocalizations.of(context)!.user;
                 
                 return Row(
                   children: [
@@ -328,10 +328,10 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                       ),
                       child: Text(
                         prayer.pastorResponse != null
-                            ? 'Respondido'
+                            ? AppLocalizations.of(context)!.responded
                             : prayer.isAccepted
-                                ? 'Aceito'
-                                : 'Pendente',
+                                ? AppLocalizations.of(context)!.accepted
+                                : AppLocalizations.of(context)!.pending,
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -362,8 +362,8 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Solicitação:',
+                      Text(
+                        AppLocalizations.of(context)!.requestLabel,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -395,7 +395,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Sua resposta:',
+                          AppLocalizations.of(context)!.yourResponse,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -412,7 +412,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                         if (prayer.respondedAt != null) ...[
                           const SizedBox(height: 8),
                           Text(
-                            'Respondido em ${DateFormat('dd MMM yyyy - HH:mm', 'pt_BR').format(prayer.respondedAt!)}',
+                            AppLocalizations.of(context)!.respondedOn(DateFormat('dd MMM yyyy - HH:mm', 'es_ES').format(prayer.respondedAt!)),
                             style: TextStyle(
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
@@ -437,7 +437,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                 if (isPending)
                   ElevatedButton.icon(
                     icon: const Icon(Icons.check, color: Colors.white),
-                    label: const Text('Aceitar'),
+                    label: Text(AppLocalizations.of(context)!.acceptAction),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -452,7 +452,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                 else
                   ElevatedButton.icon(
                     icon: const Icon(Icons.reply, color: Colors.white),
-                    label: const Text('Responder'),
+                    label: Text(AppLocalizations.of(context)!.respondAction),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -560,7 +560,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
         if (permissionSnapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Orações Privadas'),
+              title: Text(AppLocalizations.of(context)!.privatePrayersTitle),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -582,7 +582,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
         if (permissionSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Orações Privadas'),
+              title: Text(AppLocalizations.of(context)!.privatePrayersTitle),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -597,14 +597,14 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               ),
               foregroundColor: Colors.white,
             ),
-            body: Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}')),
+            body: Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString()))),
           );
         }
         
         if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Orações Privadas'),
+              title: Text(AppLocalizations.of(context)!.privatePrayersTitle),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -619,7 +619,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               ),
               foregroundColor: Colors.white,
             ),
-            body: const Center(
+            body: Center(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Column(
@@ -627,9 +627,9 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar orações privadas.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionManagePrivatePrayers, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -660,30 +660,30 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
               unselectedLabelColor: Colors.white.withOpacity(0.8),
               controller: _tabController,
               indicatorColor: Colors.white,
-              tabs: const [
+              tabs: [
                 Tab(
                   icon: Icon(Icons.watch_later_outlined),
-                  text: 'Pendentes',
+                  text: AppLocalizations.of(context)!.pending,
                 ),
                 Tab(
                   icon: Icon(Icons.check_circle_outline),
-                  text: 'Aprovadas',
+                  text: AppLocalizations.of(context)!.approved,
                 ),
                 Tab(
                   icon: Icon(Icons.chat_outlined),
-                  text: 'Respondidas',
+                  text: AppLocalizations.of(context)!.answered,
                 ),
               ],
             ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.add_comment),
-                tooltip: 'Criar mensagem predefinida',
+                tooltip: AppLocalizations.of(context)!.createPredefinedMessage,
                 onPressed: _showCreatePredefinedMessageModal,
               ),
               IconButton(
                 icon: const Icon(Icons.refresh),
-                tooltip: 'Atualizar',
+                tooltip: AppLocalizations.of(context)!.refresh,
                 onPressed: _loadPrayers,
               ),
             ],
@@ -712,7 +712,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                             Padding(
                               padding: const EdgeInsets.only(left: 12, bottom: 8),
                               child: Text(
-                                'Visão Geral das Orações',
+                                AppLocalizations.of(context)!.prayersOverview,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -723,26 +723,26 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                             Row(
                               children: [
                                 _buildStatCard(
-                                  'Total',
+                                  AppLocalizations.of(context)!.total,
                                   _stats['total'] ?? 0,
                                   AppColors.primary,
                                   Icons.summarize,
                                 ),
                                 _buildStatCard(
-                                  'Pendentes',
+                                  AppLocalizations.of(context)!.pending,
                                   _stats['pending'] ?? 0,
                                   Colors.orange,
                                   Icons.watch_later_outlined,
                                 ),
                                 _buildStatCard(
-                                  'Aprovadas',
+                                  AppLocalizations.of(context)!.approved,
                                   _stats['accepted'] ?? 0,
                                   Colors.green,
                                   Icons.check_circle_outline,
                                   highlight: true,
                                 ),
                                 _buildStatCard(
-                                  'Respondidas',
+                                  AppLocalizations.of(context)!.answered,
                                   _stats['responded'] ?? 0,
                                   Colors.purple,
                                   Icons.chat_outlined,
@@ -770,7 +770,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       Icon(Icons.check_circle_outline, size: 64, color: Colors.grey[400]),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'Não há orações pendentes',
+                                        AppLocalizations.of(context)!.noPendingPrayersMessage,
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.grey[600],
@@ -779,7 +779,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Todas as solicitações foram atendidas',
+                                        AppLocalizations.of(context)!.allRequestsAttended,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey[500],
@@ -803,7 +803,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       Icon(Icons.mark_chat_unread_outlined, size: 64, color: Colors.grey[400]),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'Não há orações aprovadas sem resposta',
+                                        AppLocalizations.of(context)!.noApprovedPrayersWithoutResponseMessage,
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.grey[600],
@@ -812,7 +812,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Aceite solicitações para responder aos irmãos',
+                                        AppLocalizations.of(context)!.acceptRequestsToRespond,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey[500],
@@ -836,7 +836,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       Icon(Icons.chat_outlined, size: 64, color: Colors.grey[400]),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'Você não respondeu a nenhuma oração',
+                                        AppLocalizations.of(context)!.noAnsweredPrayersMessage,
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.grey[600],
@@ -845,7 +845,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Suas respostas aparecerão aqui',
+                                        AppLocalizations.of(context)!.responsesWillAppearHere,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey[500],

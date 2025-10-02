@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../models/pastor_availability.dart' as model;
+import '../../../l10n/app_localizations.dart';
 
 // Clase auxiliar para la UI
 class UITimeSlot {
@@ -168,7 +169,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Configure a disponibilidade para este dia',
+                    AppLocalizations.of(context)!.configureAvailabilityForThisDay,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),
@@ -200,7 +201,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _isWorking ? 'Disponível' : 'Indisponível',
+                                  _isWorking ? AppLocalizations.of(context)!.available : AppLocalizations.of(context)!.unavailable,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -210,8 +211,8 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                                 const SizedBox(height: 4),
                                 Text(
                                   _isWorking 
-                                    ? 'Este dia está marcado como disponível para consultas' 
-                                    : 'Este dia está marcado como indisponível para consultas',
+                                    ? AppLocalizations.of(context)!.thisDayMarkedAvailable
+                                    : AppLocalizations.of(context)!.thisDayMarkedUnavailable,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey.shade700,
@@ -242,8 +243,8 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                       // Título de franjas horarias
                       Row(
                         children: [
-                          const Text(
-                            'Faixas de Horário',
+                          Text(
+                            AppLocalizations.of(context)!.timeSlotsSingular,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -358,7 +359,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                                   child: Row(
                                     children: [
                                       Text(
-                                        'Faixa ${index + 1}',
+                                        AppLocalizations.of(context)!.timeSlot((index + 1).toString()),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -475,8 +476,8 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                                       const SizedBox(height: 16),
                                       
                                       // Tipo de cita con chips
-                                      const Text(
-                                        'Tipo de consulta:',
+                                      Text(
+                                        AppLocalizations.of(context)!.consultationType,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           fontSize: 14,
@@ -520,7 +521,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    'Online',
+                                                    AppLocalizations.of(context)!.onlineConsultation,
                                                     style: TextStyle(
                                                       color: slot.isOnline ? Colors.blue.shade700 : Colors.grey,
                                                       fontWeight: slot.isOnline ? FontWeight.w500 : FontWeight.normal,
@@ -572,7 +573,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    'Presencial',
+                                                    AppLocalizations.of(context)!.inPersonConsultation,
                                                     style: TextStyle(
                                                       color: slot.isInPerson ? Colors.green.shade700 : Colors.grey,
                                                       fontWeight: slot.isInPerson ? FontWeight.w500 : FontWeight.normal,
@@ -604,7 +605,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                       Center(
                         child: TextButton.icon(
                           icon: const Icon(Icons.add_circle_outline, size: 18),
-                          label: const Text('Adicionar Faixa de Horário'),
+                          label: Text(AppLocalizations.of(context)!.addTimeSlot),
                           style: TextButton.styleFrom(
                             foregroundColor: Theme.of(context).primaryColor,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -640,7 +641,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
-                    child: const Text('Cancelar'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
@@ -651,7 +652,7 @@ class _DayScheduleDialogState extends State<DayScheduleDialog> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Salvar'),
+                    child: Text(AppLocalizations.of(context)!.save),
                   ),
                 ],
               ),

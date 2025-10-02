@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/common/shimmer_loading.dart';
 import 'manage_lesson_materials_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageCourseModulesScreen extends StatefulWidget {
   final String courseId;
@@ -63,8 +64,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (course == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Curso não encontrado'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.courseNotFound),
               backgroundColor: Colors.red,
             ),
           );
@@ -90,7 +91,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar dados: $e'),
+            content: Text(AppLocalizations.of(context)!.errorLoadingData(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -107,7 +108,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Adicionar Módulo'),
+        title: Text(AppLocalizations.of(context)!.addModule),
         content: Form(
           key: _moduleFormKey,
           child: Column(
@@ -115,13 +116,13 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
             children: [
               TextFormField(
                 controller: _moduleTitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Título do Módulo',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.moduleTitleLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'O título é obrigatório';
+                    return AppLocalizations.of(context)!.moduleTitleRequired;
                   }
                   return null;
                 },
@@ -129,9 +130,9 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _moduleSummaryController,
-                decoration: const InputDecoration(
-                  labelText: 'Resumo (Opcional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.summaryOptional,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -141,7 +142,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _createModule(),
@@ -158,7 +159,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Adicionar'),
+                : Text(AppLocalizations.of(context)!.add),
           ),
         ],
       ),
@@ -208,8 +209,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Módulo adicionado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.moduleCreatedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -235,7 +236,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Editar Módulo'),
+        title: Text(AppLocalizations.of(context)!.editModule),
         content: Form(
           key: _moduleFormKey,
           child: Column(
@@ -243,13 +244,13 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
             children: [
               TextFormField(
                 controller: _moduleTitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Título do Módulo',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.moduleTitleLabel,
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'O título é obrigatório';
+                    return AppLocalizations.of(context)!.moduleTitleRequired;
                   }
                   return null;
                 },
@@ -257,8 +258,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _moduleSummaryController,
-                decoration: const InputDecoration(
-                  labelText: 'Resumo (Opcional)',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.summaryOptional,
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
@@ -269,7 +270,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _updateModule(module),
@@ -286,7 +287,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Salvar'),
+                : Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -323,8 +324,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Módulo atualizado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.moduleUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -346,10 +347,9 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Módulo'),
+        title: Text(AppLocalizations.of(context)!.deleteModule),
         content: Text(
-          'Tem certeza que deseja excluir o módulo "${module.title}"?\n\n'
-          'Todas as lições deste módulo também serão excluídas. Esta ação não pode ser desfeita.',
+          AppLocalizations.of(context)!.sureDeleteModuleWithTitle(module.title) + '\n\n' + AppLocalizations.of(context)!.allModuleLessonsWillBeDeleted,
           style: const TextStyle(
             color: Colors.red,
           ),
@@ -357,7 +357,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _deleteModule(module),
@@ -374,7 +374,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Excluir'),
+                : Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -398,8 +398,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Módulo excluído com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.moduleDeletedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -430,7 +430,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Adicionar Lição'),
+        title: Text(AppLocalizations.of(context)!.addLesson),
         content: Form(
           key: _lessonFormKey,
           child: SingleChildScrollView(
@@ -439,13 +439,13 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
               children: [
                 TextFormField(
                   controller: _lessonTitleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título da Lição',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.lessonTitle,
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'O título é obrigatório';
+                      return AppLocalizations.of(context)!.moduleTitleRequired;
                     }
                     return null;
                   },
@@ -453,8 +453,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonDescriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descrição (Opcional)',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.optionalDescription,
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
@@ -462,8 +462,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonDurationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Duração (minutos)',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.durationMinutes,
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -480,9 +480,9 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonVideoUrlController,
-                  decoration: const InputDecoration(
-                    labelText: 'URL do Vídeo (YouTube ou Vimeo)',
-                    hintText: 'Ex: https://www.youtube.com/watch?v=...',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.videoUrl,
+                    hintText: AppLocalizations.of(context)!.videoUrlExample,
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -499,7 +499,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _createLesson(),
@@ -516,7 +516,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Adicionar'),
+                : Text(AppLocalizations.of(context)!.add),
           ),
         ],
       ),
@@ -532,7 +532,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       // Obtener el módulo actual
       final moduleIndex = _modules.indexWhere((m) => m.id == _currentModuleId);
       if (moduleIndex == -1) {
-        throw Exception('Módulo não encontrado');
+        throw Exception(AppLocalizations.of(context)!.moduleNotFound);
       }
       final module = _modules[moduleIndex];
       
@@ -564,8 +564,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lição adicionada com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.lessonAddedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -607,7 +607,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.blue),
-              title: const Text('Editar Módulo'),
+              title: Text(AppLocalizations.of(context)!.editModule),
               onTap: () {
                 Navigator.pop(context);
                 _showEditModuleDialog(module);
@@ -615,7 +615,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.add_circle, color: Colors.green),
-              title: const Text('Adicionar Lição'),
+              title: Text(AppLocalizations.of(context)!.addLesson),
               onTap: () {
                 Navigator.pop(context);
                 _showAddLessonDialog(module.id);
@@ -623,7 +623,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Excluir Módulo'),
+              title: Text(AppLocalizations.of(context)!.deleteModule),
               onTap: () {
                 Navigator.pop(context);
                 _confirmDeleteModule(module);
@@ -639,7 +639,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_course?.title ?? 'Gerenciar Módulos'),
+        title: Text(_course?.title ?? AppLocalizations.of(context)!.manageModules),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -657,7 +657,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                   _reorderingLessons = false;
                 });
               },
-              tooltip: _reorderingModules ? 'Finalizar' : 'Reordenar Módulos',
+              tooltip: _reorderingModules ? AppLocalizations.of(context)!.finishReorder : AppLocalizations.of(context)!.reorderModules,
             ),
         ],
       ),
@@ -688,7 +688,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       ElevatedButton.icon(
                         onPressed: _showAddModuleDialog,
                         icon: const Icon(Icons.add, color: Colors.white),
-                        label: const Text('Adicionar Módulo'),
+                        label: Text(AppLocalizations.of(context)!.addModule),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -735,7 +735,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                               ),
                             ),
                             subtitle: Text(
-                              'Ordem: ${index + 1} • ${module.totalLessons} lições',
+                              'Orden: ${index + 1} • ${module.totalLessons} lecciones',
                               style: AppTextStyles.caption,
                             ),
                             leading: const Icon(Icons.drag_handle),
@@ -785,7 +785,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${module.totalLessons} lições',
+                  '${module.totalLessons} lecciones',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -844,7 +844,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Lições',
+                          AppLocalizations.of(context)!.lessonsLabel,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -1011,7 +1011,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: TextButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text('Adicionar Lição'),
+                        label: Text(AppLocalizations.of(context)!.addLesson),
                         onPressed: () => _showAddLessonDialog(module.id),
                       ),
                     ),
@@ -1043,13 +1043,13 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
               children: [
                 TextFormField(
                   controller: _lessonTitleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título da Lição',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.lessonTitle,
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'O título é obrigatório';
+                      return AppLocalizations.of(context)!.moduleTitleRequired;
                     }
                     return null;
                   },
@@ -1057,8 +1057,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonDescriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descrição (Opcional)',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.optionalDescription,
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
@@ -1066,8 +1066,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonDurationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Duração (minutos)',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.durationMinutes,
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -1084,9 +1084,9 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lessonVideoUrlController,
-                  decoration: const InputDecoration(
-                    labelText: 'URL do Vídeo (YouTube ou Vimeo)',
-                    hintText: 'Ex: https://www.youtube.com/watch?v=...',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.videoUrl,
+                    hintText: AppLocalizations.of(context)!.videoUrlExample,
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -1104,7 +1104,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _updateLesson(lesson),
@@ -1121,7 +1121,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Salvar'),
+                : Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -1151,8 +1151,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lição atualizada com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.lessonUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -1189,7 +1189,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isSaving ? null : () => _deleteLesson(lesson),
@@ -1206,7 +1206,7 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Text('Excluir'),
+                : Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -1228,8 +1228,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lição excluída com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.lessonDeletedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -1259,8 +1259,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ordem dos módulos atualizada'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.moduleOrderUpdated),
             backgroundColor: Colors.green,
           ),
         );
@@ -1286,8 +1286,8 @@ class _ManageCourseModulesScreenState extends State<ManageCourseModulesScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ordem das lições atualizada'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.lessonOrderUpdated),
             backgroundColor: Colors.green,
           ),
         );

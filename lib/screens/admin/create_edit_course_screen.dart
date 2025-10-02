@@ -7,6 +7,7 @@ import '../../services/course_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'manage_course_modules_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateEditCourseScreen extends StatefulWidget {
   final Course? course;
@@ -36,7 +37,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
   
   bool get _isEditing => widget.course != null;
   String get _userId => FirebaseAuth.instance.currentUser?.uid ?? '';
-  String get _userDisplayName => FirebaseAuth.instance.currentUser?.displayName ?? 'Instrutor';
+  String get _userDisplayName => FirebaseAuth.instance.currentUser?.displayName ?? AppLocalizations.of(context)!.instructor;
 
   @override
   void initState() {
@@ -128,8 +129,8 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Curso atualizado com sucesso!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.courseUpdatedSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -167,8 +168,8 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Curso criado com sucesso!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.courseCreatedSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -177,15 +178,15 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Adicionar Módulos'),
-              content: const Text('Deseja adicionar módulos ao curso agora?'),
+            title: Text(AppLocalizations.of(context)!.addModules),
+            content: Text(AppLocalizations.of(context)!.addModulesNow),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context); // Cerrar diálogo
                     Navigator.pop(context); // Volver a la lista de cursos
                   },
-                  child: const Text('Mais tarde'),
+                  child: Text(AppLocalizations.of(context)!.later),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -206,7 +207,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Sim, adicionar agora'),
+                  child: Text(AppLocalizations.of(context)!.yesAddNow),
                 ),
               ],
             ),
@@ -237,7 +238,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Curso' : 'Criar Novo Curso'),
+        title: Text(_isEditing ? AppLocalizations.of(context)!.editCourse : AppLocalizations.of(context)!.createNewCourse),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -284,7 +285,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _isEditing ? 'Editar Curso' : 'Criar Novo Curso',
+                                _isEditing ? AppLocalizations.of(context)!.editCourse : AppLocalizations.of(context)!.createNewCourse,
                                 style: AppTextStyles.subtitle1.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primary,
@@ -292,7 +293,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Preencha as informações do curso para disponibilizá-lo aos alunos',
+                                AppLocalizations.of(context)!.fillCourseInfo,
                                 style: AppTextStyles.bodyText2.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -326,13 +327,13 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                         children: [
                           // Título do curso
                           _buildFormField(
-                            label: 'Título do Curso',
+                            label: AppLocalizations.of(context)!.courseTitle,
                             controller: _titleController,
-                            hint: 'Ex: Fundamentos da Bíblia',
+                            hint: AppLocalizations.of(context)!.courseTitleHint,
                             icon: Icons.title,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'O título é obrigatório';
+                                return AppLocalizations.of(context)!.titleRequired;
                               }
                               return null;
                             },
@@ -342,14 +343,14 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           
                           // Descrição
                           _buildFormField(
-                            label: 'Descrição',
+                            label: AppLocalizations.of(context)!.description,
                             controller: _descriptionController,
-                            hint: 'Descreva o conteúdo e objetivos do curso...',
+                            hint: AppLocalizations.of(context)!.descriptionHint,
                             icon: Icons.description,
                             maxLines: 4,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'A descrição é obrigatória';
+                                return AppLocalizations.of(context)!.descriptionRequired;
                               }
                               return null;
                             },
@@ -364,13 +365,13 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           
                           // Categoria
                           _buildFormField(
-                            label: 'Categoria',
+                            label: AppLocalizations.of(context)!.category,
                             controller: _categoryController,
-                            hint: 'Ex: Teologia, Discipulado, Liderança',
+                            hint: AppLocalizations.of(context)!.categoryHint,
                             icon: Icons.category,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'A categoria é obrigatória';
+                                return AppLocalizations.of(context)!.categoryRequired;
                               }
                               return null;
                             },
@@ -380,13 +381,13 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           
                           // Instrutor
                           _buildFormField(
-                            label: 'Nome do Instrutor',
+                            label: AppLocalizations.of(context)!.instructorName,
                             controller: _instructorNameController,
-                            hint: 'Nome completo do instrutor',
+                            hint: AppLocalizations.of(context)!.instructorNameHint,
                             icon: Icons.person,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'O nome do instrutor é obrigatório';
+                                return AppLocalizations.of(context)!.instructorRequired;
                               }
                               return null;
                             },
@@ -427,7 +428,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           Icon(_isEditing ? Icons.update : Icons.add_circle_outline),
                           const SizedBox(width: 8),
                           Text(
-                            _isEditing ? 'Atualizar Curso' : 'Criar Curso',
+                            _isEditing ? AppLocalizations.of(context)!.updateCourse : AppLocalizations.of(context)!.createCourse,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -454,7 +455,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'A duração total do curso é calculada automaticamente com base na duração das lições.',
+                              AppLocalizations.of(context)!.courseDurationNote,
                               style: TextStyle(color: Colors.blue[700], fontSize: 14),
                             ),
                           ),
@@ -476,7 +477,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                         );
                       },
                       icon: const Icon(Icons.library_books),
-                      label: const Text('Gerenciar Módulos e Lições'),
+                      label: Text(AppLocalizations.of(context)!.manageModulesAndLessons),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -548,7 +549,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Imagem de Capa',
+          AppLocalizations.of(context)!.coverImage,
           style: AppTextStyles.subtitle2.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -556,7 +557,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Esta imagem será exibida na página de detalhes do curso',
+          AppLocalizations.of(context)!.coverImageDescription,
           style: AppTextStyles.bodyText2.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -602,19 +603,19 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                             color: Colors.black.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.edit,
                                   color: Colors.white,
                                   size: 32,
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
-                                  'Toque para alterar',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.tapToChange,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -644,7 +645,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Toque para adicionar uma imagem',
+                        AppLocalizations.of(context)!.tapToAddImage,
                         style: AppTextStyles.subtitle2.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,
@@ -652,7 +653,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Recomendado: 16:9 (1920x1080px)',
+                        AppLocalizations.of(context)!.recommendedSize,
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -670,7 +671,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Status do Curso',
+          AppLocalizations.of(context)!.courseStatus,
           style: AppTextStyles.subtitle2.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -703,19 +704,19 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
           items: [
             DropdownMenuItem<CourseStatus>(
               value: CourseStatus.published,
-              child: const Text('Publicado'),
+              child: Text(AppLocalizations.of(context)!.published),
             ),
             DropdownMenuItem<CourseStatus>(
               value: CourseStatus.draft,
-              child: const Text('Rascunho'),
+              child: Text(AppLocalizations.of(context)!.draft),
             ),
             DropdownMenuItem<CourseStatus>(
               value: CourseStatus.upcoming,
-              child: const Text('Em breve'),
+              child: Text(AppLocalizations.of(context)!.upcoming),
             ),
             DropdownMenuItem<CourseStatus>(
               value: CourseStatus.archived,
-              child: const Text('Arquivado'),
+              child: Text(AppLocalizations.of(context)!.archived),
             ),
           ],
           onChanged: (value) {
@@ -751,7 +752,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Permitir Comentários',
+                  AppLocalizations.of(context)!.allowComments,
                   style: AppTextStyles.subtitle2.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -759,7 +760,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Os alunos poderão comentar nas lições',
+                  AppLocalizations.of(context)!.studentsCanComment,
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -787,7 +788,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (_isUploading) ...[
-            const Text('Enviando imagens...'),
+            Text(AppLocalizations.of(context)!.uploadingImages),
             const SizedBox(height: 16),
             SizedBox(
               width: 200,
@@ -802,7 +803,7 @@ class _CreateEditCourseScreenState extends State<CreateEditCourseScreen> {
           ] else ...[
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            const Text('Salvando curso...'),
+            Text(AppLocalizations.of(context)!.savingCourse),
           ],
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../models/ministry.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -259,7 +260,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
               Icon(Icons.history, size: 48, color: Colors.grey[400]),
               const SizedBox(height: 16),
               Text(
-                'Não há histórico de membros para mostrar',
+                AppLocalizations.of(context)!.noHistoryToShow,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -293,7 +294,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Filtrar por data',
+                          AppLocalizations.of(context)!.filterByDate,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -304,7 +305,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                           TextButton.icon(
                             onPressed: _clearDateFilter,
                             icon: const Icon(Icons.clear, size: 16),
-                            label: const Text('Limpar filtro'),
+                            label: Text(AppLocalizations.of(context)!.clearFilter),
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.red[700],
                               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -357,7 +358,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   Text(
                                     _startDate != null
                                         ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                        : 'Data inicial',
+                                        : AppLocalizations.of(context)!.initialDate,
                                     style: TextStyle(
                                       color: _startDate != null
                                           ? Colors.black87
@@ -417,7 +418,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   Text(
                                     _endDate != null
                                         ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                        : 'Data final',
+                                        : AppLocalizations.of(context)!.finalDate,
                                     style: TextStyle(
                                       color: _endDate != null
                                           ? Colors.black87
@@ -441,7 +442,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                       Padding(
                         padding: const EdgeInsets.only(top: 12),
                         child: Text(
-                          'Registros encontrados: ${_filteredByDateMembers.length}',
+                          AppLocalizations.of(context)!.recordsFound(_filteredByDateMembers.length.toString()),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
@@ -460,13 +461,13 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
-                const Text('Ordenar por: '),
+                Text(AppLocalizations.of(context)!.sortBy),
                 DropdownButton<String>(
                   value: _sortField,
-                  items: const [
-                    DropdownMenuItem(value: 'members', child: Text('Membros')),
-                    DropdownMenuItem(value: 'name', child: Text('Nome')),
-                    DropdownMenuItem(value: 'creation', child: Text('Data de criação')),
+                  items: [
+                  DropdownMenuItem(value: 'members', child: Text(AppLocalizations.of(context)!.members)),
+                  DropdownMenuItem(value: 'name', child: Text(AppLocalizations.of(context)!.name)),
+                  DropdownMenuItem(value: 'creation', child: Text(AppLocalizations.of(context)!.creationDate)),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -547,7 +548,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
             Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Não há registros nas datas selecionadas',
+              AppLocalizations.of(context)!.noRecordsInSelectedDates,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -587,7 +588,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
       itemBuilder: (context, index) {
         final ministryId = sortedMinistryIds[index];
         final ministryRecords = recordsByMinistry[ministryId]!;
-        final ministryName = ministryNames[ministryId] ?? 'Ministério desconhecido';
+                final ministryName = ministryNames[ministryId] ?? AppLocalizations.of(context)!.unknownMinistry;
         
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
@@ -606,7 +607,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                 ),
               ),
               subtitle: Text(
-                '${ministryRecords.length} registros no período',
+                AppLocalizations.of(context)!.recordsInPeriod(ministryRecords.length.toString()),
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 14,
@@ -713,8 +714,8 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Resumo',
+                        Text(
+                        AppLocalizations.of(context)!.summary,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -724,7 +725,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                       Row(
                         children: [
                           _buildStatCard(
-                            title: 'Membros atuais',
+                            title: AppLocalizations.of(context)!.currentMembers,
                             count: stats['members_current'] ?? 0,
                             color: AppColors.primary,
                             icon: Icons.people,
@@ -732,7 +733,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                           ),
                           const SizedBox(width: 8),
                           _buildStatCard(
-                            title: 'Total de entradas',
+                            title: AppLocalizations.of(context)!.totalEntries,
                             count: stats['total_entries'] ?? 0,
                             color: Colors.green,
                             icon: Icons.input,
@@ -742,7 +743,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                           ),
                           const SizedBox(width: 8),
                           _buildStatCard(
-                            title: 'Total de saídas',
+                            title: AppLocalizations.of(context)!.totalExits,
                             count: stats['total_exits'] ?? 0,
                             color: Colors.red,
                             icon: Icons.output,
@@ -766,9 +767,9 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            'Filtrar por: ',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.filterBy,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
@@ -781,7 +782,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                 children: [
                                   _buildFilterChip(
                                     context: context,
-                                    label: 'Todos',
+                                    label: AppLocalizations.of(context)!.all,
                                     count: counts['total'] ?? 0,
                                     selected: _ministryFilters[ministryId] == null,
                                     color: AppColors.primary,
@@ -794,7 +795,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
                                     context: context,
-                                    label: 'Pendentes',
+                                    label: AppLocalizations.of(context)!.pending,
                                     count: counts['pending'] ?? 0,
                                     selected: _ministryFilters[ministryId] == 'pending',
                                     color: Colors.orange,
@@ -807,7 +808,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
                                     context: context,
-                                    label: 'Aceitos',
+                                    label: AppLocalizations.of(context)!.accepted,
                                     count: counts['accepted'] ?? 0,
                                     selected: _ministryFilters[ministryId] == 'accepted',
                                     color: Colors.green,
@@ -820,7 +821,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
                                     context: context,
-                                    label: 'Rejeitados',
+                                    label: AppLocalizations.of(context)!.rejected,
                                     count: counts['rejected'] ?? 0,
                                     selected: _ministryFilters[ministryId] == 'rejected',
                                     color: Colors.red,
@@ -833,7 +834,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
                                     context: context,
-                                    label: 'Saídas',
+                                    label: AppLocalizations.of(context)!.exits,
                                     count: counts['exited'] ?? 0,
                                     selected: _ministryFilters[ministryId] == 'exited',
                                     color: Colors.purple,
@@ -863,8 +864,8 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                     child: Center(
                       child: Text(
                         selectedFilter == null
-                            ? 'Não há registros históricos para este ministério'
-                            : 'Não há registros de ${_getFilterName(selectedFilter)}',
+                            ? AppLocalizations.of(context)!.noHistoricalRecords
+                            : AppLocalizations.of(context)!.noRecordsOf(_getFilterName(selectedFilter)),
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
@@ -892,24 +893,24 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Entradas em $ministryName'),
+        title: Text(AppLocalizations.of(context)!.entriesIn(ministryName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildStatDetailRow(
-              label: 'Adicionados por admin',
+              label: AppLocalizations.of(context)!.addedByAdmin,
               count: stats['added_direct'] ?? 0,
               color: Colors.blue,
             ),
             const SizedBox(height: 12),
             _buildStatDetailRow(
-              label: 'Por solicitação',
+              label: AppLocalizations.of(context)!.byRequest,
               count: stats['added_request'] ?? 0,
               color: Colors.green,
             ),
             const Divider(),
             _buildStatDetailRow(
-              label: 'Total de entradas',
+              label: AppLocalizations.of(context)!.totalEntries,
               count: stats['total_entries'] ?? 0,
               color: Colors.black,
               isBold: true,
@@ -919,7 +920,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),
@@ -931,24 +932,24 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Saídas de $ministryName'),
+        title: Text(AppLocalizations.of(context)!.exitsFrom(ministryName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildStatDetailRow(
-              label: 'Removidos por admin',
+              label: AppLocalizations.of(context)!.removedByAdmin,
               count: stats['removed_admin'] ?? 0,
               color: Colors.red,
             ),
             const SizedBox(height: 12),
             _buildStatDetailRow(
-              label: 'Saídas voluntárias',
+              label: AppLocalizations.of(context)!.voluntaryExits,
               count: stats['exit_voluntary'] ?? 0,
               color: Colors.orange,
             ),
             const Divider(),
             _buildStatDetailRow(
-              label: 'Total de saídas',
+              label: AppLocalizations.of(context)!.totalExits,
               count: stats['total_exits'] ?? 0,
               color: Colors.black,
               isBold: true,
@@ -958,7 +959,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fechar'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),
@@ -1144,7 +1145,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
     switch (status) {
       case 'pending':
         statusColor = Colors.orange;
-        statusText = 'Pendente';
+        statusText = AppLocalizations.of(context)!.pendingStatus;
         statusIcon = Icons.hourglass_empty;
         break;
       case 'accepted':

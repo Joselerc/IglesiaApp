@@ -420,7 +420,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                       Icon(Icons.church, color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        AppLocalizations.of(context)!.cult,
+                        AppLocalizations.of(context)!.cult(''),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

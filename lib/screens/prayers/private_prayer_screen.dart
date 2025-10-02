@@ -9,6 +9,7 @@ import 'modals/create_private_prayer_modal.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/skeletons/prayer_list_skeleton.dart';
+import '../../l10n/app_localizations.dart';
 
 class PrivatePrayerScreen extends StatefulWidget {
   const PrivatePrayerScreen({super.key});
@@ -108,7 +109,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
             // _isLoadingMore = false;
           });
         }
-        debugPrint('Error cargando más oraciones para tab $tabIndex: $e');
+        debugPrint('${AppLocalizations.of(context)!.loadingError(tabIndex.toString(), e.toString())}');
       }
     }
   }
@@ -192,26 +193,26 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
   String _getEmptyStateTitle(int tabIndex) {
     switch (tabIndex) {
       case 0:
-        return 'Nenhuma oração pendente';
+        return AppLocalizations.of(context)!.noPendingPrayers;
       case 1:
-        return 'Nenhuma oração aprovada';
+        return AppLocalizations.of(context)!.noApprovedPrayers;
       case 2:
-        return 'Nenhuma oração respondida';
+        return AppLocalizations.of(context)!.noAnsweredPrayers;
       default:
-        return 'Nenhuma oração';
+        return AppLocalizations.of(context)!.noPrayers;
     }
   }
 
   String _getEmptyStateMessage(int tabIndex) {
     switch (tabIndex) {
       case 0:
-        return 'Todos os seus pedidos de oração foram atendidos';
+        return AppLocalizations.of(context)!.allPrayerRequestsAttended;
       case 1:
-        return 'Nenhuma oração foi aprovada sem resposta';
+        return AppLocalizations.of(context)!.noApprovedPrayersWithoutResponse;
       case 2:
-        return 'Você ainda não recebeu respostas dos pastores';
+        return AppLocalizations.of(context)!.noResponsesFromPastors;
       default:
-        return 'Solicite oração privada aos pastores';
+        return AppLocalizations.of(context)!.requestPrivatePrayerFromPastors;
     }
   }
 
@@ -255,8 +256,8 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                           onPressed: () => Navigator.pop(context),
                         ),
                         const Spacer(),
-                        const Text(
-                          'Minhas Orações Privadas',
+                        Text(
+                          AppLocalizations.of(context)!.myPrivatePrayers,
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -266,7 +267,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                         const Spacer(),
                         IconButton(
                           icon: const Icon(Icons.refresh, color: Colors.white),
-                          tooltip: 'Atualizar',
+                          tooltip: AppLocalizations.of(context)!.refresh,
                           onPressed: _updateTabCounts,
                         ),
                       ],
@@ -306,8 +307,8 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                               const SizedBox(height: 2),
                               Container(
                                 width: 70,
-                                child: const Text(
-                                  'Pendentes',
+                                child: Text(
+                                  AppLocalizations.of(context)!.pending,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -331,8 +332,8 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                               const SizedBox(height: 2),
                               Container(
                                 width: 70,
-                                child: const Text(
-                                  'Aprovadas',
+                                child: Text(
+                                  AppLocalizations.of(context)!.approved,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -356,8 +357,8 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                               const SizedBox(height: 2),
                               Container(
                                 width: 70,
-                                child: const Text(
-                                  'Respondidas',
+                                child: Text(
+                                  AppLocalizations.of(context)!.answered,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
@@ -395,7 +396,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
         onPressed: _showCreatePrayerModal,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
-        tooltip: 'Solicitar oração',
+        tooltip: AppLocalizations.of(context)!.requestPrayer,
       ),
     );
   }
@@ -414,7 +415,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
             if (snapshot.hasError) {
               debugPrint('Error en StreamBuilder tab $tabIndex: ${snapshot.error}');
               return Center(
-                child: Text('Error al cargar: ${snapshot.error}'),
+                child: Text(AppLocalizations.of(context)!.errorLoading(snapshot.error.toString())),
               );
             }
 
@@ -428,7 +429,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                 icon: Icons.church,
                 title: _getEmptyStateTitle(tabIndex),
                 message: _getEmptyStateMessage(tabIndex),
-                buttonText: 'Pedir oração',
+                buttonText: AppLocalizations.of(context)!.requestPrayer,
                 onButtonPressed: _showCreatePrayerModal,
               );
             }

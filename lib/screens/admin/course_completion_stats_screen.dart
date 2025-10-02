@@ -177,7 +177,7 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tempo Médio de Finalização'),
+        title: Text(AppLocalizations.of(context)!.completionStatisticsTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -191,7 +191,7 @@ class _CourseCompletionStatsScreenState extends State<CourseCompletionStatsScree
             return Center(child: Text('Erro ao carregar estatísticas: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Nenhuma estatística disponível.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noStatisticsAvailable));
           }
           
           final stats = snapshot.data!;

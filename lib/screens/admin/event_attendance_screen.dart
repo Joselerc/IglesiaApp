@@ -250,7 +250,7 @@ class _EventAttendanceScreenState extends State<EventAttendanceScreen> {
                       ),
                       const SizedBox(width: 10),
                       _buildStatCard(
-                        AppLocalizations.of(context)!.present,
+                        AppLocalizations.of(context)!.present(0),
                         _attendance.where((a) => a.attended).length.toString(),
                         Icons.check_circle,
                         AppColors.success,
@@ -748,7 +748,7 @@ class _AddAttendeeModalState extends State<AddAttendeeModal> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.noResultsFound,
+                    AppLocalizations.of(context)!.noResultsFoundSimple,
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 16,

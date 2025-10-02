@@ -349,7 +349,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                             
                             // Descripción
                             Text(
-                              'Descrição',
+                              AppLocalizations.of(context)!.ministryDescription,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
@@ -360,7 +360,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                             TextFormField(
                               controller: _descriptionController,
                               decoration: InputDecoration(
-                                hintText: 'Digite a descrição do ministério',
+                                hintText: AppLocalizations.of(context)!.enterMinistryDescription,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -387,7 +387,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               onChanged: (_) => setState(() {}),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Por favor, digite uma descrição';
+                                  return AppLocalizations.of(context)!.pleaseEnterMinistryDescription;
                                 }
                                 return null;
                               },
@@ -410,7 +410,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                             
                             // Selección de administradores
                             Text(
-                              'Selecionar Administradores',
+                              AppLocalizations.of(context)!.selectAdministrators,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
@@ -419,7 +419,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Os administradores podem gerenciar o ministério, seus membros e eventos.',
+                              AppLocalizations.of(context)!.administratorsCanManageMinistry,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[600],
@@ -432,8 +432,8 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               icon: Icon(Icons.person_add, color: AppColors.primary),
                               label: Text(
                                 _selectedAdmins.isEmpty 
-                                  ? 'Adicionar administradores' 
-                                  : '${_selectedAdmins.length} administradores selecionados',
+                                  ? AppLocalizations.of(context)!.addAdministrators 
+                                  : AppLocalizations.of(context)!.administratorsSelected(_selectedAdmins.length.toString()),
                                 style: TextStyle(color: AppColors.primary),
                               ),
                               style: OutlinedButton.styleFrom(
@@ -463,7 +463,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                                         Icon(Icons.people, color: AppColors.primary, size: 20),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Administradores selecionados:',
+                                          AppLocalizations.of(context)!.selectedAdministrators,
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             color: AppColors.primary,
@@ -479,20 +479,20 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                                         future: _selectedAdmins[index].get(),
                                         builder: (context, snapshot) {
                                           if (!snapshot.hasData) {
-                                            return const ListTile(
-                                              leading: CircleAvatar(
-                                                backgroundColor: AppColors.primary,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 1, 
-                                                  color: Colors.white,
-                                                ),
+                                          return ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: AppColors.primary,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 1, 
+                                                color: Colors.white,
                                               ),
-                                              title: Text('Carregando...'),
-                                            );
+                                            ),
+                                            title: Text(AppLocalizations.of(context)!.loading),
+                                          );
                                           }
                                           
                                           final userData = snapshot.data!.data() as Map<String, dynamic>;
-                                          final name = userData['name'] ?? 'Usuário desconhecido';
+                                          final name = userData['name'] ?? AppLocalizations.of(context)!.unknownUser;
                                           final photoUrl = userData['photoUrl'] ?? '';
                                           
                                           return ListTile(
@@ -543,8 +543,7 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      'Ao criar um ministério, você será automaticamente membro e administrador. '
-                                      'Você poderá personalizar a imagem e outras configurações após a criação.',
+                                      AppLocalizations.of(context)!.autoMemberMinistryInfo,
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.blue[700],
@@ -596,13 +595,13 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
                               strokeWidth: 2,
                             ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle_outline, color: Colors.white),
-                              SizedBox(width: 8),
+                              const Icon(Icons.check_circle_outline, color: Colors.white),
+                              const SizedBox(width: 8),
                               Text(
-                                'Criar Ministério',
+                                AppLocalizations.of(context)!.createMinistry,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -686,8 +685,8 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Selecionar Administradores',
+                Text(
+                  AppLocalizations.of(context)!.selectAdministrators,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -712,7 +711,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Buscar usuários...',
+                hintText: AppLocalizations.of(context)!.searchUsers,
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -751,7 +750,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                         Icon(Icons.person_off, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 12),
                         Text(
-                          'Nenhum usuário disponível',
+                          AppLocalizations.of(context)!.noUsersAvailable,
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -777,7 +776,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                         Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
                         const SizedBox(height: 12),
                         Text(
-                          'Nenhum resultado encontrado para "$_searchQuery"',
+                          AppLocalizations.of(context)!.noResultsFound(_searchQuery),
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -791,7 +790,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   itemBuilder: (context, index) {
                     final doc = users[index];
                     final userData = doc.data() as Map<String, dynamic>;
-                    final name = userData['name'] ?? 'Usuário';
+                    final name = userData['name'] ?? AppLocalizations.of(context)!.user;
                     final email = userData['email'] ?? '';
                     final photoUrl = userData['photoUrl'] ?? '';
                     final userRef = FirebaseFirestore.instance.collection('users').doc(doc.id);
@@ -875,7 +874,7 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                     foregroundColor: Colors.grey[700],
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  child: const Text('Cancelar'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context, _selectedAdmins),
@@ -889,8 +888,8 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   ),
                   icon: const Icon(Icons.check, color: Colors.white),
                   label: Text(_selectedAdmins.isEmpty 
-                    ? 'Confirmar' 
-                    : 'Selecionar (${_selectedAdmins.length})'),
+                    ? AppLocalizations.of(context)!.confirm 
+                    : AppLocalizations.of(context)!.select(_selectedAdmins.length.toString())),
                 ),
               ],
             ),

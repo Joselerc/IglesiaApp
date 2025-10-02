@@ -60,7 +60,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estatísticas Detalhadas'),
+        title: Text(AppLocalizations.of(context)!.detailedStatistics),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -116,11 +116,11 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
           children: [
             const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
             const SizedBox(width: 4),
-            Text('Publicado em: ${DateFormat('dd/MM/yyyy').format(course.publishedAt ?? course.createdAt)}', style: AppTextStyles.caption),
+            Text('${AppLocalizations.of(context)!.publishedOn} ${DateFormat('dd/MM/yyyy').format(course.publishedAt ?? course.createdAt)}', style: AppTextStyles.caption),
             const SizedBox(width: 16),
             const Icon(Icons.menu_book, size: 14, color: Colors.grey),
             const SizedBox(width: 4),
-            Text('${course.totalLessons} Lições', style: AppTextStyles.caption),
+            Text('${course.totalLessons} ${AppLocalizations.of(context)!.lessonsLabel}', style: AppTextStyles.caption),
           ],
         ),
       ],
@@ -129,11 +129,11 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
 
   Widget _buildEnrollmentSection(DetailedCourseStats stats) {
     return _buildStatsCard(
-      title: 'Inscrições',
+      title: AppLocalizations.of(context)!.enrollments,
       icon: Icons.group_add_outlined,
       iconColor: Colors.blue,
       children: [
-        _buildStatRow('Total de Inscritos (período):', '${stats.enrollmentCount}'),
+        _buildStatRow(AppLocalizations.of(context)!.totalEnrolledPeriod, '${stats.enrollmentCount}'),
         // Aquí iría el gráfico de evolución si se implementa
       ],
     );
@@ -141,12 +141,12 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
 
   Widget _buildProgressSection(DetailedCourseStats stats) {
     return _buildStatsCard(
-      title: 'Progresso',
+      title: AppLocalizations.of(context)!.progress,
       icon: Icons.show_chart_outlined,
       iconColor: Colors.green,
       children: [
-        _buildStatRow('Progresso Médio:', '${stats.averageProgressPercentage.toStringAsFixed(1)}%'),
-        _buildStatRow('Lições Médias Concluídas:', stats.averageCompletedLessons.toStringAsFixed(1)),
+        _buildStatRow(AppLocalizations.of(context)!.averageProgress, '${stats.averageProgressPercentage.toStringAsFixed(1)}%'),
+        _buildStatRow(AppLocalizations.of(context)!.averageLessonsCompleted, stats.averageCompletedLessons.toStringAsFixed(1)),
         // Aquí iría el gráfico de distribución
       ],
     );
@@ -154,7 +154,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
 
   Widget _buildCompletionSection(DetailedCourseStats stats) {
     return _buildStatsCard(
-      title: 'Finalização',
+      title: AppLocalizations.of(context)!.completion,
       icon: Icons.hourglass_bottom_outlined,
       iconColor: Colors.orange,
       children: [
@@ -171,15 +171,15 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
   
   Widget _buildMilestonesSection(DetailedCourseStats stats) {
     return _buildStatsCard(
-      title: 'Hitos de Conclusão',
+      title: AppLocalizations.of(context)!.completionMilestones,
       icon: Icons.flag_outlined,
       iconColor: Colors.purple,
       children: [
-        _buildStatRow('Alcançaram 25%:', '${stats.completionMilestones['25']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançaram 50%:', '${stats.completionMilestones['50']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançaram 75%:', '${stats.completionMilestones['75']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Alcançaram 90%:', '${stats.completionMilestones['90']?.toStringAsFixed(1) ?? '0'}%'),
-        _buildStatRow('Completaram 100%:', '${stats.completionMilestones['100']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reached25Percent, '${stats.completionMilestones['25']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reached50Percent, '${stats.completionMilestones['50']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reached75Percent, '${stats.completionMilestones['75']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.reached90Percent, '${stats.completionMilestones['90']?.toStringAsFixed(1) ?? '0'}%'),
+        _buildStatRow(AppLocalizations.of(context)!.completed100Percent, '${stats.completionMilestones['100']?.toStringAsFixed(1) ?? '0'}%'),
         // Aquí iría el gráfico de hitos
       ],
     );
@@ -252,11 +252,11 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtrar por Data de Inscrição', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
+                Text(AppLocalizations.of(context)!.filterByEnrollmentDate, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.w600)),
                 if (_startDate != null || _endDate != null)
                   TextButton.icon(
                     icon: const Icon(Icons.clear, size: 16),
-                    label: const Text('Limpar'),
+                    label: Text(AppLocalizations.of(context)!.clear),
                     onPressed: _clearDateFilter,
                     style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   ),
@@ -267,7 +267,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
               children: [
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Inicial',
+                    label: AppLocalizations.of(context)!.startDate,
                     date: _startDate,
                     onDatePicked: (pickedDate) => setState(() => _startDate = pickedDate),
                     firstDate: DateTime(2020),
@@ -277,7 +277,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildDatePickerField(
-                    label: 'Data Final',
+                    label: AppLocalizations.of(context)!.endDate,
                     date: _endDate,
                     onDatePicked: (pickedDate) => setState(() => _endDate = pickedDate),
                     firstDate: _startDate ?? DateTime(2020),
@@ -290,7 +290,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
             Center(
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.filter_list, size: 18),
-                label: const Text('Aplicar Filtro'),
+                label: Text(AppLocalizations.of(context)!.applyFilter),
                 onPressed: (_startDate != null || _endDate != null) ? _applyDateFilter : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -345,6 +345,6 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
     if (duration.inDays > 0) return '${duration.inDays} d';
     if (duration.inHours > 0) return '${duration.inHours} h';
     if (duration.inMinutes > 0) return '${duration.inMinutes} min';
-    return 'Menos de 1 min';
+    return AppLocalizations.of(context)!.lessThan1Min;
   }
 } 

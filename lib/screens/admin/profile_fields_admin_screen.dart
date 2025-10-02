@@ -79,7 +79,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
               if (snapshot.hasError) {
                 return Center(
                   child: Text(
-                    'Erro ao carregar os campos: ${snapshot.error}',
+                    AppLocalizations.of(context)!.errorLoadingFields(snapshot.error.toString()),
                     style: const TextStyle(color: Colors.red),
                   ),
                 );
@@ -95,7 +95,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                       Icon(Icons.note_alt_outlined, size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
                       Text(
-                        'Não há campos de perfil definidos',
+                        AppLocalizations.of(context)!.noProfileFieldsDefined,
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],
@@ -168,7 +168,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                                   ),
                                   Chip(
                                     label: Text(
-                                      field.isRequired ? 'Obrigatório' : 'Opcional',
+                                      field.isRequired ? AppLocalizations.of(context)!.required : AppLocalizations.of(context)!.optional,
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                     backgroundColor: field.isRequired
@@ -183,7 +183,7 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                                   ),
                                   Chip(
                                     label: Text(
-                                      field.isActive ? 'Ativo' : 'Inativo',
+                                      field.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                     backgroundColor: field.isActive
@@ -205,12 +205,12 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
                             children: [
                               IconButton(
                                 icon: Icon(Icons.edit, color: AppColors.primary),
-                                tooltip: 'Editar',
+                                tooltip: AppLocalizations.of(context)!.edit,
                                 onPressed: () => _showAddEditFieldDialog(context, field),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
-                                tooltip: 'Excluir',
+                                tooltip: AppLocalizations.of(context)!.delete,
                                 onPressed: () => _confirmDeleteField(context, field),
                               ),
                             ],
@@ -258,17 +258,17 @@ class _ProfileFieldsAdminScreenState extends State<ProfileFieldsAdminScreen> {
   String _getLocalizedFieldType(String type) {
     switch (type) {
       case 'text':
-        return 'Texto';
+        return AppLocalizations.of(context)!.textFieldType;
       case 'number':
-        return 'Número';
+        return AppLocalizations.of(context)!.numberFieldType;
       case 'date':
-        return 'Data';
+        return AppLocalizations.of(context)!.dateFieldType;
       case 'select':
-        return 'Seleção';
+        return AppLocalizations.of(context)!.selectFieldType;
       case 'email':
-        return 'E-mail';
+        return AppLocalizations.of(context)!.emailFieldType;
       case 'phone':
-        return 'Telefone';
+        return AppLocalizations.of(context)!.phoneFieldType;
       default:
         return type;
     }
@@ -409,12 +409,12 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
 
   String _getLocalizedFieldType(String type) {
     switch (type) {
-      case 'text': return 'Texto';
-      case 'number': return 'Número';
-      case 'date': return 'Data';
-      case 'email': return 'E-mail';
-      case 'phone': return 'Telefone';
-      case 'select': return 'Seleção'; // Localización para 'select'
+      case 'text': return AppLocalizations.of(context)!.textFieldType;
+      case 'number': return AppLocalizations.of(context)!.numberFieldType;
+      case 'date': return AppLocalizations.of(context)!.dateFieldType;
+      case 'email': return AppLocalizations.of(context)!.emailFieldType;
+      case 'phone': return AppLocalizations.of(context)!.phoneFieldType;
+      case 'select': return AppLocalizations.of(context)!.selectFieldType;
       default: return type;
     }
   }
@@ -442,7 +442,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('Usuário não autenticado');
+        throw Exception(AppLocalizations.of(context)!.userNotAuthenticated);
       }
 
       final fieldToSave = ProfileField(
@@ -537,12 +537,12 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
-                          labelText: 'Nome do Campo',
+                          labelText: AppLocalizations.of(context)!.fieldName,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                           prefixIcon: const Icon(Icons.text_fields),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Por favor, insira um nome';
+                          if (value == null || value.isEmpty) return AppLocalizations.of(context)!.pleaseEnterName;
                           return null;
                         },
                       ),
@@ -550,7 +550,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       TextFormField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
-                          labelText: 'Descrição',
+                          labelText: AppLocalizations.of(context)!.description,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                           prefixIcon: const Icon(Icons.description),
                         ),
@@ -558,8 +558,8 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       ),
                       const SizedBox(height: 16),
                       SelectionField(
-                        label: 'Tipo de Campo',
-                        hint: 'Seleccione o tipo de campo',
+                        label: AppLocalizations.of(context)!.fieldType,
+                        hint: AppLocalizations.of(context)!.selectFieldType,
                         value: _selectedType,
                         options: _types,
                         isRequired: true,
@@ -584,7 +584,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                         // Este print es solo para lógica, no devuelve widget
                         () { print('PRINT DEBUG: Rendering UI for select options'); return const SizedBox.shrink(); }(), // <--- PRINT 3 (CORREGIDO)
                         const SizedBox(height: 20),
-                        Text(AppLocalizations.of(context)!.select, style: Theme.of(context).textTheme.titleMedium),
+                        Text(AppLocalizations.of(context)!.selectionOptions, style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -592,8 +592,8 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                               child: TextFormField(
                                 controller: _optionInputController,
                                 decoration: InputDecoration(
-                                  labelText: 'Nova Opção',
-                                  hintText: 'Digite uma opção...',
+                                  labelText: AppLocalizations.of(context)!.newOption,
+                                  hintText: AppLocalizations.of(context)!.enterOption,
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                                 // No añadir directamente al presionar Enter para dar chance al botón
@@ -610,7 +610,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                                   });
                                 } else if (optionText.isNotEmpty && _currentOptions.contains(optionText)) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Esta opción ya fue añadida.'), backgroundColor: Colors.orange),
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.optionAlreadyAdded), backgroundColor: Colors.orange),
                                   );
                                 }
                               },
@@ -621,7 +621,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                         ),
                         const SizedBox(height: 12),
                         if (_currentOptions.isEmpty)
-                          Text('Ninguna opción añadida aún.', style: TextStyle(color: Colors.grey))
+                          Text(AppLocalizations.of(context)!.noOptionsAddedYet, style: const TextStyle(color: Colors.grey))
                         else
                           Wrap(
                             spacing: 8.0,
@@ -645,7 +645,7 @@ class _AddEditProfileFieldModalContentState extends State<_AddEditProfileFieldMo
                       const SizedBox(height: 20),
                       SwitchListTile(
                         title: Text(AppLocalizations.of(context)!.requiredField),
-                        subtitle: Text('Los usuarios deben rellenar este campo'),
+                        subtitle: Text(AppLocalizations.of(context)!.usersMustFillField),
                         value: _isRequired,
                         activeColor: AppColors.primary,
                         contentPadding: EdgeInsets.zero,

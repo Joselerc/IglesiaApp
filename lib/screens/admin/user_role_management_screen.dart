@@ -132,7 +132,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
         return {
           'id': doc.id,
           'email': data['email'] ?? '',
-          'displayName': data['displayName'] ?? data['email'] ?? 'Usuário sem nome',
+          'displayName': data['displayName'] ?? data['email'] ?? 'Usuario sin nombre',
           'photoUrl': data['photoUrl'],
           'roleId': roleId,
         };
@@ -220,7 +220,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
   }
 
   String _getRoleName(String? roleId) {
-     if (roleId == null || roleId.isEmpty) return "Sem Papel";
+     if (roleId == null || roleId.isEmpty) return AppLocalizations.of(context)!.noRole;
      try {
         return _availableRoles.firstWhere((role) => role.id == roleId).name;
      } catch (e) {
@@ -266,7 +266,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Acesso não autorizado',
+                        AppLocalizations.of(context)!.unauthorizedAccess,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -275,7 +275,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Você não tem permissão para acessar esta página',
+                        AppLocalizations.of(context)!.noPermissionAccessThisPage,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade600,
@@ -303,8 +303,8 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          labelText: 'Buscar usuário',
-                          hintText: 'Digite nome ou email',
+                          labelText: AppLocalizations.of(context)!.searchUser,
+                          hintText: AppLocalizations.of(context)!.enterNameOrEmail,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -340,7 +340,7 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'Nenhum usuário encontrado',
+                                    AppLocalizations.of(context)!.noUsersFound,
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -403,18 +403,18 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                                     ),
                                   ),
                                   trailing: isCurrentUser
-                                      ? const Tooltip(
-                                          message: 'Não é possível alterar seu próprio papel',
-                                          child: Icon(Icons.lock, color: Colors.grey),
+                                      ?                                       Tooltip(
+                                          message: AppLocalizations.of(context)!.cannotChangeOwnRole,
+                                          child: const Icon(Icons.lock, color: Colors.grey),
                                         )
                                       : FutureBuilder<bool>(
                                           future: _permissionService.hasPermission('assign_user_roles'),
                                           builder: (context, snapshot) {
                                             final hasPermission = snapshot.data ?? false;
                                             if (!hasPermission) {
-                                              return const Tooltip(
-                                                message: 'Você não tem permissão para alterar papéis',
-                                                child: Icon(Icons.no_accounts, color: Colors.grey),
+                                              return Tooltip(
+                                                message: AppLocalizations.of(context)!.noPermissionChangeRoles,
+                                                child: const Icon(Icons.no_accounts, color: Colors.grey),
                                               );
                                             }
                                             
@@ -476,9 +476,9 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Selecione o papel para atribuir ao usuário:',
-                  style: TextStyle(color: Colors.grey),
+                Text(
+                  AppLocalizations.of(context)!.selectRoleToAssign,
+                  style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 16),
                 Flexible(
@@ -487,9 +487,9 @@ class _UserRoleManagementScreenState extends State<UserRoleManagementScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: const Text(
-                            "Sem Papel",
-                            style: TextStyle(fontStyle: FontStyle.italic),
+                          title: Text(
+                            AppLocalizations.of(context)!.noRole,
+                            style: const TextStyle(fontStyle: FontStyle.italic),
                           ),
                           leading: Icon(
                             Icons.cancel_outlined,

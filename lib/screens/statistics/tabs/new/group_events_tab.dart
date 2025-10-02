@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../../../models/group.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class GroupEventsTab extends StatefulWidget {
   final List<Group> groups;
@@ -294,7 +295,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filtrar por data',
+                        AppLocalizations.of(context)!.filterByDate,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -305,7 +306,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                         TextButton.icon(
                           onPressed: _clearDateFilter,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpar filtro'),
+                          label: Text(AppLocalizations.of(context)!.clearFilter),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red[700],
                             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -358,7 +359,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                                 Text(
                                   _startDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                      : 'Data inicial',
+                                      : AppLocalizations.of(context)!.initialDate,
                                   style: TextStyle(
                                     color: _startDate != null
                                         ? Colors.black87
@@ -418,7 +419,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                                 Text(
                                   _endDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                                      : 'Data final',
+                                      : AppLocalizations.of(context)!.finalDate,
                                   style: TextStyle(
                                     color: _endDate != null
                                         ? Colors.black87
@@ -442,7 +443,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: Text(
-                        'Eventos encontrados: ${_filteredByDateEvents.length}',
+                        AppLocalizations.of(context)!.eventsFound(_filteredByDateEvents.length),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -461,13 +462,13 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              const Text('Ordenar por: '),
+              Text(AppLocalizations.of(context)!.sortBy),
               DropdownButton<String>(
                 value: _sortField,
-                items: const [
-                  DropdownMenuItem(value: 'members', child: Text('Membros')),
-                  DropdownMenuItem(value: 'name', child: Text('Nome')),
-                  DropdownMenuItem(value: 'creation', child: Text('Data de criação')),
+                items: [
+                  DropdownMenuItem(value: 'members', child: Text(AppLocalizations.of(context)!.members)),
+                  DropdownMenuItem(value: 'name', child: Text(AppLocalizations.of(context)!.name)),
+                  DropdownMenuItem(value: 'creation', child: Text(AppLocalizations.of(context)!.creationDate)),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -711,7 +712,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     backgroundColor: Colors.blue[50],
                     label: Text(
-                      'Registrados: ${event['registrations'] ?? 0}',
+                      AppLocalizations.of(context)!.registered(event['registrations'] ?? 0),
                       style: TextStyle(
                         color: Colors.blue[700],
                         fontSize: 12,
@@ -782,7 +783,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
               child: Row(
                 children: [
                   _buildStatCard(
-                    title: 'Eventos',
+                    title: AppLocalizations.of(context)!.eventsLabel,
                     count: stats['totalEvents'] ?? 0,
                     icon: Icons.event,
                     color: Colors.orange[300]!,
@@ -790,7 +791,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
-                    title: 'Registrados',
+                    title: AppLocalizations.of(context)!.registeredUsers,
                     count: stats['totalRegistrations'] ?? 0,
                     icon: Icons.how_to_reg,
                     color: Colors.blue,
@@ -798,7 +799,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
-                    title: 'Asistentes',
+                    title: AppLocalizations.of(context)!.confirmedAttendees,
                     count: stats['totalAttendees'] ?? 0,
                     icon: Icons.check_circle,
                     color: Colors.green,
@@ -817,7 +818,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
-                      'Eventos de ${group.name}',
+                      AppLocalizations.of(context)!.eventsOf(group.name),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -850,9 +851,9 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                const Text(
-                                  'Data: ',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.date,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -865,9 +866,9 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                             ),
                             Row(
                               children: [
-                                const Text(
-                                  'Hora: ',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.time,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -880,9 +881,9 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                             ),
                             Row(
                               children: [
-                                const Text(
-                                  'Local: ',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.location,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -907,7 +908,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                                     );
                                   },
                                   child: Text(
-                                    'Registrados: ${event['registrations']}',
+                                    AppLocalizations.of(context)!.registered(event['registrations']),
                                     style: const TextStyle(
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold,
@@ -925,7 +926,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                                     );
                                   },
                                   child: Text(
-                                    'Asistentes: ${event['attendees']}',
+                                    AppLocalizations.of(context)!.attendees(event['attendees']),
                                     style: const TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold,
@@ -1024,13 +1025,13 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Carregando usuários...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.loadingUsers),
           ],
         ),
       ),
@@ -1040,8 +1041,8 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
       // Determinar qué colección consultar
       late final QuerySnapshot snapshot;
       final String title = type == 'registrations' 
-          ? 'Usuários Registrados' 
-          : 'Asistentes Confirmados';
+          ? AppLocalizations.of(context)!.registeredUsers 
+          : AppLocalizations.of(context)!.confirmedAttendees;
       
       if (type == 'registrations') {
         snapshot = await FirebaseFirestore.instance
@@ -1108,10 +1109,10 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
             content: SizedBox(
               width: double.maxFinite,
               child: usersInfo.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('Não há usuários para mostrar'),
+                        padding: const EdgeInsets.all(16),
+                        child: Text(AppLocalizations.of(context)!.noUsersToShow),
                       ),
                     )
                   : ListView.builder(
@@ -1140,7 +1141,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Fechar'),
+                child: Text(AppLocalizations.of(context)!.close),
               ),
             ],
           ),

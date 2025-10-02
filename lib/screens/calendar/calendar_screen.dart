@@ -478,7 +478,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         events = _groupEvents[normalizedDay] ?? [];
         break;
       case 3:
-        tabName = AppLocalizations.of(context)!.cults;
+        tabName = AppLocalizations.of(context)!.cults('');
         events = _cultEvents[normalizedDay] ?? [];
         break;
       case 4:
@@ -714,7 +714,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         Tab(text: AppLocalizations.of(context)!.events),
         Tab(text: AppLocalizations.of(context)!.ministries),
         Tab(text: AppLocalizations.of(context)!.groups),
-        Tab(text: AppLocalizations.of(context)!.cults),
+        Tab(text: AppLocalizations.of(context)!.cults('')),
         Tab(text: AppLocalizations.of(context)!.services),
         Tab(text: AppLocalizations.of(context)!.counseling),
       ],
