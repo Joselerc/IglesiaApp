@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../../models/cult.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../theme/app_colors.dart';
 
 class CreateTimeSlotModal extends StatefulWidget {
   final Cult cult;
@@ -38,7 +37,7 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
     Colors.teal[400]!,
     Colors.green[500]!,
     Colors.amber[600]!,
-    Colors.orange[400]!,
+    Colors.deepOrange[400]!,
   ];
   
   // Color seleccionado (por defecto el primero)

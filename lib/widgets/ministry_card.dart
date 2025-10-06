@@ -137,8 +137,8 @@ class MinistryCard extends StatelessWidget {
       return OutlinedButton(
         onPressed: null,
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.orange,
-          side: const BorderSide(color: Colors.orange),
+          foregroundColor: AppColors.primary,
+          side: BorderSide(color: AppColors.primary),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
