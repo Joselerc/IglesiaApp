@@ -5933,4 +5933,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get live => 'EN VIVO';
+
+  @override
+  String get sureWantToLogout => '¿Estás seguro de que deseas cerrar sesión?';
 }

@@ -5915,4 +5915,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get live => 'AO VIVO';
+
+  @override
+  String get sureWantToLogout => 'Tem certeza de que deseja sair?';
 }

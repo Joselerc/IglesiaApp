@@ -10567,6 +10567,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'EN VIVO'**
   String get live;
+
+  /// No description provided for @sureWantToLogout.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas cerrar sesión?'**
+  String get sureWantToLogout;
 }
 
 class _AppLocalizationsDelegate

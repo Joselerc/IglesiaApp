@@ -1297,22 +1297,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: const Icon(Icons.logout, color: Colors.white),
                       label: Text(AppLocalizations.of(context)!.logOut, style: const TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary, // Color naranja
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
                       ),
-                      onPressed: () {
-                        try {
-                          Provider.of<AuthService>(context, listen: false).forceSignOut();
-                        } catch (e) {
-                          print("Error al cerrar sesión: $e");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(AppLocalizations.of(context)!.errorLoggingOut(e.toString())))
-                          );
-                        }
-                                },
-                              ),
+                      onPressed: () async {
+                        // Mostrar diálogo de confirmación
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(AppLocalizations.of(context)!.logOut),
+                            content: Text(AppLocalizations.of(context)!.sureWantToLogout),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: Text(AppLocalizations.of(context)!.cancel),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                ),
+                                child: Text(AppLocalizations.of(context)!.logOut),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed == true && mounted) {
+                          // Mostrar indicador de carga
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+
+                          try {
+                            // Guardar referencia al AuthService antes de cerrar sesión
+                            final authService = Provider.of<AuthService>(context, listen: false);
+                            
+                            // Ejecutar cierre de sesión
+                            await authService.forceSignOut();
+                            
+                            // Cerrar el diálogo de carga si el widget aún está montado
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                            }
+                            
+                            // Nota: No necesitamos navegar manualmente porque authStateChanges()
+                            // en AuthWrapper se encargará de eso automáticamente
+                          } catch (e) {
+                            debugPrint("❌ Error al cerrar sesión: $e");
+                            
+                            // Cerrar el diálogo de carga
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                              
+                              // Mostrar mensaje de error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.errorLoggingOut(e.toString())),
+                                  backgroundColor: AppColors.error,
+                                )
+                              );
+                            }
+                          }
+                        }
+                      },
+                    ),
+                  ),
                   
                   // Botón de Diagnóstico SuperUser (herramienta de depuración)
                   // Útil para diagnosticar problemas cuando un usuario con isSuperUser = true

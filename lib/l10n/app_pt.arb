@@ -2826,5 +2826,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "sureWantToLogout": "Tem certeza de que deseja sair?"
 }
