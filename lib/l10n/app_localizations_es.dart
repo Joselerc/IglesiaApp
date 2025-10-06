@@ -3134,7 +3134,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get state => 'Estado';
 
   @override
-  String get postalCode => 'CEP';
+  String get postalCode => 'CP';
 
   @override
   String get country => 'País';
@@ -5664,7 +5664,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pleaseEnterNumber => 'Por favor ingresa el número';
 
   @override
-  String get examplePostalCode => 'Ej: 12345-678';
+  String get examplePostalCode => 'Ej: 28001';
 
   @override
   String get enterNeighborhood => 'Ingresa el barrio';

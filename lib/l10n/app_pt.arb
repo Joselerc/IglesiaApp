@@ -2652,7 +2652,7 @@
   "mySavedLocations": "Minhas Localizações Salvas",
   "useSavedLocation": "Usar localização salva",
   "selectSavedLocation": "Selecione uma das suas localizações salvas",
-  "noSavedLocationsAvailable": "Não há localizações salvas disponíveis",
+  "noSavedLocationsAvailable": "Não há localizações salvas",
   "savedLocation": "Localização Salva",
   "errorLoadingLocations": "Error al cargar ubicaciones: {error}",
   "errorLoadingSavedLocations": "Erro ao carregar ubicações guardadas: {error}",

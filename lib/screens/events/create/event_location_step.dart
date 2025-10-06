@@ -908,8 +908,10 @@ class _EventLocationStepState extends State<EventLocationStep> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
-                      validator: (value) => value == null || value.isEmpty 
-                          ? AppLocalizations.of(context)!.pleaseEnterCity 
+                      validator: !_useChurchLocation && !_useSavedLocation
+                          ? (value) => value == null || value.isEmpty 
+                              ? AppLocalizations.of(context)!.pleaseEnterCity 
+                              : null
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -925,8 +927,10 @@ class _EventLocationStepState extends State<EventLocationStep> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
-                      validator: (value) => value == null || value.isEmpty 
-                          ? AppLocalizations.of(context)!.pleaseEnterState 
+                      validator: !_useChurchLocation && !_useSavedLocation
+                          ? (value) => value == null || value.isEmpty 
+                              ? AppLocalizations.of(context)!.pleaseEnterState 
+                              : null
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -942,8 +946,10 @@ class _EventLocationStepState extends State<EventLocationStep> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
-                      validator: (value) => value == null || value.isEmpty 
-                                ? AppLocalizations.of(context)!.pleaseEnterStreet
+                      validator: !_useChurchLocation && !_useSavedLocation
+                          ? (value) => value == null || value.isEmpty 
+                              ? AppLocalizations.of(context)!.pleaseEnterStreet
+                              : null
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -963,8 +969,10 @@ class _EventLocationStepState extends State<EventLocationStep> {
                               ),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                             ),
-                            validator: (value) => value == null || value.isEmpty 
-                                ? AppLocalizations.of(context)!.pleaseEnterNumber 
+                            validator: !_useChurchLocation && !_useSavedLocation
+                                ? (value) => value == null || value.isEmpty 
+                                    ? AppLocalizations.of(context)!.pleaseEnterNumber 
+                                    : null
                                 : null,
                           ),
                         ),

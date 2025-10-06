@@ -5583,8 +5583,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Selecione uma das suas localizações salvas';
 
   @override
-  String get noSavedLocationsAvailable =>
-      'Não há localizações salvas disponíveis';
+  String get noSavedLocationsAvailable => 'Não há localizações salvas';
 
   @override
   String get savedLocation => 'Localização Salva';

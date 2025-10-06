@@ -5543,7 +5543,7 @@ abstract class AppLocalizations {
   /// No description provided for @postalCode.
   ///
   /// In es, this message translates to:
-  /// **'CEP'**
+  /// **'CP'**
   String get postalCode;
 
   /// No description provided for @country.
@@ -10109,7 +10109,7 @@ abstract class AppLocalizations {
   /// No description provided for @examplePostalCode.
   ///
   /// In es, this message translates to:
-  /// **'Ej: 12345-678'**
+  /// **'Ej: 28001'**
   String get examplePostalCode;
 
   /// No description provided for @enterNeighborhood.
