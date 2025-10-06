@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +27,7 @@ class CalendarGroupsView extends StatelessWidget {
             Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Não há eventos de grupos programados',
+              AppLocalizations.of(context)!.noGroupEventsScheduled,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],

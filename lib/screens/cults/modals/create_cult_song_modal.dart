@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../models/cult.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreateCultSongModal extends StatefulWidget {
   final Cult cult;
@@ -39,7 +40,7 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuário não autenticado');
+        throw Exception(AppLocalizations.of(context)!.userNotAuthenticated);
       }
       
       // Calcular la duración total en segundos
@@ -73,13 +74,13 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Música adicionada com sucesso')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.songAddedSuccessfully)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao adicionar música: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorAddingSong(e.toString()))),
         );
       }
     } finally {
@@ -106,9 +107,9 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Adicionar Música ao Culto',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.addSongToCult,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -116,21 +117,21 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
             const SizedBox(height: 20),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome da Música',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.songName,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Por favor, insira um nome';
+                  return AppLocalizations.of(context)!.pleaseEnterName;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Duração',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.duration,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -140,9 +141,9 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: 'Minutos',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.minutesLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     value: _minutes,
                     items: List.generate(11, (index) => index).map((minute) {
@@ -163,9 +164,9 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: 'Segundos',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.secondsLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     value: _seconds,
                     items: List.generate(60, (index) => index).map((second) {
@@ -198,7 +199,7 @@ class _CreateCultSongModalState extends State<CreateCultSongModal> {
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-                    : const Text('Adicionar Música'),
+                    : Text(AppLocalizations.of(context)!.addMusic),
               ),
             ),
             SizedBox(height: MediaQuery.of(context).padding.bottom + 16),

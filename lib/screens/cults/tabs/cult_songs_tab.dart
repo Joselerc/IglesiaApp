@@ -5,6 +5,7 @@ import '../../../models/cult_song.dart';
 import '../modals/create_cult_song_modal.dart';
 import '../cult_song_detail_screen.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CultSongsTab extends StatelessWidget {
   final Cult cult;
@@ -33,7 +34,7 @@ class CultSongsTab extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Não há músicas atribuídas a este culto'),
+                  Text(AppLocalizations.of(context)!.noSongsAssignedToCult),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => _showCreateSongModal(context),
@@ -41,7 +42,7 @@ class CultSongsTab extends StatelessWidget {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Adicionar Música'),
+                    child: Text(AppLocalizations.of(context)!.addMusic),
                   ),
                 ],
               ),
@@ -138,7 +139,7 @@ class CultSongsTab extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${song.files.length} arquivos',
+                            '${song.files.length} ${AppLocalizations.of(context)!.files}',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.primary,
@@ -204,7 +205,7 @@ class CultSongsTab extends StatelessWidget {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao reordenar músicas: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorReorderingSongs(e.toString()))),
       );
     }
   }

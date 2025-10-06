@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../../models/cult.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreateTimeSlotModal extends StatefulWidget {
   final Cult cult;
@@ -130,8 +131,8 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('A hora de término deve ser posterior à hora de início'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.endTimeMustBeAfterStartTime),
             backgroundColor: Colors.red,
           ),
         );
@@ -190,8 +191,8 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
         Navigator.of(context).pop(); // Cerrar el modal
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Horário criado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.scheduleCreatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -200,7 +201,7 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar horário: $e'),
+            content: Text(AppLocalizations.of(context)!.errorCreatingSchedule(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -219,11 +220,11 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
           child: Text(
-            'Cor do horário',
-            style: TextStyle(
+            AppLocalizations.of(context)!.scheduleColor,
+            style: const TextStyle(
               color: Colors.black87,
               fontSize: 14,
             ),
@@ -303,9 +304,9 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Novo Horário',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.newSchedule,
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -322,14 +323,14 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                 // Campo de nombre
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome do horário',
-                    prefixIcon: Icon(Icons.title),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.scheduleName,
+                    prefixIcon: const Icon(Icons.title),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Por favor, insira um nome';
+                      return AppLocalizations.of(context)!.pleaseEnterName;
                     }
                     return null;
                   },
@@ -346,10 +347,10 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                         onTap: _selectStartTime,
                         child: AbsorbPointer(
                           child: TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Hora de início',
-                              prefixIcon: Icon(Icons.access_time),
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.startHour,
+                              prefixIcon: const Icon(Icons.access_time),
+                              border: const OutlineInputBorder(),
                             ),
                             controller: TextEditingController(
                               text: _formatTimeOfDay(_startTime),
@@ -368,10 +369,10 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                         onTap: _selectEndTime,
                         child: AbsorbPointer(
                           child: TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Hora de término',
-                              prefixIcon: Icon(Icons.access_time),
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.endHour,
+                              prefixIcon: const Icon(Icons.access_time),
+                              border: const OutlineInputBorder(),
                             ),
                             controller: TextEditingController(
                               text: _formatTimeOfDay(_endTime),
@@ -394,10 +395,10 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                 // Campo de descripción
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descrição (opcional)',
-                    prefixIcon: Icon(Icons.description),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.descriptionOptional,
+                    prefixIcon: const Icon(Icons.description),
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
@@ -418,9 +419,9 @@ class _CreateTimeSlotModalState extends State<CreateTimeSlotModal> {
                     ),
                     child: _isSubmitting
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'Criar Horário',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.createSchedule,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

@@ -348,9 +348,9 @@ class _CultsScreenState extends State<CultsScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Localização:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                Text(
+                  AppLocalizations.of(context)!.location,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
                 
@@ -365,7 +365,7 @@ class _CultsScreenState extends State<CultsScreen> {
                       TextFormField(
                         controller: _locationNameController,
                         decoration: InputDecoration(
-                          labelText: 'Nome do local',
+                          labelText: AppLocalizations.of(context)!.locationName,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -396,7 +396,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _streetController,
                               decoration: InputDecoration(
-                                labelText: 'Rua',
+                                labelText: AppLocalizations.of(context)!.street,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -426,7 +426,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _numberController,
                               decoration: InputDecoration(
-                                labelText: 'Número',
+                                labelText: AppLocalizations.of(context)!.number,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -457,7 +457,7 @@ class _CultsScreenState extends State<CultsScreen> {
                       TextFormField(
                         controller: _complementController,
                         decoration: InputDecoration(
-                          labelText: 'Complemento',
+                          labelText: AppLocalizations.of(context)!.complement,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -487,7 +487,7 @@ class _CultsScreenState extends State<CultsScreen> {
                       TextFormField(
                         controller: _neighborhoodController,
                         decoration: InputDecoration(
-                          labelText: 'Bairro',
+                          labelText: AppLocalizations.of(context)!.neighborhood,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -519,7 +519,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _cityController,
                               decoration: InputDecoration(
-                                labelText: 'Cidade',
+                                labelText: AppLocalizations.of(context)!.city,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -550,7 +550,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _stateController,
                               decoration: InputDecoration(
-                                labelText: 'Estado',
+                                labelText: AppLocalizations.of(context)!.state,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -585,7 +585,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _postalCodeController,
                               decoration: InputDecoration(
-                                labelText: 'CEP',
+                                labelText: AppLocalizations.of(context)!.postalCode,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -617,7 +617,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             child: TextFormField(
                               controller: _countryController,
                               decoration: InputDecoration(
-                                labelText: 'País',
+                                labelText: AppLocalizations.of(context)!.country,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
@@ -656,9 +656,9 @@ class _CultsScreenState extends State<CultsScreen> {
                         padding: const EdgeInsets.only(left: 4, right: 4, top: 2, bottom: 2),
                         margin: const EdgeInsets.only(bottom: 8, top: 4),
                         child: CheckboxListTile(
-                          title: const Text(
-                            'Salvar esta localização para uso futuro',
-                            style: TextStyle(fontSize: 13),
+                          title: Text(
+                            AppLocalizations.of(context)!.saveLocationForFuture,
+                            style: const TextStyle(fontSize: 13),
                           ),
                           value: _saveThisLocation,
                           onChanged: (value) {
@@ -690,7 +690,7 @@ class _CultsScreenState extends State<CultsScreen> {
                           foregroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-                        child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w500)),
+                        child: Text(AppLocalizations.of(context)!.cancel, style: const TextStyle(fontWeight: FontWeight.w500)),
                       ),
                       ElevatedButton(
               onPressed: () {
@@ -712,7 +712,7 @@ class _CultsScreenState extends State<CultsScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Criar', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text(AppLocalizations.of(context)!.create, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -766,7 +766,7 @@ class _CultsScreenState extends State<CultsScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Erro ao carregar localizações. Você pode inserir uma nova localização abaixo.',
+                AppLocalizations.of(context)!.errorLoadingLocations,
                 style: TextStyle(color: Colors.red[700]),
               ),
             ),
@@ -790,7 +790,7 @@ class _CultsScreenState extends State<CultsScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Não há localizações salvas. Por favor, insira uma nova localização abaixo.',
+                AppLocalizations.of(context)!.noSavedLocations,
                 style: TextStyle(color: Colors.blue[700]),
               ),
             ),
@@ -806,7 +806,7 @@ class _CultsScreenState extends State<CultsScreen> {
         DropdownButtonFormField<String>(
           value: _selectedLocationId,
           decoration: InputDecoration(
-            labelText: 'Selecionar localização existente',
+            labelText: AppLocalizations.of(context)!.selectExistingLocation,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -814,12 +814,12 @@ class _CultsScreenState extends State<CultsScreen> {
             fillColor: Colors.white,
             suffixIcon: const Icon(Icons.location_on),
           ),
-          hint: const Text('Escolha uma localização'),
+          hint: Text(AppLocalizations.of(context)!.chooseLocation),
           isExpanded: true,
           items: [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: null,
-              child: Text('Informar nova localização'),
+              child: Text(AppLocalizations.of(context)!.enterNewLocation),
             ),
             ..._availableLocations.map((doc) {
               final data = doc.data() as Map<String, dynamic>;
@@ -856,7 +856,7 @@ class _CultsScreenState extends State<CultsScreen> {
               });
             },
             icon: const Icon(Icons.add_location_alt),
-            label: const Text('Criar nova localização'),
+            label: Text(AppLocalizations.of(context)!.createNewLocation),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.deepOrange,
               side: const BorderSide(color: Colors.deepOrange),
@@ -941,7 +941,7 @@ class _CultsScreenState extends State<CultsScreen> {
       return docRef.id;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar localização: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingLocation(e.toString()))),
       );
       return null;
     }
@@ -1133,10 +1133,10 @@ class _CultsScreenState extends State<CultsScreen> {
                   ),
                 ),
               ),
-              bottom: const TabBar(
+              bottom: TabBar(
                 tabs: [
-                  Tab(text: 'Próximos'),
-                  Tab(text: 'Todos'),
+                  Tab(text: AppLocalizations.of(context)!.upcoming),
+                  Tab(text: AppLocalizations.of(context)!.all),
                 ],
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.white70,
@@ -1198,14 +1198,14 @@ class _CultsScreenState extends State<CultsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
-            Text('Erro ao carregar os cultos: ${snapshot.error}'),
+            Text(AppLocalizations.of(context)!.errorLoadingCultsColon(snapshot.error.toString())),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => setState(() {}),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
               ),
-              child: const Text('Tentar novamente'),
+              child: Text(AppLocalizations.of(context)!.tryAgain),
             ),
           ],
         ),

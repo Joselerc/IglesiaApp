@@ -695,7 +695,7 @@ class _PastorAvailabilityScreenState extends State<PastorAvailabilityScreen> {
                     children: [
                       Text(
                         AppLocalizations.of(context)!.timeSlots(schedule.timeSlots.length.toString()),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           color: Colors.black87,

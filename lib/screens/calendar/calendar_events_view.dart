@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/event_model.dart';
 import '../../services/event_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class CalendarEventsView extends StatelessWidget {
   final DateTime selectedDate;
@@ -37,7 +38,7 @@ class CalendarEventsView extends StatelessWidget {
                 Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há eventos programados',
+                  AppLocalizations.of(context)!.noEventsScheduled,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -69,7 +70,7 @@ class CalendarEventsView extends StatelessWidget {
                 Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há eventos para ${DateFormat('d MMMM yyyy', 'pt_BR').format(selectedDate)}',
+                  AppLocalizations.of(context)!.noEventsFor(DateFormat('d MMMM yyyy', Localizations.localeOf(context).toString()).format(selectedDate)),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],

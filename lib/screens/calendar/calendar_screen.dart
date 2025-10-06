@@ -478,7 +478,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         events = _groupEvents[normalizedDay] ?? [];
         break;
       case 3:
-        tabName = AppLocalizations.of(context)!.cults('');
+        tabName = AppLocalizations.of(context)!.cultsTab;
         events = _cultEvents[normalizedDay] ?? [];
         break;
       case 4:
@@ -633,7 +633,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
                               markersMaxCount: 3,
                               weekendTextStyle: const TextStyle(color: Colors.red),
                             ),
-                            locale: 'pt_BR',
+                            locale: Localizations.localeOf(context).toString(),
                             // Función para cargar eventos según el día
                             eventLoader: _getEventsForDay,
                             // Personalización del marcador de eventos
@@ -675,8 +675,8 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
                             const SizedBox(width: 8),
                             Text(
                               _selectedDay != null 
-                                ? DateFormat('EEEE, d MMMM yyyy', 'pt_BR').format(_selectedDay!)
-                                : DateFormat('EEEE, d MMMM yyyy', 'pt_BR').format(_focusedDay),
+                                ? DateFormat('EEEE, d MMMM yyyy', Localizations.localeOf(context).toString()).format(_selectedDay!)
+                                : DateFormat('EEEE, d MMMM yyyy', Localizations.localeOf(context).toString()).format(_focusedDay),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -714,7 +714,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         Tab(text: AppLocalizations.of(context)!.events),
         Tab(text: AppLocalizations.of(context)!.ministries),
         Tab(text: AppLocalizations.of(context)!.groups),
-        Tab(text: AppLocalizations.of(context)!.cults('')),
+        Tab(text: AppLocalizations.of(context)!.cultsTab),
         Tab(text: AppLocalizations.of(context)!.services),
         Tab(text: AppLocalizations.of(context)!.counseling),
       ],

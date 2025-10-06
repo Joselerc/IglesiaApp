@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteMinistry.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar Ministerios'**
+  /// **'Eliminar ministerio'**
   String get deleteMinistry;
 
   /// No description provided for @confirmDeleteMinistryQuestion.
@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @email.
   ///
   /// In es, this message translates to:
-  /// **'Correo Electrónico'**
+  /// **'Email'**
   String get email;
 
   /// No description provided for @yourEmailExample.
@@ -2531,7 +2531,7 @@ abstract class AppLocalizations {
   /// No description provided for @superUser.
   ///
   /// In es, this message translates to:
-  /// **'SuperUsuario'**
+  /// **'SuperUser'**
   String get superUser;
 
   /// No description provided for @yes.
@@ -2723,7 +2723,7 @@ abstract class AppLocalizations {
   /// No description provided for @descriptionOptional.
   ///
   /// In es, this message translates to:
-  /// **'Descripción (Opcional)'**
+  /// **'Descripción (opcional)'**
   String get descriptionOptional;
 
   /// No description provided for @backgroundImageOptional.
@@ -4520,12 +4520,6 @@ abstract class AppLocalizations {
   /// **'Error al cargar disponibilidad: {error}'**
   String errorLoadingAvailability(Object error);
 
-  /// No description provided for @timeSlots.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} franjas horarias'**
-  String timeSlots(Object count);
-
   /// No description provided for @confirmDeleteAllTimeSlots.
   ///
   /// In es, this message translates to:
@@ -4901,7 +4895,7 @@ abstract class AppLocalizations {
   /// No description provided for @upcoming.
   ///
   /// In es, this message translates to:
-  /// **'Próximamente'**
+  /// **'Próximos'**
   String get upcoming;
 
   /// No description provided for @thisWeek.
@@ -5501,7 +5495,7 @@ abstract class AppLocalizations {
   /// No description provided for @location.
   ///
   /// In es, this message translates to:
-  /// **'Local:'**
+  /// **'Localización:'**
   String get location;
 
   /// No description provided for @selectLocation.
@@ -5519,7 +5513,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationName.
   ///
   /// In es, this message translates to:
-  /// **'Nombre de la ubicación'**
+  /// **'Nombre del local'**
   String get locationName;
 
   /// No description provided for @street.
@@ -5549,13 +5543,13 @@ abstract class AppLocalizations {
   /// No description provided for @state.
   ///
   /// In es, this message translates to:
-  /// **'Estado/Provincia'**
+  /// **'Estado'**
   String get state;
 
   /// No description provided for @postalCode.
   ///
   /// In es, this message translates to:
-  /// **'Código Postal'**
+  /// **'Código postal'**
   String get postalCode;
 
   /// No description provided for @country.
@@ -6767,7 +6761,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterName.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, introduce un nombre'**
+  /// **'Por favor, ingresa un nombre'**
   String get pleaseEnterName;
 
   /// No description provided for @selectFieldType.
@@ -6865,6 +6859,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Disponible'**
   String get available;
+
+  /// No description provided for @timeSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} franjas horarias'**
+  String timeSlots(Object count);
 
   /// No description provided for @sessionDuration.
   ///
@@ -7025,7 +7025,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRole.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar rol'**
+  /// **'Eliminar función'**
   String get deleteRole;
 
   /// No description provided for @createNewRole.
@@ -8387,8 +8387,8 @@ abstract class AppLocalizations {
   /// No description provided for @noEventsFor.
   ///
   /// In es, this message translates to:
-  /// **'No hay eventos para {ministry}'**
-  String noEventsFor(Object ministry);
+  /// **'No hay eventos para {date}'**
+  String noEventsFor(Object date);
 
   /// No description provided for @loadingUsers.
   ///
@@ -9079,6 +9079,606 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No tienes permiso para visualizar estas estadísticas.'**
   String get noPermissionViewStatistics;
+
+  /// No description provided for @errorLoadingCultsColon.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar los cultos: {error}'**
+  String errorLoadingCultsColon(Object error);
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In es, this message translates to:
+  /// **'Intentar nuevamente'**
+  String get tryAgain;
+
+  /// No description provided for @saveLocationForFuture.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar esta localización para uso futuro'**
+  String get saveLocationForFuture;
+
+  /// No description provided for @errorLoadingLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar localizaciones. Puedes ingresar una nueva localización abajo.'**
+  String get errorLoadingLocations;
+
+  /// No description provided for @noSavedLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay localizaciones guardadas. Por favor, ingresa una nueva localización abajo.'**
+  String get noSavedLocations;
+
+  /// No description provided for @selectExistingLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar localización existente'**
+  String get selectExistingLocation;
+
+  /// No description provided for @chooseLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige una localización'**
+  String get chooseLocation;
+
+  /// No description provided for @enterNewLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar nueva localización'**
+  String get enterNewLocation;
+
+  /// No description provided for @createNewLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nueva localización'**
+  String get createNewLocation;
+
+  /// No description provided for @errorSavingLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar localización: {error}'**
+  String errorSavingLocation(Object error);
+
+  /// No description provided for @timeSlotsTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Franjas Horarias'**
+  String get timeSlotsTab;
+
+  /// No description provided for @music.
+  ///
+  /// In es, this message translates to:
+  /// **'Música'**
+  String get music;
+
+  /// No description provided for @createTimeSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear franja horaria'**
+  String get createTimeSlot;
+
+  /// No description provided for @newSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo Horario'**
+  String get newSchedule;
+
+  /// No description provided for @scheduleName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del horario'**
+  String get scheduleName;
+
+  /// No description provided for @startHour.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora de inicio'**
+  String get startHour;
+
+  /// No description provided for @endHour.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora de fin'**
+  String get endHour;
+
+  /// No description provided for @endTimeMustBeAfterStartTime.
+  ///
+  /// In es, this message translates to:
+  /// **'La hora de fin debe ser posterior a la hora de inicio'**
+  String get endTimeMustBeAfterStartTime;
+
+  /// No description provided for @scheduleColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Color del horario'**
+  String get scheduleColor;
+
+  /// No description provided for @scheduleCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario creado con éxito'**
+  String get scheduleCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear horario: {error}'**
+  String errorCreatingSchedule(Object error);
+
+  /// No description provided for @createSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Horario'**
+  String get createSchedule;
+
+  /// No description provided for @noSongsAssignedToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay canciones asignadas a este culto'**
+  String get noSongsAssignedToCult;
+
+  /// No description provided for @addMusic.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar Canción'**
+  String get addMusic;
+
+  /// No description provided for @errorReorderingSongs.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al reordenar canciones: {error}'**
+  String errorReorderingSongs(Object error);
+
+  /// No description provided for @files.
+  ///
+  /// In es, this message translates to:
+  /// **'archivos'**
+  String get files;
+
+  /// No description provided for @addSongToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar Canción al Culto'**
+  String get addSongToCult;
+
+  /// No description provided for @songName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la Canción'**
+  String get songName;
+
+  /// No description provided for @minutesLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Minutos'**
+  String get minutesLabel;
+
+  /// No description provided for @secondsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Segundos'**
+  String get secondsLabel;
+
+  /// No description provided for @songAddedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Canción agregada con éxito'**
+  String get songAddedSuccessfully;
+
+  /// No description provided for @errorAddingSong.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al agregar canción: {error}'**
+  String errorAddingSong(Object error);
+
+  /// No description provided for @editSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Horario'**
+  String get editSchedule;
+
+  /// No description provided for @scheduleDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles del Horario'**
+  String get scheduleDetails;
+
+  /// No description provided for @timeSlotName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la franja horaria'**
+  String get timeSlotName;
+
+  /// No description provided for @deleteSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Horario'**
+  String get deleteSchedule;
+
+  /// No description provided for @confirmDeleteSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar este horario? Todas las asignaciones asociadas también serán eliminadas.'**
+  String get confirmDeleteSchedule;
+
+  /// No description provided for @scheduleDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario eliminado con éxito'**
+  String get scheduleDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar horario: {error}'**
+  String errorDeletingSchedule(Object error);
+
+  /// No description provided for @scheduleUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario actualizado con éxito'**
+  String get scheduleUpdatedSuccessfully;
+
+  /// No description provided for @errorUpdatingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar horario: {error}'**
+  String errorUpdatingSchedule(Object error);
+
+  /// No description provided for @startTimeMustBeBeforeEnd.
+  ///
+  /// In es, this message translates to:
+  /// **'La hora de inicio debe ser anterior a la hora de fin'**
+  String get startTimeMustBeBeforeEnd;
+
+  /// No description provided for @assignMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Ministerio'**
+  String get assignMinistry;
+
+  /// No description provided for @noMinistriesAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay ministerios asignados'**
+  String get noMinistriesAssigned;
+
+  /// No description provided for @temporaryMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio temporal'**
+  String get temporaryMinistry;
+
+  /// No description provided for @addRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar Función'**
+  String get addRole;
+
+  /// No description provided for @thisMinistryHasNoRoles.
+  ///
+  /// In es, this message translates to:
+  /// **'Este ministerio no tiene funciones definidas'**
+  String get thisMinistryHasNoRoles;
+
+  /// No description provided for @defineRoles.
+  ///
+  /// In es, this message translates to:
+  /// **'Definir Funciones'**
+  String get defineRoles;
+
+  /// No description provided for @editCapacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar capacidad'**
+  String get editCapacity;
+
+  /// No description provided for @noPersonsAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay personas designadas para esta función'**
+  String get noPersonsAssigned;
+
+  /// No description provided for @addPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar Persona'**
+  String get addPerson;
+
+  /// No description provided for @deleteAssignment.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar designación'**
+  String get deleteAssignment;
+
+  /// No description provided for @noInvitesSent.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna invitación enviada'**
+  String get noInvitesSent;
+
+  /// No description provided for @songNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Canción no encontrada'**
+  String get songNotFound;
+
+  /// No description provided for @errorUploadingFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al enviar archivo: {error}'**
+  String errorUploadingFile(Object error);
+
+  /// No description provided for @uploadingProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviando: {progress}%'**
+  String uploadingProgress(Object progress);
+
+  /// No description provided for @fileUploadedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo enviado con éxito'**
+  String get fileUploadedSuccessfully;
+
+  /// No description provided for @errorPlayback.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar reproducción: {error}'**
+  String errorPlayback(Object error);
+
+  /// No description provided for @rewind10Seconds.
+  ///
+  /// In es, this message translates to:
+  /// **'Retroceder 10 segundos'**
+  String get rewind10Seconds;
+
+  /// No description provided for @pause.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausar'**
+  String get pause;
+
+  /// No description provided for @play.
+  ///
+  /// In es, this message translates to:
+  /// **'Reproducir'**
+  String get play;
+
+  /// No description provided for @stop.
+  ///
+  /// In es, this message translates to:
+  /// **'Detener'**
+  String get stop;
+
+  /// No description provided for @forward10Seconds.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzar 10 segundos'**
+  String get forward10Seconds;
+
+  /// No description provided for @orderLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden: {order}'**
+  String orderLabel(Object order);
+
+  /// No description provided for @noFilesAssociated.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay archivos asociados a esta canción'**
+  String get noFilesAssociated;
+
+  /// No description provided for @uploadFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Subir Archivo'**
+  String get uploadFile;
+
+  /// No description provided for @fileNameless.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo sin nombre'**
+  String get fileNameless;
+
+  /// No description provided for @uploadedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Subido el {date}'**
+  String uploadedOn(Object date);
+
+  /// No description provided for @score.
+  ///
+  /// In es, this message translates to:
+  /// **'Partitura/Documento'**
+  String get score;
+
+  /// No description provided for @audio.
+  ///
+  /// In es, this message translates to:
+  /// **'Audio'**
+  String get audio;
+
+  /// No description provided for @errorSelectingFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al seleccionar archivo: {error}'**
+  String errorSelectingFile(Object error);
+
+  /// No description provided for @loadingAudio.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando audio...'**
+  String get loadingAudio;
+
+  /// No description provided for @preparingDocument.
+  ///
+  /// In es, this message translates to:
+  /// **'Preparando documento...'**
+  String get preparingDocument;
+
+  /// No description provided for @cannotOpenDocument.
+  ///
+  /// In es, this message translates to:
+  /// **'No es posible abrir el documento'**
+  String get cannotOpenDocument;
+
+  /// No description provided for @errorOpeningDocument.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al abrir documento: {error}'**
+  String errorOpeningDocument(Object error);
+
+  /// No description provided for @downloadingProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargando: {progress}%'**
+  String downloadingProgress(Object progress);
+
+  /// No description provided for @cannotOpenDownloadedFile.
+  ///
+  /// In es, this message translates to:
+  /// **'No es posible abrir el archivo descargado'**
+  String get cannotOpenDownloadedFile;
+
+  /// No description provided for @errorDownloadingFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al descargar y abrir archivo: {error}'**
+  String errorDownloadingFile(Object error);
+
+  /// No description provided for @deleteFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar archivo'**
+  String get deleteFile;
+
+  /// No description provided for @confirmDeleteFile.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar este archivo?'**
+  String get confirmDeleteFile;
+
+  /// No description provided for @fileDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo eliminado con éxito'**
+  String get fileDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar archivo: {error}'**
+  String errorDeletingFile(Object error);
+
+  /// No description provided for @create.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear'**
+  String get create;
+
+  /// No description provided for @cultsTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Cultos'**
+  String get cultsTab;
+
+  /// No description provided for @noGroupEventsScheduled.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos de grupos programados'**
+  String get noGroupEventsScheduled;
+
+  /// No description provided for @noMinistryEventsScheduled.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos de ministerios programados'**
+  String get noMinistryEventsScheduled;
+
+  /// No description provided for @noEventsScheduled.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos programados'**
+  String get noEventsScheduled;
+
+  /// No description provided for @attendanceSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de Asistencia'**
+  String get attendanceSummary;
+
+  /// No description provided for @roleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Función: {role}'**
+  String roleLabel(Object role);
+
+  /// No description provided for @confirmedCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmados: {count}'**
+  String confirmedCount(Object count);
+
+  /// No description provided for @absentCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Ausentes: {count}'**
+  String absentCount(Object count);
+
+  /// No description provided for @presentLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'PRESENTE'**
+  String get presentLabel;
+
+  /// No description provided for @originallyAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Atribuido originalmente'**
+  String get originallyAssigned;
+
+  /// No description provided for @didNotAttend.
+  ///
+  /// In es, this message translates to:
+  /// **'No asistió'**
+  String get didNotAttend;
+
+  /// No description provided for @roleId.
+  ///
+  /// In es, this message translates to:
+  /// **'Role ID'**
+  String get roleId;
+
+  /// No description provided for @noRoleInfoAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay información de rol disponible'**
+  String get noRoleInfoAvailable;
+
+  /// No description provided for @rolePermissions.
+  ///
+  /// In es, this message translates to:
+  /// **'Permisos del rol:'**
+  String get rolePermissions;
+
+  /// No description provided for @thisRoleHasNoPermissions.
+  ///
+  /// In es, this message translates to:
+  /// **'Este rol no tiene permisos asignados'**
+  String get thisRoleHasNoPermissions;
+
+  /// No description provided for @errorObtainingDiagnostic.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al obtener diagnóstico: {error}'**
+  String errorObtainingDiagnostic(Object error);
+
+  /// No description provided for @id.
+  ///
+  /// In es, this message translates to:
+  /// **'ID'**
+  String get id;
 }
 
 class _AppLocalizationsDelegate

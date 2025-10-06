@@ -6,6 +6,7 @@ import '../../../models/time_slot.dart';
 import '../modals/create_time_slot_modal.dart';
 import '../time_slot_detail_screen.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CultTimeSlotsTab extends StatefulWidget {
   final Cult cult;
@@ -150,7 +151,7 @@ class _CultTimeSlotsTabState extends State<CultTimeSlotsTab> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateTimeSlotModal,
-        tooltip: 'Criar faixa horária',
+        tooltip: AppLocalizations.of(context)!.createTimeSlot,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),

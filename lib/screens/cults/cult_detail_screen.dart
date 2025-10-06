@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/work_schedule_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class CultDetailScreen extends StatefulWidget {
   final Cult cult;
@@ -152,9 +153,9 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
             ),
           ],
           bottom: TabBar(
-            tabs: const [
-              Tab(text: 'Faixas Horárias'),
-              Tab(text: 'Músicas'),
+            tabs: [
+              Tab(text: AppLocalizations.of(context)!.timeSlotsTab),
+              Tab(text: AppLocalizations.of(context)!.music),
             ],
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withOpacity(0.7),

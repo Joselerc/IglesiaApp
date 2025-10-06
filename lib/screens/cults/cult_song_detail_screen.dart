@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 // Widget para mostrar el progreso de carga
 class UploadProgressWidget extends StatefulWidget {
@@ -116,7 +117,7 @@ class _UploadProgressWidgetState extends State<UploadProgressWidget> {
       if (mounted) {
         setState(() {
           _isUploading = false;
-          _errorMessage = 'Erro ao enviar arquivo: $e';
+          _errorMessage = AppLocalizations.of(context)!.errorUploadingFile(e.toString());
         });
       }
     }
@@ -173,7 +174,7 @@ class _UploadProgressWidgetState extends State<UploadProgressWidget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Enviando: ${(_progress * 100).toStringAsFixed(0)}%',
+              AppLocalizations.of(context)!.uploadingProgress('${(_progress * 100).toStringAsFixed(0)}'),
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 12,
@@ -200,12 +201,12 @@ class _UploadProgressWidgetState extends State<UploadProgressWidget> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Tentar novamente'),
+              child: Text(AppLocalizations.of(context)!.tryAgain),
             ),
           ] else ...[
-            const Text(
-              'Arquivo enviado com sucesso',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.fileUploadedSuccessfully,
+              style: const TextStyle(
                 color: AppColors.success,
                 fontSize: 12,
               ),
@@ -290,7 +291,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
       await _audioPlayer.setUrl(widget.fileUrl);
       await _audioPlayer.play();
     } catch (e) {
-      print('Erro ao iniciar reprodução: $e');
+      debugPrint(AppLocalizations.of(context)!.errorPlayback(e.toString()));
       setState(() {
         _isPlaying = false;
       });
@@ -376,7 +377,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
             children: [
               IconButton(
                 icon: Icon(Icons.replay_10, color: AppColors.success),
-                tooltip: 'Retroceder 10 segundos',
+                tooltip: AppLocalizations.of(context)!.rewind10Seconds,
                 onPressed: () {
                   final newPosition = Duration(
                     seconds: (_position.inSeconds - 10).clamp(0, _duration.inSeconds),
@@ -390,7 +391,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                   color: AppColors.success,
                   size: 48,
                 ),
-                tooltip: _isPlaying ? 'Pausar' : 'Reproduzir',
+                tooltip: _isPlaying ? AppLocalizations.of(context)!.pause : AppLocalizations.of(context)!.play,
                 onPressed: () {
                   if (_isPlaying) {
                     _audioPlayer.pause();
@@ -404,7 +405,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               ),
               IconButton(
                 icon: Icon(Icons.stop_circle, color: AppColors.error, size: 36),
-                tooltip: 'Parar',
+                tooltip: AppLocalizations.of(context)!.stop,
                 onPressed: () {
                   _audioPlayer.stop();
                   widget.onStop();
@@ -412,7 +413,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               ),
               IconButton(
                 icon: Icon(Icons.forward_10, color: AppColors.success),
-                tooltip: 'Avançar 10 segundos',
+                tooltip: AppLocalizations.of(context)!.forward10Seconds,
                 onPressed: () {
                   final newPosition = Duration(
                     seconds: (_position.inSeconds + 10).clamp(0, _duration.inSeconds),
@@ -483,8 +484,8 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
               }
               
               if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const Center(
-                  child: Text('Música não encontrada'),
+                return Center(
+                  child: Text(AppLocalizations.of(context)!.songNotFound),
                 );
               }
               
@@ -528,7 +529,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Duração: ${_formatDuration(widget.cultSong.duration)}',
+                                AppLocalizations.of(context)!.durationLabel(_formatDuration(widget.cultSong.duration)),
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                 ),
@@ -543,7 +544,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            'Ordem: ${widget.cultSong.order + 1}',
+                            AppLocalizations.of(context)!.orderLabel((widget.cultSong.order + 1).toString()),
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
@@ -561,7 +562,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text('Não há arquivos associados a esta música'),
+                                Text(AppLocalizations.of(context)!.noFilesAssociated),
                                 const SizedBox(height: 16),
                                 ElevatedButton.icon(
                                   onPressed: _isUploading ? null : _pickFile,
@@ -570,7 +571,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                                     backgroundColor: AppColors.primary,
                                     foregroundColor: Colors.white,
                                   ),
-                                  label: const Text('Enviar Arquivo'),
+                                  label: Text(AppLocalizations.of(context)!.uploadFile),
                                 ),
                               ],
                             ),
@@ -580,7 +581,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                             itemCount: orderedFiles.length,
                             itemBuilder: (context, index) {
                               final file = orderedFiles[index];
-                              final fileName = file['name'] as String? ?? 'Archivo sin nombre';
+                              final fileName = file['name'] as String? ?? AppLocalizations.of(context)!.fileNameless;
                               final fileUrl = file['fileUrl'] as String? ?? '';
                               final fileType = file['fileType'] as String? ?? 'audio';
                               final fileExtension = file['fileExtension'] as String? ?? '';
@@ -612,9 +613,9 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                                       subtitle: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('Subido el ${_formatDate(file['uploadedAt'] as Timestamp?)}'),
+                                          Text(AppLocalizations.of(context)!.uploadedOn(_formatDate(file['uploadedAt'] as Timestamp?))),
                                           Text(
-                                            fileType == 'document' ? 'Partitura/Documento' : 'Audio',
+                                            fileType == 'document' ? AppLocalizations.of(context)!.score : AppLocalizations.of(context)!.audio,
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: fileType == 'document' ? Colors.blue[700] : Colors.green[700],
@@ -690,7 +691,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                   });
                   
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Arquivo enviado com sucesso')),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.fileUploadedSuccessfully)),
                   );
                 },
               ),
@@ -740,7 +741,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al seleccionar archivo: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorSelectingFile(e.toString()))),
       );
     }
   }
@@ -756,9 +757,9 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
     } else {
       // Mostrar un SnackBar para indicar que se está cargando
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Carregando áudio...'),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.loadingAudio),
+          duration: const Duration(seconds: 1),
         ),
       );
       
@@ -776,13 +777,13 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Preparando documento...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.preparingDocument),
           ],
         ),
       ),
@@ -811,7 +812,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
           Navigator.of(context).pop();
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          throw 'Não é possível abrir o documento';
+          throw AppLocalizations.of(context)!.cannotOpenDocument;
         }
       }
     } catch (e) {
@@ -821,7 +822,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
       print('Erro ao abrir documento: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao abrir documento: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOpeningDocument(e.toString()))),
         );
       }
     }
@@ -870,7 +871,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
                         value: received / total,
                       ),
                       const SizedBox(height: 16),
-                      Text('Baixando: $progress%'),
+                      Text(AppLocalizations.of(context)!.downloadingProgress(progress.toString())),
                     ],
                   ),
                 ),
@@ -885,7 +886,7 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw 'Não é possível abrir o arquivo baixado';
+          throw AppLocalizations.of(context)!.cannotOpenDownloadedFile;
       }
     } catch (e) {
       print('Erro ao baixar e abrir arquivo: $e');
@@ -897,16 +898,16 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir arquivo'),
-        content: const Text('Tem certeza que deseja excluir este arquivo?'),
+        title: Text(AppLocalizations.of(context)!.deleteFile),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteFile),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: AppColors.error)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -960,13 +961,13 @@ class _CultSongDetailScreenState extends State<CultSongDetailScreen> {
         print('Lista de arquivos atualizada no Firestore');
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Arquivo excluído com sucesso')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.fileDeletedSuccessfully)),
         );
       }
     } catch (e) {
       print('Erro ao excluir arquivo: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir arquivo: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorDeletingFile(e.toString()))),
       );
     }
   }

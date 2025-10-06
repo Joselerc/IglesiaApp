@@ -2057,7 +2057,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return const Center(child: CircularProgressIndicator());
                         }
                         if (!snapshot.hasData || !snapshot.data!.exists) {
-                          return const Text('No hay datos de usuario');
+                          return Text(AppLocalizations.of(context)!.noUserData);
                         }
                         
                         final userData = snapshot.data!.data() as Map<String, dynamic>;
@@ -2076,9 +2076,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   'Usuario: ${userData['displayName'] ?? 'Sin nombre'}',
                                   style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                Text('Email: ${userData['email'] ?? 'Sin email'}'),
-                                Text('Role ID: ${roleId ?? 'Sin rol'}'),
-                                Text('SuperUser: ${isSuperUser ? 'Sí' : 'No'}'),
+                                Text('${AppLocalizations.of(context)!.email}: ${userData['email'] ?? 'Sin email'}'),
+                                Text('${AppLocalizations.of(context)!.roleId}: ${roleId ?? 'Sin rol'}'),
+                                Text('${AppLocalizations.of(context)!.superUser}: ${isSuperUser ? AppLocalizations.of(context)!.yes : AppLocalizations.of(context)!.no}'),
                               ],
                             ),
                           ),
@@ -2130,11 +2130,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         
                         final String? roleId = roleIdSnapshot.data;
                         if (roleId == null || roleId.isEmpty) {
-                          return const Card(
-                            margin: EdgeInsets.only(top: 16),
+                          return Card(
+                            margin: const EdgeInsets.only(top: 16),
                             child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Text('No hay información de rol disponible'),
+                              padding: const EdgeInsets.all(16),
+                              child: Text(AppLocalizations.of(context)!.noRoleInfoAvailable),
                             ),
                           );
                         }
@@ -2152,7 +2152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 margin: const EdgeInsets.only(top: 16),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
-                                  child: Text('Rol no encontrado: $roleId'),
+                                  child: Text(AppLocalizations.of(context)!.roleNotFound(roleId)),
                                 ),
                               );
                             }
@@ -2170,12 +2170,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
                                     if (role.description != null && role.description!.isNotEmpty)
-                                      Text('Descripción: ${role.description}'),
+                                      Text('${AppLocalizations.of(context)!.description}: ${role.description}'),
                                     const SizedBox(height: 8),
-                                    const Text('Permisos del rol:'),
+                                    Text(AppLocalizations.of(context)!.rolePermissions),
                                     const SizedBox(height: 4),
                                     if (role.permissions.isEmpty)
-                                      const Text('Este rol no tiene permisos asignados')
+                                      Text(AppLocalizations.of(context)!.thisRoleHasNoPermissions)
                                     else
                                       ...role.permissions.map((permission) => Padding(
                                         padding: const EdgeInsets.only(left: 8, bottom: 4),
@@ -2205,7 +2205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al obtener diagnóstico: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorObtainingDiagnostic(e.toString()))),
         );
       }
     }
@@ -2352,7 +2352,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const Icon(Icons.group, color: Colors.blue),
                   ),
                   title: Text(groupName),
-                  subtitle: Text('ID: $groupId'),
+                  subtitle: Text('${AppLocalizations.of(context)!.id}: $groupId'),
                   trailing: canDeleteGroups
                       ? IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -2428,7 +2428,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const Icon(Icons.work_outline, color: Colors.amber),
                   ),
                   title: Text(ministryName),
-                  subtitle: Text('ID: $ministryId'),
+                  subtitle: Text('${AppLocalizations.of(context)!.id}: $ministryId'),
                   trailing: canDeleteMinistries
                       ? IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),

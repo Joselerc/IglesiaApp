@@ -10,6 +10,7 @@ import './modals/attendee_selection_modal.dart';
 import 'dart:async';
 import '../../services/work_schedule_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class TimeSlotDetailScreen extends StatefulWidget {
   final TimeSlot timeSlot;
@@ -176,7 +177,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           // Mostrar erro
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('A hora de fim deve ser posterior à hora de início'),
+              content: Text(AppLocalizations.of(context)!.endTimeMustBeAfterStartTime),
               backgroundColor: AppColors.error,
             ),
           );
@@ -220,7 +221,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       // Verificar se o horário é válido
       if (startTime.isAfter(endTime)) {
-        throw Exception('A hora de início deve ser anterior à hora de fim');
+        throw Exception(AppLocalizations.of(context)!.startTimeMustBeBeforeEnd);
       }
       
       // Atualizar a faixa horária
@@ -239,7 +240,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Horário atualizado com sucesso'),
+            content: Text(AppLocalizations.of(context)!.scheduleUpdatedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -248,7 +249,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atualizar horário: $e'),
+            content: Text(AppLocalizations.of(context)!.errorUpdatingSchedule(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -266,8 +267,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Horário'),
-        content: const Text('Tem certeza que deseja excluir este horário? Todas as atribuições associadas também serão excluídas.'),
+        title: Text(AppLocalizations.of(context)!.deleteSchedule),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteSchedule),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -275,7 +276,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Excluir', style: TextStyle(color: AppColors.error)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -294,7 +295,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Horário excluído com sucesso'),
+            content: Text(AppLocalizations.of(context)!.scheduleDeletedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -303,7 +304,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao excluir horário: $e'),
+            content: Text(AppLocalizations.of(context)!.errorDeletingSchedule(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -336,7 +337,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Horário' : 'Detalhes do Horário'),
+        title: Text(_isEditing ? AppLocalizations.of(context)!.editSchedule : AppLocalizations.of(context)!.scheduleDetails),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -372,14 +373,14 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome da faixa horária',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.title),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.timeSlotName,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.title),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Por favor, insira um nome';
+                  return AppLocalizations.of(context)!.pleaseEnterName;
                 }
                 return null;
               },
@@ -391,10 +392,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                   child: InkWell(
                     onTap: () => _selectStartTime(context),
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Hora de início',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.access_time),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.startHour,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.access_time),
                       ),
                       child: Text(_startTime.format(context)),
                     ),
@@ -405,10 +406,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                   child: InkWell(
                     onTap: () => _selectEndTime(context),
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Hora de fim',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.access_time),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.endHour,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.access_time),
                       ),
                       child: Text(_endTime.format(context)),
                     ),
@@ -419,10 +420,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Descrição (opcional)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.descriptionOptional,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.description),
               ),
               maxLines: 3,
             ),
@@ -459,7 +460,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Salvar'),
+                    child: Text(AppLocalizations.of(context)!.save),
                   ),
                 ),
               ],
@@ -524,10 +525,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             child: Column(
               children: [
                 TabBar(
-                  tabs: const [
-                    Tab(text: 'Ministérios'),
-                    Tab(text: 'Convites'),
-                    Tab(text: 'Presenças'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.ministries),
+                    Tab(text: AppLocalizations.of(context)!.invites),
+                    Tab(text: AppLocalizations.of(context)!.attendances),
                   ],
                   indicatorColor: AppColors.primary,
                   indicatorWeight: 3,
@@ -566,7 +567,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             child: ElevatedButton.icon(
               onPressed: _showAssignMinistryModal,
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Atribuir Ministério'),
+              label: Text(AppLocalizations.of(context)!.assignMinistry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -589,9 +590,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               }
               
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    'Não há ministérios atribuídos',
+                    AppLocalizations.of(context)!.noMinistriesAssigned,
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 );
@@ -604,7 +605,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                 try {
                   final data = doc.data() as Map<String, dynamic>;
                   final ministryId = data['ministryId'];
-                  final ministryName = data['ministryName'] ?? 'Ministerio';
+                  final ministryName = data['ministryName'] ?? AppLocalizations.of(context)!.ministry;
                   final role = data['role'] ?? 'Rol';
                   final capacity = data['capacity'] ?? 1;
                   final current = data['current'] ?? 0;
@@ -641,9 +642,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               }
               
               if (rolesByMinistry.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    'Não há ministérios atribuídos',
+                    AppLocalizations.of(context)!.noMinistriesAssigned,
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 );
@@ -760,7 +761,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                             ),
                           ),
                           subtitle: Text(
-                            isTemporary ? 'Ministério temporário' : 'Ministério',
+                            isTemporary ? AppLocalizations.of(context)!.temporaryMinistry : AppLocalizations.of(context)!.ministry,
                             style: TextStyle(
                               fontSize: 12,
                               color: isTemporary ? Colors.orange[800] : Colors.green[800],
@@ -795,12 +796,12 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                   ministryName: ministryName,
                                   isTemporary: isTemporary
                                 ),
-                                tooltip: 'Adicionar Função',
+                                tooltip: AppLocalizations.of(context)!.addRole,
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () => _confirmDeleteMinistry(ministryId, ministryName),
-                                tooltip: 'Excluir ministério',
+                                tooltip: AppLocalizations.of(context)!.deleteMinistry,
                               ),
                             ],
                           ) : null,
@@ -812,9 +813,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Este ministério não tem funções definidas',
-                                      style: TextStyle(
+                                    Text(
+                                      AppLocalizations.of(context)!.thisMinistryHasNoRoles,
+                                      style: const TextStyle(
                                         fontStyle: FontStyle.italic,
                                         color: Colors.grey,
                                       ),
@@ -827,7 +828,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                         isTemporary: isTemporary
                                       ),
                                       icon: const Icon(Icons.add_circle, color: Colors.white),
-                                      label: const Text('Definir Funções'),
+                                      label: Text(AppLocalizations.of(context)!.defineRoles),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.primary,
                                         foregroundColor: Colors.white,
@@ -910,13 +911,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                 IconButton(
                                                   icon: const Icon(Icons.edit, size: 16, color: Colors.blue),
                                                   onPressed: () => _showEditCapacityDialog(roleId, roleName, capacity, current),
-                                                  tooltip: 'Editar capacidade',
+                                                  tooltip: AppLocalizations.of(context)!.editCapacity,
                                                 ),
                                                 // Botón para eliminar rol
                                                 IconButton(
                                                   icon: const Icon(Icons.delete, size: 16, color: Colors.red),
                                                   onPressed: () => _confirmDeleteRole(roleId, roleName),
-                                                  tooltip: 'Excluir função',
+                                                  tooltip: AppLocalizations.of(context)!.deleteRole,
                                                 ),
                                               ],
                                             ),
@@ -948,10 +949,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                   }
                                   
                                             if (!assignmentSnapshot.hasData || assignmentSnapshot.data!.docs.isEmpty) {
-                                    return const Center(
+                                    return Center(
                                       child: Text(
-                                                  'Não há pessoas designadas para esta função',
-                                                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                                                  AppLocalizations.of(context)!.noPersonsAssigned,
+                                                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                                       ),
                                     );
                                   }
@@ -993,10 +994,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                             }).toList();
                                             
                                             if (assignmentsForThisMinistry.isEmpty) {
-                                              return const Center(
+                                              return Center(
                                                 child: Text(
-                                                  'Não há pessoas designadas para esta função',
-                                                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                                                  AppLocalizations.of(context)!.noPersonsAssigned,
+                                                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                                                 ),
                                               );
                                             }
@@ -1052,11 +1053,11 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                       .doc(userId)
                                                       .get(),
                                                   builder: (context, userSnapshot) {
-                                                    String userName = 'Usuario';
+                                                    String userName = AppLocalizations.of(context)!.user;
                                                     String photoUrl = '';
                                                     if (userSnapshot.hasData && userSnapshot.data!.exists) {
                                                       final userData = userSnapshot.data!.data() as Map<String, dynamic>;
-                                                      userName = userData['displayName'] ?? 'Usuario';
+                                                      userName = userData['displayName'] ?? AppLocalizations.of(context)!.user;
                                                       photoUrl = userData['photoUrl'] ?? '';
                                                     }
                                                     
@@ -1117,7 +1118,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                         trailing: _isPastor ? IconButton(
                                                           icon: const Icon(Icons.delete, color: Colors.red, size: 18),
                                                           onPressed: () => _confirmDeleteAssignment(doc.id, userName),
-                                                          tooltip: 'Excluir designação',
+                                                          tooltip: AppLocalizations.of(context)!.deleteAssignment,
                                                         ) : null,
                                                         dense: true,
                                                       ),
@@ -1145,7 +1146,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                 );
                                               },
                                               icon: const Icon(Icons.person_add, color: Colors.white),
-                                              label: const Text('Adicionar Pessoa'),
+                                              label: Text(AppLocalizations.of(context)!.addPerson),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: AppColors.primary,
                                                 foregroundColor: Colors.white,
@@ -1196,10 +1197,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           debugPrint('No hay invitaciones para esta entidad');
-          return const Center(
+          return Center(
             child: Text(
-              'Nenhum convite enviado',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              AppLocalizations.of(context)!.noInvitesSent,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           );
         }
@@ -2506,9 +2507,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Resumo de Presença',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.attendanceSummary,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -2517,21 +2518,21 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                         Row(
                           children: [
                             _buildStatCard(
-                              'Confirmados', 
+                              AppLocalizations.of(context)!.confirmed, 
                               totalConfirmed, 
                               totalAssignments, 
                               Colors.green,
                               Icons.check_circle,
                             ),
                             _buildStatCard(
-                              'Ausentes', 
+                              AppLocalizations.of(context)!.absent, 
                               totalNotAttended, 
                               totalAssignments, 
                               Colors.red,
                               Icons.cancel,
                             ),
                             _buildStatCard(
-                              'Pendentes', 
+                              AppLocalizations.of(context)!.pending, 
                               totalPending, 
                               totalAssignments, 
                               Colors.amber,
@@ -2598,7 +2599,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Função: $roleName',
+                                        AppLocalizations.of(context)!.roleLabel(roleName),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -2620,7 +2621,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: Text(
-                                          'Confirmados: ${assignments.where((a) => (a.data() as Map<String, dynamic>)['isAttendanceConfirmed'] == true).length}/${capacity}',
+                                          AppLocalizations.of(context)!.confirmedCount('${assignments.where((a) => (a.data() as Map<String, dynamic>)['isAttendanceConfirmed'] == true).length}/$capacity'),
                                           style: TextStyle(
                                                 fontSize: 11,
                                             color: assignments.length >= capacity 
@@ -2636,7 +2637,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
-                                              'Ausentes: ${assignments.where((a) => (a.data() as Map<String, dynamic>)['didNotAttend'] == true).length}',
+                                              AppLocalizations.of(context)!.absentCount(assignments.where((a) => (a.data() as Map<String, dynamic>)['didNotAttend'] == true).length.toString()),
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.red[700],
@@ -2779,7 +2780,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                               side: BorderSide(color: Colors.green[400]!),
                                                               avatar: Icon(Icons.check_circle, size: 16, color: Colors.green[700]),
                                                               label: Text(
-                                                                'PRESENTE',
+                                                                AppLocalizations.of(context)!.presentLabel,
                                                                 style: TextStyle(
                                                                   fontSize: 10,
                                                                   fontWeight: FontWeight.bold,
@@ -2873,8 +2874,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                         children: [
                                                           Text(
                                                             assignmentData['didNotAttend'] == true
-                                                                ? 'Não compareceu'
-                                                                : 'Atribuído originalmente',
+                                                                ? AppLocalizations.of(context)!.didNotAttend
+                                                                : AppLocalizations.of(context)!.originallyAssigned,
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                               color: assignmentData['didNotAttend'] == true
@@ -2920,9 +2921,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                                     borderRadius: BorderRadius.circular(12),
                                                                     border: Border.all(color: Colors.green[400]!, width: 1)
                                                                   ),
-                                                                  child: const Text(
-                                                                    'PRESENTE',
-                                                                    style: TextStyle(
+                                                                  child: Text(
+                                                                    AppLocalizations.of(context)!.presentLabel,
+                                                                    style: const TextStyle(
                                                       color: Colors.green,
                                                                       fontWeight: FontWeight.bold,
                                                                       fontSize: 11,

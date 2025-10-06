@@ -331,7 +331,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get deleteMinistry => 'Excluir Ministérios';
+  String get deleteMinistry => 'Excluir ministério';
 
   @override
   String get confirmDeleteMinistryQuestion =>
@@ -561,7 +561,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Bem-vindo de volta! Por favor, faça login para continuar';
 
   @override
-  String get email => 'E-mail';
+  String get email => 'Email';
 
   @override
   String get yourEmailExample => 'seu.email@exemplo.com';
@@ -1377,7 +1377,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get availablePermissions => 'Permissões Disponíveis';
 
   @override
-  String get noUserData => 'Não há dados de usuário';
+  String get noUserData => 'Sem dados de usuário';
 
   @override
   String get noName => 'Sem nome';
@@ -1392,7 +1392,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noRole => 'Sem Papel';
 
   @override
-  String get superUser => 'SuperUsuário';
+  String get superUser => 'SuperUser';
 
   @override
   String get yes => 'Sim';
@@ -1424,7 +1424,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String roleNotFound(String roleId) {
-    return 'Papel não encontrado: $roleId';
+    return 'Rol não encontrado: $roleId';
   }
 
   @override
@@ -1507,7 +1507,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get sectionTitleOptional => 'Título da Seção (Opcional)';
 
   @override
-  String get descriptionOptional => 'Descrição (Opcional)';
+  String get descriptionOptional => 'Descrição (opcional)';
 
   @override
   String get backgroundImageOptional => 'Imagem de Fundo (Opcional)';
@@ -2544,11 +2544,6 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String timeSlots(Object count) {
-    return '$count faixas horárias';
-  }
-
-  @override
   String get confirmDeleteAllTimeSlots =>
       'Tem certeza que deseja excluir todas as faixas de horário?';
 
@@ -2766,7 +2761,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createEvent => 'Criar Evento';
 
   @override
-  String get upcoming => 'Em breve';
+  String get upcoming => 'Próximos';
 
   @override
   String get thisWeek => 'Esta semana';
@@ -3107,7 +3102,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createFirstCult => 'Criar Primeiro Culto';
 
   @override
-  String get location => 'Local:';
+  String get location => 'Localização:';
 
   @override
   String get selectLocation => 'Selecionar localização';
@@ -3116,7 +3111,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addNewLocation => 'Adicionar nova localização';
 
   @override
-  String get locationName => 'Nome da localização';
+  String get locationName => 'Nome do local';
 
   @override
   String get street => 'Rua';
@@ -3822,6 +3817,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get available => 'Disponível';
 
   @override
+  String timeSlots(Object count) {
+    return '$count faixas horárias';
+  }
+
+  @override
   String get sessionDuration => 'Duração da Sessão';
 
   @override
@@ -3910,7 +3910,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get editProfile => 'Editar Perfil';
 
   @override
-  String get deleteRole => 'Excluir papel';
+  String get deleteRole => 'Excluir função';
 
   @override
   String get createNewRole => 'Criar Novo Papel';
@@ -4668,8 +4668,8 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String noEventsFor(Object ministry) {
-    return 'Não há eventos para $ministry';
+  String noEventsFor(Object date) {
+    return 'Não há eventos para $date';
   }
 
   @override
@@ -5052,4 +5052,356 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get noPermissionViewStatistics =>
       'Você não tem permissão para visualizar estas estatísticas.';
+
+  @override
+  String errorLoadingCultsColon(Object error) {
+    return 'Erro ao carregar os cultos: $error';
+  }
+
+  @override
+  String get tryAgain => 'Tentar novamente';
+
+  @override
+  String get saveLocationForFuture => 'Salvar esta localização para uso futuro';
+
+  @override
+  String get errorLoadingLocations =>
+      'Erro ao carregar localizações. Você pode inserir uma nova localização abaixo.';
+
+  @override
+  String get noSavedLocations =>
+      'Não há localizações salvas. Por favor, insira uma nova localização abaixo.';
+
+  @override
+  String get selectExistingLocation => 'Selecionar localização existente';
+
+  @override
+  String get chooseLocation => 'Escolha uma localização';
+
+  @override
+  String get enterNewLocation => 'Informar nova localização';
+
+  @override
+  String get createNewLocation => 'Criar nova localização';
+
+  @override
+  String errorSavingLocation(Object error) {
+    return 'Erro ao salvar localização: $error';
+  }
+
+  @override
+  String get timeSlotsTab => 'Faixas Horárias';
+
+  @override
+  String get music => 'Músicas';
+
+  @override
+  String get createTimeSlot => 'Criar faixa horária';
+
+  @override
+  String get newSchedule => 'Novo Horário';
+
+  @override
+  String get scheduleName => 'Nome do horário';
+
+  @override
+  String get startHour => 'Hora de início';
+
+  @override
+  String get endHour => 'Hora de término';
+
+  @override
+  String get endTimeMustBeAfterStartTime =>
+      'A hora de término deve ser posterior à hora de início';
+
+  @override
+  String get scheduleColor => 'Cor do horário';
+
+  @override
+  String get scheduleCreatedSuccessfully => 'Horário criado com sucesso';
+
+  @override
+  String errorCreatingSchedule(Object error) {
+    return 'Erro ao criar horário: $error';
+  }
+
+  @override
+  String get createSchedule => 'Criar Horário';
+
+  @override
+  String get noSongsAssignedToCult => 'Não há músicas atribuídas a este culto';
+
+  @override
+  String get addMusic => 'Adicionar Música';
+
+  @override
+  String errorReorderingSongs(Object error) {
+    return 'Erro ao reordenar músicas: $error';
+  }
+
+  @override
+  String get files => 'arquivos';
+
+  @override
+  String get addSongToCult => 'Adicionar Música ao Culto';
+
+  @override
+  String get songName => 'Nome da Música';
+
+  @override
+  String get minutesLabel => 'Minutos';
+
+  @override
+  String get secondsLabel => 'Segundos';
+
+  @override
+  String get songAddedSuccessfully => 'Música adicionada com sucesso';
+
+  @override
+  String errorAddingSong(Object error) {
+    return 'Erro ao adicionar música: $error';
+  }
+
+  @override
+  String get editSchedule => 'Editar Horário';
+
+  @override
+  String get scheduleDetails => 'Detalhes do Horário';
+
+  @override
+  String get timeSlotName => 'Nome da faixa horária';
+
+  @override
+  String get deleteSchedule => 'Excluir Horário';
+
+  @override
+  String get confirmDeleteSchedule =>
+      'Tem certeza que deseja excluir este horário? Todas as atribuições associadas também serão excluídas.';
+
+  @override
+  String get scheduleDeletedSuccessfully => 'Horário excluído com sucesso';
+
+  @override
+  String errorDeletingSchedule(Object error) {
+    return 'Erro ao excluir horário: $error';
+  }
+
+  @override
+  String get scheduleUpdatedSuccessfully => 'Horário atualizado com sucesso';
+
+  @override
+  String errorUpdatingSchedule(Object error) {
+    return 'Erro ao atualizar horário: $error';
+  }
+
+  @override
+  String get startTimeMustBeBeforeEnd =>
+      'A hora de início deve ser anterior à hora de fim';
+
+  @override
+  String get assignMinistry => 'Atribuir Ministério';
+
+  @override
+  String get noMinistriesAssigned => 'Não há ministérios atribuídos';
+
+  @override
+  String get temporaryMinistry => 'Ministério temporário';
+
+  @override
+  String get addRole => 'Adicionar Função';
+
+  @override
+  String get thisMinistryHasNoRoles =>
+      'Este ministério não tem funções definidas';
+
+  @override
+  String get defineRoles => 'Definir Funções';
+
+  @override
+  String get editCapacity => 'Editar capacidade';
+
+  @override
+  String get noPersonsAssigned => 'Não há pessoas designadas para esta função';
+
+  @override
+  String get addPerson => 'Adicionar Pessoa';
+
+  @override
+  String get deleteAssignment => 'Excluir designação';
+
+  @override
+  String get noInvitesSent => 'Nenhum convite enviado';
+
+  @override
+  String get songNotFound => 'Música não encontrada';
+
+  @override
+  String errorUploadingFile(Object error) {
+    return 'Erro ao enviar arquivo: $error';
+  }
+
+  @override
+  String uploadingProgress(Object progress) {
+    return 'Enviando: $progress%';
+  }
+
+  @override
+  String get fileUploadedSuccessfully => 'Arquivo enviado com sucesso';
+
+  @override
+  String errorPlayback(Object error) {
+    return 'Erro ao iniciar reprodução: $error';
+  }
+
+  @override
+  String get rewind10Seconds => 'Retroceder 10 segundos';
+
+  @override
+  String get pause => 'Pausar';
+
+  @override
+  String get play => 'Reproduzir';
+
+  @override
+  String get stop => 'Parar';
+
+  @override
+  String get forward10Seconds => 'Avançar 10 segundos';
+
+  @override
+  String orderLabel(Object order) {
+    return 'Ordem: $order';
+  }
+
+  @override
+  String get noFilesAssociated => 'Não há arquivos associados a esta música';
+
+  @override
+  String get uploadFile => 'Enviar Arquivo';
+
+  @override
+  String get fileNameless => 'Arquivo sem nome';
+
+  @override
+  String uploadedOn(Object date) {
+    return 'Subido el $date';
+  }
+
+  @override
+  String get score => 'Partitura/Documento';
+
+  @override
+  String get audio => 'Áudio';
+
+  @override
+  String errorSelectingFile(Object error) {
+    return 'Error ao selecionar arquivo: $error';
+  }
+
+  @override
+  String get loadingAudio => 'Carregando áudio...';
+
+  @override
+  String get preparingDocument => 'Preparando documento...';
+
+  @override
+  String get cannotOpenDocument => 'Não é possível abrir o documento';
+
+  @override
+  String errorOpeningDocument(Object error) {
+    return 'Erro ao abrir documento: $error';
+  }
+
+  @override
+  String downloadingProgress(Object progress) {
+    return 'Baixando: $progress%';
+  }
+
+  @override
+  String get cannotOpenDownloadedFile =>
+      'Não é possível abrir o arquivo baixado';
+
+  @override
+  String errorDownloadingFile(Object error) {
+    return 'Erro ao baixar e abrir arquivo: $error';
+  }
+
+  @override
+  String get deleteFile => 'Excluir arquivo';
+
+  @override
+  String get confirmDeleteFile =>
+      'Tem certeza que deseja excluir este arquivo?';
+
+  @override
+  String get fileDeletedSuccessfully => 'Arquivo excluído com sucesso';
+
+  @override
+  String errorDeletingFile(Object error) {
+    return 'Erro ao excluir arquivo: $error';
+  }
+
+  @override
+  String get create => 'Criar';
+
+  @override
+  String get cultsTab => 'Cultos';
+
+  @override
+  String get noGroupEventsScheduled => 'Não há eventos de grupos programados';
+
+  @override
+  String get noMinistryEventsScheduled =>
+      'Não há eventos de ministérios programados';
+
+  @override
+  String get noEventsScheduled => 'Não há eventos programados';
+
+  @override
+  String get attendanceSummary => 'Resumo de Presença';
+
+  @override
+  String roleLabel(Object role) {
+    return 'Função: $role';
+  }
+
+  @override
+  String confirmedCount(Object count) {
+    return 'Confirmados: $count';
+  }
+
+  @override
+  String absentCount(Object count) {
+    return 'Ausentes: $count';
+  }
+
+  @override
+  String get presentLabel => 'PRESENTE';
+
+  @override
+  String get originallyAssigned => 'Atribuído originalmente';
+
+  @override
+  String get didNotAttend => 'Não compareceu';
+
+  @override
+  String get roleId => 'Role ID';
+
+  @override
+  String get noRoleInfoAvailable => 'Sem informação de rol disponível';
+
+  @override
+  String get rolePermissions => 'Permissões do rol:';
+
+  @override
+  String get thisRoleHasNoPermissions =>
+      'Este rol não tem permissões atribuídas';
+
+  @override
+  String errorObtainingDiagnostic(Object error) {
+    return 'Erro ao obter diagnóstico: $error';
+  }
+
+  @override
+  String get id => 'ID';
 }
