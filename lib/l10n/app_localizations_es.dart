@@ -5093,11 +5093,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createNewLocation => 'Crear nueva localización';
 
   @override
-  String errorSavingLocation(Object error) {
-    return 'Error al guardar ubicación: $error';
-  }
-
-  @override
   String get timeSlotsTab => 'Franjas Horarias';
 
   @override
@@ -5617,7 +5612,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String errorLoadingSavedLocations(Object error) {
+  String errorLoadingSavedLocations(String error) {
     return 'Error al cargar ubicaciones guardadas: $error';
   }
 
@@ -5704,6 +5699,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get locationSavedSuccessfully => 'Ubicación guardada correctamente';
+
+  @override
+  String errorSavingLocation(String error) {
+    return 'Error al guardar ubicación: $error';
+  }
 
   @override
   String get churchLocationSavedSuccessfully =>
@@ -5847,7 +5847,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noEndDefined => 'sin fin definido';
 
   @override
-  String untilXOccurrences(Object count) {
+  String untilXOccurrences(int count) {
     return 'hasta $count ocurrencias';
   }
 
@@ -5863,4 +5863,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String errorUploadingImage(String error) {
     return 'Error al hacer upload de la imagen: $error';
   }
+
+  @override
+  String get defineRecurringEventFrequency =>
+      'Define la frecuencia de tu evento recurrente';
+
+  @override
+  String get intervalExplanation =>
+      'El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.';
+
+  @override
+  String get singleEventNotRecurring => 'Evento único (no recurrente)';
+
+  @override
+  String get repeats => 'Repite';
+
+  @override
+  String everyXDays(int interval) {
+    return 'cada $interval días';
+  }
+
+  @override
+  String get daily => 'diariamente';
+
+  @override
+  String everyXWeeks(int interval) {
+    return 'cada $interval semanas';
+  }
+
+  @override
+  String get weekly => 'semanalmente';
+
+  @override
+  String everyXMonths(int interval) {
+    return 'cada $interval meses';
+  }
+
+  @override
+  String get monthly => 'mensualmente';
+
+  @override
+  String everyXYears(int interval) {
+    return 'cada $interval años';
+  }
+
+  @override
+  String get yearly => 'anualmente';
+
+  @override
+  String get until => 'hasta';
+
+  @override
+  String get defineEventOccurrenceType =>
+      'Define si tu evento ocurrirá una única vez o será recurrente';
 }

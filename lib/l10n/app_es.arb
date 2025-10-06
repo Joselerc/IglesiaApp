@@ -2422,7 +2422,6 @@
   "chooseLocation": "Elige una localización",
   "enterNewLocation": "Ingresar nueva localización",
   "createNewLocation": "Crear nueva localización",
-  "errorSavingLocation": "Error al guardar localización: {error}",
   "timeSlotsTab": "Franjas Horarias",
   "music": "Música",
   "createTimeSlot": "Crear franja horaria",
@@ -2656,6 +2655,13 @@
   "savedLocation": "Localización Guardada",
   "errorLoadingLocations": "Error al cargar ubicaciones: {error}",
   "errorLoadingSavedLocations": "Error al cargar ubicaciones guardadas: {error}",
+  "@errorLoadingSavedLocations": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "pleaseSelectChurchLocation": "Por favor, selecciona una ubicación de iglesia",
   "pleaseSelectASavedLocation": "Por favor, selecciona una localización guardada",
   "eventAddress": "Dirección del Evento",
@@ -2687,6 +2693,13 @@
   "userNotAuthenticated": "Usuario no autenticado",
   "locationSavedSuccessfully": "Ubicación guardada correctamente",
   "errorSavingLocation": "Error al guardar ubicación: {error}",
+  "@errorSavingLocation": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "churchLocationSavedSuccessfully": "Ubicación de iglesia guardada correctamente",
   "onlineEventLink": "Link del Evento En Línea",
   "meetingUrlRequired": "URL de la Reunión *",
@@ -2747,5 +2760,58 @@
         "type": "String"
       }
     }
-  }
+  },
+  "defineRecurringEventFrequency": "Define la frecuencia de tu evento recurrente",
+  "intervalExplanation": "El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.",
+  "singleEventNotRecurring": "Evento único (no recurrente)",
+  "repeats": "Repite",
+  "everyXDays": "cada {interval} días",
+  "@everyXDays": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "daily": "diariamente",
+  "everyXWeeks": "cada {interval} semanas",
+  "@everyXWeeks": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "weekly": "semanalmente",
+  "everyXMonths": "cada {interval} meses",
+  "@everyXMonths": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "monthly": "mensualmente",
+  "everyXYears": "cada {interval} años",
+  "@everyXYears": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "yearly": "anualmente",
+  "noEndDefined": "sin fin definido",
+  "untilXOccurrences": "hasta {count} ocurrencias",
+  "@untilXOccurrences": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "until": "hasta",
+  "untilSpecificDate": "hasta fecha específica",
+  "defineEventOccurrenceType": "Define si tu evento ocurrirá una única vez o será recurrente",
+  "create": "Crear"
 }

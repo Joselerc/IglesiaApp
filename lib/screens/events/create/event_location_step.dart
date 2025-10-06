@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EventLocationType {
   static const String presential = 'presential';
@@ -131,7 +132,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar ubicaciones: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingLocations(e.toString()))),
         );
         setState(() => _isLoadingChurchLocations = false);
       }
@@ -161,7 +162,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar ubicaciones guardadas: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingSavedLocations(e.toString()))),
         );
         setState(() => _isLoadingSavedLocations = false);
       }
@@ -171,7 +172,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
   Future<void> _saveLocation() async {
     if (_locationNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor ingresa un nombre para la ubicación')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterLocationNameForSave)),
       );
       return;
     }
@@ -207,7 +208,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
       await _loadSavedLocations();
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ubicación guardada correctamente')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.locationSavedSuccessfully)),
       );
       
       setState(() {
@@ -216,7 +217,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar ubicación: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingLocation(e.toString()))),
       );
     } finally {
       setState(() => _savingLocation = false);
@@ -227,7 +228,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
   Future<void> _saveChurchLocation() async {
     if (_locationNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor ingresa un nombre para la ubicación')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterLocationNameForSave)),
       );
       return;
     }
@@ -264,7 +265,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
       await _loadChurchLocations();
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ubicación de iglesia guardada correctamente')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.churchLocationSavedSuccessfully)),
       );
       
       setState(() {
@@ -273,7 +274,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar ubicación: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingLocation(e.toString()))),
       );
     } finally {
       setState(() => _savingLocation = false);
@@ -305,7 +306,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
     // Verificar que si se seleccionó ubicación de iglesia, se haya elegido una
     if (_useChurchLocation && (_selectedChurchLocationId == null || _selectedChurchLocationId!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecciona una ubicación de iglesia')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectChurchLocation)),
       );
       return;
     }
@@ -313,7 +314,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
     // Verificar que si se seleccionó ubicación guardada, se haya elegido una
     if (_useSavedLocation && (_selectedSavedLocationId == null || _selectedSavedLocationId!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecciona uma localização guardada')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectASavedLocation)),
       );
       return;
     }
@@ -373,7 +374,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Localização do Evento',
+                  AppLocalizations.of(context)!.eventLocation,
                   style: AppTextStyles.subtitle1.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -381,7 +382,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Defina onde o evento acontecerá',
+                  AppLocalizations.of(context)!.defineWhereEventWillHappen,
                   style: AppTextStyles.bodyText2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -421,7 +422,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            'Tipo de Evento',
+                            AppLocalizations.of(context)!.eventType,
                             style: AppTextStyles.subtitle2.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -438,7 +439,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           Expanded(
                             child: _buildTypeButton(
                               EventLocationType.presential,
-                              'Presencial',
+                              AppLocalizations.of(context)!.presential,
                               Icons.location_on,
                               Colors.green,
                             ),
@@ -449,7 +450,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           Expanded(
                             child: _buildTypeButton(
                               EventLocationType.online,
-                              'Online',
+                              AppLocalizations.of(context)!.online,
                               Icons.videocam,
                               Colors.blue,
                             ),
@@ -460,7 +461,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           Expanded(
                             child: _buildTypeButton(
                               EventLocationType.hybrid,
-                              'Híbrido', 
+                              AppLocalizations.of(context)!.hybrid, 
                               Icons.sync_alt,
                               Colors.purple,
                             ),
@@ -498,7 +499,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
-                          child: const Text('Voltar'),
+                          child: Text(AppLocalizations.of(context)!.back),
                         ),
                         const SizedBox(width: 12),
                         OutlinedButton(
@@ -511,7 +512,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
-                          child: const Text('Cancelar'),
+                          child: Text(AppLocalizations.of(context)!.cancel),
                         ),
                       ],
                     ),
@@ -525,8 +526,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Próximo',
+                      child: Text(
+                        AppLocalizations.of(context)!.next,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -621,7 +622,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Localizações da Igreja',
+                    AppLocalizations.of(context)!.churchLocations,
                     style: AppTextStyles.subtitle2.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -632,8 +633,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
               
               // Switch para usar ubicación de la iglesia
               SwitchListTile(
-                title: const Text('Usar localização da igreja'),
-                subtitle: const Text('Selecione um dos locais registrados'),
+                title: Text(AppLocalizations.of(context)!.useChurchLocation),
+                subtitle: Text(AppLocalizations.of(context)!.selectRegisteredLocation),
                 value: _useChurchLocation,
                 activeColor: AppColors.primary,
                 onChanged: (bool value) {
@@ -664,9 +665,9 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       children: [
                         Icon(Icons.info_outline, color: Colors.grey.shade600),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Não há localizações da igreja disponíveis',
-                          style: TextStyle(color: Colors.grey),
+                        Text(
+                          AppLocalizations.of(context)!.noChurchLocationsAvailable,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
@@ -675,7 +676,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                   DropdownButtonFormField<String>(
                     value: _selectedChurchLocationId,
                     decoration: InputDecoration(
-                      labelText: 'Localização da Igreja',
+                      labelText: AppLocalizations.of(context)!.churchLocation,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -685,7 +686,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       final data = doc.data() as Map<String, dynamic>;
                       return DropdownMenuItem<String>(
                         value: doc.id,
-                        child: Text(data['name'] ?? 'Sem nome'),
+                        child: Text(data['name'] ?? AppLocalizations.of(context)!.noName),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -709,7 +710,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       });
                     },
                     validator: _useChurchLocation
-                        ? (value) => value == null ? 'Por favor selecione uma localização' : null
+                        ? (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectALocation : null
                         : null,
                   ),
               ],
@@ -751,7 +752,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Minhas Localizações Salvas',
+                    AppLocalizations.of(context)!.mySavedLocations,
                     style: AppTextStyles.subtitle2.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -762,8 +763,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
               
               // Switch para usar ubicación guardada
               SwitchListTile(
-                title: const Text('Usar localização salva'),
-                subtitle: const Text('Selecione uma das suas localizações salvas'),
+                title: Text(AppLocalizations.of(context)!.useSavedLocation),
+                subtitle: Text(AppLocalizations.of(context)!.selectSavedLocation),
                 value: _useSavedLocation,
                 activeColor: AppColors.primary,
                 onChanged: !_useChurchLocation
@@ -796,9 +797,9 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       children: [
                         Icon(Icons.info_outline, color: Colors.grey.shade600),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Não há localizações salvas disponíveis',
-                          style: TextStyle(color: Colors.grey),
+                        Text(
+                          AppLocalizations.of(context)!.noSavedLocationsAvailable,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
@@ -807,7 +808,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                   DropdownButtonFormField<String>(
                     value: _selectedSavedLocationId,
                     decoration: InputDecoration(
-                      labelText: 'Localização Salva',
+                      labelText: AppLocalizations.of(context)!.savedLocation,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -817,7 +818,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       final data = doc.data() as Map<String, dynamic>;
                       return DropdownMenuItem<String>(
                         value: doc.id,
-                        child: Text(data['name'] ?? 'Sem nome'),
+                        child: Text(data['name'] ?? AppLocalizations.of(context)!.noName),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -841,7 +842,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       });
                     },
                     validator: _useSavedLocation && !_useChurchLocation
-                        ? (value) => value == null ? 'Por favor selecione uma localização' : null
+                        ? (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectALocation : null
                         : null,
                   ),
               ],
@@ -884,7 +885,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Endereço do Evento',
+                      AppLocalizations.of(context)!.eventAddress,
                       style: AppTextStyles.subtitle2.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -900,15 +901,15 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     TextFormField(
                       controller: _cityController,
                       decoration: InputDecoration(
-                        labelText: 'Cidade *',
-                        hintText: 'Digite a cidade do evento',
+                        labelText: AppLocalizations.of(context)!.cityRequired,
+                        hintText: AppLocalizations.of(context)!.enterEventCity,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       validator: (value) => value == null || value.isEmpty 
-                          ? 'Por favor digite a cidade' 
+                          ? AppLocalizations.of(context)!.pleaseEnterCity 
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -917,15 +918,15 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     TextFormField(
                       controller: _stateController,
                       decoration: InputDecoration(
-                        labelText: 'Estado *',
-                        hintText: 'Digite o estado do evento',
+                        labelText: AppLocalizations.of(context)!.stateRequired,
+                        hintText: AppLocalizations.of(context)!.enterEventState,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       validator: (value) => value == null || value.isEmpty 
-                          ? 'Por favor digite o estado' 
+                          ? AppLocalizations.of(context)!.pleaseEnterState 
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -934,15 +935,15 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     TextFormField(
                       controller: _streetController,
                       decoration: InputDecoration(
-                        labelText: 'Rua *',
-                        hintText: 'Digite a rua do evento',
+                        labelText: AppLocalizations.of(context)!.streetRequired,
+                        hintText: AppLocalizations.of(context)!.enterEventStreet,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                       ),
                       validator: (value) => value == null || value.isEmpty 
-                          ? 'Por favor digite a rua' 
+                                ? AppLocalizations.of(context)!.pleaseEnterStreet
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -955,15 +956,15 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           child: TextFormField(
                             controller: _numberController,
                             decoration: InputDecoration(
-                              labelText: 'Número *',
-                              hintText: 'Ex: 123',
+                              labelText: AppLocalizations.of(context)!.numberRequired,
+                              hintText: AppLocalizations.of(context)!.exampleNumber,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                             ),
                             validator: (value) => value == null || value.isEmpty 
-                                ? 'Por favor digite o número' 
+                                ? AppLocalizations.of(context)!.pleaseEnterNumber 
                                 : null,
                           ),
                         ),
@@ -973,8 +974,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
                           child: TextFormField(
                             controller: _postalCodeController,
                             decoration: InputDecoration(
-                              labelText: 'CEP',
-                              hintText: 'Ex: 12345-678',
+                              labelText: AppLocalizations.of(context)!.postalCode,
+                              hintText: AppLocalizations.of(context)!.examplePostalCode,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -990,8 +991,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     TextFormField(
                       controller: _neighborhoodController,
                       decoration: InputDecoration(
-                        labelText: 'Bairro',
-                        hintText: 'Digite o bairro',
+                        labelText: AppLocalizations.of(context)!.neighborhood,
+                        hintText: AppLocalizations.of(context)!.enterNeighborhood,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -1003,8 +1004,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     TextFormField(
                       controller: _complementController,
                       decoration: InputDecoration(
-                        labelText: 'Complemento',
-                        hintText: 'Apartamento, sala, etc.',
+                        labelText: AppLocalizations.of(context)!.complement,
+                        hintText: AppLocalizations.of(context)!.apartmentRoomEtc,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -1016,7 +1017,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                     const SizedBox(height: 24),
                     
                     CheckboxListTile(
-                      title: const Text('Salvar esta localização para uso futuro'),
+                      title: Text(AppLocalizations.of(context)!.saveLocationForFutureUse),
                       value: _saveThisLocation,
                       onChanged: (value) {
                         setState(() {
@@ -1033,8 +1034,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       TextFormField(
                         controller: _locationNameController,
                         decoration: InputDecoration(
-                          labelText: 'Nome da localização *',
-                          hintText: 'Ex: Meu Local Favorito',
+                          labelText: AppLocalizations.of(context)!.locationNameRequired,
+                          hintText: AppLocalizations.of(context)!.exampleLocationName,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -1042,7 +1043,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                         ),
                         validator: _saveThisLocation 
                             ? (value) => value == null || value.isEmpty 
-                                ? 'Por favor digite um nome para a localização' 
+                                ? AppLocalizations.of(context)!.pleaseEnterLocationName 
                                 : null
                             : null,
                       ),
@@ -1050,7 +1051,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                       const SizedBox(height: 16),
                       
                       CheckboxListTile(
-                        title: const Text('Salvar como localização da igreja (admin)'),
+                        title: Text(AppLocalizations.of(context)!.saveAsChurchLocationAdmin),
                         value: _saveAsChurchLocation,
                         onChanged: (value) {
                           setState(() {
@@ -1079,7 +1080,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Salvar Localização'),
+                            : Text(AppLocalizations.of(context)!.saveLocation),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -1140,7 +1141,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Link do Evento Online',
+                AppLocalizations.of(context)!.onlineEventLink,
                 style: AppTextStyles.subtitle2.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1153,8 +1154,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
           TextFormField(
             controller: _urlController,
             decoration: InputDecoration(
-              labelText: 'URL da Reunião *',
-              hintText: 'Ex: https://zoom.us/j/12345678',
+              labelText: AppLocalizations.of(context)!.meetingUrlRequired,
+              hintText: AppLocalizations.of(context)!.exampleZoomUrl,
               prefixIcon: const Icon(Icons.videocam),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -1162,7 +1163,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             ),
             validator: (value) => value == null || value.isEmpty || !Uri.parse(value).isAbsolute
-                ? 'Por favor digite um URL válido'
+                ? AppLocalizations.of(context)!.pleaseEnterValidUrl
                 : null,
           ),
           
@@ -1172,8 +1173,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
           TextFormField(
             maxLines: 3,
             decoration: InputDecoration(
-              labelText: 'Instruções de Acesso (opcional)',
-              hintText: 'Instruções para entrar na reunião online, senhas, etc.',
+              labelText: AppLocalizations.of(context)!.accessInstructionsOptional,
+              hintText: AppLocalizations.of(context)!.instructionsToJoinMeeting,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -1219,7 +1220,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Opção Online (Híbrido)',
+                AppLocalizations.of(context)!.onlineOptionHybrid,
                 style: AppTextStyles.subtitle2.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1232,8 +1233,8 @@ class _EventLocationStepState extends State<EventLocationStep> {
           TextFormField(
             controller: _urlController,
             decoration: InputDecoration(
-              labelText: 'URL da Reunião *',
-              hintText: 'Ex: https://zoom.us/j/12345678',
+              labelText: AppLocalizations.of(context)!.meetingUrlRequired,
+              hintText: AppLocalizations.of(context)!.exampleZoomUrl,
               prefixIcon: const Icon(Icons.link),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -1242,7 +1243,7 @@ class _EventLocationStepState extends State<EventLocationStep> {
             ),
             validator: (value) => _locationType == EventLocationType.hybrid &&
                     (value == null || value.isEmpty || !Uri.parse(value).isAbsolute)
-                ? 'Para eventos híbridos, por favor digite um URL válido'
+                ? AppLocalizations.of(context)!.forHybridEventsPleaseEnterValidUrl
                 : null,
           ),
         ],

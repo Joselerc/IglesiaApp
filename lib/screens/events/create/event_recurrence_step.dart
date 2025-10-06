@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 enum RecurrenceType {
   single,
@@ -66,7 +67,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
             children: [
               // Título y descripción
               Text(
-                'Configurações de Recorrência',
+                AppLocalizations.of(context)!.recurrenceSettings,
                 style: AppTextStyles.subtitle1.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -74,7 +75,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Defina a frequência do seu evento recorrente',
+                AppLocalizations.of(context)!.defineRecurringEventFrequency,
                 style: AppTextStyles.bodyText2.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -114,7 +115,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Frequência',
+                          AppLocalizations.of(context)!.frequency,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -140,7 +141,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'O número indica o intervalo de repetição. Por exemplo: "2 Semanalmente" significa que o evento se repetirá a cada 2 semanas.',
+                              AppLocalizations.of(context)!.intervalExplanation,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue[700],
@@ -154,7 +155,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
 
                     // Label más claro
                     Text(
-                      'Repetir a cada:',
+                      AppLocalizations.of(context)!.repeatEvery,
                       style: AppTextStyles.bodyText2.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -219,19 +220,19 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             items: [
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.daily,
-                                child: Text(_interval > 1 ? 'dias' : 'dia'),
+                                child: Text(_interval > 1 ? AppLocalizations.of(context)!.days : AppLocalizations.of(context)!.day),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.weekly,
-                                child: Text(_interval > 1 ? 'semanas' : 'semana'),
+                                child: Text(_interval > 1 ? AppLocalizations.of(context)!.weeks : AppLocalizations.of(context)!.week),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.monthly,
-                                child: Text(_interval > 1 ? 'meses' : 'mês'),
+                                child: Text(_interval > 1 ? AppLocalizations.of(context)!.months : AppLocalizations.of(context)!.month),
                               ),
                               DropdownMenuItem(
                                 value: RecurrenceFrequency.yearly,
-                                child: Text(_interval > 1 ? 'anos' : 'ano'),
+                                child: Text(_interval > 1 ? AppLocalizations.of(context)!.years : AppLocalizations.of(context)!.year),
                               ),
                             ],
                             onChanged: (value) {
@@ -303,7 +304,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Termina',
+                          AppLocalizations.of(context)!.ends,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -333,7 +334,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             ),
                             child: RadioListTile<RecurrenceEndType>(
                               title: Text(
-                                'Nunca',
+                                AppLocalizations.of(context)!.never,
                                 style: TextStyle(
                                   fontWeight: _endType == RecurrenceEndType.never
                                       ? FontWeight.w600
@@ -368,7 +369,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             child: RadioListTile<RecurrenceEndType>(
                               title: Row(
                                 children: [
-                                  const Text('Após'),
+                                  Text(AppLocalizations.of(context)!.after),
                                   const SizedBox(width: 8),
                                   SizedBox(
                                     width: 60,
@@ -391,7 +392,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text('ocorrências'),
+                                  Text(AppLocalizations.of(context)!.occurrences),
                                 ],
                               ),
                               value: RecurrenceEndType.afterOccurrences,
@@ -579,37 +580,37 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
 
   String _getRecurrenceDescription() {
     if (_type == RecurrenceType.single) {
-      return 'Evento único (não recorrente)';
+      return AppLocalizations.of(context)!.singleEventNotRecurring;
     }
     
-    String result = 'Repete ';
+    String result = AppLocalizations.of(context)!.repeats + ' ';
     
     switch (_frequency) {
       case RecurrenceFrequency.daily:
-        result += _interval > 1 ? 'a cada $_interval dias' : 'diariamente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXDays(_interval) : AppLocalizations.of(context)!.daily;
         break;
       case RecurrenceFrequency.weekly:
-        result += _interval > 1 ? 'a cada $_interval semanas' : 'semanalmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXWeeks(_interval) : AppLocalizations.of(context)!.weekly;
         break;
       case RecurrenceFrequency.monthly:
-        result += _interval > 1 ? 'a cada $_interval meses' : 'mensalmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXMonths(_interval) : AppLocalizations.of(context)!.monthly;
         break;
       case RecurrenceFrequency.yearly:
-        result += _interval > 1 ? 'a cada $_interval anos' : 'anualmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXYears(_interval) : AppLocalizations.of(context)!.yearly;
         break;
     }
     
     switch (_endType) {
       case RecurrenceEndType.never:
-        result += ', sem fim definido';
+        result += ', ${AppLocalizations.of(context)!.noEndDefined}';
         break;
       case RecurrenceEndType.afterOccurrences:
-        result += ', até $_occurrences ocorrências';
+        result += ', ${AppLocalizations.of(context)!.untilXOccurrences(_occurrences)}';
         break;
       case RecurrenceEndType.onDate:
         result += _endDate != null 
-            ? ', até ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-            : ', até data específica';
+            ? ', ${AppLocalizations.of(context)!.until} ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
+            : ', ${AppLocalizations.of(context)!.untilSpecificDate}';
         break;
     }
     
@@ -617,20 +618,20 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
   }
 
   String _getIntervalDescription() {
-    String result = 'Repete ';
+    String result = AppLocalizations.of(context)!.repeats + ' ';
     
     switch (_frequency) {
       case RecurrenceFrequency.daily:
-        result += _interval > 1 ? 'a cada $_interval dias' : 'diariamente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXDays(_interval) : AppLocalizations.of(context)!.daily;
         break;
       case RecurrenceFrequency.weekly:
-        result += _interval > 1 ? 'a cada $_interval semanas' : 'semanalmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXWeeks(_interval) : AppLocalizations.of(context)!.weekly;
         break;
       case RecurrenceFrequency.monthly:
-        result += _interval > 1 ? 'a cada $_interval meses' : 'mensalmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXMonths(_interval) : AppLocalizations.of(context)!.monthly;
         break;
       case RecurrenceFrequency.yearly:
-        result += _interval > 1 ? 'a cada $_interval anos' : 'anualmente';
+        result += _interval > 1 ? AppLocalizations.of(context)!.everyXYears(_interval) : AppLocalizations.of(context)!.yearly;
         break;
     }
     
@@ -651,7 +652,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Recorrência do Evento',
+              AppLocalizations.of(context)!.eventRecurrence,
               style: AppTextStyles.subtitle1.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -659,7 +660,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Defina se seu evento acontecerá uma única vez ou será recorrente',
+              AppLocalizations.of(context)!.defineEventOccurrenceType,
               style: AppTextStyles.bodyText2.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -697,7 +698,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Tipo de Evento',
+                        AppLocalizations.of(context)!.eventType,
                         style: AppTextStyles.subtitle2.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -706,16 +707,16 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                   ),
                   const SizedBox(height: 16),
                   SegmentedButton<RecurrenceType>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: RecurrenceType.single,
-                        label: Text('Único'),
-                        icon: Icon(Icons.event),
+                        label: Text(AppLocalizations.of(context)!.single),
+                        icon: const Icon(Icons.event),
                       ),
                       ButtonSegment(
                         value: RecurrenceType.recurring,
-                        label: Text('Recorrente'),
-                        icon: Icon(Icons.repeat),
+                        label: Text(AppLocalizations.of(context)!.recurring),
+                        icon: const Icon(Icons.repeat),
                       ),
                     ],
                     selected: {_type},
@@ -788,7 +789,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      child: const Text('Voltar'),
+                      child: Text(AppLocalizations.of(context)!.back),
                     ),
                     const SizedBox(width: 12),
                     OutlinedButton(
@@ -801,7 +802,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      child: const Text('Cancelar'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ],
                 ),
@@ -815,7 +816,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
-                  child: const Text('Criar'),
+                  child: Text(AppLocalizations.of(context)!.create),
                 ),
               ],
             ),

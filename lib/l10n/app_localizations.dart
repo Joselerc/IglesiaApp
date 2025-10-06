@@ -9122,12 +9122,6 @@ abstract class AppLocalizations {
   /// **'Crear nueva localización'**
   String get createNewLocation;
 
-  /// No description provided for @errorSavingLocation.
-  ///
-  /// In es, this message translates to:
-  /// **'Error al guardar ubicación: {error}'**
-  String errorSavingLocation(Object error);
-
   /// No description provided for @timeSlotsTab.
   ///
   /// In es, this message translates to:
@@ -10020,7 +10014,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Error al cargar ubicaciones guardadas: {error}'**
-  String errorLoadingSavedLocations(Object error);
+  String errorLoadingSavedLocations(String error);
 
   /// No description provided for @pleaseSelectChurchLocation.
   ///
@@ -10177,6 +10171,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ubicación guardada correctamente'**
   String get locationSavedSuccessfully;
+
+  /// No description provided for @errorSavingLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar ubicación: {error}'**
+  String errorSavingLocation(String error);
 
   /// No description provided for @churchLocationSavedSuccessfully.
   ///
@@ -10434,7 +10434,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'hasta {count} ocurrencias'**
-  String untilXOccurrences(Object count);
+  String untilXOccurrences(int count);
 
   /// No description provided for @untilSpecificDate.
   ///
@@ -10453,6 +10453,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al hacer upload de la imagen: {error}'**
   String errorUploadingImage(String error);
+
+  /// No description provided for @defineRecurringEventFrequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Define la frecuencia de tu evento recurrente'**
+  String get defineRecurringEventFrequency;
+
+  /// No description provided for @intervalExplanation.
+  ///
+  /// In es, this message translates to:
+  /// **'El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.'**
+  String get intervalExplanation;
+
+  /// No description provided for @singleEventNotRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento único (no recurrente)'**
+  String get singleEventNotRecurring;
+
+  /// No description provided for @repeats.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite'**
+  String get repeats;
+
+  /// No description provided for @everyXDays.
+  ///
+  /// In es, this message translates to:
+  /// **'cada {interval} días'**
+  String everyXDays(int interval);
+
+  /// No description provided for @daily.
+  ///
+  /// In es, this message translates to:
+  /// **'diariamente'**
+  String get daily;
+
+  /// No description provided for @everyXWeeks.
+  ///
+  /// In es, this message translates to:
+  /// **'cada {interval} semanas'**
+  String everyXWeeks(int interval);
+
+  /// No description provided for @weekly.
+  ///
+  /// In es, this message translates to:
+  /// **'semanalmente'**
+  String get weekly;
+
+  /// No description provided for @everyXMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'cada {interval} meses'**
+  String everyXMonths(int interval);
+
+  /// No description provided for @monthly.
+  ///
+  /// In es, this message translates to:
+  /// **'mensualmente'**
+  String get monthly;
+
+  /// No description provided for @everyXYears.
+  ///
+  /// In es, this message translates to:
+  /// **'cada {interval} años'**
+  String everyXYears(int interval);
+
+  /// No description provided for @yearly.
+  ///
+  /// In es, this message translates to:
+  /// **'anualmente'**
+  String get yearly;
+
+  /// No description provided for @until.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta'**
+  String get until;
+
+  /// No description provided for @defineEventOccurrenceType.
+  ///
+  /// In es, this message translates to:
+  /// **'Define si tu evento ocurrirá una única vez o será recurrente'**
+  String get defineEventOccurrenceType;
 }
 
 class _AppLocalizationsDelegate

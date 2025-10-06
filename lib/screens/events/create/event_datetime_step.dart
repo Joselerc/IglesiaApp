@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EventDateTimeStep extends StatefulWidget {
   final Function(Map<String, dynamic> dateTimeData) onNext;
@@ -193,12 +194,12 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
   }
 
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Selecionar data';
+    if (date == null) return AppLocalizations.of(context)!.selectDate;
     return '${date.day}/${date.month}/${date.year}';
   }
 
   String _formatTime(TimeOfDay? time) {
-    if (time == null) return 'Selecionar hora';
+    if (time == null) return AppLocalizations.of(context)!.selectTime;
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
@@ -218,7 +219,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Data e Hora do Evento',
+                AppLocalizations.of(context)!.eventDateAndTime,
                 style: AppTextStyles.subtitle1.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -226,7 +227,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Defina quando o evento começa e termina',
+                AppLocalizations.of(context)!.defineWhenEventStartsAndEnds,
                 style: AppTextStyles.bodyText2.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -266,7 +267,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Início',
+                          AppLocalizations.of(context)!.start,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -398,7 +399,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Fim',
+                          AppLocalizations.of(context)!.end,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -512,7 +513,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
-                        child: const Text('Voltar'),
+                        child: Text(AppLocalizations.of(context)!.back),
                       ),
                       const SizedBox(width: 12),
                       OutlinedButton(
@@ -525,7 +526,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
-                        child: const Text('Cancelar'),
+                        child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                     ],
                   ),
@@ -539,7 +540,7 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    child: const Text('Próximo'),
+                    child: Text(AppLocalizations.of(context)!.next),
                   ),
                 ],
               ),
