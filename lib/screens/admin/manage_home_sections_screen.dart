@@ -83,8 +83,8 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     switch (type) {
       case HomeScreenSectionType.announcements:
         iconData = Icons.campaign;
-        iconColor = Colors.orange[700]!;
-        backgroundColor = Colors.orange[100]!;
+        iconColor = AppColors.primary;
+        backgroundColor = AppColors.primary.withOpacity(0.1);
         break;
       case HomeScreenSectionType.events:
         iconData = Icons.event;
@@ -427,13 +427,13 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                                  Icon(
                                    section.hideWhenEmpty ? Icons.visibility_off : Icons.visibility,
                                    size: 16,
-                                   color: section.hideWhenEmpty ? Colors.orange : Colors.green,
+                                   color: section.hideWhenEmpty ? AppColors.accent : Colors.green,
                                  ),
                                  const SizedBox(width: 4),
                                  Text(
                                    section.hideWhenEmpty ? AppLocalizations.of(context)!.hiddenWhenEmpty : AppLocalizations.of(context)!.alwaysVisible,
                                    style: AppTextStyles.caption.copyWith(
-                                     color: section.hideWhenEmpty ? Colors.orange : Colors.green,
+                                     color: section.hideWhenEmpty ? AppColors.accent : Colors.green,
                                    ),
                                  ),
                                  const SizedBox(width: 8),

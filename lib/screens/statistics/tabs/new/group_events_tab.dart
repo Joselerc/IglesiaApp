@@ -786,7 +786,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                     title: AppLocalizations.of(context)!.eventsLabel,
                     count: stats['totalEvents'] ?? 0,
                     icon: Icons.event,
-                    color: Colors.orange[300]!,
+                    color: AppColors.primary,
                     onTap: null,
                   ),
                   const SizedBox(width: 12),

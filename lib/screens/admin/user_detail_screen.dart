@@ -1094,7 +1094,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             icon: Icons.groups,
             label: AppLocalizations.of(context)!.groupEventsAttended,
             value: _totalGroupEvents.toString(),
-            iconColor: const Color(0xFFFFA726),
+            iconColor: AppColors.primary,
             isLast: true,
           ),
         ],

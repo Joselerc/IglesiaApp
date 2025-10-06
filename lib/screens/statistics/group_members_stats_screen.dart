@@ -716,7 +716,7 @@ class _GroupMembersStatsScreenState extends State<GroupMembersStatsScreen> with 
     if (percentage >= 0.8) {
       return Colors.green;
     } else if (percentage >= 0.5) {
-      return Colors.orange;
+      return Colors.amber;
     } else {
       return Colors.red;
     }

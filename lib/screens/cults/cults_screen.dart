@@ -666,7 +666,7 @@ class _CultsScreenState extends State<CultsScreen> {
                               _saveThisLocation = value ?? false;
                             });
                           },
-                          activeColor: Colors.deepOrange,
+                          activeColor: AppColors.primary,
                           checkColor: Colors.white,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                           controlAffinity: ListTileControlAffinity.leading,
@@ -704,7 +704,7 @@ class _CultsScreenState extends State<CultsScreen> {
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepOrange,
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -858,8 +858,8 @@ class _CultsScreenState extends State<CultsScreen> {
             icon: const Icon(Icons.add_location_alt),
             label: Text(AppLocalizations.of(context)!.createNewLocation),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.deepOrange,
-              side: const BorderSide(color: Colors.deepOrange),
+              foregroundColor: AppColors.primary,
+              side: BorderSide(color: AppColors.primary),
             ),
           ),
         const SizedBox(height: 8),

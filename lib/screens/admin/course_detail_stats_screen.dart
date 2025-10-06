@@ -156,7 +156,7 @@ class _CourseDetailStatsScreenState extends State<CourseDetailStatsScreen> {
     return _buildStatsCard(
       title: AppLocalizations.of(context)!.completion,
       icon: Icons.hourglass_bottom_outlined,
-      iconColor: Colors.orange,
+      iconColor: AppColors.primary,
       children: [
         _buildStatRow('Tempo Médio de Conclusão:', _formatDuration(stats.averageCompletionTime) ?? 'N/A'),
         _buildStatRow('Taxa de Conclusão:', '${stats.completionRate.toStringAsFixed(1)}%'),

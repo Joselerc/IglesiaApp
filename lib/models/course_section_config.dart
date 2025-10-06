@@ -75,7 +75,7 @@ class CourseSectionConfig {
   // Método para obtener el color de fondo como un entero (para Flutter)
   int getBackgroundColorValue() {
     if (cardBackgroundColor == null || !cardBackgroundColor!.startsWith('#')) {
-      return 0xFFFFA726; // Naranja por defecto
+      return 0xFF1E6FF2; // Azul primary por defecto
     }
     
     try {
@@ -85,7 +85,7 @@ class CourseSectionConfig {
       }
       return int.parse('0x$hex');
     } catch (e) {
-      return 0xFFFFA726; // Naranja por defecto en caso de error
+      return 0xFF1E6FF2; // Azul primary por defecto en caso de error
     }
   }
 

@@ -761,7 +761,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
       case 3: // Cultos
         return Colors.purple;
       case 4: // Servicios
-        return Colors.orange;
+        return AppColors.primary;
       case 5: // Aconselhamento
         return Colors.blue;
       default:

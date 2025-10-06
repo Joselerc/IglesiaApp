@@ -393,7 +393,7 @@ class _CourseStatsScreenState extends State<CourseStatsScreen> {
     return _buildDashboardCard(
       title: AppLocalizations.of(context)!.completion,
       icon: Icons.hourglass_bottom_outlined,
-      iconColor: Colors.orange,
+      iconColor: AppColors.primary,
       children: [
         _buildStatRow(AppLocalizations.of(context)!.globalAverageTime, _formatDuration(globalAvgTime) ?? 'N/A'),
         const SizedBox(height: 12),

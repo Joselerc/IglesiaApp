@@ -336,7 +336,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                     title: AppLocalizations.of(context)!.ageDistribution,
                     distribution: _ageDistribution,
                     icon: Icons.cake,
-                    color: Colors.orange,
+                    color: AppColors.primary,
                   ),
                   const SizedBox(height: 16),
                   _buildStatisticCard(
