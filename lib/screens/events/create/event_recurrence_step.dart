@@ -369,7 +369,12 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             child: RadioListTile<RecurrenceEndType>(
                               title: Row(
                                 children: [
-                                  Text(AppLocalizations.of(context)!.after),
+                                  Flexible(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.after,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                   const SizedBox(width: 8),
                                   SizedBox(
                                     width: 60,
@@ -392,7 +397,12 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(AppLocalizations.of(context)!.occurrences),
+                                  Flexible(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.occurrences,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                               value: RecurrenceEndType.afterOccurrences,
@@ -422,7 +432,7 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                             child: RadioListTile<RecurrenceEndType>(
                               title: Row(
                                 children: [
-                                  const Text('Em data'),
+                                  Text(AppLocalizations.of(context)!.onSpecificDate),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: InkWell(

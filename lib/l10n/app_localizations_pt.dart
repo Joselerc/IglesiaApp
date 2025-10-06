@@ -5779,10 +5779,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get after => 'Após';
 
   @override
-  String get occurrences => 'ocorrências';
+  String get occurrences => 'repetições';
 
   @override
   String get onDate => 'Em data';
+
+  @override
+  String get onSpecificDate => 'Em data';
 
   @override
   String get single => 'Único';
@@ -5829,11 +5832,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noEndDefined => 'sem fim definido';
 
   @override
-  String untilXOccurrences(int count) {
-    return 'até $count ocorrências';
-  }
-
-  @override
   String get untilSpecificDate => 'até data específica';
 
   @override
@@ -5852,7 +5850,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get intervalExplanation =>
-      'O número indica o intervalo de repetição. Por exemplo: \"2 Semanalmente\" significa que o evento se repetirá a cada 2 semanas.';
+      'O número indica o intervalo de repetição. Por exemplo: \"2 semanas\" significa que o evento se repetirá a cada 2 semanas.';
 
   @override
   String get singleEventNotRecurring => 'Evento único (não recorrente)';
@@ -5891,6 +5889,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get yearly => 'anualmente';
+
+  @override
+  String untilXOccurrences(int count) {
+    return 'até $count repetições';
+  }
 
   @override
   String get until => 'até';

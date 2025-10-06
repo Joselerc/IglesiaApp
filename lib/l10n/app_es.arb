@@ -2733,9 +2733,10 @@
   "years": "años",
   "year": "año",
   "ends": "Termina",
-  "after": "Después",
-  "occurrences": "ocurrencias",
+  "after": "Después de",
+  "occurrences": "repeticiones",
   "onDate": "En fecha",
+  "onSpecificDate": "En fecha",
   "date": "Fecha",
   "completed": "Completado",
   "single": "Único",
@@ -2750,7 +2751,6 @@
   "repeatsEveryXYears": "Repite cada {interval} años",
   "repeatsYearly": "Repite anualmente",
   "noEndDefined": "sin fin definido",
-  "untilXOccurrences": "hasta {count} ocurrencias",
   "untilSpecificDate": "hasta fecha específica",
   "untilDate": "hasta {date}",
   "errorUploadingImage": "Error al hacer upload de la imagen: {error}",
@@ -2762,7 +2762,7 @@
     }
   },
   "defineRecurringEventFrequency": "Define la frecuencia de tu evento recurrente",
-  "intervalExplanation": "El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.",
+  "intervalExplanation": "El número indica el intervalo de repetición. Por ejemplo: \"2 semanas\" significa que el evento se repetirá cada 2 semanas.",
   "singleEventNotRecurring": "Evento único (no recurrente)",
   "repeats": "Repite",
   "everyXDays": "cada {interval} días",
@@ -2802,7 +2802,7 @@
   },
   "yearly": "anualmente",
   "noEndDefined": "sin fin definido",
-  "untilXOccurrences": "hasta {count} ocurrencias",
+  "untilXOccurrences": "hasta {count} repeticiones",
   "@untilXOccurrences": {
     "placeholders": {
       "count": {

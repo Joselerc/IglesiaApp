@@ -10343,13 +10343,13 @@ abstract class AppLocalizations {
   /// No description provided for @after.
   ///
   /// In es, this message translates to:
-  /// **'Después'**
+  /// **'Después de'**
   String get after;
 
   /// No description provided for @occurrences.
   ///
   /// In es, this message translates to:
-  /// **'ocurrencias'**
+  /// **'repeticiones'**
   String get occurrences;
 
   /// No description provided for @onDate.
@@ -10357,6 +10357,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'En fecha'**
   String get onDate;
+
+  /// No description provided for @onSpecificDate.
+  ///
+  /// In es, this message translates to:
+  /// **'En fecha'**
+  String get onSpecificDate;
 
   /// No description provided for @single.
   ///
@@ -10430,12 +10436,6 @@ abstract class AppLocalizations {
   /// **'sin fin definido'**
   String get noEndDefined;
 
-  /// No description provided for @untilXOccurrences.
-  ///
-  /// In es, this message translates to:
-  /// **'hasta {count} ocurrencias'**
-  String untilXOccurrences(int count);
-
   /// No description provided for @untilSpecificDate.
   ///
   /// In es, this message translates to:
@@ -10463,7 +10463,7 @@ abstract class AppLocalizations {
   /// No description provided for @intervalExplanation.
   ///
   /// In es, this message translates to:
-  /// **'El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.'**
+  /// **'El número indica el intervalo de repetición. Por ejemplo: \"2 semanas\" significa que el evento se repetirá cada 2 semanas.'**
   String get intervalExplanation;
 
   /// No description provided for @singleEventNotRecurring.
@@ -10525,6 +10525,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'anualmente'**
   String get yearly;
+
+  /// No description provided for @untilXOccurrences.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta {count} repeticiones'**
+  String untilXOccurrences(int count);
 
   /// No description provided for @until.
   ///
