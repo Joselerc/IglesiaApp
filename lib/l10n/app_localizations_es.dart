@@ -1130,7 +1130,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'Asistencia registrada con éxito';
 
   @override
-  String get couldNotOpenLink => 'No se pudo abrir el enlace';
+  String couldNotOpenLink(String url) {
+    return 'No se pudo abrir el link: $url';
+  }
 
   @override
   String errorOpeningLink(String error) {
@@ -5919,4 +5921,16 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get defineEventOccurrenceType =>
       'Define si tu evento ocurrirá una única vez o será recurrente';
+
+  @override
+  String get liveTransmission => 'Transmisión En Vivo';
+
+  @override
+  String get tapToWatchNow => 'Toca para ver ahora';
+
+  @override
+  String get streamLinkComingSoon => 'Link de transmisión próximamente...';
+
+  @override
+  String get live => 'EN VIVO';
 }

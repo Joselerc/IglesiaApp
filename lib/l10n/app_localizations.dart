@@ -2063,8 +2063,8 @@ abstract class AppLocalizations {
   /// No description provided for @couldNotOpenLink.
   ///
   /// In es, this message translates to:
-  /// **'No se pudo abrir el enlace'**
-  String get couldNotOpenLink;
+  /// **'No se pudo abrir el link: {url}'**
+  String couldNotOpenLink(String url);
 
   /// No description provided for @errorOpeningLink.
   ///
@@ -10543,6 +10543,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Define si tu evento ocurrirá una única vez o será recurrente'**
   String get defineEventOccurrenceType;
+
+  /// No description provided for @liveTransmission.
+  ///
+  /// In es, this message translates to:
+  /// **'Transmisión En Vivo'**
+  String get liveTransmission;
+
+  /// No description provided for @tapToWatchNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para ver ahora'**
+  String get tapToWatchNow;
+
+  /// No description provided for @streamLinkComingSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Link de transmisión próximamente...'**
+  String get streamLinkComingSoon;
+
+  /// No description provided for @live.
+  ///
+  /// In es, this message translates to:
+  /// **'EN VIVO'**
+  String get live;
 }
 
 class _AppLocalizationsDelegate

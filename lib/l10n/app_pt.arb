@@ -2814,5 +2814,17 @@
   "until": "até",
   "untilSpecificDate": "até data específica",
   "defineEventOccurrenceType": "Defina se seu evento acontecerá uma única vez ou será recorrente",
-  "create": "Criar"
+  "create": "Criar",
+  "liveTransmission": "Transmissão Ao Vivo",
+  "tapToWatchNow": "Toque para assistir agora",
+  "streamLinkComingSoon": "Link da transmissão em breve...",
+  "live": "AO VIVO",
+  "couldNotOpenLink": "Não foi possível abrir o link: {url}",
+  "@couldNotOpenLink": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  }
 }

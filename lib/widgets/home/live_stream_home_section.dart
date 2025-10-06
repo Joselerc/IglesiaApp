@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:marquee/marquee.dart'; // Importar marquee
-import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import '../common/app_card.dart'; // Asumiendo que tienes un AppCard reutilizable
+import '../../l10n/app_localizations.dart';
 
 class LiveStreamHomeSection extends StatelessWidget {
   final Map<String, dynamic> configData;
@@ -24,7 +23,6 @@ class LiveStreamHomeSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // Ya no necesitamos isCurrentlyLive. La visibilidad la controla HomeScreen.
     // El estado "en vivo" visualmente (tag, borde) depende de si se muestra Y tiene link.
-    final String sectionTitle = configData['sectionTitle'] ?? 'Transmissão Ao Vivo';
     final String imageUrl = configData['imageUrl'] ?? '';
     final String imageTitle = configData['imageTitle'] ?? '';
     final String liveUrl = configData['url'] ?? '';
@@ -64,7 +62,7 @@ class LiveStreamHomeSection extends StatelessWidget {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Não foi possível abrir o link: $liveUrl')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenLink(liveUrl))),
                       );
                     }
                   }
@@ -77,7 +75,7 @@ class LiveStreamHomeSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppSpacing.md), // Asegurar borde redondeado
                   // Borde solo si se muestra como vivo
                   border: showAsLive
-                      ? Border.all(color: Colors.red, width: 2.0) 
+                      ? Border.all(color: AppColors.primary, width: 2.0) 
                       : null,
                 ),
                 child: ClipRRect( // Clip para que el contenido respete el borde redondeado
@@ -158,8 +156,8 @@ class LiveStreamHomeSection extends StatelessWidget {
                              Text(
                                // Mensaje depende solo de si hay link (ya que solo se muestra si está activo)
                                hasLink
-                                   ? 'Toque para assistir agora'
-                                   : 'Link da transmissão em breve...', // Ya no hay caso "indisponible"
+                                   ? AppLocalizations.of(context)!.tapToWatchNow
+                                   : AppLocalizations.of(context)!.streamLinkComingSoon, // Ya no hay caso "indisponible"
                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                              ),
                            ],
@@ -174,11 +172,11 @@ class LiveStreamHomeSection extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                             decoration: BoxDecoration(
-                              color: Colors.red,
+                              color: AppColors.primary,
                               borderRadius: BorderRadius.circular(AppSpacing.sm),
                             ),
                             child: Text(
-                              'AO VIVO',
+                              AppLocalizations.of(context)!.live,
                               // Usando estilo estándar bodySmall
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                             ),

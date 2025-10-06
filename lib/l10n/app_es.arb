@@ -2813,5 +2813,17 @@
   "until": "hasta",
   "untilSpecificDate": "hasta fecha específica",
   "defineEventOccurrenceType": "Define si tu evento ocurrirá una única vez o será recurrente",
-  "create": "Crear"
+  "create": "Crear",
+  "liveTransmission": "Transmisión En Vivo",
+  "tapToWatchNow": "Toca para ver ahora",
+  "streamLinkComingSoon": "Link de transmisión próximamente...",
+  "live": "EN VIVO",
+  "couldNotOpenLink": "No se pudo abrir el link: {url}",
+  "@couldNotOpenLink": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  }
 }

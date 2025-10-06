@@ -1126,7 +1126,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Presença registrada com sucesso';
 
   @override
-  String get couldNotOpenLink => 'Não foi possível abrir o link';
+  String couldNotOpenLink(String url) {
+    return 'Não foi possível abrir o link: $url';
+  }
 
   @override
   String errorOpeningLink(String error) {
@@ -5901,4 +5903,16 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get defineEventOccurrenceType =>
       'Defina se seu evento acontecerá uma única vez ou será recorrente';
+
+  @override
+  String get liveTransmission => 'Transmissão Ao Vivo';
+
+  @override
+  String get tapToWatchNow => 'Toque para assistir agora';
+
+  @override
+  String get streamLinkComingSoon => 'Link da transmissão em breve...';
+
+  @override
+  String get live => 'AO VIVO';
 }
