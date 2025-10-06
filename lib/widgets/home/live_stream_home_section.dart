@@ -78,33 +78,30 @@ class LiveStreamHomeSection extends StatelessWidget {
                       ? Border.all(color: AppColors.primary, width: 2.0) 
                       : null,
                 ),
-                child: ClipRRect( // Clip para que el contenido respete el borde redondeado
-                  borderRadius: BorderRadius.circular(showAsLive ? AppSpacing.md - 2 : AppSpacing.md),
-                  child: Stack(
-                    alignment: Alignment.bottomLeft, // Alinear contenido inferior izquierdo
-                    children: [
-                      // Imagen de fondo
-                      Container(
-                        height: 200, // Altura fija o adaptable
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(AppSpacing.md), // Heredar o definir radio
-                          image: imageUrl.isNotEmpty
-                              ? DecorationImage(
-                                  image: NetworkImage(imageUrl),
-                                  fit: BoxFit.cover,
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.black.withOpacity(0.4), // Oscurecer un poco para el texto
-                                    BlendMode.darken,
-                                  ),
-                                )
-                              : null, // Sin imagen si no hay URL
-                          color: imageUrl.isEmpty ? Colors.grey.shade300 : null, // Color placeholder
-                        ),
-                        // Mostrar icono si no hay imagen
-                        child: imageUrl.isEmpty
-                           ? const Center(child: Icon(Icons.live_tv, size: 60, color: Colors.grey))
-                           : null,
+                child: Stack(
+                  alignment: Alignment.bottomLeft, // Alinear contenido inferior izquierdo
+                  children: [
+                    // Imagen de fondo
+                    Container(
+                      height: 200, // Altura fija o adaptable
+                      decoration: BoxDecoration(
+                        image: imageUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(imageUrl),
+                                fit: BoxFit.cover,
+                                colorFilter: ColorFilter.mode(
+                                  Colors.black.withOpacity(0.4), // Oscurecer un poco para el texto
+                                  BlendMode.darken,
+                                ),
+                              )
+                            : null, // Sin imagen si no hay URL
+                        color: imageUrl.isEmpty ? Colors.grey.shade300 : null, // Color placeholder
                       ),
+                      // Mostrar icono si no hay imagen
+                      child: imageUrl.isEmpty
+                         ? const Center(child: Icon(Icons.live_tv, size: 60, color: Colors.grey))
+                         : null,
+                    ),
 
                       // Contenido superpuesto (Título y estado)
                       Container(
@@ -183,7 +180,6 @@ class LiveStreamHomeSection extends StatelessWidget {
                           ),
                         ),
                     ],
-                  ),
                 ),
               ),
             ),
