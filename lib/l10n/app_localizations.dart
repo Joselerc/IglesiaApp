@@ -1247,7 +1247,7 @@ abstract class AppLocalizations {
   /// No description provided for @additionalInformation.
   ///
   /// In es, this message translates to:
-  /// **'Información Adicional'**
+  /// **'Información adicional'**
   String get additionalInformation;
 
   /// No description provided for @pleaseCompleteTheFollowingInfo.
@@ -4344,7 +4344,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Error al eliminar: {error}'**
-  String errorDeleting(Object error);
+  String errorDeleting(String error);
 
   /// No description provided for @sectionNameUpdated.
   ///
@@ -5981,7 +5981,7 @@ abstract class AppLocalizations {
   /// No description provided for @viewDetails.
   ///
   /// In es, this message translates to:
-  /// **'Ver Detalles'**
+  /// **'Ver detalles'**
   String get viewDetails;
 
   /// No description provided for @lastActive.
@@ -10573,6 +10573,402 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Estás seguro de que deseas cerrar sesión?'**
   String get sureWantToLogout;
+
+  /// No description provided for @notificationDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle de la notificación'**
+  String get notificationDetail;
+
+  /// No description provided for @areYouSureYouWantToDeleteThisNotification.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar esta notificación?'**
+  String get areYouSureYouWantToDeleteThisNotification;
+
+  /// No description provided for @filterByType.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar por tipo'**
+  String get filterByType;
+
+  /// No description provided for @generalAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncios generales'**
+  String get generalAnnouncements;
+
+  /// No description provided for @cultAnnouncements.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncios de cultos'**
+  String get cultAnnouncements;
+
+  /// No description provided for @newMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos ministerios'**
+  String get newMinistries;
+
+  /// No description provided for @joinRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes para entrar'**
+  String get joinRequests;
+
+  /// No description provided for @approvedRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes aprobadas'**
+  String get approvedRequests;
+
+  /// No description provided for @ministryEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos de los ministerios'**
+  String get ministryEvents;
+
+  /// No description provided for @ministryPosts.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicaciones de los ministerios'**
+  String get ministryPosts;
+
+  /// No description provided for @workSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Escalas de trabajo'**
+  String get workSchedules;
+
+  /// No description provided for @ministryMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensajes de los ministerios'**
+  String get ministryMessages;
+
+  /// No description provided for @newGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos grupos'**
+  String get newGroups;
+
+  /// No description provided for @groupEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos de los grupos'**
+  String get groupEvents;
+
+  /// No description provided for @groupPosts.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicaciones de los grupos'**
+  String get groupPosts;
+
+  /// No description provided for @groupMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensajes de los grupos'**
+  String get groupMessages;
+
+  /// No description provided for @privatePrayerRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedidos de oración particular'**
+  String get privatePrayerRequests;
+
+  /// No description provided for @completedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones completadas'**
+  String get completedPrayers;
+
+  /// No description provided for @approvedPublicPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones públicas aprobadas'**
+  String get approvedPublicPrayers;
+
+  /// No description provided for @newEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos eventos'**
+  String get newEvents;
+
+  /// No description provided for @eventReminders.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios de eventos'**
+  String get eventReminders;
+
+  /// No description provided for @newRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos pedidos'**
+  String get newRequests;
+
+  /// No description provided for @confirmedAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamientos confirmados'**
+  String get confirmedAppointments;
+
+  /// No description provided for @rejectedAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamientos rechazados'**
+  String get rejectedAppointments;
+
+  /// No description provided for @cancelledAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamientos cancelados'**
+  String get cancelledAppointments;
+
+  /// No description provided for @newVideos.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos vídeos'**
+  String get newVideos;
+
+  /// No description provided for @notifTypeNewAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo anuncio'**
+  String get notifTypeNewAnnouncement;
+
+  /// No description provided for @notifTypeNewCultAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo anuncio de culto'**
+  String get notifTypeNewCultAnnouncement;
+
+  /// No description provided for @notifTypeNewMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo ministerio'**
+  String get notifTypeNewMinistry;
+
+  /// No description provided for @notifTypeMinistryJoinRequestAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de ministerio aceptada'**
+  String get notifTypeMinistryJoinRequestAccepted;
+
+  /// No description provided for @notifTypeMinistryJoinRequestRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de ministerio rechazada'**
+  String get notifTypeMinistryJoinRequestRejected;
+
+  /// No description provided for @notifTypeMinistryJoinRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud para entrar al ministerio'**
+  String get notifTypeMinistryJoinRequest;
+
+  /// No description provided for @notifTypeMinistryManuallyAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregado al ministerio'**
+  String get notifTypeMinistryManuallyAdded;
+
+  /// No description provided for @notifTypeMinistryNewEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo evento del ministerio'**
+  String get notifTypeMinistryNewEvent;
+
+  /// No description provided for @notifTypeMinistryNewPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva publicación en el ministerio'**
+  String get notifTypeMinistryNewPost;
+
+  /// No description provided for @notifTypeMinistryNewWorkSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva escala de trabajo'**
+  String get notifTypeMinistryNewWorkSchedule;
+
+  /// No description provided for @notifTypeMinistryWorkScheduleAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Escala de trabajo aceptada'**
+  String get notifTypeMinistryWorkScheduleAccepted;
+
+  /// No description provided for @notifTypeMinistryWorkScheduleRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Escala de trabajo rechazada'**
+  String get notifTypeMinistryWorkScheduleRejected;
+
+  /// No description provided for @notifTypeMinistryWorkSlotFilled.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacante de trabajo ocupada'**
+  String get notifTypeMinistryWorkSlotFilled;
+
+  /// No description provided for @notifTypeMinistryWorkSlotAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacante de trabajo disponible'**
+  String get notifTypeMinistryWorkSlotAvailable;
+
+  /// No description provided for @notifTypeMinistryEventReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorio de evento del ministerio'**
+  String get notifTypeMinistryEventReminder;
+
+  /// No description provided for @notifTypeMinistryNewChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo mensaje en el ministerio'**
+  String get notifTypeMinistryNewChat;
+
+  /// No description provided for @notifTypeMinistryPromotedToAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Promovido a admin del ministerio'**
+  String get notifTypeMinistryPromotedToAdmin;
+
+  /// No description provided for @notifTypeNewGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo grupo'**
+  String get notifTypeNewGroup;
+
+  /// No description provided for @notifTypeGroupJoinRequestAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de grupo aceptada'**
+  String get notifTypeGroupJoinRequestAccepted;
+
+  /// No description provided for @notifTypeGroupJoinRequestRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de grupo rechazada'**
+  String get notifTypeGroupJoinRequestRejected;
+
+  /// No description provided for @notifTypeGroupJoinRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud para entrar al grupo'**
+  String get notifTypeGroupJoinRequest;
+
+  /// No description provided for @notifTypeGroupManuallyAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregado al grupo'**
+  String get notifTypeGroupManuallyAdded;
+
+  /// No description provided for @notifTypeGroupNewEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo evento del grupo'**
+  String get notifTypeGroupNewEvent;
+
+  /// No description provided for @notifTypeGroupNewPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva publicación en el grupo'**
+  String get notifTypeGroupNewPost;
+
+  /// No description provided for @notifTypeGroupEventReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorio de evento del grupo'**
+  String get notifTypeGroupEventReminder;
+
+  /// No description provided for @notifTypeGroupNewChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo mensaje en el grupo'**
+  String get notifTypeGroupNewChat;
+
+  /// No description provided for @notifTypeGroupPromotedToAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Promovido a admin del grupo'**
+  String get notifTypeGroupPromotedToAdmin;
+
+  /// No description provided for @notifTypeNewPrivatePrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo pedido de oración particular'**
+  String get notifTypeNewPrivatePrayer;
+
+  /// No description provided for @notifTypePrivatePrayerPrayed.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración particular completada'**
+  String get notifTypePrivatePrayerPrayed;
+
+  /// No description provided for @notifTypePublicPrayerAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración pública aceptada'**
+  String get notifTypePublicPrayerAccepted;
+
+  /// No description provided for @notifTypeNewEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo evento'**
+  String get notifTypeNewEvent;
+
+  /// No description provided for @notifTypeEventReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorio de evento'**
+  String get notifTypeEventReminder;
+
+  /// No description provided for @notifTypeNewCounselingRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo pedido de consejería'**
+  String get notifTypeNewCounselingRequest;
+
+  /// No description provided for @notifTypeCounselingAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamiento confirmado'**
+  String get notifTypeCounselingAccepted;
+
+  /// No description provided for @notifTypeCounselingRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamiento rechazado'**
+  String get notifTypeCounselingRejected;
+
+  /// No description provided for @notifTypeCounselingCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Agendamiento cancelado'**
+  String get notifTypeCounselingCancelled;
+
+  /// No description provided for @notifTypeNewVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo vídeo'**
+  String get notifTypeNewVideo;
+
+  /// No description provided for @notifTypeMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje'**
+  String get notifTypeMessage;
+
+  /// No description provided for @notifTypeGeneric.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación'**
+  String get notifTypeGeneric;
+
+  /// No description provided for @notifTypeCustom.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación personalizada'**
+  String get notifTypeCustom;
 }
 
 class _AppLocalizationsDelegate

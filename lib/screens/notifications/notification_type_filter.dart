@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/notification.dart';
+import '../../l10n/app_localizations.dart';
 
 class NotificationTypeFilter extends StatelessWidget {
   final NotificationType? selectedFilter;
@@ -22,9 +23,9 @@ class NotificationTypeFilter extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Filtrar por tipo',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.filterByType,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -32,7 +33,7 @@ class NotificationTypeFilter extends StatelessWidget {
               if (selectedFilter != null)
                 TextButton(
                   onPressed: () => onFilterSelected(null),
-                  child: const Text('Remover filtro'),
+                  child: Text(AppLocalizations.of(context)!.removeFilter),
                 ),
             ],
           ),
@@ -43,155 +44,155 @@ class NotificationTypeFilter extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Anuncios
-                  _buildCategoryHeader('Anúncios', Icons.announcement, Colors.amber),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.announcements, Icons.announcement, Colors.amber),
                   _buildFilterTile(
                     context,
                     NotificationType.newAnnouncement,
-                    'Anúncios gerais',
+                    AppLocalizations.of(context)!.generalAnnouncements,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.newCultAnnouncement,
-                    'Anúncios de cultos',
+                    AppLocalizations.of(context)!.cultAnnouncements,
                   ),
                   const Divider(),
                   
                   // Ministerios
-                  _buildCategoryHeader('Ministérios', Icons.people, Colors.blue),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.ministries, Icons.people, Colors.blue),
                   _buildFilterTile(
                     context,
                     NotificationType.newMinistry,
-                    'Novos ministérios',
+                    AppLocalizations.of(context)!.newMinistries,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryJoinRequest,
-                    'Solicitações para entrar',
+                    AppLocalizations.of(context)!.joinRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryJoinRequestAccepted,
-                    'Solicitações aprovadas',
+                    AppLocalizations.of(context)!.approvedRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryNewEvent,
-                    'Eventos dos ministérios',
+                    AppLocalizations.of(context)!.ministryEvents,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryNewPost,
-                    'Publicações dos ministérios',
+                    AppLocalizations.of(context)!.ministryPosts,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryNewWorkSchedule,
-                    'Escalas de trabalho',
+                    AppLocalizations.of(context)!.workSchedules,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.ministryNewChat,
-                    'Mensagens dos ministérios',
+                    AppLocalizations.of(context)!.ministryMessages,
                   ),
                   const Divider(),
                   
                   // Grupos
-                  _buildCategoryHeader('Grupos', Icons.group, Colors.green),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.groups, Icons.group, Colors.green),
                   _buildFilterTile(
                     context,
                     NotificationType.newGroup,
-                    'Novos grupos',
+                    AppLocalizations.of(context)!.newGroups,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.groupJoinRequest,
-                    'Solicitações para entrar',
+                    AppLocalizations.of(context)!.joinRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.groupJoinRequestAccepted,
-                    'Solicitações aprovadas',
+                    AppLocalizations.of(context)!.approvedRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.groupNewEvent,
-                    'Eventos dos grupos',
+                    AppLocalizations.of(context)!.groupEvents,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.groupNewPost,
-                    'Publicações dos grupos',
+                    AppLocalizations.of(context)!.groupPosts,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.groupNewChat,
-                    'Mensagens dos grupos',
+                    AppLocalizations.of(context)!.groupMessages,
                   ),
                   const Divider(),
                   
                   // Oraciones
-                  _buildCategoryHeader('Orações', Icons.healing, Colors.purple),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.prayers, Icons.healing, Colors.purple),
                   _buildFilterTile(
                     context,
                     NotificationType.newPrivatePrayer,
-                    'Pedidos de oração particular',
+                    AppLocalizations.of(context)!.privatePrayerRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.privatePrayerPrayed,
-                    'Orações completadas',
+                    AppLocalizations.of(context)!.completedPrayers,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.publicPrayerAccepted,
-                    'Orações públicas aprovadas',
+                    AppLocalizations.of(context)!.approvedPublicPrayers,
                   ),
                   const Divider(),
                   
                   // Eventos
-                  _buildCategoryHeader('Eventos', Icons.event, Colors.orange),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.events, Icons.event, Colors.orange),
                   _buildFilterTile(
                     context,
                     NotificationType.newEvent,
-                    'Novos eventos',
+                    AppLocalizations.of(context)!.newEvents,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.eventReminder,
-                    'Lembretes de eventos',
+                    AppLocalizations.of(context)!.eventReminders,
                   ),
                   const Divider(),
                   
                   // Consejería
-                  _buildCategoryHeader('Aconselhamento', Icons.support_agent, Colors.teal),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.counseling, Icons.support_agent, Colors.teal),
                   _buildFilterTile(
                     context,
                     NotificationType.newCounselingRequest,
-                    'Novos pedidos',
+                    AppLocalizations.of(context)!.newRequests,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.counselingAccepted,
-                    'Agendamentos confirmados',
+                    AppLocalizations.of(context)!.confirmedAppointments,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.counselingRejected,
-                    'Agendamentos rejeitados',
+                    AppLocalizations.of(context)!.rejectedAppointments,
                   ),
                   _buildFilterTile(
                     context,
                     NotificationType.counselingCancelled,
-                    'Agendamentos cancelados',
+                    AppLocalizations.of(context)!.cancelledAppointments,
                   ),
                   const Divider(),
                   
                   // Videos
-                  _buildCategoryHeader('Vídeos', Icons.video_library, Colors.red),
+                  _buildCategoryHeader(AppLocalizations.of(context)!.videos, Icons.video_library, Colors.red),
                   _buildFilterTile(
                     context,
                     NotificationType.newVideo,
-                    'Novos vídeos',
+                    AppLocalizations.of(context)!.newVideos,
                   ),
                 ],
               ),

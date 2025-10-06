@@ -4,6 +4,7 @@ import '../../models/notification.dart';
 import 'package:provider/provider.dart';
 import '../../services/notification_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import '../../l10n/app_localizations.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
   final AppNotification notification;
@@ -24,28 +25,28 @@ class NotificationDetailScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalhe da notificação'),
+        title: Text(AppLocalizations.of(context)!.notificationDetail),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
-            tooltip: 'Excluir notificação',
+            tooltip: AppLocalizations.of(context)!.delete,
             onPressed: () async {
               final notificationService = Provider.of<NotificationService>(context, listen: false);
               
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Excluir notificação'),
-                  content: const Text('Tem certeza que deseja excluir esta notificação?'),
+                  title: Text(AppLocalizations.of(context)!.delete),
+                  content: Text(AppLocalizations.of(context)!.areYouSureYouWantToDeleteThisNotification),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancelar'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Excluir'),
+                      child: Text(AppLocalizations.of(context)!.delete),
                     ),
                   ],
                 ),
@@ -56,8 +57,8 @@ class NotificationDetailScreen extends StatelessWidget {
                   await notificationService.deleteNotification(notification.id);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Notificação excluída'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.notificationDeleted),
                       ),
                     );
                     Navigator.pop(context);
@@ -66,7 +67,7 @@ class NotificationDetailScreen extends StatelessWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Erro ao excluir: $e'),
+                        content: Text(AppLocalizations.of(context)!.errorDeleting(e.toString())),
                       ),
                     );
                   }
@@ -107,7 +108,7 @@ class NotificationDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _getNotificationTypeName(notification.type),
+                        _getNotificationTypeName(context, notification.type),
                         style: TextStyle(
                           color: notification.getColor(),
                           fontWeight: FontWeight.w500,
@@ -144,9 +145,9 @@ class NotificationDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             
             // Contenido
-            const Text(
-              'Mensagem',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.message,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -163,9 +164,9 @@ class NotificationDetailScreen extends StatelessWidget {
             // Información adicional si existe (filtrando IDs)
             if (notification.data.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text(
-                'Informações adicionais',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.additionalInformation,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -206,7 +207,7 @@ class NotificationDetailScreen extends StatelessWidget {
                     Navigator.pushNamed(context, notification.actionRoute!);
                   },
                   icon: const Icon(Icons.open_in_new),
-                  label: const Text('Ver detalhes'),
+                  label: Text(AppLocalizations.of(context)!.viewDetails),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
@@ -218,106 +219,106 @@ class NotificationDetailScreen extends StatelessWidget {
     );
   }
   
-  String _getNotificationTypeName(NotificationType type) {
-    // Traducciones al portugués de Brasil
+  String _getNotificationTypeName(BuildContext context, NotificationType type) {
+    final loc = AppLocalizations.of(context)!;
     switch (type) {
       // Anúncios
       case NotificationType.newAnnouncement:
-        return 'Novo anúncio';
+        return loc.notifTypeNewAnnouncement;
       case NotificationType.newCultAnnouncement:
-        return 'Novo anúncio de culto';
+        return loc.notifTypeNewCultAnnouncement;
       
       // Ministérios
       case NotificationType.newMinistry:
-        return 'Novo ministério';
+        return loc.notifTypeNewMinistry;
       case NotificationType.ministryJoinRequestAccepted:
-        return 'Solicitação de ministério aceita';
+        return loc.notifTypeMinistryJoinRequestAccepted;
       case NotificationType.ministryJoinRequestRejected:
-        return 'Solicitação de ministério rejeitada';
+        return loc.notifTypeMinistryJoinRequestRejected;
       case NotificationType.ministryJoinRequest:
-        return 'Solicitação para entrar no ministério';
+        return loc.notifTypeMinistryJoinRequest;
       case NotificationType.ministryManuallyAdded:
-        return 'Adicionado ao ministério';
+        return loc.notifTypeMinistryManuallyAdded;
       case NotificationType.ministryNewEvent:
-        return 'Novo evento do ministério';
+        return loc.notifTypeMinistryNewEvent;
       case NotificationType.ministryNewPost:
-        return 'Nova publicação no ministério';
+        return loc.notifTypeMinistryNewPost;
       case NotificationType.ministryNewWorkSchedule:
-        return 'Nova escala de trabalho';
+        return loc.notifTypeMinistryNewWorkSchedule;
       case NotificationType.ministryWorkScheduleAccepted:
-        return 'Escala de trabalho aceita';
+        return loc.notifTypeMinistryWorkScheduleAccepted;
       case NotificationType.ministryWorkScheduleRejected:
-        return 'Escala de trabalho rejeitada';
+        return loc.notifTypeMinistryWorkScheduleRejected;
       case NotificationType.ministryWorkSlotFilled:
-        return 'Vaga de trabalho preenchida';
+        return loc.notifTypeMinistryWorkSlotFilled;
       case NotificationType.ministryWorkSlotAvailable:
-        return 'Vaga de trabalho disponível';
+        return loc.notifTypeMinistryWorkSlotAvailable;
       case NotificationType.ministryEventReminder:
-        return 'Lembrete de evento do ministério';
+        return loc.notifTypeMinistryEventReminder;
       case NotificationType.ministryNewChat:
-        return 'Nova mensagem no ministério';
+        return loc.notifTypeMinistryNewChat;
       case NotificationType.ministryPromotedToAdmin:
-        return 'Promovido a admin do ministério';
+        return loc.notifTypeMinistryPromotedToAdmin;
       
       // Grupos
       case NotificationType.newGroup:
-        return 'Novo grupo';
+        return loc.notifTypeNewGroup;
       case NotificationType.groupJoinRequestAccepted:
-        return 'Solicitação de grupo aceita';
+        return loc.notifTypeGroupJoinRequestAccepted;
       case NotificationType.groupJoinRequestRejected:
-        return 'Solicitação de grupo rejeitada';
+        return loc.notifTypeGroupJoinRequestRejected;
       case NotificationType.groupJoinRequest:
-        return 'Solicitação para entrar no grupo';
+        return loc.notifTypeGroupJoinRequest;
       case NotificationType.groupManuallyAdded:
-        return 'Adicionado ao grupo';
+        return loc.notifTypeGroupManuallyAdded;
       case NotificationType.groupNewEvent:
-        return 'Novo evento do grupo';
+        return loc.notifTypeGroupNewEvent;
       case NotificationType.groupNewPost:
-        return 'Nova publicação no grupo';
+        return loc.notifTypeGroupNewPost;
       case NotificationType.groupEventReminder:
-        return 'Lembrete de evento do grupo';
+        return loc.notifTypeGroupEventReminder;
       case NotificationType.groupNewChat:
-        return 'Nova mensagem no grupo';
+        return loc.notifTypeGroupNewChat;
       case NotificationType.groupPromotedToAdmin:
-        return 'Promovido a admin do grupo';
+        return loc.notifTypeGroupPromotedToAdmin;
       
       // Orações
       case NotificationType.newPrivatePrayer:
-        return 'Novo pedido de oração particular';
+        return loc.notifTypeNewPrivatePrayer;
       case NotificationType.privatePrayerPrayed:
-        return 'Oração particular completada';
+        return loc.notifTypePrivatePrayerPrayed;
       case NotificationType.publicPrayerAccepted:
-        return 'Oração pública aceita';
+        return loc.notifTypePublicPrayerAccepted;
       
       // Eventos
       case NotificationType.newEvent:
-        return 'Novo evento';
+        return loc.notifTypeNewEvent;
       case NotificationType.eventReminder:
-        return 'Lembrete de evento';
+        return loc.notifTypeEventReminder;
       
       // Aconselhamento
       case NotificationType.newCounselingRequest:
-        return 'Novo pedido de aconselhamento';
+        return loc.notifTypeNewCounselingRequest;
       case NotificationType.counselingAccepted:
-        return 'Agendamento confirmado';
+        return loc.notifTypeCounselingAccepted;
       case NotificationType.counselingRejected:
-        return 'Agendamento rejeitado';
+        return loc.notifTypeCounselingRejected;
       case NotificationType.counselingCancelled:
-        return 'Agendamento cancelado';
+        return loc.notifTypeCounselingCancelled;
       
       // Vídeos
       case NotificationType.newVideo:
-        return 'Novo vídeo';
+        return loc.notifTypeNewVideo;
       
       // Outros
       case NotificationType.message:
-        return 'Mensagem';
+        return loc.notifTypeMessage;
       case NotificationType.generic:
-        return 'Notificação';
+        return loc.notifTypeGeneric;
       case NotificationType.custom:
-        return 'Notificação personalizada';
+        return loc.notifTypeCustom;
       default:
-        return 'Notificação'; // Fallback genérico
+        return loc.notifTypeGeneric; // Fallback genérico
     }
   }
 } 

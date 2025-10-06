@@ -656,7 +656,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get back => 'Volver';
 
   @override
-  String get additionalInformation => 'Información Adicional';
+  String get additionalInformation => 'Información adicional';
 
   @override
   String get pleaseCompleteTheFollowingInfo =>
@@ -2443,7 +2443,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String errorDeleting(Object error) {
+  String errorDeleting(String error) {
     return 'Error al eliminar: $error';
   }
 
@@ -3374,7 +3374,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get userDetails => 'Detalles del Usuario';
 
   @override
-  String get viewDetails => 'Ver Detalles';
+  String get viewDetails => 'Ver detalles';
 
   @override
   String get lastActive => 'Última actividad';
@@ -5936,4 +5936,212 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sureWantToLogout => '¿Estás seguro de que deseas cerrar sesión?';
+
+  @override
+  String get notificationDetail => 'Detalle de la notificación';
+
+  @override
+  String get areYouSureYouWantToDeleteThisNotification =>
+      '¿Estás seguro de que deseas eliminar esta notificación?';
+
+  @override
+  String get filterByType => 'Filtrar por tipo';
+
+  @override
+  String get generalAnnouncements => 'Anuncios generales';
+
+  @override
+  String get cultAnnouncements => 'Anuncios de cultos';
+
+  @override
+  String get newMinistries => 'Nuevos ministerios';
+
+  @override
+  String get joinRequests => 'Solicitudes para entrar';
+
+  @override
+  String get approvedRequests => 'Solicitudes aprobadas';
+
+  @override
+  String get ministryEvents => 'Eventos de los ministerios';
+
+  @override
+  String get ministryPosts => 'Publicaciones de los ministerios';
+
+  @override
+  String get workSchedules => 'Escalas de trabajo';
+
+  @override
+  String get ministryMessages => 'Mensajes de los ministerios';
+
+  @override
+  String get newGroups => 'Nuevos grupos';
+
+  @override
+  String get groupEvents => 'Eventos de los grupos';
+
+  @override
+  String get groupPosts => 'Publicaciones de los grupos';
+
+  @override
+  String get groupMessages => 'Mensajes de los grupos';
+
+  @override
+  String get privatePrayerRequests => 'Pedidos de oración particular';
+
+  @override
+  String get completedPrayers => 'Oraciones completadas';
+
+  @override
+  String get approvedPublicPrayers => 'Oraciones públicas aprobadas';
+
+  @override
+  String get newEvents => 'Nuevos eventos';
+
+  @override
+  String get eventReminders => 'Recordatorios de eventos';
+
+  @override
+  String get newRequests => 'Nuevos pedidos';
+
+  @override
+  String get confirmedAppointments => 'Agendamientos confirmados';
+
+  @override
+  String get rejectedAppointments => 'Agendamientos rechazados';
+
+  @override
+  String get cancelledAppointments => 'Agendamientos cancelados';
+
+  @override
+  String get newVideos => 'Nuevos vídeos';
+
+  @override
+  String get notifTypeNewAnnouncement => 'Nuevo anuncio';
+
+  @override
+  String get notifTypeNewCultAnnouncement => 'Nuevo anuncio de culto';
+
+  @override
+  String get notifTypeNewMinistry => 'Nuevo ministerio';
+
+  @override
+  String get notifTypeMinistryJoinRequestAccepted =>
+      'Solicitud de ministerio aceptada';
+
+  @override
+  String get notifTypeMinistryJoinRequestRejected =>
+      'Solicitud de ministerio rechazada';
+
+  @override
+  String get notifTypeMinistryJoinRequest =>
+      'Solicitud para entrar al ministerio';
+
+  @override
+  String get notifTypeMinistryManuallyAdded => 'Agregado al ministerio';
+
+  @override
+  String get notifTypeMinistryNewEvent => 'Nuevo evento del ministerio';
+
+  @override
+  String get notifTypeMinistryNewPost => 'Nueva publicación en el ministerio';
+
+  @override
+  String get notifTypeMinistryNewWorkSchedule => 'Nueva escala de trabajo';
+
+  @override
+  String get notifTypeMinistryWorkScheduleAccepted =>
+      'Escala de trabajo aceptada';
+
+  @override
+  String get notifTypeMinistryWorkScheduleRejected =>
+      'Escala de trabajo rechazada';
+
+  @override
+  String get notifTypeMinistryWorkSlotFilled => 'Vacante de trabajo ocupada';
+
+  @override
+  String get notifTypeMinistryWorkSlotAvailable =>
+      'Vacante de trabajo disponible';
+
+  @override
+  String get notifTypeMinistryEventReminder =>
+      'Recordatorio de evento del ministerio';
+
+  @override
+  String get notifTypeMinistryNewChat => 'Nuevo mensaje en el ministerio';
+
+  @override
+  String get notifTypeMinistryPromotedToAdmin =>
+      'Promovido a admin del ministerio';
+
+  @override
+  String get notifTypeNewGroup => 'Nuevo grupo';
+
+  @override
+  String get notifTypeGroupJoinRequestAccepted => 'Solicitud de grupo aceptada';
+
+  @override
+  String get notifTypeGroupJoinRequestRejected =>
+      'Solicitud de grupo rechazada';
+
+  @override
+  String get notifTypeGroupJoinRequest => 'Solicitud para entrar al grupo';
+
+  @override
+  String get notifTypeGroupManuallyAdded => 'Agregado al grupo';
+
+  @override
+  String get notifTypeGroupNewEvent => 'Nuevo evento del grupo';
+
+  @override
+  String get notifTypeGroupNewPost => 'Nueva publicación en el grupo';
+
+  @override
+  String get notifTypeGroupEventReminder => 'Recordatorio de evento del grupo';
+
+  @override
+  String get notifTypeGroupNewChat => 'Nuevo mensaje en el grupo';
+
+  @override
+  String get notifTypeGroupPromotedToAdmin => 'Promovido a admin del grupo';
+
+  @override
+  String get notifTypeNewPrivatePrayer => 'Nuevo pedido de oración particular';
+
+  @override
+  String get notifTypePrivatePrayerPrayed => 'Oración particular completada';
+
+  @override
+  String get notifTypePublicPrayerAccepted => 'Oración pública aceptada';
+
+  @override
+  String get notifTypeNewEvent => 'Nuevo evento';
+
+  @override
+  String get notifTypeEventReminder => 'Recordatorio de evento';
+
+  @override
+  String get notifTypeNewCounselingRequest => 'Nuevo pedido de consejería';
+
+  @override
+  String get notifTypeCounselingAccepted => 'Agendamiento confirmado';
+
+  @override
+  String get notifTypeCounselingRejected => 'Agendamiento rechazado';
+
+  @override
+  String get notifTypeCounselingCancelled => 'Agendamiento cancelado';
+
+  @override
+  String get notifTypeNewVideo => 'Nuevo vídeo';
+
+  @override
+  String get notifTypeMessage => 'Mensaje';
+
+  @override
+  String get notifTypeGeneric => 'Notificación';
+
+  @override
+  String get notifTypeCustom => 'Notificación personalizada';
 }
