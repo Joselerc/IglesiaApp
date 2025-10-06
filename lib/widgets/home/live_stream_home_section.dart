@@ -70,7 +70,6 @@ class LiveStreamHomeSection extends StatelessWidget {
             child: AppCard(
               padding: EdgeInsets.zero, // El padding lo manejaremos dentro
               child: Container(
-                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppSpacing.md), // Asegurar borde redondeado
                   // Borde solo si se muestra como vivo
@@ -78,9 +77,15 @@ class LiveStreamHomeSection extends StatelessWidget {
                       ? Border.all(color: AppColors.primary, width: 2.0) 
                       : null,
                 ),
-                child: Stack(
-                  alignment: Alignment.bottomLeft, // Alinear contenido inferior izquierdo
-                  children: [
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  margin: showAsLive ? const EdgeInsets.all(2.0) : EdgeInsets.zero, // Margen interno para el borde
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppSpacing.md - 2), // Radio reducido para el contenido interno
+                  ),
+                  child: Stack(
+                    alignment: Alignment.bottomLeft, // Alinear contenido inferior izquierdo
+                    children: [
                     // Imagen de fondo
                     Container(
                       height: 200, // Altura fija o adaptable
@@ -180,6 +185,7 @@ class LiveStreamHomeSection extends StatelessWidget {
                           ),
                         ),
                     ],
+                  ),
                 ),
               ),
             ),
