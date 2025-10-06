@@ -300,13 +300,17 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatDate(_startDate),
-                                    style: TextStyle(
-                                      color: _startDate == null ? Colors.grey[600] : AppColors.textPrimary,
-                                      fontWeight: _startDate != null ? FontWeight.w500 : FontWeight.normal,
+                                  Expanded(
+                                    child: Text(
+                                      _formatDate(_startDate),
+                                      style: TextStyle(
+                                        color: _startDate == null ? Colors.grey[600] : AppColors.textPrimary,
+                                        fontWeight: _startDate != null ? FontWeight.w500 : FontWeight.normal,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Icon(
                                     Icons.calendar_today, 
                                     size: 20, 
@@ -341,13 +345,17 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatTime(_startTime),
-                                    style: TextStyle(
-                                      color: _startTime == null ? Colors.grey[600] : AppColors.textPrimary,
-                                      fontWeight: _startTime != null ? FontWeight.w500 : FontWeight.normal,
+                                  Expanded(
+                                    child: Text(
+                                      _formatTime(_startTime),
+                                      style: TextStyle(
+                                        color: _startTime == null ? Colors.grey[600] : AppColors.textPrimary,
+                                        fontWeight: _startTime != null ? FontWeight.w500 : FontWeight.normal,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Icon(
                                     Icons.access_time, 
                                     size: 20, 
@@ -432,13 +440,17 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatDate(_endDate),
-                                    style: TextStyle(
-                                      color: _endDate == null ? Colors.grey[600] : AppColors.textPrimary,
-                                      fontWeight: _endDate != null ? FontWeight.w500 : FontWeight.normal,
+                                  Expanded(
+                                    child: Text(
+                                      _formatDate(_endDate),
+                                      style: TextStyle(
+                                        color: _endDate == null ? Colors.grey[600] : AppColors.textPrimary,
+                                        fontWeight: _endDate != null ? FontWeight.w500 : FontWeight.normal,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Icon(
                                     Icons.calendar_today, 
                                     size: 20, 
@@ -473,13 +485,17 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatTime(_endTime),
-                                    style: TextStyle(
-                                      color: _endTime == null ? Colors.grey[600] : AppColors.textPrimary,
-                                      fontWeight: _endTime != null ? FontWeight.w500 : FontWeight.normal,
+                                  Expanded(
+                                    child: Text(
+                                      _formatTime(_endTime),
+                                      style: TextStyle(
+                                        color: _endTime == null ? Colors.grey[600] : AppColors.textPrimary,
+                                        fontWeight: _endTime != null ? FontWeight.w500 : FontWeight.normal,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Icon(
                                     Icons.access_time, 
                                     size: 20, 
