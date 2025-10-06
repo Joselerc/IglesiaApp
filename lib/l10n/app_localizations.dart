@@ -2678,12 +2678,6 @@ abstract class AppLocalizations {
   /// **'Sin permiso para guardar configuraciones.'**
   String get noPermissionToSaveSettings;
 
-  /// No description provided for @errorUploadingImage.
-  ///
-  /// In es, this message translates to:
-  /// **'Error al hacer upload de la imagen: {error}'**
-  String errorUploadingImage(String error);
-
   /// No description provided for @donationConfigSaved.
   ///
   /// In es, this message translates to:
@@ -9098,12 +9092,6 @@ abstract class AppLocalizations {
   /// **'Guardar esta localización para uso futuro'**
   String get saveLocationForFuture;
 
-  /// No description provided for @errorLoadingLocations.
-  ///
-  /// In es, this message translates to:
-  /// **'Error al cargar ubicaciones: {error}'**
-  String errorLoadingLocations(Object error);
-
   /// No description provided for @noSavedLocations.
   ///
   /// In es, this message translates to:
@@ -10022,6 +10010,12 @@ abstract class AppLocalizations {
   /// **'Localización Guardada'**
   String get savedLocation;
 
+  /// No description provided for @errorLoadingLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar ubicaciones: {error}'**
+  String errorLoadingLocations(Object error);
+
   /// No description provided for @errorLoadingSavedLocations.
   ///
   /// In es, this message translates to:
@@ -10453,6 +10447,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'hasta {date}'**
   String untilDate(Object date);
+
+  /// No description provided for @errorUploadingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al hacer upload de la imagen: {error}'**
+  String errorUploadingImage(String error);
 }
 
 class _AppLocalizationsDelegate

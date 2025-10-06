@@ -770,7 +770,6 @@
     },
     "manageDonationsTitle": "Gestionar Donaciones",
     "noPermissionToSaveSettings": "Sin permiso para guardar configuraciones.",
-    "errorUploadingImage": "Error al subir imagen",
     "donationConfigSaved": "Configuraciones de donación guardadas",
     "errorSaving": "Error al guardar: {error}",
     "@errorSaving": {
@@ -2418,7 +2417,6 @@
   "city": "Ciudad",
   "state": "Estado",
   "saveLocationForFuture": "Guardar esta localización para uso futuro",
-  "errorLoadingLocations": "Error al cargar localizaciones. Puedes ingresar una nueva localización abajo.",
   "noSavedLocations": "No hay localizaciones guardadas. Por favor, ingresa una nueva localización abajo.",
   "selectExistingLocation": "Seleccionar localización existente",
   "chooseLocation": "Elige una localización",

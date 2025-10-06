@@ -169,7 +169,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
       finalImageUrl = await _uploadImage(_imageFile!);
       if (finalImageUrl == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage('Error desconocido')), backgroundColor: Colors.red),
         );
         setState(() => _isLoading = false);
         return;

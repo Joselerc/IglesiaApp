@@ -1482,11 +1482,6 @@ class AppLocalizationsPt extends AppLocalizations {
       'Sem permissão para salvar configurações.';
 
   @override
-  String errorUploadingImage(String error) {
-    return 'Erro ao fazer upload da imagem: $error';
-  }
-
-  @override
   String get donationConfigSaved => 'Configurações de doação salvas';
 
   @override
@@ -5066,11 +5061,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveLocationForFuture => 'Salvar esta localização para uso futuro';
 
   @override
-  String errorLoadingLocations(Object error) {
-    return 'Error al cargar ubicaciones: $error';
-  }
-
-  @override
   String get noSavedLocations =>
       'Não há localizações salvas. Por favor, insira uma nova localização abaixo.';
 
@@ -5605,6 +5595,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get savedLocation => 'Localização Salva';
 
   @override
+  String errorLoadingLocations(Object error) {
+    return 'Error al cargar ubicaciones: $error';
+  }
+
+  @override
   String errorLoadingSavedLocations(Object error) {
     return 'Erro ao carregar ubicações guardadas: $error';
   }
@@ -5845,5 +5840,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String untilDate(Object date) {
     return 'até $date';
+  }
+
+  @override
+  String errorUploadingImage(String error) {
+    return 'Erro ao fazer upload da imagem: $error';
   }
 }

@@ -766,7 +766,7 @@ class _CultsScreenState extends State<CultsScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.errorLoadingLocations,
+                AppLocalizations.of(context)!.errorLoadingLocations('Error desconocido'),
                 style: TextStyle(color: Colors.red[700]),
               ),
             ),
