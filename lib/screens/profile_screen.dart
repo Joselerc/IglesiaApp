@@ -1328,37 +1328,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
 
                         if (confirmed == true && mounted) {
-                          // Mostrar indicador de carga
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-
                           try {
                             // Guardar referencia al AuthService antes de cerrar sesión
                             final authService = Provider.of<AuthService>(context, listen: false);
                             
-                            // Ejecutar cierre de sesión
+                            // Ejecutar cierre de sesión sin mostrar diálogo
+                            // El AuthWrapper mostrará su propio loading mientras se procesa
                             await authService.forceSignOut();
                             
-                            // Cerrar el diálogo de carga si el widget aún está montado
-                            if (mounted) {
-                              Navigator.of(context).pop();
-                            }
-                            
-                            // Nota: No necesitamos navegar manualmente porque authStateChanges()
-                            // en AuthWrapper se encargará de eso automáticamente
+                            // Nota: No necesitamos navegar manualmente ni cerrar diálogos
+                            // porque authStateChanges() en AuthWrapper se encargará de todo
                           } catch (e) {
                             debugPrint("❌ Error al cerrar sesión: $e");
                             
-                            // Cerrar el diálogo de carga
+                            // Mostrar mensaje de error solo si falla
                             if (mounted) {
-                              Navigator.of(context).pop();
-                              
-                              // Mostrar mensaje de error
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(AppLocalizations.of(context)!.errorLoggingOut(e.toString())),
