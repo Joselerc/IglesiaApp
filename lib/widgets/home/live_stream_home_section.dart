@@ -79,7 +79,7 @@ class LiveStreamHomeSection extends StatelessWidget {
                       : null,
                 ),
                 child: ClipRRect( // Clip para que el contenido respete el borde redondeado
-                  borderRadius: BorderRadius.circular(AppSpacing.md),
+                  borderRadius: BorderRadius.circular(showAsLive ? AppSpacing.md - 2 : AppSpacing.md),
                   child: Stack(
                     alignment: Alignment.bottomLeft, // Alinear contenido inferior izquierdo
                     children: [
