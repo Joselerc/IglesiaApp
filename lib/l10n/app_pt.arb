@@ -2543,5 +2543,212 @@
   "rolePermissions": "Permissões do rol:",
   "thisRoleHasNoPermissions": "Este rol não tem permissões atribuídas",
   "errorObtainingDiagnostic": "Erro ao obter diagnóstico: {error}",
-  "id": "ID"
+  "id": "ID",
+  "noCultsScheduled": "Não há cultos programados",
+  "noCultsFor": "Não há cultos para {date}",
+  "errorColon": "Erro: {error}",
+  "dateNotAvailable": "Data não disponível",
+  "acceptedOn": "Aceito em",
+  "status": "Status",
+  "accepted": "Aceito",
+  "notSpecified": "Não especificado",
+  "noServicesAssignedForThisDay": "Você não tem serviços designados para este dia",
+  "noCounselingAppointmentsForThisDay": "Você não tem consultas de aconselhamento confirmadas para este dia",
+  "createEvent": "Criar Evento",
+  "basicInformation": "Informação Básica",
+  "location": "Localização",
+  "dateAndTime": "Data e Hora",
+  "recurrence": "Recorrência",
+  "basicInfo": "Informações Básicas",
+  "defineEssentialEventData": "Defina os dados essenciais do seu evento",
+  "addBasicInfoAboutEvent": "Adicione as informações básicas sobre o seu evento.",
+  "addEventImage": "Adicionar Imagem do Evento (16:9)",
+  "recommendedSize": "Tamanho recomendado: 1920x1080",
+  "uploadingImage": "Fazendo upload da imagem...",
+  "tapToChange": "Toque para alterar",
+  "deleteImage": "Excluir imagem",
+  "eventName": "Nome do Evento",
+  "writeClearDescriptiveTitle": "Escreva um título claro e descritivo",
+  "pleaseEnterEventName": "Por favor, insira o nome do evento",
+  "category": "Categoria",
+  "selectCategory": "Selecione uma categoria",
+  "pleaseSelectCategory": "Por favor, selecione uma categoria",
+  "createNewCategory": "Criar nova categoria",
+  "hideCategory": "Ocultar categoria",
+  "categoryWillNotAppear": "A categoria \"{category}\" não aparecerá mais na lista de categorias disponíveis. Esta ação não afeta eventos existentes.\n\nDeseja continuar?",
+  "@categoryWillNotAppear": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "hide": "Ocultar",
+  "categoryHidden": "Categoria \"{category}\" ocultada",
+  "@categoryHidden": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Desfazer",
+  "errorLoadingCategories": "Erro ao carregar categorias: {error}",
+  "@errorLoadingCategories": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "createNewCategoryTitle": "Criar Nova Categoria",
+  "categoryName": "Nome da Categoria",
+  "enterCategoryName": "Digite o nome da categoria",
+  "create": "Criar",
+  "errorCreatingCategory": "Erro ao criar categoria: {error}",
+  "@errorCreatingCategory": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "description": "Descrição",
+  "describeEventDetails": "Descreva os detalhes do evento",
+  "pleaseEnterDescription": "Por favor, insira uma descrição",
+  "advance": "Avançar",
+  "cancelCreation": "Cancelar criação",
+  "sureWantToCancel": "Tem certeza que deseja cancelar? Todas as informações serão perdidas.",
+  "continueEditing": "Continuar editando",
+  "eventsCreatedSuccessfully": "{count} eventos criados com sucesso",
+  "@eventsCreatedSuccessfully": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventCreatedSuccessfully": "Evento criado com sucesso",
+  "errorCreatingEvent": "Erro ao criar evento: {error}",
+  "@errorCreatingEvent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "creatingEvent": "Criando evento...",
+  "pleaseWaitProcessingData": "Por favor, aguarde enquanto processamos os dados",
+  "eventLocation": "Localização do Evento",
+  "defineWhereEventWillHappen": "Defina onde o evento acontecerá",
+  "eventType": "Tipo de Evento",
+  "presential": "Presencial",
+  "online": "Online",
+  "hybrid": "Híbrido",
+  "churchLocations": "Localizações da Igreja",
+  "useChurchLocation": "Usar localização da igreja",
+  "selectRegisteredLocation": "Selecione um dos locais registrados",
+  "noChurchLocationsAvailable": "Não há localizações da igreja disponíveis",
+  "churchLocation": "Localização da Igreja",
+  "noName": "Sem nome",
+  "pleaseSelectALocation": "Por favor selecione uma localização",
+  "mySavedLocations": "Minhas Localizações Salvas",
+  "useSavedLocation": "Usar localização salva",
+  "selectSavedLocation": "Selecione uma das suas localizações salvas",
+  "noSavedLocationsAvailable": "Não há localizações salvas disponíveis",
+  "savedLocation": "Localização Salva",
+  "errorLoadingLocations": "Error al cargar ubicaciones: {error}",
+  "errorLoadingSavedLocations": "Erro ao carregar ubicações guardadas: {error}",
+  "pleaseSelectChurchLocation": "Por favor, selecciona uma ubicación de iglesia",
+  "pleaseSelectASavedLocation": "Por favor, selecciona uma localização guardada",
+  "eventAddress": "Endereço do Evento",
+  "cityRequired": "Cidade *",
+  "enterEventCity": "Digite a cidade do evento",
+  "pleaseEnterCity": "Por favor digite a cidade",
+  "stateRequired": "Estado *",
+  "enterEventState": "Digite o estado do evento",
+  "pleaseEnterState": "Por favor digite o estado",
+  "streetRequired": "Rua *",
+  "enterEventStreet": "Digite a rua do evento",
+  "pleaseEnterStreet": "Por favor digite a rua",
+  "numberRequired": "Número *",
+  "exampleNumber": "Ex: 123",
+  "pleaseEnterNumber": "Por favor digite o número",
+  "postalCode": "CEP",
+  "examplePostalCode": "Ex: 12345-678",
+  "neighborhood": "Bairro",
+  "enterNeighborhood": "Digite o bairro",
+  "complement": "Complemento",
+  "apartmentRoomEtc": "Apartamento, sala, etc.",
+  "saveLocationForFutureUse": "Salvar esta localização para uso futuro",
+  "locationNameRequired": "Nome da localização *",
+  "exampleLocationName": "Ex: Meu Local Favorito",
+  "pleaseEnterLocationName": "Por favor digite um nome para a localização",
+  "saveAsChurchLocationAdmin": "Salvar como localização da igreja (admin)",
+  "saveLocation": "Salvar Localização",
+  "pleaseEnterLocationNameForSave": "Por favor ingresa un nombre para la ubicación",
+  "userNotAuthenticated": "Usuario no autenticado",
+  "locationSavedSuccessfully": "Ubicación guardada correctamente",
+  "errorSavingLocation": "Error al guardar ubicación: {error}",
+  "churchLocationSavedSuccessfully": "Ubicación de iglesia guardada correctamente",
+  "onlineEventLink": "Link do Evento Online",
+  "meetingUrlRequired": "URL da Reunião *",
+  "exampleZoomUrl": "Ex: https://zoom.us/j/12345678",
+  "pleaseEnterValidUrl": "Por favor digite um URL válido",
+  "accessInstructionsOptional": "Instruções de Acesso (opcional)",
+  "instructionsToJoinMeeting": "Instruções para entrar na reunião online, senhas, etc.",
+  "onlineOptionHybrid": "Opção Online (Híbrido)",
+  "forHybridEventsPleaseEnterValidUrl": "Para eventos híbridos, por favor digite um URL válido",
+  "back": "Voltar",
+  "next": "Próximo",
+  "eventDateAndTime": "Data e Hora do Evento",
+  "defineWhenEventStartsAndEnds": "Defina quando o evento começa e termina",
+  "start": "Início",
+  "end": "Fim",
+  "selectDate": "Selecionar data",
+  "selectTime": "Selecionar hora",
+  "eventRecurrence": "Recorrência do Evento",
+  "defineIfEventWillBeOnceOrRecurring": "Defina se seu evento acontecerá uma única vez ou será recorrente",
+  "recurrenceSettings": "Configurações de Recorrência",
+  "defineFrequencyOfRecurringEvent": "Defina a frequência do seu evento recorrente",
+  "frequency": "Frequência",
+  "numberIndicatesInterval": "O número indica o intervalo de repetição. Por exemplo: \"2 Semanalmente\" significa que o evento se repetirá a cada 2 semanas.",
+  "repeatEvery": "Repetir a cada:",
+  "days": "dias",
+  "day": "dia",
+  "weeks": "semanas",
+  "week": "semana",
+  "months": "meses",
+  "month": "mês",
+  "years": "anos",
+  "year": "ano",
+  "ends": "Termina",
+  "after": "Após",
+  "occurrences": "ocorrências",
+  "onDate": "Em data",
+  "date": "Data",
+  "completed": "Concluído",
+  "single": "Único",
+  "recurring": "Recorrente",
+  "singleEventNonRecurring": "Evento único (não recorrente)",
+  "repeatsEveryXDays": "Repete a cada {interval} dias",
+  "repeatsDaily": "Repete diariamente",
+  "repeatsEveryXWeeks": "Repete a cada {interval} semanas",
+  "repeatsWeekly": "Repete semanalmente",
+  "repeatsEveryXMonths": "Repete a cada {interval} meses",
+  "repeatsMonthly": "Repete mensalmente",
+  "repeatsEveryXYears": "Repete a cada {interval} anos",
+  "repeatsYearly": "Repete anualmente",
+  "noEndDefined": "sem fim definido",
+  "untilXOccurrences": "até {count} ocorrências",
+  "untilSpecificDate": "até data específica",
+  "untilDate": "até {date}",
+  "errorUploadingImage": "Erro ao fazer upload da imagem: {error}",
+  "@errorUploadingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

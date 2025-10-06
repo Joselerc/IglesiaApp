@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class CalendarCounselingView extends StatefulWidget {
   final DateTime selectedDate;
@@ -120,7 +121,7 @@ class _CalendarCounselingViewState extends State<CalendarCounselingView> {
             'date': date,
             'endDate': endDate,
             'type': data['type'] as String? ?? 'online',
-            'reason': data['reason'] as String? ?? 'Não especificado',
+            'reason': data['reason'] as String? ?? AppLocalizations.of(context)!.notSpecified,
             'location': data['location'] as String? ?? '',
             'otherPersonName': otherPersonName,
             'isUserPastor': isUserPastor,
@@ -160,7 +161,7 @@ class _CalendarCounselingViewState extends State<CalendarCounselingView> {
             Icon(Icons.calendar_today, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Você não tem consultas de aconselhamento confirmadas para este dia',
+              AppLocalizations.of(context)!.noCounselingAppointmentsForThisDay,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -288,7 +289,7 @@ class _CalendarCounselingViewState extends State<CalendarCounselingView> {
                     
                     // Motivo (opcional)
                     // Motivo (opcional)
-                    if (reason != 'Não especificado')
+                    if (reason != AppLocalizations.of(context)!.notSpecified)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

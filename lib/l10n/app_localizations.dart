@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In es, this message translates to:
-  /// **'Selecciona una fecha'**
+  /// **'Seleccionar fecha'**
   String get selectDate;
 
   /// No description provided for @gender.
@@ -1535,7 +1535,7 @@ abstract class AppLocalizations {
   /// No description provided for @accepted.
   ///
   /// In es, this message translates to:
-  /// **'Aceptados'**
+  /// **'Aceptado'**
   String get accepted;
 
   /// No description provided for @rejected.
@@ -1709,7 +1709,7 @@ abstract class AppLocalizations {
   /// No description provided for @online.
   ///
   /// In es, this message translates to:
-  /// **'Online'**
+  /// **'En línea'**
   String get online;
 
   /// No description provided for @inPerson.
@@ -2681,8 +2681,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorUploadingImage.
   ///
   /// In es, this message translates to:
-  /// **'Error al subir imagen'**
-  String get errorUploadingImage;
+  /// **'Error al hacer upload de la imagen: {error}'**
+  String errorUploadingImage(String error);
 
   /// No description provided for @donationConfigSaved.
   ///
@@ -2885,7 +2885,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterValidUrl.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, ingresa una URL válida (comenzando con http o https)'**
+  /// **'Por favor ingresa un URL válido'**
   String get pleaseEnterValidUrl;
 
   /// No description provided for @activateTransmissionHome.
@@ -3347,7 +3347,7 @@ abstract class AppLocalizations {
   /// No description provided for @date.
   ///
   /// In es, this message translates to:
-  /// **'Fecha:'**
+  /// **'Fecha'**
   String get date;
 
   /// No description provided for @select.
@@ -4859,7 +4859,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterDescription.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, introduce una descripción'**
+  /// **'Por favor, ingresa una descripción'**
   String get pleaseEnterDescription;
 
   /// No description provided for @announcementExpirationDate.
@@ -5495,7 +5495,7 @@ abstract class AppLocalizations {
   /// No description provided for @location.
   ///
   /// In es, this message translates to:
-  /// **'Localización:'**
+  /// **'Localización'**
   String get location;
 
   /// No description provided for @selectLocation.
@@ -5549,7 +5549,7 @@ abstract class AppLocalizations {
   /// No description provided for @postalCode.
   ///
   /// In es, this message translates to:
-  /// **'Código postal'**
+  /// **'CEP'**
   String get postalCode;
 
   /// No description provided for @country.
@@ -5771,7 +5771,7 @@ abstract class AppLocalizations {
   /// No description provided for @completed.
   ///
   /// In es, this message translates to:
-  /// **'Completaron'**
+  /// **'Completado'**
   String get completed;
 
   /// No description provided for @withPreposition.
@@ -6347,7 +6347,7 @@ abstract class AppLocalizations {
   /// No description provided for @recommendedSize.
   ///
   /// In es, this message translates to:
-  /// **'Recomendado: 16:9 (1920x1080px)'**
+  /// **'Tamaño recomendado: 1920x1080'**
   String get recommendedSize;
 
   /// No description provided for @categoryHint.
@@ -9101,8 +9101,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingLocations.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar localizaciones. Puedes ingresar una nueva localización abajo.'**
-  String get errorLoadingLocations;
+  /// **'Error al cargar ubicaciones: {error}'**
+  String errorLoadingLocations(Object error);
 
   /// No description provided for @noSavedLocations.
   ///
@@ -9137,7 +9137,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorSavingLocation.
   ///
   /// In es, this message translates to:
-  /// **'Error al guardar localización: {error}'**
+  /// **'Error al guardar ubicación: {error}'**
   String errorSavingLocation(Object error);
 
   /// No description provided for @timeSlotsTab.
@@ -9679,6 +9679,780 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'ID'**
   String get id;
+
+  /// No description provided for @noCultsScheduled.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay cultos programados'**
+  String get noCultsScheduled;
+
+  /// No description provided for @noCultsFor.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay cultos para {date}'**
+  String noCultsFor(Object date);
+
+  /// No description provided for @errorColon.
+  ///
+  /// In es, this message translates to:
+  /// **'Error: {error}'**
+  String errorColon(Object error);
+
+  /// No description provided for @dateNotAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha no disponible'**
+  String get dateNotAvailable;
+
+  /// No description provided for @acceptedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptado el'**
+  String get acceptedOn;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In es, this message translates to:
+  /// **'No especificado'**
+  String get notSpecified;
+
+  /// No description provided for @noServicesAssignedForThisDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes servicios asignados para este día'**
+  String get noServicesAssignedForThisDay;
+
+  /// No description provided for @noCounselingAppointmentsForThisDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes consultas de asesoramiento confirmadas para este día'**
+  String get noCounselingAppointmentsForThisDay;
+
+  /// No description provided for @basicInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información Básica'**
+  String get basicInformation;
+
+  /// No description provided for @dateAndTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y Hora'**
+  String get dateAndTime;
+
+  /// No description provided for @recurrence.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrencia'**
+  String get recurrence;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Informaciones Básicas'**
+  String get basicInfo;
+
+  /// No description provided for @defineEssentialEventData.
+  ///
+  /// In es, this message translates to:
+  /// **'Define los datos esenciales de tu evento'**
+  String get defineEssentialEventData;
+
+  /// No description provided for @addBasicInfoAboutEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Añade las informaciones básicas sobre tu evento.'**
+  String get addBasicInfoAboutEvent;
+
+  /// No description provided for @addEventImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir Imagen del Evento (16:9)'**
+  String get addEventImage;
+
+  /// No description provided for @uploadingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Subiendo imagen...'**
+  String get uploadingImage;
+
+  /// No description provided for @deleteImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar imagen'**
+  String get deleteImage;
+
+  /// No description provided for @eventName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Evento'**
+  String get eventName;
+
+  /// No description provided for @writeClearDescriptiveTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un título claro y descriptivo'**
+  String get writeClearDescriptiveTitle;
+
+  /// No description provided for @pleaseEnterEventName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa el nombre del evento'**
+  String get pleaseEnterEventName;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una categoría'**
+  String get selectCategory;
+
+  /// No description provided for @pleaseSelectCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona una categoría'**
+  String get pleaseSelectCategory;
+
+  /// No description provided for @createNewCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nueva categoría'**
+  String get createNewCategory;
+
+  /// No description provided for @hideCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar categoría'**
+  String get hideCategory;
+
+  /// No description provided for @categoryWillNotAppear.
+  ///
+  /// In es, this message translates to:
+  /// **'La categoría \"{category}\" no aparecerá más en la lista de categorías disponibles. Esta acción no afecta eventos existentes.\n\n¿Deseas continuar?'**
+  String categoryWillNotAppear(String category);
+
+  /// No description provided for @hide.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar'**
+  String get hide;
+
+  /// No description provided for @categoryHidden.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría \"{category}\" ocultada'**
+  String categoryHidden(String category);
+
+  /// No description provided for @undo.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer'**
+  String get undo;
+
+  /// No description provided for @errorLoadingCategories.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar categorías: {error}'**
+  String errorLoadingCategories(String error);
+
+  /// No description provided for @createNewCategoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nueva Categoría'**
+  String get createNewCategoryTitle;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la Categoría'**
+  String get categoryName;
+
+  /// No description provided for @enterCategoryName.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa el nombre de la categoría'**
+  String get enterCategoryName;
+
+  /// No description provided for @errorCreatingCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear categoría: {error}'**
+  String errorCreatingCategory(String error);
+
+  /// No description provided for @describeEventDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Describe los detalles del evento'**
+  String get describeEventDetails;
+
+  /// No description provided for @advance.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzar'**
+  String get advance;
+
+  /// No description provided for @cancelCreation.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar creación'**
+  String get cancelCreation;
+
+  /// No description provided for @sureWantToCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas cancelar? Toda la información se perderá.'**
+  String get sureWantToCancel;
+
+  /// No description provided for @continueEditing.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar editando'**
+  String get continueEditing;
+
+  /// No description provided for @eventsCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} eventos creados con éxito'**
+  String eventsCreatedSuccessfully(int count);
+
+  /// No description provided for @eventCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento creado con éxito'**
+  String get eventCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear evento: {error}'**
+  String errorCreatingEvent(String error);
+
+  /// No description provided for @creatingEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Creando evento...'**
+  String get creatingEvent;
+
+  /// No description provided for @pleaseWaitProcessingData.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, espera mientras procesamos los datos'**
+  String get pleaseWaitProcessingData;
+
+  /// No description provided for @eventLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización del Evento'**
+  String get eventLocation;
+
+  /// No description provided for @defineWhereEventWillHappen.
+  ///
+  /// In es, this message translates to:
+  /// **'Define dónde ocurrirá el evento'**
+  String get defineWhereEventWillHappen;
+
+  /// No description provided for @eventType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de Evento'**
+  String get eventType;
+
+  /// No description provided for @churchLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Localizaciones de la Iglesia'**
+  String get churchLocations;
+
+  /// No description provided for @useChurchLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar localización de la iglesia'**
+  String get useChurchLocation;
+
+  /// No description provided for @selectRegisteredLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona uno de los locales registrados'**
+  String get selectRegisteredLocation;
+
+  /// No description provided for @noChurchLocationsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay localizaciones de la iglesia disponibles'**
+  String get noChurchLocationsAvailable;
+
+  /// No description provided for @churchLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización de la Iglesia'**
+  String get churchLocation;
+
+  /// No description provided for @pleaseSelectALocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor selecciona una localización'**
+  String get pleaseSelectALocation;
+
+  /// No description provided for @mySavedLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis Localizaciones Guardadas'**
+  String get mySavedLocations;
+
+  /// No description provided for @useSavedLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar localización guardada'**
+  String get useSavedLocation;
+
+  /// No description provided for @selectSavedLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una de tus localizaciones guardadas'**
+  String get selectSavedLocation;
+
+  /// No description provided for @noSavedLocationsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay localizaciones guardadas disponibles'**
+  String get noSavedLocationsAvailable;
+
+  /// No description provided for @savedLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización Guardada'**
+  String get savedLocation;
+
+  /// No description provided for @errorLoadingSavedLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar ubicaciones guardadas: {error}'**
+  String errorLoadingSavedLocations(Object error);
+
+  /// No description provided for @pleaseSelectChurchLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona una ubicación de iglesia'**
+  String get pleaseSelectChurchLocation;
+
+  /// No description provided for @pleaseSelectASavedLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona una localización guardada'**
+  String get pleaseSelectASavedLocation;
+
+  /// No description provided for @eventAddress.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección del Evento'**
+  String get eventAddress;
+
+  /// No description provided for @cityRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ciudad *'**
+  String get cityRequired;
+
+  /// No description provided for @enterEventCity.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa la ciudad del evento'**
+  String get enterEventCity;
+
+  /// No description provided for @pleaseEnterCity.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa la ciudad'**
+  String get pleaseEnterCity;
+
+  /// No description provided for @stateRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado *'**
+  String get stateRequired;
+
+  /// No description provided for @enterEventState.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa el estado del evento'**
+  String get enterEventState;
+
+  /// No description provided for @pleaseEnterState.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa el estado'**
+  String get pleaseEnterState;
+
+  /// No description provided for @streetRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Calle *'**
+  String get streetRequired;
+
+  /// No description provided for @enterEventStreet.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa la calle del evento'**
+  String get enterEventStreet;
+
+  /// No description provided for @pleaseEnterStreet.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa la calle'**
+  String get pleaseEnterStreet;
+
+  /// No description provided for @numberRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Número *'**
+  String get numberRequired;
+
+  /// No description provided for @exampleNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: 123'**
+  String get exampleNumber;
+
+  /// No description provided for @pleaseEnterNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa el número'**
+  String get pleaseEnterNumber;
+
+  /// No description provided for @examplePostalCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: 12345-678'**
+  String get examplePostalCode;
+
+  /// No description provided for @enterNeighborhood.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa el barrio'**
+  String get enterNeighborhood;
+
+  /// No description provided for @apartmentRoomEtc.
+  ///
+  /// In es, this message translates to:
+  /// **'Apartamento, sala, etc.'**
+  String get apartmentRoomEtc;
+
+  /// No description provided for @saveLocationForFutureUse.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar esta localización para uso futuro'**
+  String get saveLocationForFutureUse;
+
+  /// No description provided for @locationNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la localización *'**
+  String get locationNameRequired;
+
+  /// No description provided for @exampleLocationName.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Mi Local Favorito'**
+  String get exampleLocationName;
+
+  /// No description provided for @pleaseEnterLocationName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un nombre para la localización'**
+  String get pleaseEnterLocationName;
+
+  /// No description provided for @saveAsChurchLocationAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar como localización de la iglesia (admin)'**
+  String get saveAsChurchLocationAdmin;
+
+  /// No description provided for @saveLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Localización'**
+  String get saveLocation;
+
+  /// No description provided for @pleaseEnterLocationNameForSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un nombre para la ubicación'**
+  String get pleaseEnterLocationNameForSave;
+
+  /// No description provided for @locationSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Ubicación guardada correctamente'**
+  String get locationSavedSuccessfully;
+
+  /// No description provided for @churchLocationSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Ubicación de iglesia guardada correctamente'**
+  String get churchLocationSavedSuccessfully;
+
+  /// No description provided for @onlineEventLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Link del Evento En Línea'**
+  String get onlineEventLink;
+
+  /// No description provided for @meetingUrlRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'URL de la Reunión *'**
+  String get meetingUrlRequired;
+
+  /// No description provided for @exampleZoomUrl.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: https://zoom.us/j/12345678'**
+  String get exampleZoomUrl;
+
+  /// No description provided for @accessInstructionsOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Instrucciones de Acceso (opcional)'**
+  String get accessInstructionsOptional;
+
+  /// No description provided for @instructionsToJoinMeeting.
+  ///
+  /// In es, this message translates to:
+  /// **'Instrucciones para entrar a la reunión en línea, contraseñas, etc.'**
+  String get instructionsToJoinMeeting;
+
+  /// No description provided for @onlineOptionHybrid.
+  ///
+  /// In es, this message translates to:
+  /// **'Opción En Línea (Híbrido)'**
+  String get onlineOptionHybrid;
+
+  /// No description provided for @forHybridEventsPleaseEnterValidUrl.
+  ///
+  /// In es, this message translates to:
+  /// **'Para eventos híbridos, por favor ingresa un URL válido'**
+  String get forHybridEventsPleaseEnterValidUrl;
+
+  /// No description provided for @next.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximo'**
+  String get next;
+
+  /// No description provided for @eventDateAndTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y Hora del Evento'**
+  String get eventDateAndTime;
+
+  /// No description provided for @defineWhenEventStartsAndEnds.
+  ///
+  /// In es, this message translates to:
+  /// **'Define cuándo el evento comienza y termina'**
+  String get defineWhenEventStartsAndEnds;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar hora'**
+  String get selectTime;
+
+  /// No description provided for @eventRecurrence.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrencia del Evento'**
+  String get eventRecurrence;
+
+  /// No description provided for @defineIfEventWillBeOnceOrRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Define si tu evento ocurrirá una única vez o será recurrente'**
+  String get defineIfEventWillBeOnceOrRecurring;
+
+  /// No description provided for @recurrenceSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuraciones de Recurrencia'**
+  String get recurrenceSettings;
+
+  /// No description provided for @defineFrequencyOfRecurringEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Define la frecuencia de tu evento recurrente'**
+  String get defineFrequencyOfRecurringEvent;
+
+  /// No description provided for @frequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia'**
+  String get frequency;
+
+  /// No description provided for @numberIndicatesInterval.
+  ///
+  /// In es, this message translates to:
+  /// **'El número indica el intervalo de repetición. Por ejemplo: \"2 Semanalmente\" significa que el evento se repetirá cada 2 semanas.'**
+  String get numberIndicatesInterval;
+
+  /// No description provided for @repeatEvery.
+  ///
+  /// In es, this message translates to:
+  /// **'Repetir cada:'**
+  String get repeatEvery;
+
+  /// No description provided for @days.
+  ///
+  /// In es, this message translates to:
+  /// **'días'**
+  String get days;
+
+  /// No description provided for @day.
+  ///
+  /// In es, this message translates to:
+  /// **'día'**
+  String get day;
+
+  /// No description provided for @weeks.
+  ///
+  /// In es, this message translates to:
+  /// **'semanas'**
+  String get weeks;
+
+  /// No description provided for @week.
+  ///
+  /// In es, this message translates to:
+  /// **'semana'**
+  String get week;
+
+  /// No description provided for @months.
+  ///
+  /// In es, this message translates to:
+  /// **'meses'**
+  String get months;
+
+  /// No description provided for @month.
+  ///
+  /// In es, this message translates to:
+  /// **'mes'**
+  String get month;
+
+  /// No description provided for @year.
+  ///
+  /// In es, this message translates to:
+  /// **'año'**
+  String get year;
+
+  /// No description provided for @ends.
+  ///
+  /// In es, this message translates to:
+  /// **'Termina'**
+  String get ends;
+
+  /// No description provided for @after.
+  ///
+  /// In es, this message translates to:
+  /// **'Después'**
+  String get after;
+
+  /// No description provided for @occurrences.
+  ///
+  /// In es, this message translates to:
+  /// **'ocurrencias'**
+  String get occurrences;
+
+  /// No description provided for @onDate.
+  ///
+  /// In es, this message translates to:
+  /// **'En fecha'**
+  String get onDate;
+
+  /// No description provided for @single.
+  ///
+  /// In es, this message translates to:
+  /// **'Único'**
+  String get single;
+
+  /// No description provided for @recurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrente'**
+  String get recurring;
+
+  /// No description provided for @singleEventNonRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento único (no recurrente)'**
+  String get singleEventNonRecurring;
+
+  /// No description provided for @repeatsEveryXDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite cada {interval} días'**
+  String repeatsEveryXDays(Object interval);
+
+  /// No description provided for @repeatsDaily.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite diariamente'**
+  String get repeatsDaily;
+
+  /// No description provided for @repeatsEveryXWeeks.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite cada {interval} semanas'**
+  String repeatsEveryXWeeks(Object interval);
+
+  /// No description provided for @repeatsWeekly.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite semanalmente'**
+  String get repeatsWeekly;
+
+  /// No description provided for @repeatsEveryXMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite cada {interval} meses'**
+  String repeatsEveryXMonths(Object interval);
+
+  /// No description provided for @repeatsMonthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite mensualmente'**
+  String get repeatsMonthly;
+
+  /// No description provided for @repeatsEveryXYears.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite cada {interval} años'**
+  String repeatsEveryXYears(Object interval);
+
+  /// No description provided for @repeatsYearly.
+  ///
+  /// In es, this message translates to:
+  /// **'Repite anualmente'**
+  String get repeatsYearly;
+
+  /// No description provided for @noEndDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'sin fin definido'**
+  String get noEndDefined;
+
+  /// No description provided for @untilXOccurrences.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta {count} ocurrencias'**
+  String untilXOccurrences(Object count);
+
+  /// No description provided for @untilSpecificDate.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta fecha específica'**
+  String get untilSpecificDate;
+
+  /// No description provided for @untilDate.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta {date}'**
+  String untilDate(Object date);
 }
 
 class _AppLocalizationsDelegate

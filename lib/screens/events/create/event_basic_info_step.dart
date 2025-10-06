@@ -6,6 +6,7 @@ import 'dart:io';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EventBasicInfoStep extends StatefulWidget {
   final Function(String title, String category, String description, String? imageUrl) onNext;
@@ -85,15 +86,15 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
     final bool confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ocultar categoria'),
-        content: Text('A categoria "$category" não aparecerá mais na lista de categorias disponíveis. Esta ação não afeta eventos existentes.\n\nDeseja continuar?'),
+        title: Text(AppLocalizations.of(context)!.hideCategory),
+        content: Text(AppLocalizations.of(context)!.categoryWillNotAppear(category)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
@@ -101,7 +102,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Ocultar'),
+            child: Text(AppLocalizations.of(context)!.hide),
           ),
         ],
       ),
@@ -124,10 +125,10 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Categoria "$category" ocultada'),
+          content: Text(AppLocalizations.of(context)!.categoryHidden(category)),
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
-            label: 'Desfazer',
+            label: AppLocalizations.of(context)!.undo,
             onPressed: () async {
               setState(() {
                 _hiddenCategories.remove(category);
@@ -170,7 +171,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar categorias: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingCategories(e.toString()))),
         );
       }
     }
@@ -182,13 +183,13 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Criar Nova Categoria'),
+        title: Text(AppLocalizations.of(context)!.createNewCategoryTitle),
         content: TextField(
           controller: categoryController,
-          decoration: const InputDecoration(
-            labelText: 'Nome da Categoria',
-            hintText: 'Digite o nome da categoria',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.categoryName,
+            hintText: AppLocalizations.of(context)!.enterCategoryName,
+            border: const OutlineInputBorder(),
           ),
           textCapitalization: TextCapitalization.sentences,
         ),
@@ -198,7 +199,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -225,7 +226,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 } catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro ao criar categoria: $e')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.errorCreatingCategory(e.toString()))),
                     );
                     setState(() {
                       _isLoading = false;
@@ -237,7 +238,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
             ),
-            child: const Text('Criar'),
+            child: Text(AppLocalizations.of(context)!.create),
           ),
         ],
       ),
@@ -271,8 +272,8 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
 
         // Mostrar progreso
         uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          final progress = snapshot.bytesTransferred / snapshot.totalBytes;
           // Aquí podrías actualizar un indicador de progreso si quisieras
+          // final progress = snapshot.bytesTransferred / snapshot.totalBytes;
         });
 
         // Esperar a que se complete la subida y obtener URL
@@ -291,7 +292,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
       // Mostrar error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao fazer upload da imagem: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage(e.toString()))),
         );
       }
     }
@@ -326,7 +327,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Fazendo upload da imagem...',
+                      AppLocalizations.of(context)!.uploadingImage,
                       style: TextStyle(color: Colors.grey.shade600),
                     )
                   ],
@@ -371,7 +372,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                                 _imageUrl = null;
                               });
                             },
-                            tooltip: 'Excluir imagem',
+                            tooltip: AppLocalizations.of(context)!.deleteImage,
                           ),
                         ),
                       ),
@@ -395,8 +396,8 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                             children: [
                               Icon(Icons.photo, color: Colors.white, size: 16),
                               const SizedBox(width: 8),
-                              const Text(
-                                'Toque para alterar',
+                              Text(
+                                AppLocalizations.of(context)!.tapToChange,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -416,14 +417,14 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                            size: 48, 
                            color: AppColors.primary.withOpacity(0.5)),
                       const SizedBox(height: 16),
-                      Text('Adicionar Imagem do Evento (16:9)',
+                      Text(AppLocalizations.of(context)!.addEventImage,
                            style: TextStyle(
                              color: AppColors.textPrimary,
                              fontWeight: FontWeight.w500,
                              fontSize: 16,
                            )),
                       const SizedBox(height: 8),
-                      Text('Tamanho recomendado: 1920x1080',
+                      Text(AppLocalizations.of(context)!.recommendedSize,
                            style: TextStyle(
                              color: AppColors.textSecondary,
                              fontSize: 13,
@@ -452,7 +453,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
               children: [
                 // Título y subtítulo
                 Text(
-                  'Informações Básicas',
+                  AppLocalizations.of(context)!.basicInfo,
                   style: AppTextStyles.subtitle1.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -460,7 +461,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Defina os dados essenciais do seu evento',
+                  AppLocalizations.of(context)!.defineEssentialEventData,
                   style: AppTextStyles.bodyText2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -481,7 +482,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Adicione as informações básicas sobre o seu evento.',
+                          AppLocalizations.of(context)!.addBasicInfoAboutEvent,
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 14,
@@ -502,8 +503,8 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    labelText: 'Nome do Evento',
-                    hintText: 'Escreva um título claro e descritivo',
+                    labelText: AppLocalizations.of(context)!.eventName,
+                    hintText: AppLocalizations.of(context)!.writeClearDescriptiveTitle,
                     prefixIcon: Icon(Icons.event, color: AppColors.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -525,7 +526,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Por favor, insira o nome do evento';
+                      return AppLocalizations.of(context)!.pleaseEnterEventName;
                     }
                     return null;
                   },
@@ -540,8 +541,8 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                       child: DropdownButtonFormField<String>(
                         value: _selectedCategory,
                         decoration: InputDecoration(
-                          labelText: 'Categoria',
-                          hintText: 'Selecione uma categoria',
+                          labelText: AppLocalizations.of(context)!.category,
+                          hintText: AppLocalizations.of(context)!.selectCategory,
                           prefixIcon: Icon(Icons.category, color: AppColors.primary),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -606,7 +607,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, selecione uma categoria';
+                            return AppLocalizations.of(context)!.pleaseSelectCategory;
                           }
                           return null;
                         },
@@ -632,7 +633,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: IconButton(
                         icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
-                        tooltip: 'Criar nova categoria',
+                        tooltip: AppLocalizations.of(context)!.createNewCategory,
                         onPressed: _createCategory,
                       ),
                     ),
@@ -643,8 +644,8 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: InputDecoration(
-                    labelText: 'Descrição',
-                    hintText: 'Descreva os detalhes do evento',
+                    labelText: AppLocalizations.of(context)!.description,
+                    hintText: AppLocalizations.of(context)!.describeEventDetails,
                     prefixIcon: Icon(Icons.description, color: AppColors.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -668,7 +669,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Por favor, insira uma descrição';
+                      return AppLocalizations.of(context)!.pleaseEnterDescription;
                     }
                     return null;
                   },
@@ -689,7 +690,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      child: const Text('Cancelar'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton.icon(
                       onPressed: _isLoading || _isUploadingImage 
@@ -722,9 +723,9 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                               ),
                             )
                           : const Icon(Icons.arrow_forward, size: 20, color: Colors.white),
-                      label: const Text(
-                        'Avançar',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      label: Text(
+                        AppLocalizations.of(context)!.advance,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

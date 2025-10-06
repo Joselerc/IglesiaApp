@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/cult.dart';
 import '../../services/event_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
@@ -27,7 +28,7 @@ class CalendarCultsView extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Erro: ${snapshot.error}'));
+          return Center(child: Text(AppLocalizations.of(context)!.errorColon(snapshot.error.toString())));
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -38,7 +39,7 @@ class CalendarCultsView extends StatelessWidget {
                 Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há cultos programados',
+                  AppLocalizations.of(context)!.noCultsScheduled,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -78,7 +79,7 @@ class CalendarCultsView extends StatelessWidget {
                 Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há cultos para ${DateFormat('d MMMM yyyy', 'pt_BR').format(selectedDate)}',
+                  AppLocalizations.of(context)!.noCultsFor(DateFormat('d MMMM yyyy', Localizations.localeOf(context).toString()).format(selectedDate)),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],

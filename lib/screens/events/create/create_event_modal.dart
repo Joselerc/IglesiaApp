@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/event_model.dart';
 import '../../../theme/app_colors.dart';
-import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreateEventModal extends StatefulWidget {
   const CreateEventModal({super.key});
@@ -22,12 +22,11 @@ class _CreateEventModalState extends State<CreateEventModal> {
   final PageController _pageController = PageController();
   bool _isCreating = false;
 
-  // Lista de títulos para cada paso
-  final List<String> _stepTitles = [
-    'Informação Básica',
-    'Localização',
-    'Data e Hora',
-    'Recorrência',
+  List<String> get _stepTitles => [
+    AppLocalizations.of(context)!.basicInformation,
+    AppLocalizations.of(context)!.location,
+    AppLocalizations.of(context)!.dateAndTime,
+    AppLocalizations.of(context)!.recurrence,
   ];
 
   // Lista de iconos para cada paso
@@ -68,15 +67,15 @@ class _CreateEventModalState extends State<CreateEventModal> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancelar criação'),
-        content: const Text('Tem certeza que deseja cancelar? Todas as informações serão perdidas.'),
+        title: Text(AppLocalizations.of(context)!.cancelCreation),
+        content: Text(AppLocalizations.of(context)!.sureWantToCancel),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continuar editando'),
+            child: Text(AppLocalizations.of(context)!.continueEditing),
           ),
           ElevatedButton(
             onPressed: () {
@@ -87,7 +86,7 @@ class _CreateEventModalState extends State<CreateEventModal> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),
@@ -251,7 +250,7 @@ class _CreateEventModalState extends State<CreateEventModal> {
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${eventsList.length} eventos criados com sucesso'),
+              content: Text(AppLocalizations.of(context)!.eventsCreatedSuccessfully(eventsList.length)),
               backgroundColor: Colors.green,
             ),
           );
@@ -295,8 +294,8 @@ class _CreateEventModalState extends State<CreateEventModal> {
         if (mounted) {
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Evento criado com sucesso'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.eventCreatedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -309,7 +308,7 @@ class _CreateEventModalState extends State<CreateEventModal> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar evento: $e'),
+            content: Text(AppLocalizations.of(context)!.errorCreatingEvent(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -417,9 +416,9 @@ class _CreateEventModalState extends State<CreateEventModal> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Criar Evento',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.createEvent,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -558,16 +557,16 @@ class _CreateEventModalState extends State<CreateEventModal> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Criando evento...',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.creatingEvent,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Por favor, aguarde enquanto processamos os dados',
+                  AppLocalizations.of(context)!.pleaseWaitProcessingData,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey[600],

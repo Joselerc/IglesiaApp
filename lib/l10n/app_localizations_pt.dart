@@ -39,7 +39,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get birthDate => 'Nascimento';
 
   @override
-  String get selectDate => 'Selecione uma data';
+  String get selectDate => 'Selecionar data';
 
   @override
   String get gender => 'Sexo';
@@ -816,7 +816,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pending => 'Pendentes';
 
   @override
-  String get accepted => 'Aceitos';
+  String get accepted => 'Aceito';
 
   @override
   String get rejected => 'Rejeitados';
@@ -1482,7 +1482,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Sem permissão para salvar configurações.';
 
   @override
-  String get errorUploadingImage => 'Erro ao enviar imagem';
+  String errorUploadingImage(String error) {
+    return 'Erro ao fazer upload da imagem: $error';
+  }
 
   @override
   String get donationConfigSaved => 'Configurações de doação salvas';
@@ -1593,8 +1595,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pasteFullLinkHere => 'Cole o link completo aqui';
 
   @override
-  String get pleaseEnterValidUrl =>
-      'Por favor, insira um URL válido (começando com http ou https)';
+  String get pleaseEnterValidUrl => 'Por favor digite um URL válido';
 
   @override
   String get activateTransmissionHome => 'Ativar Transmissão na Home';
@@ -1854,7 +1855,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get fieldUpdatedSuccessfully => 'Campo atualizado com sucesso';
 
   @override
-  String get userNotAuthenticated => 'Usuário não autenticado';
+  String get userNotAuthenticated => 'Usuario no autenticado';
 
   @override
   String get noProfileFieldsDefined => 'Não há campos de perfil definidos';
@@ -1869,7 +1870,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get number => 'Número';
 
   @override
-  String get date => 'Data:';
+  String get date => 'Data';
 
   @override
   String select(Object count) {
@@ -2742,7 +2743,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get provideAnnouncementDetails => 'Forneça detalhes sobre o anúncio';
 
   @override
-  String get pleaseEnterDescription => 'Por favor, digite uma descrição';
+  String get pleaseEnterDescription => 'Por favor, insira uma descrição';
 
   @override
   String get announcementExpirationDate => 'Data do anúncio/expiração';
@@ -3102,7 +3103,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createFirstCult => 'Criar Primeiro Culto';
 
   @override
-  String get location => 'Localização:';
+  String get location => 'Localização';
 
   @override
   String get selectLocation => 'Selecionar localização';
@@ -3251,7 +3252,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancelled => 'Canceladas';
 
   @override
-  String get completed => 'Completaram';
+  String get completed => 'Concluído';
 
   @override
   String get withPreposition => 'com';
@@ -3551,7 +3552,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tapToChange => 'Toque para alterar';
 
   @override
-  String get recommendedSize => 'Recomendado: 16:9 (1920x1080px)';
+  String get recommendedSize => 'Tamanho recomendado: 1920x1080';
 
   @override
   String get categoryHint => 'Ex: Teologia, Discipulado, Liderança';
@@ -5065,8 +5066,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveLocationForFuture => 'Salvar esta localização para uso futuro';
 
   @override
-  String get errorLoadingLocations =>
-      'Erro ao carregar localizações. Você pode inserir uma nova localização abaixo.';
+  String errorLoadingLocations(Object error) {
+    return 'Error al cargar ubicaciones: $error';
+  }
 
   @override
   String get noSavedLocations =>
@@ -5086,7 +5088,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String errorSavingLocation(Object error) {
-    return 'Erro ao salvar localização: $error';
+    return 'Error al guardar ubicación: $error';
   }
 
   @override
@@ -5404,4 +5406,444 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get id => 'ID';
+
+  @override
+  String get noCultsScheduled => 'Não há cultos programados';
+
+  @override
+  String noCultsFor(Object date) {
+    return 'Não há cultos para $date';
+  }
+
+  @override
+  String errorColon(Object error) {
+    return 'Erro: $error';
+  }
+
+  @override
+  String get dateNotAvailable => 'Data não disponível';
+
+  @override
+  String get acceptedOn => 'Aceito em';
+
+  @override
+  String get notSpecified => 'Não especificado';
+
+  @override
+  String get noServicesAssignedForThisDay =>
+      'Você não tem serviços designados para este dia';
+
+  @override
+  String get noCounselingAppointmentsForThisDay =>
+      'Você não tem consultas de aconselhamento confirmadas para este dia';
+
+  @override
+  String get basicInformation => 'Informação Básica';
+
+  @override
+  String get dateAndTime => 'Data e Hora';
+
+  @override
+  String get recurrence => 'Recorrência';
+
+  @override
+  String get basicInfo => 'Informações Básicas';
+
+  @override
+  String get defineEssentialEventData =>
+      'Defina os dados essenciais do seu evento';
+
+  @override
+  String get addBasicInfoAboutEvent =>
+      'Adicione as informações básicas sobre o seu evento.';
+
+  @override
+  String get addEventImage => 'Adicionar Imagem do Evento (16:9)';
+
+  @override
+  String get uploadingImage => 'Fazendo upload da imagem...';
+
+  @override
+  String get deleteImage => 'Excluir imagem';
+
+  @override
+  String get eventName => 'Nome do Evento';
+
+  @override
+  String get writeClearDescriptiveTitle =>
+      'Escreva um título claro e descritivo';
+
+  @override
+  String get pleaseEnterEventName => 'Por favor, insira o nome do evento';
+
+  @override
+  String get selectCategory => 'Selecione uma categoria';
+
+  @override
+  String get pleaseSelectCategory => 'Por favor, selecione uma categoria';
+
+  @override
+  String get createNewCategory => 'Criar nova categoria';
+
+  @override
+  String get hideCategory => 'Ocultar categoria';
+
+  @override
+  String categoryWillNotAppear(String category) {
+    return 'A categoria \"$category\" não aparecerá mais na lista de categorias disponíveis. Esta ação não afeta eventos existentes.\n\nDeseja continuar?';
+  }
+
+  @override
+  String get hide => 'Ocultar';
+
+  @override
+  String categoryHidden(String category) {
+    return 'Categoria \"$category\" ocultada';
+  }
+
+  @override
+  String get undo => 'Desfazer';
+
+  @override
+  String errorLoadingCategories(String error) {
+    return 'Erro ao carregar categorias: $error';
+  }
+
+  @override
+  String get createNewCategoryTitle => 'Criar Nova Categoria';
+
+  @override
+  String get categoryName => 'Nome da Categoria';
+
+  @override
+  String get enterCategoryName => 'Digite o nome da categoria';
+
+  @override
+  String errorCreatingCategory(String error) {
+    return 'Erro ao criar categoria: $error';
+  }
+
+  @override
+  String get describeEventDetails => 'Descreva os detalhes do evento';
+
+  @override
+  String get advance => 'Avançar';
+
+  @override
+  String get cancelCreation => 'Cancelar criação';
+
+  @override
+  String get sureWantToCancel =>
+      'Tem certeza que deseja cancelar? Todas as informações serão perdidas.';
+
+  @override
+  String get continueEditing => 'Continuar editando';
+
+  @override
+  String eventsCreatedSuccessfully(int count) {
+    return '$count eventos criados com sucesso';
+  }
+
+  @override
+  String get eventCreatedSuccessfully => 'Evento criado com sucesso';
+
+  @override
+  String errorCreatingEvent(String error) {
+    return 'Erro ao criar evento: $error';
+  }
+
+  @override
+  String get creatingEvent => 'Criando evento...';
+
+  @override
+  String get pleaseWaitProcessingData =>
+      'Por favor, aguarde enquanto processamos os dados';
+
+  @override
+  String get eventLocation => 'Localização do Evento';
+
+  @override
+  String get defineWhereEventWillHappen => 'Defina onde o evento acontecerá';
+
+  @override
+  String get eventType => 'Tipo de Evento';
+
+  @override
+  String get churchLocations => 'Localizações da Igreja';
+
+  @override
+  String get useChurchLocation => 'Usar localização da igreja';
+
+  @override
+  String get selectRegisteredLocation => 'Selecione um dos locais registrados';
+
+  @override
+  String get noChurchLocationsAvailable =>
+      'Não há localizações da igreja disponíveis';
+
+  @override
+  String get churchLocation => 'Localização da Igreja';
+
+  @override
+  String get pleaseSelectALocation => 'Por favor selecione uma localização';
+
+  @override
+  String get mySavedLocations => 'Minhas Localizações Salvas';
+
+  @override
+  String get useSavedLocation => 'Usar localização salva';
+
+  @override
+  String get selectSavedLocation =>
+      'Selecione uma das suas localizações salvas';
+
+  @override
+  String get noSavedLocationsAvailable =>
+      'Não há localizações salvas disponíveis';
+
+  @override
+  String get savedLocation => 'Localização Salva';
+
+  @override
+  String errorLoadingSavedLocations(Object error) {
+    return 'Erro ao carregar ubicações guardadas: $error';
+  }
+
+  @override
+  String get pleaseSelectChurchLocation =>
+      'Por favor, selecciona uma ubicación de iglesia';
+
+  @override
+  String get pleaseSelectASavedLocation =>
+      'Por favor, selecciona uma localização guardada';
+
+  @override
+  String get eventAddress => 'Endereço do Evento';
+
+  @override
+  String get cityRequired => 'Cidade *';
+
+  @override
+  String get enterEventCity => 'Digite a cidade do evento';
+
+  @override
+  String get pleaseEnterCity => 'Por favor digite a cidade';
+
+  @override
+  String get stateRequired => 'Estado *';
+
+  @override
+  String get enterEventState => 'Digite o estado do evento';
+
+  @override
+  String get pleaseEnterState => 'Por favor digite o estado';
+
+  @override
+  String get streetRequired => 'Rua *';
+
+  @override
+  String get enterEventStreet => 'Digite a rua do evento';
+
+  @override
+  String get pleaseEnterStreet => 'Por favor digite a rua';
+
+  @override
+  String get numberRequired => 'Número *';
+
+  @override
+  String get exampleNumber => 'Ex: 123';
+
+  @override
+  String get pleaseEnterNumber => 'Por favor digite o número';
+
+  @override
+  String get examplePostalCode => 'Ex: 12345-678';
+
+  @override
+  String get enterNeighborhood => 'Digite o bairro';
+
+  @override
+  String get apartmentRoomEtc => 'Apartamento, sala, etc.';
+
+  @override
+  String get saveLocationForFutureUse =>
+      'Salvar esta localização para uso futuro';
+
+  @override
+  String get locationNameRequired => 'Nome da localização *';
+
+  @override
+  String get exampleLocationName => 'Ex: Meu Local Favorito';
+
+  @override
+  String get pleaseEnterLocationName =>
+      'Por favor digite um nome para a localização';
+
+  @override
+  String get saveAsChurchLocationAdmin =>
+      'Salvar como localização da igreja (admin)';
+
+  @override
+  String get saveLocation => 'Salvar Localização';
+
+  @override
+  String get pleaseEnterLocationNameForSave =>
+      'Por favor ingresa un nombre para la ubicación';
+
+  @override
+  String get locationSavedSuccessfully => 'Ubicación guardada correctamente';
+
+  @override
+  String get churchLocationSavedSuccessfully =>
+      'Ubicación de iglesia guardada correctamente';
+
+  @override
+  String get onlineEventLink => 'Link do Evento Online';
+
+  @override
+  String get meetingUrlRequired => 'URL da Reunião *';
+
+  @override
+  String get exampleZoomUrl => 'Ex: https://zoom.us/j/12345678';
+
+  @override
+  String get accessInstructionsOptional => 'Instruções de Acesso (opcional)';
+
+  @override
+  String get instructionsToJoinMeeting =>
+      'Instruções para entrar na reunião online, senhas, etc.';
+
+  @override
+  String get onlineOptionHybrid => 'Opção Online (Híbrido)';
+
+  @override
+  String get forHybridEventsPleaseEnterValidUrl =>
+      'Para eventos híbridos, por favor digite um URL válido';
+
+  @override
+  String get next => 'Próximo';
+
+  @override
+  String get eventDateAndTime => 'Data e Hora do Evento';
+
+  @override
+  String get defineWhenEventStartsAndEnds =>
+      'Defina quando o evento começa e termina';
+
+  @override
+  String get selectTime => 'Selecionar hora';
+
+  @override
+  String get eventRecurrence => 'Recorrência do Evento';
+
+  @override
+  String get defineIfEventWillBeOnceOrRecurring =>
+      'Defina se seu evento acontecerá uma única vez ou será recorrente';
+
+  @override
+  String get recurrenceSettings => 'Configurações de Recorrência';
+
+  @override
+  String get defineFrequencyOfRecurringEvent =>
+      'Defina a frequência do seu evento recorrente';
+
+  @override
+  String get frequency => 'Frequência';
+
+  @override
+  String get numberIndicatesInterval =>
+      'O número indica o intervalo de repetição. Por exemplo: \"2 Semanalmente\" significa que o evento se repetirá a cada 2 semanas.';
+
+  @override
+  String get repeatEvery => 'Repetir a cada:';
+
+  @override
+  String get days => 'dias';
+
+  @override
+  String get day => 'dia';
+
+  @override
+  String get weeks => 'semanas';
+
+  @override
+  String get week => 'semana';
+
+  @override
+  String get months => 'meses';
+
+  @override
+  String get month => 'mês';
+
+  @override
+  String get year => 'ano';
+
+  @override
+  String get ends => 'Termina';
+
+  @override
+  String get after => 'Após';
+
+  @override
+  String get occurrences => 'ocorrências';
+
+  @override
+  String get onDate => 'Em data';
+
+  @override
+  String get single => 'Único';
+
+  @override
+  String get recurring => 'Recorrente';
+
+  @override
+  String get singleEventNonRecurring => 'Evento único (não recorrente)';
+
+  @override
+  String repeatsEveryXDays(Object interval) {
+    return 'Repete a cada $interval dias';
+  }
+
+  @override
+  String get repeatsDaily => 'Repete diariamente';
+
+  @override
+  String repeatsEveryXWeeks(Object interval) {
+    return 'Repete a cada $interval semanas';
+  }
+
+  @override
+  String get repeatsWeekly => 'Repete semanalmente';
+
+  @override
+  String repeatsEveryXMonths(Object interval) {
+    return 'Repete a cada $interval meses';
+  }
+
+  @override
+  String get repeatsMonthly => 'Repete mensalmente';
+
+  @override
+  String repeatsEveryXYears(Object interval) {
+    return 'Repete a cada $interval anos';
+  }
+
+  @override
+  String get repeatsYearly => 'Repete anualmente';
+
+  @override
+  String get noEndDefined => 'sem fim definido';
+
+  @override
+  String untilXOccurrences(Object count) {
+    return 'até $count ocorrências';
+  }
+
+  @override
+  String get untilSpecificDate => 'até data específica';
+
+  @override
+  String untilDate(Object date) {
+    return 'até $date';
+  }
 }

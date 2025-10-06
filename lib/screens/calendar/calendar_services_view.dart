@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/work_assignment.dart';
 import '../../models/time_slot.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class CalendarServicesView extends StatefulWidget {
   final DateTime selectedDate;
@@ -200,7 +201,7 @@ class _CalendarServicesViewState extends State<CalendarServicesView> {
             Icon(Icons.work_off, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Você não tem serviços designados para este dia',
+              AppLocalizations.of(context)!.noServicesAssignedForThisDay,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -425,11 +426,11 @@ class _CalendarServicesViewState extends State<CalendarServicesView> {
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 16),
-                _detailItem(Icons.check_circle, 'Status', 'Aceito'),
-                _detailItem(Icons.calendar_today, 'Aceito em', 
+                _detailItem(Icons.check_circle, AppLocalizations.of(context)!.status, AppLocalizations.of(context)!.accepted),
+                _detailItem(Icons.calendar_today, AppLocalizations.of(context)!.acceptedOn, 
                   assignment.respondedAt != null 
                       ? DateFormat('dd/MM/yyyy HH:mm').format(assignment.respondedAt!)
-                      : 'Data não disponível'),
+                      : AppLocalizations.of(context)!.dateNotAvailable),
                 const SizedBox(height: 30),
                 
                 // Botón de cerrar
