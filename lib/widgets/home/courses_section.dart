@@ -187,6 +187,24 @@ class _CoursesSectionState extends State<CoursesSection> {
     );
   }
 
+  // Helper para traducir textos
+  String _getTranslatedText(String text) {
+    // Primero intentar con claves de traducción
+    switch (text) {
+      case 'onlineCourses':
+        return AppLocalizations.of(context)!.onlineCourses;
+      case 'learnWithOurExclusiveCourses':
+        return AppLocalizations.of(context)!.learnWithOurExclusiveCourses;
+      // Si el texto viene en portugués de Firestore, traducirlo también
+      case 'Cursos Online':
+        return AppLocalizations.of(context)!.onlineCourses;
+      case 'Aprenda com os nossos cursos exclusivos':
+        return AppLocalizations.of(context)!.learnWithOurExclusiveCourses;
+      default:
+        return text; // Si no es una clave conocida, devolver el texto tal cual
+    }
+  }
+
   // Construye el card principal personalizable
   Widget _buildFeaturedCard(CourseSectionConfig config) {
     // Calcular proporción 16:9 para el card
@@ -218,69 +236,67 @@ class _CoursesSectionState extends State<CoursesSection> {
               borderRadius: BorderRadius.circular(16),
               child: Stack(
                 children: [
-                  // Gradient overlay más sutil
+                  // Gradient overlay vertical de arriba a abajo
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            AppColors.primary.withOpacity(0.7),
-                          ],
-                          stops: const [0.6, 1.0],
+                          colors: config.backgroundImageUrl != null 
+                            ? [
+                                Colors.transparent,
+                                AppColors.primary.withOpacity(0.7),
+                              ]
+                            : [
+                                AppColors.primary,
+                                AppColors.primary.withOpacity(0.6),
+                              ],
+                          stops: config.backgroundImageUrl != null 
+                            ? const [0.6, 1.0]
+                            : const [0.0, 1.0],
                         ),
                       ),
                     ),
                   ),
 
-                  // Contenido del card con mejor espaciado
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          config.title,
-                          style: AppTextStyles.headline3.copyWith(
-                            color: Color(config.getTextColorValue()),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        if (config.subtitle != null)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 8,
-                                right: 40), // Aumentado el padding derecho
-                            child: Text(
-                              config.subtitle!,
-                              style: AppTextStyles.bodyText2.copyWith(
-                                color: Color(config.getTextColorValue())
-                                    .withOpacity(0.9),
-                              ),
+                  // Contenido del card - Diseño minimalista centrado (Opción 3)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Icono grande y prominente con gradiente sutil
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.school_rounded,
+                              size: 48,
+                              color: Color(config.getTextColorValue()),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-
-                  // Icono para indicar que es interactivo
-                  Positioned(
-                    right: 16,
-                    bottom: 16,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2), // Menos opaco
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.arrow_forward,
-                        color: Color(config.getTextColorValue()),
-                        size: 20,
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Subtítulo pequeño centrado y traducido
+                          if (config.subtitle != null)
+                            Text(
+                              _getTranslatedText(config.subtitle!),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.bodyText2.copyWith(
+                                color: Color(config.getTextColorValue()).withOpacity(0.95),
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/prayer_service.dart';
 import '../../../models/predefined_message.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreatePredefinedMessageModal extends StatefulWidget {
   const CreatePredefinedMessageModal({super.key});
@@ -45,22 +46,24 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
       if (success && mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Mensagem salva com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.messageSavedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
       } else if (mounted) {
         setState(() {
-          _errorMessage = 'Erro ao salvar a mensagem';
+          _errorMessage = AppLocalizations.of(context)!.errorSavingMessage;
           _isLoading = false;
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Erro: $e';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = '${AppLocalizations.of(context)!.error}: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -77,7 +80,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erro ao carregar mensagens: $e';
+          _errorMessage = AppLocalizations.of(context)!.errorLoadingMessages(e.toString());
           _isLoading = false;
         });
       }
@@ -88,16 +91,16 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: const Text('Tem certeza que deseja excluir esta mensagem?'),
+        title: Text(AppLocalizations.of(context)!.confirmDeletion),
+        content: Text(AppLocalizations.of(context)!.sureYouWantToDeleteThisMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -111,8 +114,8 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
       await _loadMessages();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Mensagem excluída com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.messageDeletedSuccessfully),
             backgroundColor: Colors.orange,
           ),
         );
@@ -120,7 +123,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Erro ao excluir: $e';
+          _errorMessage = AppLocalizations.of(context)!.errorDeleting2(e.toString());
           _isLoading = false;
         });
       }
@@ -132,7 +135,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
     // Usar SingleChildScrollView para evitar overflow cuando aparece el teclado
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mensagem Predefinida'),
+        title: Text(AppLocalizations.of(context)!.predefinedMessage),
         backgroundColor: Colors.blue[700],
         foregroundColor: Colors.white,
         elevation: 0,
@@ -156,9 +159,9 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
               : TextButton.icon(
                   onPressed: _saveMessage,
                   icon: const Icon(Icons.save, color: Colors.white),
-                  label: const Text(
-                    'Salvar',
-                    style: TextStyle(color: Colors.white),
+                  label: Text(
+                    AppLocalizations.of(context)!.save,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
         ],
@@ -192,7 +195,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Crie uma mensagem que você poderá usar repetidamente como resposta a orações privadas.',
+                                AppLocalizations.of(context)!.createMessageYouCanUseRepeatedly,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.blue[800],
@@ -205,9 +208,9 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                     ),
                     const SizedBox(height: 20),
                     
-                    const Text(
-                      'Conteúdo da mensagem',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.messageContent,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -218,7 +221,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                       controller: _contentController,
                       maxLines: 8,
                       decoration: InputDecoration(
-                        hintText: 'Escreva aqui o conteúdo da mensagem predefinida...',
+                        hintText: AppLocalizations.of(context)!.writeHereThePredefinedMessageContent,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -231,7 +234,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira o conteúdo da mensagem';
+                          return AppLocalizations.of(context)!.pleaseEnterMessageContent;
                         }
                         return null;
                       },
@@ -239,9 +242,9 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                     
                     const SizedBox(height: 32),
                     
-                    const Text(
-                      'Mensagens Salvas',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.savedMessages,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -253,10 +256,10 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                         ? Card(
                           color: Colors.grey[100],
                           elevation: 0,
-                          child: const Padding(
-                            padding: EdgeInsets.all(16.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
                             child: Center(
-                              child: Text('Nenhuma mensagem predefinida salva ainda.'),
+                              child: Text(AppLocalizations.of(context)!.noPredefinedMessagesSavedYet),
                             ),
                           ),
                         )
@@ -278,7 +281,7 @@ class _CreatePredefinedMessageModalState extends State<CreatePredefinedMessageMo
                                 ),
                                 trailing: IconButton(
                                   icon: Icon(Icons.delete_outline, color: Colors.red[700]),
-                                  tooltip: 'Excluir mensagem',
+                                  tooltip: AppLocalizations.of(context)!.deleteMessage,
                                   onPressed: () => _deleteMessage(message.id),
                                 ),
                               ),

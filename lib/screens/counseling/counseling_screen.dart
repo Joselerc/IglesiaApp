@@ -8,6 +8,7 @@ import 'pastor_requests_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class CounselingScreen extends StatefulWidget {
   const CounselingScreen({super.key});
@@ -41,16 +42,16 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Cancelar Consulta'),
-          content: const Text('Tem certeza que deseja cancelar esta consulta?'),
+          title: Text(AppLocalizations.of(context)!.cancelAppointment),
+          content: Text(AppLocalizations.of(context)!.sureYouWantToCancelAppointment),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Não'),
+              child: Text(AppLocalizations.of(context)!.no),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Sim, cancelar'),
+              child: Text(AppLocalizations.of(context)!.yesCancelIt),
             ),
           ],
         );
@@ -73,7 +74,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Consulta cancelada com sucesso'),
+            content: Text(AppLocalizations.of(context)!.appointmentCancelledSuccessfully),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -86,7 +87,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: $e'),
+            content: Text(AppLocalizations.of(context)!.errorWithMessage(e.toString())),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -129,23 +130,23 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
     switch (status) {
       case 'pending':
         statusColor = Colors.orange;
-        statusText = 'Pendente';
+        statusText = AppLocalizations.of(context)!.pending;
         break;
       case 'confirmed':
         statusColor = Colors.green;
-        statusText = 'Confirmada';
+        statusText = AppLocalizations.of(context)!.confirmed;
         break;
       case 'cancelled':
         statusColor = Colors.red;
-        statusText = 'Cancelada';
+        statusText = AppLocalizations.of(context)!.cancelled;
         break;
       case 'completed':
         statusColor = Colors.blue;
-        statusText = 'Concluída';
+        statusText = AppLocalizations.of(context)!.completed;
         break;
       default:
         statusColor = Colors.grey;
-        statusText = 'Desconhecido';
+        statusText = AppLocalizations.of(context)!.unknown;
     }
     
     // Verificar si la cita es en el futuro
@@ -182,7 +183,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        DateFormat('EEEE, d MMMM yyyy', 'pt_BR').format(date),
+                        DateFormat('EEEE, d MMMM yyyy', Localizations.localeOf(context).toString()).format(date),
                         style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
@@ -217,11 +218,11 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
               stream: pastorRef.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Text('Carregando informações do pastor...');
+                  return Text(AppLocalizations.of(context)!.loadingPastorInfo);
                 }
                 
                 final pastorData = snapshot.data!.data() as Map<String, dynamic>?;
-                final pastorName = pastorData?['name'] as String? ?? 'Pastor desconhecido';
+                final pastorName = pastorData?['name'] as String? ?? AppLocalizations.of(context)!.unknownPastor;
                 final pastorPhone = pastorData?['phoneComplete'] as String? ?? pastorData?['phone'] as String? ?? '';
                 
                 return Column(
@@ -230,7 +231,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                     Row(
                       children: [
                         Text(
-                          'Pastor:',
+                          '${AppLocalizations.of(context)!.pastor}:',
                           style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
@@ -244,12 +245,12 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                     Row(
                       children: [
                         Text(
-                          'Tipo:',
+                          '${AppLocalizations.of(context)!.type}:',
                           style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          type == 'online' ? 'Online' : 'Presencial',
+                          type == 'online' ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.inPerson,
                           style: AppTextStyles.bodyText2,
                         ),
                       ],
@@ -259,7 +260,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                       Row(
                         children: [
                           Text(
-                            'Contato:',
+                            '${AppLocalizations.of(context)!.contact}:',
                             style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
@@ -278,12 +279,12 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                               } else {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Não foi possível abrir o telefone')),
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenPhone)),
                                   );
                                 }
                               }
                             },
-                            tooltip: 'Ligar',
+                            tooltip: AppLocalizations.of(context)!.call,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -301,7 +302,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                               } else {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Não foi possível abrir WhatsApp')),
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenWhatsApp)),
                                   );
                                 }
                               }
@@ -319,7 +320,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Endereço:',
+                            '${AppLocalizations.of(context)!.address}:',
                             style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 8),
@@ -335,7 +336,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                     if (data['reason'] != null) ...[
                       const SizedBox(height: 16),
                       Text(
-                        'Motivo:',
+                        '${AppLocalizations.of(context)!.reason}:',
                         style: AppTextStyles.bodyText2.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
@@ -368,7 +369,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                       ),
                     ),
                     icon: const Icon(Icons.cancel, size: 18),
-                    label: const Text('Cancelar Consulta'),
+                    label: Text(AppLocalizations.of(context)!.cancelAppointment),
                   ),
                 ],
               ),
@@ -407,7 +408,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
     if (userId == null) {
       return Center(
         child: Text(
-          'Você não está conectado',
+          AppLocalizations.of(context)!.youAreNotLoggedIn,
           style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
         ),
       );
@@ -456,16 +457,16 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
           String emptyMessage;
           switch (filter) {
             case 'upcoming':
-              emptyMessage = 'Você não tem consultas agendadas';
+              emptyMessage = AppLocalizations.of(context)!.youHaveNoScheduledAppointments;
               break;
             case 'cancelled':
-              emptyMessage = 'Você não tem consultas canceladas';
+              emptyMessage = AppLocalizations.of(context)!.youHaveNoCancelledAppointments;
               break;
             case 'completed':
-              emptyMessage = 'Você não tem consultas concluídas';
+              emptyMessage = AppLocalizations.of(context)!.youHaveNoCompletedAppointments;
               break;
             default:
-              emptyMessage = 'Não há consultas disponíveis';
+              emptyMessage = AppLocalizations.of(context)!.noAppointmentsAvailable;
           }
           
           return Center(
@@ -520,7 +521,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Minhas Consultas'),
+        title: Text(AppLocalizations.of(context)!.myAppointments),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 2,
@@ -546,7 +547,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                             ),
                           );
                         },
-                        tooltip: 'Configurar Disponibilidade',
+                        tooltip: AppLocalizations.of(context)!.configureAvailability,
                       ),
                       // Botón Ver Solicitações con indicador de pendientes
                       StreamBuilder<QuerySnapshot>(
@@ -569,7 +570,7 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
                                 ),
                               );
                             },
-                            tooltip: 'Ver Solicitações',
+                            tooltip: AppLocalizations.of(context)!.viewRequests,
                           );
                           
                           if (hasPendingRequests) {
@@ -614,10 +615,10 @@ class _CounselingScreenState extends State<CounselingScreen> with SingleTickerPr
           unselectedLabelColor: Colors.white.withOpacity(0.8),
           labelStyle: AppTextStyles.button.copyWith(fontSize: 14),
           indicatorWeight: 3.0,
-          tabs: const [
-            Tab(text: 'Próximas'),
-            Tab(text: 'Canceladas'),
-            Tab(text: 'Concluídas'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.upcoming),
+            Tab(text: AppLocalizations.of(context)!.cancelledTab),
+            Tab(text: AppLocalizations.of(context)!.completedTab),
           ],
         ),
       ),

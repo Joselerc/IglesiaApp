@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreatePrayerModal extends StatefulWidget {
   const CreatePrayerModal({super.key});
@@ -34,9 +35,11 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você deve estar conectado para enviar uma oração')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)!.youMustBeLoggedInToSendPrayer)),
+          );
+        }
         return;
       }
 
@@ -55,20 +58,20 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
       });
 
       if (mounted) {
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Oração enviada com sucesso!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.prayerSentSuccessfully),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
         );
-        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar a oração: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.errorSendingPrayer(e.toString())),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -114,7 +117,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Pedido de Oração',
+                    AppLocalizations.of(context)!.prayerRequest,
                     style: AppTextStyles.headline3.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -145,7 +148,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Sua oração será compartilhada com toda a comunidade para que possam orar por você.',
+                        AppLocalizations.of(context)!.yourPrayerWillBeSharedWithCommunity,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 14,
@@ -165,7 +168,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                 maxLength: 200,
                 maxLines: 5,
                 decoration: InputDecoration(
-                  hintText: 'Por que você precisa de oração?',
+                  hintText: AppLocalizations.of(context)!.whyDoYouNeedPrayer,
                   hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.7)),
                   filled: true,
                   fillColor: Colors.grey[50],
@@ -189,7 +192,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                 onChanged: (_) => setState(() {}), // Actualizar contador de caracteres
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Por favor, escreva seu pedido de oração';
+                    return AppLocalizations.of(context)!.pleaseWriteYourPrayerRequest;
                   }
                   return null;
                 },
@@ -201,7 +204,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    '$_remainingChars caracteres restantes',
+                    AppLocalizations.of(context)!.charactersRemaining(_remainingChars),
                     style: TextStyle(
                       fontSize: 12,
                       color: _remainingChars < 20 ? Colors.red : AppColors.textSecondary,
@@ -227,7 +230,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Publicar anonimamente',
+                            AppLocalizations.of(context)!.publishAnonymously,
                             style: AppTextStyles.subtitle2.copyWith(
                               fontWeight: FontWeight.w500,
                               color: AppColors.textPrimary,
@@ -235,7 +238,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Seu nome permanecerá oculto para todos',
+                            AppLocalizations.of(context)!.yourNameWillRemainHidden,
                             style: AppTextStyles.caption.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -276,7 +279,7 @@ class _CreatePrayerModalState extends State<CreatePrayerModal> {
                         ),
                       )
                     : Text(
-                        'PUBLICAR PEDIDO',
+                        AppLocalizations.of(context)!.publishRequest.toUpperCase(),
                         style: AppTextStyles.button.copyWith(
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,

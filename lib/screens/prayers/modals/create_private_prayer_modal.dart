@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreatePrivatePrayerModal extends StatefulWidget {
   const CreatePrivatePrayerModal({super.key});
@@ -27,8 +28,8 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
   Future<void> _submitPrayer() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, preencha todos os campos'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseFillAllFields),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -62,8 +63,8 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pedido de oração enviado com sucesso'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.prayerRequestSentSuccessfully),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -72,7 +73,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao criar o pedido: $e'),
+          content: Text(AppLocalizations.of(context)!.errorCreatingRequest(e.toString())),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -104,7 +105,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Solicitar oração privada',
+                    AppLocalizations.of(context)!.requestPrivatePrayer,
                     style: AppTextStyles.headline3.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -132,7 +133,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Sua oração será compartilhada apenas com os pastores da igreja para atendimento pessoal.',
+                        AppLocalizations.of(context)!.yourPrayerWillBeSharedOnlyWithPastors,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 14,
@@ -151,7 +152,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Detalhes do seu pedido',
+                      AppLocalizations.of(context)!.requestDetails,
                       style: AppTextStyles.subtitle1.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
@@ -165,7 +166,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                       maxLength: 400,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: 'Escreva seu pedido de oração aqui...',
+                        hintText: AppLocalizations.of(context)!.writeYourPrayerRequestHere,
                         hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.7)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -185,10 +186,10 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, escreva seu pedido';
+                          return AppLocalizations.of(context)!.pleaseWriteYourRequest;
                         }
                         if (value.length > 400) {
-                          return 'Máximo 400 caracteres permitidos';
+                          return AppLocalizations.of(context)!.maximum400CharactersAllowed;
                         }
                         return null;
                       },
@@ -201,7 +202,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          '$_remainingChars caracteres restantes',
+                          AppLocalizations.of(context)!.charactersRemaining(_remainingChars),
                           style: TextStyle(
                             fontSize: 12,
                             color: _remainingChars < 40 ? Colors.red : AppColors.textSecondary,
@@ -237,7 +238,7 @@ class _CreatePrivatePrayerModalState extends State<CreatePrivatePrayerModal> {
                           ),
                         )
                       : Text(
-                          'ENVIAR PEDIDO',
+                          AppLocalizations.of(context)!.sendRequest.toUpperCase(),
                           style: AppTextStyles.button.copyWith(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,

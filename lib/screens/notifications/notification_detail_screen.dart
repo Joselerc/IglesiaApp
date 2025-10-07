@@ -317,8 +317,6 @@ class NotificationDetailScreen extends StatelessWidget {
         return loc.notifTypeGeneric;
       case NotificationType.custom:
         return loc.notifTypeCustom;
-      default:
-        return loc.notifTypeGeneric; // Fallback genérico
     }
   }
 } 

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../models/cult.dart';
 import '../../../models/prayer.dart';
 import '../../../services/prayer_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AssignCultModal extends StatefulWidget {
   final Prayer prayer;
@@ -50,7 +51,7 @@ class _AssignCultModalState extends State<AssignCultModal> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar cultos: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingCults(e.toString()))),
         );
       }
     }
@@ -59,7 +60,7 @@ class _AssignCultModalState extends State<AssignCultModal> {
   Future<void> _assignPrayer() async {
     if (_selectedCult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor selecciona un culto')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectACult)),
       );
       return;
     }
@@ -67,7 +68,7 @@ class _AssignCultModalState extends State<AssignCultModal> {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debes iniciar sesión para asignar oraciones')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.youMustBeLoggedInToAssignPrayers)),
       );
       return;
     }
@@ -86,12 +87,12 @@ class _AssignCultModalState extends State<AssignCultModal> {
       
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Oración asignada exitosamente al culto ${_selectedCult!.name}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.prayerAssignedSuccessfullyToCult(_selectedCult!.name))),
         );
         Navigator.pop(context, true); // Retornar true indica éxito
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al asignar oración al culto')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorAssigningPrayerToCult)),
         );
       }
     } catch (e) {
@@ -99,7 +100,7 @@ class _AssignCultModalState extends State<AssignCultModal> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al asignar oración: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorAssigningPrayer(e.toString()))),
         );
       }
     } finally {
@@ -190,7 +191,7 @@ class _AssignCultModalState extends State<AssignCultModal> {
           // Buscador de cultos
           TextField(
             decoration: InputDecoration(
-              hintText: 'Buscar culto por nombre o fecha',
+              hintText: AppLocalizations.of(context)!.searchCultByNameOrDate,
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

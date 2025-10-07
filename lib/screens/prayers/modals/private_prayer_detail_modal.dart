@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../models/private_prayer.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PrivatePrayerDetailModal extends StatelessWidget {
   final PrivatePrayer prayer;
@@ -17,7 +18,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalle de la Oración'),
+        title: Text(AppLocalizations.of(context)!.prayerDetail),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -51,7 +52,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                             }
                             
                             final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                            final pastorName = userData?['displayName'] ?? 'Pastor';
+                            final pastorName = userData?['displayName'] ?? AppLocalizations.of(context)!.pastor;
                             final photoUrl = userData?['photoUrl'] as String?;
                             
                             return Row(
@@ -73,7 +74,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      'Recibida: ${timeago.format(prayer.createdAt, locale: 'es')}',
+                                      '${AppLocalizations.of(context)!.received} ${timeago.format(prayer.createdAt, locale: Localizations.localeOf(context).toString())}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -101,10 +102,10 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                           ),
                           child: Text(
                             prayer.pastorResponse != null 
-                                ? 'Respondido'
+                                ? AppLocalizations.of(context)!.responded
                                 : prayer.isAccepted 
-                                    ? 'Aceptado' 
-                                    : 'Pendiente',
+                                    ? AppLocalizations.of(context)!.accepted 
+                                    : AppLocalizations.of(context)!.pending,
                             style: TextStyle(
                               color: prayer.pastorResponse != null 
                                   ? Colors.green[800]
@@ -122,8 +123,8 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                     const SizedBox(height: 24),
                     
                     // Petición de oración
-                    const Text(
-                      'Tu petición de oración:',
+                    Text(
+                      AppLocalizations.of(context)!.yourPrayerRequest,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -174,7 +175,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Oración programada',
+                            AppLocalizations.of(context)!.scheduledPrayer,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.green[700],
@@ -189,15 +190,15 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                       if (prayer.selectedMethod != null) ...[
                         Row(
                           children: [
-                            const Text(
-                              'Método: ',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            Text(
+                              AppLocalizations.of(context)!.method,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              prayer.selectedMethod == 'call' ? 'Llamada' : 
-                              prayer.selectedMethod == 'whatsapp' ? 'WhatsApp' : 
-                              prayer.selectedMethod == 'inperson' ? 'En persona' : 
-                              prayer.selectedMethod ?? 'No especificado',
+                              prayer.selectedMethod == 'call' ? AppLocalizations.of(context)!.call : 
+                              prayer.selectedMethod == 'whatsapp' ? AppLocalizations.of(context)!.whatsApp : 
+                              prayer.selectedMethod == 'inperson' ? AppLocalizations.of(context)!.inPerson : 
+                              prayer.selectedMethod ?? AppLocalizations.of(context)!.notSpecified,
                             ),
                           ],
                         ),
@@ -207,9 +208,9 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                       // Fecha y hora
                       Row(
                         children: [
-                          const Text(
-                            'Fecha: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          Text(
+                            AppLocalizations.of(context)!.date,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '${prayer.scheduledAt!.day}/${prayer.scheduledAt!.month}/${prayer.scheduledAt!.year}',
@@ -220,9 +221,9 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Text(
-                            'Hora: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          Text(
+                            AppLocalizations.of(context)!.time,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '${prayer.scheduledAt!.hour.toString().padLeft(2, '0')}:${prayer.scheduledAt!.minute.toString().padLeft(2, '0')}',
@@ -259,7 +260,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Respuesta del pastor',
+                            AppLocalizations.of(context)!.pastorResponse2,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
@@ -269,7 +270,7 @@ class PrivatePrayerDetailModal extends StatelessWidget {
                           const Spacer(),
                           if (prayer.respondedAt != null)
                             Text(
-                              timeago.format(prayer.respondedAt!, locale: 'es'),
+                              timeago.format(prayer.respondedAt!, locale: Localizations.localeOf(context).toString()),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[700],

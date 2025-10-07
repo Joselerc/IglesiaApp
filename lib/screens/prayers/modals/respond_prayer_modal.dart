@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../../../models/private_prayer.dart';
 import '../../../services/prayer_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RespondPrayerModal extends StatefulWidget {
   final PrivatePrayer prayer;
@@ -87,15 +89,15 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
         if (success) {
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Respuesta enviada correctamente'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.responseSentSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al enviar la respuesta'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.errorSendingResponse),
               backgroundColor: Colors.red,
             ),
           );
@@ -105,7 +107,7 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -168,7 +170,7 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Responder Oración'),
+        title: Text(AppLocalizations.of(context)!.respondPrayer),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -184,11 +186,11 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
               stream: widget.prayer.userId.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Text('Cargando datos del solicitante...');
+                  return Text(AppLocalizations.of(context)!.loadingRequesterData);
                 }
                 
                 final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                final userName = userData?['displayName'] ?? 'Usuario';
+                final userName = userData?['displayName'] ?? AppLocalizations.of(context)!.user;
                 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -245,9 +247,9 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Solicitud de oración:',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.prayerRequest2,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -264,7 +266,9 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Recibida el ${widget.prayer.createdAt.day}/${widget.prayer.createdAt.month}/${widget.prayer.createdAt.year}',
+                          AppLocalizations.of(context)!.receivedOn(
+                            DateFormat('dd/MM/yyyy', Localizations.localeOf(context).toString()).format(widget.prayer.createdAt)
+                          ),
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ],
@@ -280,9 +284,9 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Mensajes predefinidos:',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.predefinedMessages2,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -293,7 +297,7 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                     color: Colors.blue[700],
                   ),
                   onPressed: _loadPredefinedMessages,
-                  tooltip: 'Recargar mensajes',
+                  tooltip: AppLocalizations.of(context)!.reloadMessages,
                 ),
               ],
             ),
@@ -313,10 +317,10 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'No hay mensajes predefinidos',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.noPredefinedMessages,
+                    style: const TextStyle(
                       color: Colors.grey,
                       fontStyle: FontStyle.italic,
                     ),
@@ -358,9 +362,9 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Tu respuesta:',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.yourResponse,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -370,7 +374,7 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                     controller: _responseController,
                     maxLines: 5,
                     decoration: InputDecoration(
-                      hintText: 'Escribe tu respuesta aquí...',
+                      hintText: AppLocalizations.of(context)!.writeYourResponseHere,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -404,7 +408,7 @@ class _RespondPrayerModalState extends State<RespondPrayerModal> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text('Enviar Respuesta'),
+                          : Text(AppLocalizations.of(context)!.sendResponse),
                     ),
                   ),
                 ],

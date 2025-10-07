@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../models/prayer.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../services/permission_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PrayerCommentModal extends StatefulWidget {
   final Prayer prayer;
@@ -39,8 +39,6 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
   @override
   void initState() {
     super.initState();
-    // Configurar timeago para portugués si no está hecho globalmente
-    timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages()); 
     _prayerRef = FirebaseFirestore.instance.collection('prayers').doc(widget.prayer.id);
     _commentsCollection = FirebaseFirestore.instance.collection('prayer_comments');
     
@@ -66,7 +64,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
 
   // Función para obtener tiempo relativo
   String _getTimeAgo(Timestamp timestamp) {
-    return timeago.format(timestamp.toDate(), locale: 'pt_BR');
+    return timeago.format(timestamp.toDate(), locale: Localizations.localeOf(context).toString());
   }
 
   // Enviar comentario
@@ -93,7 +91,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao publicar comentário: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorPublishingComment(e.toString()))),
         );
       }
     } finally {
@@ -115,8 +113,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
     if (currentUser == null || (!isAuthor && !_hasAssignPermission)) {
        if(mounted){
          ScaffoldMessenger.of(context).showSnackBar(
-            // Mensaje genérico de permiso
-            const SnackBar(content: Text('Você não tem permissão para excluir este comentário')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.youDontHavePermissionToDeleteComment)),
          );
        }
       return;
@@ -126,16 +123,16 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir comentário'),
-        content: const Text('Tem certeza que deseja excluir este comentário?'),
+        title: Text(AppLocalizations.of(context)!.deleteComment),
+        content: Text(AppLocalizations.of(context)!.sureYouWantToDeleteComment),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -148,13 +145,13 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
       // Considerar actualizar contador en prayer si es necesario
        if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Comentário excluído')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.commentDeleted)),
          );
        }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir comentário: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorDeletingComment(e.toString()))),
         );
       }
     }
@@ -195,7 +192,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
                     builder: (context, snapshot) {
                       int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
                       return Text(
-                        'Comentários ($count)',
+                        AppLocalizations.of(context)!.commentsCount(count),
                         style: AppTextStyles.headline3.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
@@ -294,7 +291,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
                     child: TextField(
                       controller: _commentController,
                       decoration: InputDecoration(
-                        hintText: 'Adicionar um comentário...',
+                        hintText: AppLocalizations.of(context)!.addComment,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -445,13 +442,13 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
             Icon(Icons.comment_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
-              'Nenhum comentário ainda',
+              AppLocalizations.of(context)!.noCommentsYet,
               style: AppTextStyles.subtitle1.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Seja o primeiro a comentar!',
+              AppLocalizations.of(context)!.beTheFirstToComment,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),
@@ -479,7 +476,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você precisa estar conectado para curtir')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.youNeedToBeLoggedInToLike)),
         );
         return;
       }
@@ -500,7 +497,7 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
       } catch (e) {
          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erro ao processar curtida: $e')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.errorProcessingLike(e.toString()))),
            );
          }
       }
@@ -513,10 +510,10 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
 
     if (_sortByField == 'likes') {
       icon = Icons.thumb_up_alt_outlined;
-      tooltip = _sortDescending ? 'Mais curtidos primeiro' : 'Menos curtidos primeiro';
+      tooltip = _sortDescending ? AppLocalizations.of(context)!.mostLikedFirst : AppLocalizations.of(context)!.leastLikedFirst;
     } else {
       icon = Icons.calendar_today_outlined;
-      tooltip = _sortDescending ? 'Mais recentes primeiro' : 'Mais antigos primeiro';
+      tooltip = _sortDescending ? AppLocalizations.of(context)!.mostRecentFirst : AppLocalizations.of(context)!.oldestFirst;
     }
 
     return PopupMenuButton<String>(
@@ -553,11 +550,11 @@ class _PrayerCommentModalState extends State<PrayerCommentModal> {
         }
       },
       itemBuilder: (context) => [
-        _buildSortMenuItem('Mais Recentes', 'recent', _sortByField == 'createdAt' && _sortDescending),
-        _buildSortMenuItem('Mais Antigos', 'oldest', _sortByField == 'createdAt' && !_sortDescending),
+        _buildSortMenuItem(AppLocalizations.of(context)!.mostRecentFirst, 'recent', _sortByField == 'createdAt' && _sortDescending),
+        _buildSortMenuItem(AppLocalizations.of(context)!.oldestFirst, 'oldest', _sortByField == 'createdAt' && !_sortDescending),
         const PopupMenuDivider(),
-        _buildSortMenuItem('Mais Curtidos', 'most_liked', _sortByField == 'likes' && _sortDescending),
-        _buildSortMenuItem('Menos Curtidos', 'least_liked', _sortByField == 'likes' && !_sortDescending),
+        _buildSortMenuItem(AppLocalizations.of(context)!.mostLikedFirst, 'most_liked', _sortByField == 'likes' && _sortDescending),
+        _buildSortMenuItem(AppLocalizations.of(context)!.leastLikedFirst, 'least_liked', _sortByField == 'likes' && !_sortDescending),
       ],
     );
   }

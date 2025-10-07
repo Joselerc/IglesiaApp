@@ -1715,7 +1715,7 @@ abstract class AppLocalizations {
   /// No description provided for @inPerson.
   ///
   /// In es, this message translates to:
-  /// **'Presencial'**
+  /// **'En persona'**
   String get inPerson;
 
   /// No description provided for @hybrid.
@@ -2405,7 +2405,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorPublishingComment.
   ///
   /// In es, this message translates to:
-  /// **'Error al publicar el comentario'**
+  /// **'Error al publicar comentario: {error}'**
   String errorPublishingComment(String error);
 
   /// No description provided for @deleteOwnCommentsOnly.
@@ -2435,7 +2435,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorDeletingComment.
   ///
   /// In es, this message translates to:
-  /// **'Error al eliminar el comentario: {error}'**
+  /// **'Error al eliminar comentario: {error}'**
   String errorDeletingComment(String error);
 
   /// No description provided for @errorTitle.
@@ -3341,7 +3341,7 @@ abstract class AppLocalizations {
   /// No description provided for @date.
   ///
   /// In es, this message translates to:
-  /// **'Fecha'**
+  /// **'Fecha:'**
   String get date;
 
   /// No description provided for @select.
@@ -3959,7 +3959,7 @@ abstract class AppLocalizations {
   /// No description provided for @beTheFirstToComment.
   ///
   /// In es, this message translates to:
-  /// **'Sé el primero en comentar'**
+  /// **'¡Sé el primero en comentar!'**
   String get beTheFirstToComment;
 
   /// No description provided for @you.
@@ -4889,7 +4889,7 @@ abstract class AppLocalizations {
   /// No description provided for @upcoming.
   ///
   /// In es, this message translates to:
-  /// **'Próximos'**
+  /// **'Próximas'**
   String get upcoming;
 
   /// No description provided for @thisWeek.
@@ -5688,7 +5688,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{count} caracteres restantes'**
-  String charactersRemaining(Object count);
+  String charactersRemaining(int count);
 
   /// No description provided for @understood.
   ///
@@ -5801,7 +5801,7 @@ abstract class AppLocalizations {
   /// No description provided for @cancelAppointment.
   ///
   /// In es, this message translates to:
-  /// **'Cancelar Consulta'**
+  /// **'Cancelar Cita'**
   String get cancelAppointment;
 
   /// No description provided for @noPermissionRespondPrivatePrayers.
@@ -6077,7 +6077,7 @@ abstract class AppLocalizations {
   /// No description provided for @sortBy.
   ///
   /// In es, this message translates to:
-  /// **'Ordenar por:'**
+  /// **'Ordenar por'**
   String get sortBy;
 
   /// No description provided for @invitations.
@@ -6221,7 +6221,7 @@ abstract class AppLocalizations {
   /// No description provided for @call.
   ///
   /// In es, this message translates to:
-  /// **'Llamar'**
+  /// **'Llamada'**
   String get call;
 
   /// No description provided for @couldNotOpenWhatsApp.
@@ -6269,7 +6269,7 @@ abstract class AppLocalizations {
   /// No description provided for @noAppointmentsAvailable.
   ///
   /// In es, this message translates to:
-  /// **'No hay consultas disponibles'**
+  /// **'No hay citas disponibles'**
   String get noAppointmentsAvailable;
 
   /// No description provided for @viewRequests.
@@ -7949,7 +7949,7 @@ abstract class AppLocalizations {
   /// No description provided for @yourResponse.
   ///
   /// In es, this message translates to:
-  /// **'Su respuesta:'**
+  /// **'Tu respuesta:'**
   String get yourResponse;
 
   /// No description provided for @respondedOn.
@@ -8363,7 +8363,7 @@ abstract class AppLocalizations {
   /// No description provided for @time.
   ///
   /// In es, this message translates to:
-  /// **'Hora:'**
+  /// **'Hora'**
   String get time;
 
   /// No description provided for @registeredCount.
@@ -8867,8 +8867,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingCults.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar cultos: {error}'**
-  String errorLoadingCults(Object error);
+  /// **'Error al cargar servicios: {error}'**
+  String errorLoadingCults(String error);
 
   /// No description provided for @cultsCount.
   ///
@@ -10670,6 +10670,12 @@ abstract class AppLocalizations {
   /// **'Mensajes de los grupos'**
   String get groupMessages;
 
+  /// No description provided for @prayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones'**
+  String get prayers;
+
   /// No description provided for @privatePrayerRequests.
   ///
   /// In es, this message translates to:
@@ -10969,6 +10975,750 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Notificación personalizada'**
   String get notifTypeCustom;
+
+  /// No description provided for @pleaseFillAllFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, rellena todos los campos'**
+  String get pleaseFillAllFields;
+
+  /// No description provided for @requestPrivatePrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar oración privada'**
+  String get requestPrivatePrayer;
+
+  /// No description provided for @yourPrayerWillBeSharedOnlyWithPastors.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu oración será compartida solo con los pastores de la iglesia para atención personal.'**
+  String get yourPrayerWillBeSharedOnlyWithPastors;
+
+  /// No description provided for @requestDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles de tu pedido'**
+  String get requestDetails;
+
+  /// No description provided for @writeYourPrayerRequestHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe tu pedido de oración aquí...'**
+  String get writeYourPrayerRequestHere;
+
+  /// No description provided for @pleaseWriteYourRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, escribe tu pedido'**
+  String get pleaseWriteYourRequest;
+
+  /// No description provided for @maximum400CharactersAllowed.
+  ///
+  /// In es, this message translates to:
+  /// **'Máximo 400 caracteres permitidos'**
+  String get maximum400CharactersAllowed;
+
+  /// No description provided for @sendRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar pedido'**
+  String get sendRequest;
+
+  /// No description provided for @prayerRequestSentSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido de oración enviado con éxito'**
+  String get prayerRequestSentSuccessfully;
+
+  /// No description provided for @errorCreatingRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el pedido: {error}'**
+  String errorCreatingRequest(String error);
+
+  /// No description provided for @publicPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Oraciones Públicas'**
+  String get publicPrayers;
+
+  /// No description provided for @mostVoted.
+  ///
+  /// In es, this message translates to:
+  /// **'Más votadas'**
+  String get mostVoted;
+
+  /// No description provided for @recent.
+  ///
+  /// In es, this message translates to:
+  /// **'Recientes'**
+  String get recent;
+
+  /// No description provided for @assigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignada'**
+  String get assigned;
+
+  /// No description provided for @errorLoadingMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar más: {error}'**
+  String errorLoadingMore(String error);
+
+  /// No description provided for @errorLoadingPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar oraciones: {error}'**
+  String errorLoadingPrayers(String error);
+
+  /// No description provided for @noAssignedPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración atribuida'**
+  String get noAssignedPrayers;
+
+  /// No description provided for @noPrayersAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna oración disponible'**
+  String get noPrayersAvailable;
+
+  /// No description provided for @noPrayersAssignedToCultsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'No se atribuyeron oraciones a cultos todavía'**
+  String get noPrayersAssignedToCultsYet;
+
+  /// No description provided for @beTheFirstToRequestPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Sé el primero en pedir oración'**
+  String get beTheFirstToRequestPrayer;
+
+  /// No description provided for @prayerRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido de Oración'**
+  String get prayerRequest;
+
+  /// No description provided for @yourPrayerWillBeSharedWithCommunity.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu oración será compartida con toda la comunidad para que puedan orar por ti.'**
+  String get yourPrayerWillBeSharedWithCommunity;
+
+  /// No description provided for @whyDoYouNeedPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Por qué necesitas oración?'**
+  String get whyDoYouNeedPrayer;
+
+  /// No description provided for @pleaseWriteYourPrayerRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, escribe tu pedido de oración'**
+  String get pleaseWriteYourPrayerRequest;
+
+  /// No description provided for @publishAnonymously.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar anónimamente'**
+  String get publishAnonymously;
+
+  /// No description provided for @yourNameWillRemainHidden.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nombre permanecerá oculto para todos'**
+  String get yourNameWillRemainHidden;
+
+  /// No description provided for @publishRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar pedido'**
+  String get publishRequest;
+
+  /// No description provided for @youMustBeLoggedInToSendPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes estar conectado para enviar una oración'**
+  String get youMustBeLoggedInToSendPrayer;
+
+  /// No description provided for @prayerSentSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Oración enviada con éxito!'**
+  String get prayerSentSuccessfully;
+
+  /// No description provided for @errorSendingPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al enviar la oración: {error}'**
+  String errorSendingPrayer(String error);
+
+  /// No description provided for @sureYouWantToCancelAppointment.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas cancelar esta cita?'**
+  String get sureYouWantToCancelAppointment;
+
+  /// No description provided for @yesCancelIt.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, cancelar'**
+  String get yesCancelIt;
+
+  /// No description provided for @appointmentCancelledSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita cancelada con éxito'**
+  String get appointmentCancelledSuccessfully;
+
+  /// No description provided for @errorWithMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error: {message}'**
+  String errorWithMessage(String message);
+
+  /// No description provided for @youAreNotLoggedIn.
+  ///
+  /// In es, this message translates to:
+  /// **'No estás conectado'**
+  String get youAreNotLoggedIn;
+
+  /// No description provided for @youHaveNoScheduledAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes citas agendadas'**
+  String get youHaveNoScheduledAppointments;
+
+  /// No description provided for @youHaveNoCancelledAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes citas canceladas'**
+  String get youHaveNoCancelledAppointments;
+
+  /// No description provided for @youHaveNoCompletedAppointments.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes citas concluidas'**
+  String get youHaveNoCompletedAppointments;
+
+  /// No description provided for @cancelledTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Canceladas'**
+  String get cancelledTab;
+
+  /// No description provided for @completedTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Concluidas'**
+  String get completedTab;
+
+  /// No description provided for @requestCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar Consejería'**
+  String get requestCounseling;
+
+  /// No description provided for @selectAPastor.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccione un pastor'**
+  String get selectAPastor;
+
+  /// No description provided for @noPastorsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay pastores disponibles'**
+  String get noPastorsAvailable;
+
+  /// No description provided for @appointmentType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de Cita'**
+  String get appointmentType;
+
+  /// No description provided for @videoCallSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión por videollamada'**
+  String get videoCallSession;
+
+  /// No description provided for @inPersonSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión en persona'**
+  String get inPersonSession;
+
+  /// No description provided for @reasonForCounseling.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo de la Consejería'**
+  String get reasonForCounseling;
+
+  /// No description provided for @brieflyDescribeReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Describa brevemente el motivo de su consulta'**
+  String get brieflyDescribeReason;
+
+  /// No description provided for @pastorHasNotConfiguredAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'El pastor no ha configurado su disponibilidad'**
+  String get pastorHasNotConfiguredAvailability;
+
+  /// No description provided for @errorCheckingAvailability.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al verificar disponibilidad: {error}'**
+  String errorCheckingAvailability(String error);
+
+  /// No description provided for @pleaseCompleteAllFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, completa todos los campos'**
+  String get pleaseCompleteAllFields;
+
+  /// No description provided for @appointmentRequestedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita solicitada correctamente'**
+  String get appointmentRequestedSuccessfully;
+
+  /// No description provided for @errorBooking.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al reservar: {error}'**
+  String errorBooking(String error);
+
+  /// No description provided for @anonymous.
+  ///
+  /// In es, this message translates to:
+  /// **'Anónimo'**
+  String get anonymous;
+
+  /// No description provided for @unassignPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Desasignar oración'**
+  String get unassignPrayer;
+
+  /// No description provided for @sureYouWantToUnassignPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas desasignar esta oración del servicio?'**
+  String get sureYouWantToUnassignPrayer;
+
+  /// No description provided for @unassign.
+  ///
+  /// In es, this message translates to:
+  /// **'Desasignar'**
+  String get unassign;
+
+  /// No description provided for @prayerUnassignedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración desasignada correctamente'**
+  String get prayerUnassignedSuccessfully;
+
+  /// No description provided for @errorUnassigningPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al desasignar la oración'**
+  String get errorUnassigningPrayer;
+
+  /// No description provided for @deletePrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Oración'**
+  String get deletePrayer;
+
+  /// No description provided for @sureYouWantToDeletePrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar esta oración? Esta acción no se puede deshacer.'**
+  String get sureYouWantToDeletePrayer;
+
+  /// No description provided for @prayerDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración eliminada con éxito'**
+  String get prayerDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar oración: {error}'**
+  String errorDeletingPrayer(String error);
+
+  /// No description provided for @assignToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar al culto'**
+  String get assignToCult;
+
+  /// No description provided for @unassignFromCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Desasignar del servicio'**
+  String get unassignFromCult;
+
+  /// No description provided for @assignedToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignada al servicio: {cultName}'**
+  String assignedToCult(String cultName);
+
+  /// No description provided for @options.
+  ///
+  /// In es, this message translates to:
+  /// **'Opciones'**
+  String get options;
+
+  /// No description provided for @youMustBeLoggedInToVote.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para votar'**
+  String get youMustBeLoggedInToVote;
+
+  /// No description provided for @errorRegisteringVote.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al registrar el voto: {error}'**
+  String errorRegisteringVote(String error);
+
+  /// No description provided for @commentsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Comentarios ({count})'**
+  String commentsCount(int count);
+
+  /// No description provided for @sureYouWantToDeleteComment.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar este comentario?'**
+  String get sureYouWantToDeleteComment;
+
+  /// No description provided for @youDontHavePermissionToDeleteComment.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para eliminar este comentario'**
+  String get youDontHavePermissionToDeleteComment;
+
+  /// No description provided for @addComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar un comentario...'**
+  String get addComment;
+
+  /// No description provided for @youNeedToBeLoggedInToLike.
+  ///
+  /// In es, this message translates to:
+  /// **'Necesitas estar conectado para dar me gusta'**
+  String get youNeedToBeLoggedInToLike;
+
+  /// No description provided for @errorProcessingLike.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al procesar me gusta: {error}'**
+  String errorProcessingLike(String error);
+
+  /// No description provided for @mostLikedFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Más gustados primero'**
+  String get mostLikedFirst;
+
+  /// No description provided for @leastLikedFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos gustados primero'**
+  String get leastLikedFirst;
+
+  /// No description provided for @mostRecentFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Más recientes primero'**
+  String get mostRecentFirst;
+
+  /// No description provided for @oldestFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Más antiguos primero'**
+  String get oldestFirst;
+
+  /// No description provided for @sentOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviada el {date}'**
+  String sentOn(String date);
+
+  /// No description provided for @respondedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Respondida por:'**
+  String get respondedBy;
+
+  /// No description provided for @assignedTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignada a:'**
+  String get assignedTo;
+
+  /// No description provided for @myPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi oración:'**
+  String get myPrayer;
+
+  /// No description provided for @pastorResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Respuesta del pastor:'**
+  String get pastorResponse;
+
+  /// No description provided for @respondedOnDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Respondido el {date}'**
+  String respondedOnDate(String date);
+
+  /// No description provided for @yourRequestWasAcceptedWillBeAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu solicitud fue aceptada y será atendida en breve.'**
+  String get yourRequestWasAcceptedWillBeAttended;
+
+  /// No description provided for @predefinedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje Predefinido'**
+  String get predefinedMessage;
+
+  /// No description provided for @messageSavedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje guardado con éxito'**
+  String get messageSavedSuccessfully;
+
+  /// No description provided for @errorSavingMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar el mensaje'**
+  String get errorSavingMessage;
+
+  /// No description provided for @errorLoadingMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar mensajes: {error}'**
+  String errorLoadingMessages(String error);
+
+  /// No description provided for @sureYouWantToDeleteThisMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar este mensaje?'**
+  String get sureYouWantToDeleteThisMessage;
+
+  /// No description provided for @messageDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje eliminado con éxito'**
+  String get messageDeletedSuccessfully;
+
+  /// No description provided for @errorDeleting2.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar: {error}'**
+  String errorDeleting2(String error);
+
+  /// No description provided for @createMessageYouCanUseRepeatedly.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea un mensaje que podrás usar repetidamente como respuesta a oraciones privadas.'**
+  String get createMessageYouCanUseRepeatedly;
+
+  /// No description provided for @messageContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido del mensaje'**
+  String get messageContent;
+
+  /// No description provided for @writeHereThePredefinedMessageContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe aquí el contenido del mensaje predefinido...'**
+  String get writeHereThePredefinedMessageContent;
+
+  /// No description provided for @pleaseEnterMessageContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce el contenido del mensaje'**
+  String get pleaseEnterMessageContent;
+
+  /// No description provided for @savedMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensajes Guardados'**
+  String get savedMessages;
+
+  /// No description provided for @noPredefinedMessagesSavedYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún mensaje predefinido guardado aún.'**
+  String get noPredefinedMessagesSavedYet;
+
+  /// No description provided for @deleteMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar mensaje'**
+  String get deleteMessage;
+
+  /// No description provided for @respondPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Responder Oración'**
+  String get respondPrayer;
+
+  /// No description provided for @responseSentSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Respuesta enviada correctamente'**
+  String get responseSentSuccessfully;
+
+  /// No description provided for @errorSendingResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al enviar la respuesta'**
+  String get errorSendingResponse;
+
+  /// No description provided for @loadingRequesterData.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando datos del solicitante...'**
+  String get loadingRequesterData;
+
+  /// No description provided for @prayerRequest2.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de oración:'**
+  String get prayerRequest2;
+
+  /// No description provided for @receivedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibida el {date}'**
+  String receivedOn(String date);
+
+  /// No description provided for @predefinedMessages2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensajes predefinidos:'**
+  String get predefinedMessages2;
+
+  /// No description provided for @reloadMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar mensajes'**
+  String get reloadMessages;
+
+  /// No description provided for @writeYourResponseHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe tu respuesta aquí...'**
+  String get writeYourResponseHere;
+
+  /// No description provided for @sendResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar Respuesta'**
+  String get sendResponse;
+
+  /// No description provided for @noPredefinedMessages.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay mensajes predefinidos'**
+  String get noPredefinedMessages;
+
+  /// No description provided for @pleaseSelectACult.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor selecciona un servicio'**
+  String get pleaseSelectACult;
+
+  /// No description provided for @youMustBeLoggedInToAssignPrayers.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para asignar oraciones'**
+  String get youMustBeLoggedInToAssignPrayers;
+
+  /// No description provided for @prayerAssignedSuccessfullyToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración asignada exitosamente al servicio {cultName}'**
+  String prayerAssignedSuccessfullyToCult(String cultName);
+
+  /// No description provided for @errorAssigningPrayerToCult.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al asignar oración al servicio'**
+  String get errorAssigningPrayerToCult;
+
+  /// No description provided for @errorAssigningPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al asignar oración: {error}'**
+  String errorAssigningPrayer(String error);
+
+  /// No description provided for @searchCultByNameOrDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar servicio por nombre o fecha'**
+  String get searchCultByNameOrDate;
+
+  /// No description provided for @prayerDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle de la Oración'**
+  String get prayerDetail;
+
+  /// No description provided for @received.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibida:'**
+  String get received;
+
+  /// No description provided for @yourPrayerRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu petición de oración:'**
+  String get yourPrayerRequest;
+
+  /// No description provided for @scheduledPrayer.
+  ///
+  /// In es, this message translates to:
+  /// **'Oración programada'**
+  String get scheduledPrayer;
+
+  /// No description provided for @method.
+  ///
+  /// In es, this message translates to:
+  /// **'Método:'**
+  String get method;
+
+  /// No description provided for @pastorResponse2.
+  ///
+  /// In es, this message translates to:
+  /// **'Respuesta del pastor'**
+  String get pastorResponse2;
+
+  /// No description provided for @learnWithOurExclusiveCourses.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprende con nuestros cursos exclusivos'**
+  String get learnWithOurExclusiveCourses;
 }
 
 class _AppLocalizationsDelegate

@@ -2853,6 +2853,7 @@
   "groupEvents": "Eventos de los grupos",
   "groupPosts": "Publicaciones de los grupos",
   "groupMessages": "Mensajes de los grupos",
+  "prayers": "Oraciones",
   "privatePrayerRequests": "Pedidos de oración particular",
   "completedPrayers": "Oraciones completadas",
   "approvedPublicPrayers": "Oraciones públicas aprobadas",
@@ -2902,5 +2903,334 @@
   "notifTypeNewVideo": "Nuevo vídeo",
   "notifTypeMessage": "Mensaje",
   "notifTypeGeneric": "Notificación",
-  "notifTypeCustom": "Notificación personalizada"
+  "notifTypeCustom": "Notificación personalizada",
+  "pleaseFillAllFields": "Por favor, rellena todos los campos",
+  "requestPrivatePrayer": "Solicitar oración privada",
+  "yourPrayerWillBeSharedOnlyWithPastors": "Tu oración será compartida solo con los pastores de la iglesia para atención personal.",
+  "requestDetails": "Detalles de tu pedido",
+  "writeYourPrayerRequestHere": "Escribe tu pedido de oración aquí...",
+  "pleaseWriteYourRequest": "Por favor, escribe tu pedido",
+  "maximum400CharactersAllowed": "Máximo 400 caracteres permitidos",
+  "charactersRemaining": "{count} caracteres restantes",
+  "@charactersRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendRequest": "Enviar pedido",
+  "prayerRequestSentSuccessfully": "Pedido de oración enviado con éxito",
+  "errorCreatingRequest": "Error al crear el pedido: {error}",
+  "@errorCreatingRequest": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "publicPrayers": "Oraciones Públicas",
+  "sortBy": "Ordenar por",
+  "mostRecent": "Más recientes",
+  "mostVoted": "Más votadas",
+  "filterBy": "Filtrar por:",
+  "recent": "Recientes",
+  "assigned": "Atribuidas",
+  "errorLoadingMore": "Error al cargar más: {error}",
+  "@errorLoadingMore": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingPrayers": "Error al cargar oraciones: {error}",
+  "@errorLoadingPrayers": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPrayer": "Pedir oración",
+  "noAssignedPrayers": "Ninguna oración atribuida",
+  "noPrayersAvailable": "Ninguna oración disponible",
+  "noPrayersAssignedToCultsYet": "No se atribuyeron oraciones a cultos todavía",
+  "beTheFirstToRequestPrayer": "Sé el primero en pedir oración",
+  "prayerRequest": "Pedido de Oración",
+  "yourPrayerWillBeSharedWithCommunity": "Tu oración será compartida con toda la comunidad para que puedan orar por ti.",
+  "whyDoYouNeedPrayer": "¿Por qué necesitas oración?",
+  "pleaseWriteYourPrayerRequest": "Por favor, escribe tu pedido de oración",
+  "publishAnonymously": "Publicar anónimamente",
+  "yourNameWillRemainHidden": "Tu nombre permanecerá oculto para todos",
+  "publishRequest": "Publicar pedido",
+  "youMustBeLoggedInToSendPrayer": "Debes estar conectado para enviar una oración",
+  "prayerSentSuccessfully": "¡Oración enviada con éxito!",
+  "errorSendingPrayer": "Error al enviar la oración: {error}",
+  "@errorSendingPrayer": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelAppointment": "Cancelar Cita",
+  "sureYouWantToCancelAppointment": "¿Estás seguro de que deseas cancelar esta cita?",
+  "yesCancelIt": "Sí, cancelar",
+  "appointmentCancelledSuccessfully": "Cita cancelada con éxito",
+  "errorWithMessage": "Error: {message}",
+  "@errorWithMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "loadingPastorInfo": "Cargando información del pastor...",
+  "unknownPastor": "Pastor desconocido",
+  "contact": "Contacto",
+  "couldNotOpenPhone": "No se pudo abrir el teléfono",
+  "call": "Llamar",
+  "couldNotOpenWhatsApp": "No se pudo abrir WhatsApp",
+  "youAreNotLoggedIn": "No estás conectado",
+  "youHaveNoScheduledAppointments": "No tienes citas agendadas",
+  "youHaveNoCancelledAppointments": "No tienes citas canceladas",
+  "youHaveNoCompletedAppointments": "No tienes citas concluidas",
+  "noAppointmentsAvailable": "No hay citas disponibles",
+  "myAppointments": "Mis Citas",
+  "configureAvailability": "Configurar Disponibilidad",
+  "viewRequests": "Ver Solicitudes",
+  "upcoming": "Próximas",
+  "cancelledTab": "Canceladas",
+  "completedTab": "Concluidas",
+  "requestCounseling": "Solicitar Consejería",
+  "time": "Hora",
+  "selectAPastor": "Seleccione un pastor",
+  "noPastorsAvailable": "No hay pastores disponibles",
+  "noName": "Sin nombre",
+  "appointmentType": "Tipo de Cita",
+  "videoCallSession": "Sesión por videollamada",
+  "inPersonSession": "Sesión en persona",
+  "selectDate": "Seleccionar fecha",
+  "selectTime": "Seleccionar hora",
+  "reasonForCounseling": "Motivo de la Consejería",
+  "brieflyDescribeReason": "Describa brevemente el motivo de su consulta",
+  "requestAppointment": "Solicitar Cita",
+  "pastorHasNotConfiguredAvailability": "El pastor no ha configurado su disponibilidad",
+  "errorCheckingAvailability": "Error al verificar disponibilidad: {error}",
+  "@errorCheckingAvailability": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseCompleteAllFields": "Por favor, completa todos los campos",
+  "userNotAuthenticated": "Usuario no autenticado",
+  "appointmentRequestedSuccessfully": "Cita solicitada correctamente",
+  "errorBooking": "Error al reservar: {error}",
+  "@errorBooking": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "anonymous": "Anónimo",
+  "user": "Usuario",
+  "assigned": "Asignada",
+  "unassignPrayer": "Desasignar oración",
+  "sureYouWantToUnassignPrayer": "¿Estás seguro de que deseas desasignar esta oración del servicio?",
+  "unassign": "Desasignar",
+  "prayerUnassignedSuccessfully": "Oración desasignada correctamente",
+  "errorUnassigningPrayer": "Error al desasignar la oración",
+  "deletePrayer": "Eliminar Oración",
+  "sureYouWantToDeletePrayer": "¿Estás seguro de que deseas eliminar esta oración? Esta acción no se puede deshacer.",
+  "prayerDeletedSuccessfully": "Oración eliminada con éxito",
+  "errorDeletingPrayer": "Error al eliminar oración: {error}",
+  "@errorDeletingPrayer": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "assignToCult": "Asignar al culto",
+  "unassignFromCult": "Desasignar del servicio",
+  "assignedToCult": "Asignada al servicio: {cultName}",
+  "@assignedToCult": {
+    "placeholders": {
+      "cultName": {
+        "type": "String"
+      }
+    }
+  },
+  "options": "Opciones",
+  "youMustBeLoggedInToVote": "Debes iniciar sesión para votar",
+  "errorRegisteringVote": "Error al registrar el voto: {error}",
+  "@errorRegisteringVote": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "comments": "Comentarios",
+  "commentsCount": "Comentarios ({count})",
+  "@commentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorPublishingComment": "Error al publicar comentario: {error}",
+  "@errorPublishingComment": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteComment": "Eliminar comentario",
+  "sureYouWantToDeleteComment": "¿Estás seguro de que deseas eliminar este comentario?",
+  "youDontHavePermissionToDeleteComment": "No tienes permiso para eliminar este comentario",
+  "commentDeleted": "Comentario eliminado",
+  "errorDeletingComment": "Error al eliminar comentario: {error}",
+  "@errorDeletingComment": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "addComment": "Agregar un comentario...",
+  "noCommentsYet": "Ningún comentario aún",
+  "beTheFirstToComment": "¡Sé el primero en comentar!",
+  "youNeedToBeLoggedInToLike": "Necesitas estar conectado para dar me gusta",
+  "errorProcessingLike": "Error al procesar me gusta: {error}",
+  "@errorProcessingLike": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mostLikedFirst": "Más gustados primero",
+  "leastLikedFirst": "Menos gustados primero",
+  "mostRecentFirst": "Más recientes primero",
+  "oldestFirst": "Más antiguos primero",
+  "sentOn": "Enviada el {date}",
+  "@sentOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "respondedBy": "Respondida por:",
+  "assignedTo": "Asignada a:",
+  "pastor": "Pastor",
+  "myPrayer": "Mi oración:",
+  "pastorResponse": "Respuesta del pastor:",
+  "respondedOnDate": "Respondido el {date}",
+  "@respondedOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yourRequestWasAcceptedWillBeAttended": "Tu solicitud fue aceptada y será atendida en breve.",
+  "predefinedMessage": "Mensaje Predefinido",
+  "messageSavedSuccessfully": "Mensaje guardado con éxito",
+  "errorSavingMessage": "Error al guardar el mensaje",
+  "errorLoadingMessages": "Error al cargar mensajes: {error}",
+  "@errorLoadingMessages": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmDeletion": "Confirmar Eliminación",
+  "sureYouWantToDeleteThisMessage": "¿Estás seguro de que deseas eliminar este mensaje?",
+  "messageDeletedSuccessfully": "Mensaje eliminado con éxito",
+  "errorDeleting2": "Error al eliminar: {error}",
+  "@errorDeleting2": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "createMessageYouCanUseRepeatedly": "Crea un mensaje que podrás usar repetidamente como respuesta a oraciones privadas.",
+  "messageContent": "Contenido del mensaje",
+  "writeHereThePredefinedMessageContent": "Escribe aquí el contenido del mensaje predefinido...",
+  "pleaseEnterMessageContent": "Por favor, introduce el contenido del mensaje",
+  "savedMessages": "Mensajes Guardados",
+  "noPredefinedMessagesSavedYet": "Ningún mensaje predefinido guardado aún.",
+  "deleteMessage": "Eliminar mensaje",
+  "respondPrayer": "Responder Oración",
+  "responseSentSuccessfully": "Respuesta enviada correctamente",
+  "errorSendingResponse": "Error al enviar la respuesta",
+  "loadingRequesterData": "Cargando datos del solicitante...",
+  "user": "Usuario",
+  "prayerRequest2": "Solicitud de oración:",
+  "receivedOn": "Recibida el {date}",
+  "@receivedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "predefinedMessages2": "Mensajes predefinidos:",
+  "reloadMessages": "Recargar mensajes",
+  "writeYourResponseHere": "Escribe tu respuesta aquí...",
+  "sendResponse": "Enviar Respuesta",
+  "noPredefinedMessages": "No hay mensajes predefinidos",
+  "yourResponse": "Tu respuesta:",
+  "errorLoadingCults": "Error al cargar servicios: {error}",
+  "@errorLoadingCults": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectACult": "Por favor selecciona un servicio",
+  "youMustBeLoggedInToAssignPrayers": "Debes iniciar sesión para asignar oraciones",
+  "prayerAssignedSuccessfullyToCult": "Oración asignada exitosamente al servicio {cultName}",
+  "@prayerAssignedSuccessfullyToCult": {
+    "placeholders": {
+      "cultName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAssigningPrayerToCult": "Error al asignar oración al servicio",
+  "errorAssigningPrayer": "Error al asignar oración: {error}",
+  "@errorAssigningPrayer": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "searchCultByNameOrDate": "Buscar servicio por nombre o fecha",
+  "prayerDetail": "Detalle de la Oración",
+  "received": "Recibida:",
+  "accepted": "Aceptado",
+  "yourPrayerRequest": "Tu petición de oración:",
+  "scheduledPrayer": "Oración programada",
+  "method": "Método:",
+  "call": "Llamada",
+  "whatsApp": "WhatsApp",
+  "inPerson": "En persona",
+  "notSpecified": "No especificado",
+  "date": "Fecha:",
+  "pastorResponse2": "Respuesta del pastor",
+  "onlineCourses": "Cursos Online",
+  "learnWithOurExclusiveCourses": "Aprende con nuestros cursos exclusivos"
 }

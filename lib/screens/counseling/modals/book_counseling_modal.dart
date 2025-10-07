@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../../../models/pastor_availability.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BookCounselingModal extends StatefulWidget {
   const BookCounselingModal({super.key});
@@ -59,7 +60,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
           .get();
 
       if (!availabilityDoc.exists) {
-        throw Exception('El pastor no ha configurado su disponibilidad');
+        throw Exception(AppLocalizations.of(context)!.pastorHasNotConfiguredAvailability);
       }
       
       _pastorAvailability = PastorAvailability.fromFirestore(availabilityDoc);
@@ -67,7 +68,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorWithMessage(e.toString()))),
         );
       }
     } finally {
@@ -247,7 +248,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al verificar disponibilidad: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorCheckingAvailability(e.toString()))),
         );
       }
     }
@@ -256,7 +257,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
   Future<void> _bookAppointment() async {
     if (_selectedPastorRef == null || _selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor complete todos los campos')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseCompleteAllFields)),
       );
       return;
     }
@@ -267,7 +268,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
 
     try {
       final userId = _auth.currentUser?.uid;
-      if (userId == null) throw Exception('Usuario no autenticado');
+      if (userId == null) throw Exception(AppLocalizations.of(context)!.userNotAuthenticated);
       
       final userRef = _firestore.collection('users').doc(userId);
       
@@ -300,14 +301,14 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cita solicitada correctamente')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.appointmentRequestedSuccessfully)),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al reservar: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorBooking(e.toString()))),
         );
       }
     } finally {
@@ -330,9 +331,9 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
           // Encabezado
           Row(
             children: [
-              const Text(
-                'Solicitar Consejería',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.requestCounseling,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -350,13 +351,13 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
               children: [
-                _buildStepIndicator(1, 'Pastor', _selectedPastorRef != null),
+                _buildStepIndicator(1, AppLocalizations.of(context)!.pastor, _selectedPastorRef != null),
                 _buildStepConnector(),
-                _buildStepIndicator(2, 'Tipo', _hasSelectedType),
+                _buildStepIndicator(2, AppLocalizations.of(context)!.type, _hasSelectedType),
                 _buildStepConnector(),
-                _buildStepIndicator(3, 'Fecha', _selectedDate != null),
+                _buildStepIndicator(3, AppLocalizations.of(context)!.date, _selectedDate != null),
                 _buildStepConnector(),
-                _buildStepIndicator(4, 'Hora', _selectedTime != null),
+                _buildStepIndicator(4, AppLocalizations.of(context)!.time, _selectedTime != null),
               ],
             ),
           ),
@@ -373,7 +374,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Selección de pastor
-                    _buildSectionTitle('Seleccione un Pastor'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.selectAPastor),
                     const SizedBox(height: 8),
               StreamBuilder<QuerySnapshot>(
                       stream: _firestore
@@ -386,11 +387,11 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                         }
                         
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
+                          return Center(child: Text(AppLocalizations.of(context)!.errorWithMessage(snapshot.error.toString())));
                         }
                         
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text('No hay pastores disponibles'));
+                          return Center(child: Text(AppLocalizations.of(context)!.noPastorsAvailable));
                   }
 
                   final pastors = snapshot.data!.docs;
@@ -404,7 +405,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<DocumentReference>(
                               isExpanded: true,
-                              hint: const Text('Seleccione un pastor'),
+                              hint: Text(AppLocalizations.of(context)!.selectAPastor),
                               value: _selectedPastorRef,
                     onChanged: (value) {
                                 if (value != null) {
@@ -416,7 +417,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                               },
                               items: pastors.map((doc) {
                                 final data = doc.data() as Map<String, dynamic>?;
-                                final name = data?['name'] as String? ?? 'Sin nombre';
+                                final name = data?['name'] as String? ?? AppLocalizations.of(context)!.noName;
                                 return DropdownMenuItem<DocumentReference>(
                                   value: doc.reference,
                                   child: Text(name),
@@ -431,7 +432,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                     const SizedBox(height: 24),
                     
                     // Tipo de cita
-                    _buildSectionTitle('Tipo de Cita'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.appointmentType),
                     const SizedBox(height: 8),
                     Card(
                       elevation: 0,
@@ -443,13 +444,13 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                         children: [
                           RadioListTile<String>(
                             title: Row(
-                              children: const [
-                                Icon(Icons.video_call, color: Colors.blue),
-                                SizedBox(width: 8),
-                                Text('Online'),
+                              children: [
+                                const Icon(Icons.video_call, color: Colors.blue),
+                                const SizedBox(width: 8),
+                                Text(AppLocalizations.of(context)!.online),
                               ],
                             ),
-                            subtitle: const Text('Sesión por videollamada'),
+                            subtitle: Text(AppLocalizations.of(context)!.videoCallSession),
                             value: 'online',
                             groupValue: _appointmentType,
                             onChanged: (_pastorAvailability?.isAcceptingOnline ?? false)
@@ -470,13 +471,13 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                           const Divider(height: 1),
                           RadioListTile<String>(
                             title: Row(
-                              children: const [
-                                Icon(Icons.person, color: Colors.green),
-                                SizedBox(width: 8),
-                                Text('Presencial'),
+                              children: [
+                                const Icon(Icons.person, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Text(AppLocalizations.of(context)!.inPerson),
                               ],
                             ),
-                            subtitle: const Text('Sesión en persona'),
+                            subtitle: Text(AppLocalizations.of(context)!.inPersonSession),
                             value: 'inPerson',
                             groupValue: _appointmentType,
                             onChanged: (_pastorAvailability?.isAcceptingInPerson ?? false)
@@ -511,12 +512,12 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                    children: const [
-                                Icon(Icons.location_on, color: Colors.blue),
-                      SizedBox(width: 8),
+                    children: [
+                                const Icon(Icons.location_on, color: Colors.blue),
+                      const SizedBox(width: 8),
                                 Text(
-                                  'Dirección:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  '${AppLocalizations.of(context)!.address}:',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -536,7 +537,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSectionTitle('Fecha'),
+                              _buildSectionTitle(AppLocalizations.of(context)!.date),
                               const SizedBox(height: 8),
                               InkWell(
                                 onTap: _pastorAvailability != null
@@ -563,7 +564,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                                       Text(
                                         _selectedDate != null
                                             ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                                            : 'Seleccionar fecha',
+                                            : AppLocalizations.of(context)!.selectDate,
                                         style: TextStyle(
                                           color: _pastorAvailability == null 
                                             ? Colors.grey 
@@ -582,7 +583,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSectionTitle('Hora'),
+                              _buildSectionTitle(AppLocalizations.of(context)!.time),
                               const SizedBox(height: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -593,7 +594,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     isExpanded: true,
-                                    hint: const Text('Seleccionar hora'),
+                                    hint: Text(AppLocalizations.of(context)!.selectTime),
                                     value: _selectedTime,
                                     onChanged: _availableTimes.isNotEmpty
                                         ? (value) {
@@ -620,12 +621,12 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                     const SizedBox(height: 24),
                     
                     // Razón de la cita
-                    _buildSectionTitle('Motivo de la Consejería'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.reasonForCounseling),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _reasonController,
                       decoration: InputDecoration(
-                        hintText: 'Describa brevemente el motivo de su consulta',
+                        hintText: AppLocalizations.of(context)!.brieflyDescribeReason,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -664,7 +665,7 @@ class _BookCounselingModalState extends State<BookCounselingModal> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text('Solicitar Cita'),
+                  : Text(AppLocalizations.of(context)!.requestAppointment),
             ),
           ),
         ],

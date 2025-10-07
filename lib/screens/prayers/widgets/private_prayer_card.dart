@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:intl/intl.dart';
 import '../../../models/private_prayer.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PrivatePrayerCard extends StatelessWidget {
   final PrivatePrayer prayer;
@@ -15,9 +14,6 @@ class PrivatePrayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    final isCreator = currentUser != null && prayer.userId.id == currentUser.uid;
-
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 3,
@@ -62,10 +58,10 @@ class PrivatePrayerCard extends StatelessWidget {
                 children: [
                       Text(
                         prayer.pastorResponse != null
-                            ? 'Respondida'
+                            ? AppLocalizations.of(context)!.responded
                             : prayer.isAccepted
-                                ? 'Aprovada'
-                                : 'Pendente',
+                                ? AppLocalizations.of(context)!.approved
+                                : AppLocalizations.of(context)!.pending,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: prayer.pastorResponse != null
@@ -76,7 +72,7 @@ class PrivatePrayerCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Enviada em ${DateFormat('dd MMM yyyy - HH:mm').format(prayer.createdAt)}',
+                        AppLocalizations.of(context)!.sentOn(DateFormat('dd MMM yyyy - HH:mm', Localizations.localeOf(context).toString()).format(prayer.createdAt)),
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -97,10 +93,10 @@ class PrivatePrayerCard extends StatelessWidget {
                     ),
                     child: Text(
                       prayer.pastorResponse != null 
-                        ? 'Respondida'
+                        ? AppLocalizations.of(context)!.responded
                           : prayer.isAccepted 
-                            ? 'Aprovada'
-                              : 'Pendente',
+                            ? AppLocalizations.of(context)!.approved
+                              : AppLocalizations.of(context)!.pending,
                     style: const TextStyle(
                         fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -128,7 +124,7 @@ class PrivatePrayerCard extends StatelessWidget {
                       }
 
                       final pastorData = snapshot.data!.data() as Map<String, dynamic>?;
-                      final pastorName = pastorData?['displayName'] as String? ?? 'Pastor';
+                      final pastorName = pastorData?['displayName'] as String? ?? AppLocalizations.of(context)!.pastor;
 
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -157,8 +153,8 @@ class PrivatePrayerCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     prayer.pastorResponse != null
-                                        ? 'Respondida por:'
-                                        : 'Atribuída a:',
+                                        ? AppLocalizations.of(context)!.respondedBy
+                                        : AppLocalizations.of(context)!.assignedTo,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[600],
@@ -192,9 +188,9 @@ class PrivatePrayerCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Minha oração:',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.myPrayer,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: Colors.grey,
@@ -225,9 +221,9 @@ class PrivatePrayerCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Resposta do pastor:',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.pastorResponse,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                             color: Colors.green,
@@ -243,7 +239,7 @@ class PrivatePrayerCard extends StatelessWidget {
                         if (prayer.respondedAt != null) ...[
                           const SizedBox(height: 8),
                       Text(
-                            'Respondido em ${DateFormat('dd MMM yyyy - HH:mm').format(prayer.respondedAt!)}',
+                            AppLocalizations.of(context)!.respondedOnDate(DateFormat('dd MMM yyyy - HH:mm', Localizations.localeOf(context).toString()).format(prayer.respondedAt!)),
                         style: TextStyle(
                           fontSize: 12,
                               fontStyle: FontStyle.italic,
@@ -256,11 +252,11 @@ class PrivatePrayerCard extends StatelessWidget {
                   ),
                 ],
 
-                // Fecha de resposta se está aceita mas não respondida ainda
+                // Mensaje si está aceptada pero no respondida aún
                 if (prayer.isAccepted && prayer.pastorResponse == null) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Sua solicitação foi aceita e será atendida em breve.',
+                    AppLocalizations.of(context)!.yourRequestWasAcceptedWillBeAttended,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[700],

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class CourseSectionConfig {
   final String id;
@@ -30,7 +32,7 @@ class CourseSectionConfig {
     
     return CourseSectionConfig(
       id: doc.id,
-      title: data['title'] ?? 'Cursos',
+      title: data['title'] ?? 'Cursos', // Se traduce en la UI con AppLocalizations
       subtitle: data['subtitle'],
       backgroundImageUrl: data['backgroundImageUrl'],
       cardBackgroundColor: data['cardBackgroundColor'],
@@ -57,14 +59,15 @@ class CourseSectionConfig {
   }
 
   // Método para crear una configuración por defecto
+  // Nota: Los textos se traducen en la UI con AppLocalizations
   static CourseSectionConfig createDefault({String? userId}) {
     return CourseSectionConfig(
       id: '',
-      title: 'Cursos Online',
-      subtitle: 'Aprenda com os nossos cursos exclusivos',
+      title: 'onlineCourses', // Clave de traducción
+      subtitle: 'learnWithOurExclusiveCourses', // Clave de traducción
       backgroundImageUrl: null,
-      cardBackgroundColor: '#FFA726', // Color naranja claro
-      cardTextColor: '#FFFFFF', // Texto blanco
+      cardBackgroundColor: null, // Usa AppColors.primary por defecto
+      cardTextColor: null, // Usa blanco por defecto
       isActive: true,
       updatedAt: DateTime.now(),
       updatedBy: userId,
@@ -75,7 +78,7 @@ class CourseSectionConfig {
   // Método para obtener el color de fondo como un entero (para Flutter)
   int getBackgroundColorValue() {
     if (cardBackgroundColor == null || !cardBackgroundColor!.startsWith('#')) {
-      return 0xFF1E6FF2; // Azul primary por defecto
+      return AppColors.primary.value; // Usa el color primario de la app
     }
     
     try {
@@ -85,14 +88,14 @@ class CourseSectionConfig {
       }
       return int.parse('0x$hex');
     } catch (e) {
-      return 0xFF1E6FF2; // Azul primary por defecto en caso de error
+      return AppColors.primary.value; // Usa el color primario en caso de error
     }
   }
 
   // Método para obtener el color de texto como un entero (para Flutter)
   int getTextColorValue() {
     if (cardTextColor == null || !cardTextColor!.startsWith('#')) {
-      return 0xFFFFFFFF; // Blanco por defecto
+      return Colors.white.value; // Blanco por defecto
     }
     
     try {
@@ -102,7 +105,7 @@ class CourseSectionConfig {
       }
       return int.parse('0x$hex');
     } catch (e) {
-      return 0xFFFFFFFF; // Blanco por defecto en caso de error
+      return Colors.white.value; // Blanco por defecto en caso de error
     }
   }
 

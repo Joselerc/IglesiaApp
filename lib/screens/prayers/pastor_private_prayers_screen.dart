@@ -305,7 +305,7 @@ class _PastorPrivatePrayersScreenState extends State<PastorPrivatePrayersScreen>
                             ),
                           ),
                           Text(
-                            DateFormat('dd MMM yyyy - HH:mm', 'pt_BR').format(prayer.createdAt),
+                            DateFormat('dd MMM yyyy - HH:mm', Localizations.localeOf(context).toString()).format(prayer.createdAt),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],

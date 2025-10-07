@@ -910,7 +910,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get online => 'Online';
 
   @override
-  String get inPerson => 'Presencial';
+  String get inPerson => 'Em pessoa';
 
   @override
   String get hybrid => 'Híbrido';
@@ -1323,7 +1323,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String errorPublishingComment(String error) {
-    return 'Erro ao publicar o comentário';
+    return 'Erro ao publicar comentário: $error';
   }
 
   @override
@@ -1342,7 +1342,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String errorDeletingComment(String error) {
-    return 'Erro ao excluir o comentário: $error';
+    return 'Erro ao excluir comentário: $error';
   }
 
   @override
@@ -1852,7 +1852,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get fieldUpdatedSuccessfully => 'Campo atualizado com sucesso';
 
   @override
-  String get userNotAuthenticated => 'Usuario no autenticado';
+  String get userNotAuthenticated => 'Usuário não autenticado';
 
   @override
   String get noProfileFieldsDefined => 'Não há campos de perfil definidos';
@@ -1867,7 +1867,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get number => 'Número';
 
   @override
-  String get date => 'Data';
+  String get date => 'Data:';
 
   @override
   String select(Object count) {
@@ -2217,7 +2217,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noCommentsYet => 'Nenhum comentário ainda';
 
   @override
-  String get beTheFirstToComment => 'Seja o primeiro a comentar';
+  String get beTheFirstToComment => 'Seja o primeiro a comentar!';
 
   @override
   String get you => 'Você';
@@ -2759,7 +2759,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createEvent => 'Criar Evento';
 
   @override
-  String get upcoming => 'Próximos';
+  String get upcoming => 'Próximas';
 
   @override
   String get thisWeek => 'Esta semana';
@@ -3207,7 +3207,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get creating => 'Criando...';
 
   @override
-  String charactersRemaining(Object count) {
+  String charactersRemaining(int count) {
     return '$count caracteres restantes';
   }
 
@@ -3414,7 +3414,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get attendanceRate => 'Taxa de Presença';
 
   @override
-  String get sortBy => 'Ordenar por:';
+  String get sortBy => 'Ordenar por';
 
   @override
   String get invitations => 'Convites';
@@ -3487,10 +3487,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get couldNotOpenPhone => 'Não foi possível abrir o telefone';
 
   @override
-  String get call => 'Ligar';
+  String get call => 'Chamada';
 
   @override
-  String get couldNotOpenWhatsApp => 'Não foi possível abrir o WhatsApp';
+  String get couldNotOpenWhatsApp => 'Não foi possível abrir WhatsApp';
 
   @override
   String get whatsApp => 'WhatsApp';
@@ -4653,7 +4653,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get time => 'Hora:';
+  String get time => 'Hora';
 
   @override
   String registeredCount(Object count) {
@@ -4937,7 +4937,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get finished => 'Finalizado';
 
   @override
-  String errorLoadingCults(Object error) {
+  String errorLoadingCults(String error) {
     return 'Erro ao carregar cultos: $error';
   }
 
@@ -5969,6 +5969,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get groupMessages => 'Mensagens dos grupos';
 
   @override
+  String get prayers => 'Orações';
+
+  @override
   String get privatePrayerRequests => 'Pedidos de oração particular';
 
   @override
@@ -6126,4 +6129,443 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notifTypeCustom => 'Notificação personalizada';
+
+  @override
+  String get pleaseFillAllFields => 'Por favor, preencha todos os campos';
+
+  @override
+  String get requestPrivatePrayer => 'Solicitar oração privada';
+
+  @override
+  String get yourPrayerWillBeSharedOnlyWithPastors =>
+      'Sua oração será compartilhada apenas com os pastores da igreja para atendimento pessoal.';
+
+  @override
+  String get requestDetails => 'Detalhes do seu pedido';
+
+  @override
+  String get writeYourPrayerRequestHere =>
+      'Escreva seu pedido de oração aqui...';
+
+  @override
+  String get pleaseWriteYourRequest => 'Por favor, escreva seu pedido';
+
+  @override
+  String get maximum400CharactersAllowed => 'Máximo 400 caracteres permitidos';
+
+  @override
+  String get sendRequest => 'Enviar pedido';
+
+  @override
+  String get prayerRequestSentSuccessfully =>
+      'Pedido de oração enviado com sucesso';
+
+  @override
+  String errorCreatingRequest(String error) {
+    return 'Erro ao criar o pedido: $error';
+  }
+
+  @override
+  String get publicPrayers => 'Orações Públicas';
+
+  @override
+  String get mostVoted => 'Mais votadas';
+
+  @override
+  String get recent => 'Recentes';
+
+  @override
+  String get assigned => 'Atribuída';
+
+  @override
+  String errorLoadingMore(String error) {
+    return 'Erro ao carregar mais: $error';
+  }
+
+  @override
+  String errorLoadingPrayers(String error) {
+    return 'Erro ao carregar orações: $error';
+  }
+
+  @override
+  String get noAssignedPrayers => 'Nenhuma oração atribuída';
+
+  @override
+  String get noPrayersAvailable => 'Nenhuma oração disponível';
+
+  @override
+  String get noPrayersAssignedToCultsYet =>
+      'Não foram atribuídas orações a cultos ainda';
+
+  @override
+  String get beTheFirstToRequestPrayer => 'Seja o primeiro a pedir oração';
+
+  @override
+  String get prayerRequest => 'Pedido de Oração';
+
+  @override
+  String get yourPrayerWillBeSharedWithCommunity =>
+      'Sua oração será compartilhada com toda a comunidade para que possam orar por você.';
+
+  @override
+  String get whyDoYouNeedPrayer => 'Por que você precisa de oração?';
+
+  @override
+  String get pleaseWriteYourPrayerRequest =>
+      'Por favor, escreva seu pedido de oração';
+
+  @override
+  String get publishAnonymously => 'Publicar anonimamente';
+
+  @override
+  String get yourNameWillRemainHidden =>
+      'Seu nome permanecerá oculto para todos';
+
+  @override
+  String get publishRequest => 'Publicar pedido';
+
+  @override
+  String get youMustBeLoggedInToSendPrayer =>
+      'Você deve estar conectado para enviar uma oração';
+
+  @override
+  String get prayerSentSuccessfully => 'Oração enviada com sucesso!';
+
+  @override
+  String errorSendingPrayer(String error) {
+    return 'Erro ao enviar a oração: $error';
+  }
+
+  @override
+  String get sureYouWantToCancelAppointment =>
+      'Tem certeza que deseja cancelar esta consulta?';
+
+  @override
+  String get yesCancelIt => 'Sim, cancelar';
+
+  @override
+  String get appointmentCancelledSuccessfully =>
+      'Consulta cancelada com sucesso';
+
+  @override
+  String errorWithMessage(String message) {
+    return 'Erro: $message';
+  }
+
+  @override
+  String get youAreNotLoggedIn => 'Você não está conectado';
+
+  @override
+  String get youHaveNoScheduledAppointments =>
+      'Você não tem consultas agendadas';
+
+  @override
+  String get youHaveNoCancelledAppointments =>
+      'Você não tem consultas canceladas';
+
+  @override
+  String get youHaveNoCompletedAppointments =>
+      'Você não tem consultas concluídas';
+
+  @override
+  String get cancelledTab => 'Canceladas';
+
+  @override
+  String get completedTab => 'Concluídas';
+
+  @override
+  String get requestCounseling => 'Solicitar Aconselhamento';
+
+  @override
+  String get selectAPastor => 'Selecione um pastor';
+
+  @override
+  String get noPastorsAvailable => 'Não há pastores disponíveis';
+
+  @override
+  String get appointmentType => 'Tipo de Consulta';
+
+  @override
+  String get videoCallSession => 'Sessão por videochamada';
+
+  @override
+  String get inPersonSession => 'Sessão em pessoa';
+
+  @override
+  String get reasonForCounseling => 'Motivo do Aconselhamento';
+
+  @override
+  String get brieflyDescribeReason =>
+      'Descreva brevemente o motivo de sua consulta';
+
+  @override
+  String get pastorHasNotConfiguredAvailability =>
+      'O pastor não configurou sua disponibilidade';
+
+  @override
+  String errorCheckingAvailability(String error) {
+    return 'Erro ao verificar disponibilidade: $error';
+  }
+
+  @override
+  String get pleaseCompleteAllFields => 'Por favor, preencha todos os campos';
+
+  @override
+  String get appointmentRequestedSuccessfully =>
+      'Consulta solicitada com sucesso';
+
+  @override
+  String errorBooking(String error) {
+    return 'Erro ao reservar: $error';
+  }
+
+  @override
+  String get anonymous => 'Anônimo';
+
+  @override
+  String get unassignPrayer => 'Desatribuir oração';
+
+  @override
+  String get sureYouWantToUnassignPrayer =>
+      'Tem certeza que deseja desatribuir esta oração do culto?';
+
+  @override
+  String get unassign => 'Desatribuir';
+
+  @override
+  String get prayerUnassignedSuccessfully => 'Oração desatribuída corretamente';
+
+  @override
+  String get errorUnassigningPrayer => 'Erro ao desatribuir a oração';
+
+  @override
+  String get deletePrayer => 'Excluir Oração';
+
+  @override
+  String get sureYouWantToDeletePrayer =>
+      'Tem certeza que deseja excluir esta oração? Esta ação não pode ser desfeita.';
+
+  @override
+  String get prayerDeletedSuccessfully => 'Oração excluída com sucesso';
+
+  @override
+  String errorDeletingPrayer(String error) {
+    return 'Erro ao excluir oração: $error';
+  }
+
+  @override
+  String get assignToCult => 'Atribuir ao culto';
+
+  @override
+  String get unassignFromCult => 'Desatribuir do culto';
+
+  @override
+  String assignedToCult(String cultName) {
+    return 'Atribuída ao culto: $cultName';
+  }
+
+  @override
+  String get options => 'Opções';
+
+  @override
+  String get youMustBeLoggedInToVote => 'Você deve fazer login para votar';
+
+  @override
+  String errorRegisteringVote(String error) {
+    return 'Erro ao registrar o voto: $error';
+  }
+
+  @override
+  String commentsCount(int count) {
+    return 'Comentários ($count)';
+  }
+
+  @override
+  String get sureYouWantToDeleteComment =>
+      'Tem certeza que deseja excluir este comentário?';
+
+  @override
+  String get youDontHavePermissionToDeleteComment =>
+      'Você não tem permissão para excluir este comentário';
+
+  @override
+  String get addComment => 'Adicionar um comentário...';
+
+  @override
+  String get youNeedToBeLoggedInToLike =>
+      'Você precisa estar conectado para curtir';
+
+  @override
+  String errorProcessingLike(String error) {
+    return 'Erro ao processar curtida: $error';
+  }
+
+  @override
+  String get mostLikedFirst => 'Mais curtidos primeiro';
+
+  @override
+  String get leastLikedFirst => 'Menos curtidos primeiro';
+
+  @override
+  String get mostRecentFirst => 'Mais recentes primeiro';
+
+  @override
+  String get oldestFirst => 'Mais antigos primeiro';
+
+  @override
+  String sentOn(String date) {
+    return 'Enviada em $date';
+  }
+
+  @override
+  String get respondedBy => 'Respondida por:';
+
+  @override
+  String get assignedTo => 'Atribuída a:';
+
+  @override
+  String get myPrayer => 'Minha oração:';
+
+  @override
+  String get pastorResponse => 'Resposta do pastor:';
+
+  @override
+  String respondedOnDate(String date) {
+    return 'Respondido em $date';
+  }
+
+  @override
+  String get yourRequestWasAcceptedWillBeAttended =>
+      'Sua solicitação foi aceita e será atendida em breve.';
+
+  @override
+  String get predefinedMessage => 'Mensagem Predefinida';
+
+  @override
+  String get messageSavedSuccessfully => 'Mensagem salva com sucesso';
+
+  @override
+  String get errorSavingMessage => 'Erro ao salvar a mensagem';
+
+  @override
+  String errorLoadingMessages(String error) {
+    return 'Erro ao carregar mensagens: $error';
+  }
+
+  @override
+  String get sureYouWantToDeleteThisMessage =>
+      'Tem certeza que deseja excluir esta mensagem?';
+
+  @override
+  String get messageDeletedSuccessfully => 'Mensagem excluída com sucesso';
+
+  @override
+  String errorDeleting2(String error) {
+    return 'Erro ao excluir: $error';
+  }
+
+  @override
+  String get createMessageYouCanUseRepeatedly =>
+      'Crie uma mensagem que você poderá usar repetidamente como resposta a orações privadas.';
+
+  @override
+  String get messageContent => 'Conteúdo da mensagem';
+
+  @override
+  String get writeHereThePredefinedMessageContent =>
+      'Escreva aqui o conteúdo da mensagem predefinida...';
+
+  @override
+  String get pleaseEnterMessageContent =>
+      'Por favor, insira o conteúdo da mensagem';
+
+  @override
+  String get savedMessages => 'Mensagens Salvas';
+
+  @override
+  String get noPredefinedMessagesSavedYet =>
+      'Nenhuma mensagem predefinida salva ainda.';
+
+  @override
+  String get deleteMessage => 'Excluir mensagem';
+
+  @override
+  String get respondPrayer => 'Responder Oração';
+
+  @override
+  String get responseSentSuccessfully => 'Resposta enviada corretamente';
+
+  @override
+  String get errorSendingResponse => 'Erro ao enviar a resposta';
+
+  @override
+  String get loadingRequesterData => 'Carregando dados do solicitante...';
+
+  @override
+  String get prayerRequest2 => 'Solicitude de oração:';
+
+  @override
+  String receivedOn(String date) {
+    return 'Recibida em $date';
+  }
+
+  @override
+  String get predefinedMessages2 => 'Mensagens predefinidas:';
+
+  @override
+  String get reloadMessages => 'Recarregar mensagens';
+
+  @override
+  String get writeYourResponseHere => 'Escreva sua resposta aqui...';
+
+  @override
+  String get sendResponse => 'Enviar Resposta';
+
+  @override
+  String get noPredefinedMessages => 'Não há mensagens predefinidas';
+
+  @override
+  String get pleaseSelectACult => 'Por favor selecione um culto';
+
+  @override
+  String get youMustBeLoggedInToAssignPrayers =>
+      'Você deve fazer login para atribuir orações';
+
+  @override
+  String prayerAssignedSuccessfullyToCult(String cultName) {
+    return 'Oração atribuída com sucesso ao culto $cultName';
+  }
+
+  @override
+  String get errorAssigningPrayerToCult => 'Erro ao atribuir oração ao culto';
+
+  @override
+  String errorAssigningPrayer(String error) {
+    return 'Erro ao atribuir oração: $error';
+  }
+
+  @override
+  String get searchCultByNameOrDate => 'Buscar culto por nome ou data';
+
+  @override
+  String get prayerDetail => 'Detalhe da Oração';
+
+  @override
+  String get received => 'Recebida:';
+
+  @override
+  String get yourPrayerRequest => 'Seu pedido de oração:';
+
+  @override
+  String get scheduledPrayer => 'Oração programada';
+
+  @override
+  String get method => 'Método:';
+
+  @override
+  String get pastorResponse2 => 'Resposta do pastor';
+
+  @override
+  String get learnWithOurExclusiveCourses =>
+      'Aprenda com os nossos cursos exclusivos';
 }

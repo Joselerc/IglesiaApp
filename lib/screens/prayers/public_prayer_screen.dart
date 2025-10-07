@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/prayer.dart';
 import 'widgets/prayer_card.dart';
 import '../prayers/modals/create_prayer_modal.dart';
-import '../../widgets/empty_state.dart';
-import '../../services/prayer_service.dart';
 import '../../services/permission_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/skeletons/prayer_list_skeleton.dart';
+import '../../l10n/app_localizations.dart';
 
 class PublicPrayerScreen extends StatefulWidget {
   const PublicPrayerScreen({super.key});
@@ -20,7 +18,6 @@ class PublicPrayerScreen extends StatefulWidget {
 
 class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
   final ScrollController _scrollController = ScrollController();
-  final PrayerService _prayerService = PrayerService();
   final PermissionService _permissionService = PermissionService();
   
   bool _isLoadingMore = false;
@@ -96,7 +93,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
       debugPrint('Erro ao carregar mais orações: $e');
       if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Erro ao carregar mais: ${e.toString()}')),
+           SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingMore(e.toString()))),
          );
       }
     } finally {
@@ -165,9 +162,9 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                           icon: const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
-                        const Text(
-                          'Orações Públicas',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.publicPrayers,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
@@ -175,7 +172,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                         ),
                         PopupMenuButton<String>(
                           icon: const Icon(Icons.sort, color: Colors.white),
-                          tooltip: 'Ordenar por',
+                          tooltip: AppLocalizations.of(context)!.sortBy,
                           onSelected: _changeSort,
                           itemBuilder: (context) => [
                             PopupMenuItem(
@@ -189,7 +186,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Mais recentes',
+                                    AppLocalizations.of(context)!.mostRecent,
                                     style: TextStyle(
                                       color: _sortBy == 'recent' ? AppColors.primary : null,
                                       fontWeight: _sortBy == 'recent' ? FontWeight.bold : null,
@@ -209,7 +206,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Mais votadas',
+                                    AppLocalizations.of(context)!.mostVoted,
                                     style: TextStyle(
                                       color: _sortBy == 'popular' ? AppColors.primary : null,
                                       fontWeight: _sortBy == 'popular' ? FontWeight.bold : null,
@@ -244,7 +241,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Filtrar por:',
+                      AppLocalizations.of(context)!.filterBy,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -259,7 +256,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                     children: [
                       // Filtros de ordenación
                       FilterChip(
-                        label: const Text('Recentes'),
+                        label: Text(AppLocalizations.of(context)!.recent),
                         selected: _sortBy == 'recent',
                         onSelected: (_) => _changeSort('recent'),
                         avatar: Icon(
@@ -284,7 +281,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                       ),
                       const SizedBox(width: 8),
                       FilterChip(
-                        label: const Text('Mais votadas'),
+                        label: Text(AppLocalizations.of(context)!.mostVoted),
                         selected: _sortBy == 'popular',
                         onSelected: (_) => _changeSort('popular'),
                         avatar: Icon(
@@ -317,7 +314,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                         ),
                         const SizedBox(width: 12),
                         FilterChip(
-                          label: const Text('Todas'),
+                          label: Text(AppLocalizations.of(context)!.all),
                           selected: _filterBy == 'all',
                           onSelected: (_) => _changeFilter('all'),
                           avatar: Icon(
@@ -342,7 +339,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
-                          label: const Text('Atribuídas'),
+                          label: Text(AppLocalizations.of(context)!.assigned),
                           selected: _filterBy == 'assigned',
                           onSelected: (_) => _changeFilter('assigned'),
                           avatar: Icon(
@@ -386,7 +383,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
                 if (snapshot.hasError) {
                   debugPrint('Erro no StreamBuilder: ${snapshot.error}');
                   return Center(
-                    child: Text('Erro ao carregar orações: ${snapshot.error}'),
+                    child: Text(AppLocalizations.of(context)!.errorLoadingPrayers(snapshot.error.toString())),
                   );
                 }
                 
@@ -459,7 +456,7 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
         onPressed: () => _showCreatePrayerModal(context),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
-        tooltip: 'Pedir oração',
+        tooltip: AppLocalizations.of(context)!.requestPrayer,
       ),
     );
   }
@@ -467,18 +464,18 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
   String _getEmptyStateTitle() {
     switch (_filterBy) {
       case 'assigned':
-        return 'Nenhuma oração atribuída';
+        return AppLocalizations.of(context)!.noAssignedPrayers;
       default:
-        return 'Nenhuma oração disponível';
+        return AppLocalizations.of(context)!.noPrayersAvailable;
     }
   }
   
   String _getEmptyStateMessage() {
     switch (_filterBy) {
       case 'assigned':
-        return 'Não foram atribuídas orações a cultos ainda';
+        return AppLocalizations.of(context)!.noPrayersAssignedToCultsYet;
       default:
-        return 'Seja o primeiro a pedir oração';
+        return AppLocalizations.of(context)!.beTheFirstToRequestPrayer;
     }
   }
   
@@ -580,9 +577,9 @@ class _PublicPrayerScreenState extends State<PublicPrayerScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _showCreatePrayerModal(context),
                 icon: const Icon(Icons.add, size: 24, color: Colors.white),
-                label: const Text(
-                  'Pedir oração',
-                  style: TextStyle(
+                label: Text(
+                  AppLocalizations.of(context)!.requestPrayer,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
