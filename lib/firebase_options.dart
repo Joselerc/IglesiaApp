@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBlduEpFx5FTQn0CD0qRZCraFv9h01rYTE',
-    appId: '1:859775537407:android:8315071fe3915fa4fbfcca',
+    appId: '1:859775537407:android:cb9cb7d1242ec726fbfcca',
     messagingSenderId: '859775537407',
     projectId: 'iglesiaapp-2dc33',
     storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '859775537407',
     projectId: 'iglesiaapp-2dc33',
     storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
-    iosBundleId: 'com.iglesia.app',
+    iosBundleId: 'com.masiglesia.demo',
   );
 }

@@ -2173,7 +2173,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String progressWithDetails(
-      Object completed, Object percentage, Object total) {
+    Object completed,
+    Object percentage,
+    Object total,
+  ) {
     return 'Progresso: $percentage% ($completed/$total)';
   }
 
