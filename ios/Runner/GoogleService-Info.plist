@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.iglesia.app</string>
+	<string>com.masiglesia.demo</string>
 	<key>PROJECT_ID</key>
 	<string>iglesiaapp-2dc33</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:859775537407:ios:b2d3acaecc954341fbfcca</string>
+	<string>1:859775537407:ios:3313811f9a5ac782fbfcca</string>
 </dict>
 </plist>
