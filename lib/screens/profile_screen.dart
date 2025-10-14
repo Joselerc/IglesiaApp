@@ -42,7 +42,6 @@ import '../widgets/profile/profile_personal_information_section.dart'; // <-- A�
 import 'events/events_page.dart'; // <-- IMPORT PARA GERENCIAR EVENTOS
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
-import 'admin/app_customization_screen.dart'; // <-- IMPORT PARA PERSONALIZACIÓN DE APP
 
 
 class ProfileScreen extends StatefulWidget {
@@ -1009,50 +1008,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           // --- Lista de Opciones Administrativas --- 
-                          
-                          // Opción exclusiva para SuperUsuarios
-                          if (_isSuperUser)
-                            ListTile(
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.purple.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.palette_outlined,
-                                  color: Colors.purple,
-                                  size: 24,
-                                ),
-                              ),
-                              title: Text(
-                                AppLocalizations.of(context)!.appCustomization,
-                                style: AppTextStyles.bodyText1.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              subtitle: Text(
-                                AppLocalizations.of(context)!.appCustomizationDescription,
-                                style: AppTextStyles.bodyText2.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: AppColors.textSecondary,
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AppCustomizationScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          Divider(indent: 70, endIndent: 16, color: Colors.grey[300]),
                           
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_donations_config',

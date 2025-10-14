@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: StreamBuilder<DocumentSnapshot>(
                         stream: AppConfigService().getAppConfigStream(),
                         builder: (context, snapshot) {
-                          String churchName = AppLocalizations.of(context)!.churchName;
+                          String churchName = 'IglesiaApp';
                           
                           if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
                             final config = snapshot.data!.data() as Map<String, dynamic>?;
