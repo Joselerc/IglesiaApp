@@ -926,7 +926,7 @@ class _GroupEventsTabState extends State<GroupEventsTab> {
                                     );
                                   },
                                   child: Text(
-                                    AppLocalizations.of(context)!.attendees(event['attendees']),
+                                    AppLocalizations.of(context)!.present(event['attendees']),
                                     style: const TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold,

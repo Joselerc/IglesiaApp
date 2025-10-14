@@ -16,6 +16,7 @@ import './register/qr_fullscreen_dialog.dart';
 import '../attendees/event_attendee_management_screen.dart';
 import './attendance/qr_scanner_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final EventModel event;
@@ -188,16 +189,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final result = await showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(hasExistingUrl ? 'Actualizar enlace del evento' : 'Añadir enlace del evento'),
+        title: Text(hasExistingUrl ? AppLocalizations.of(context)!.updateEventLink : AppLocalizations.of(context)!.addEventLink),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Introduce el enlace para que los asistentes accedan al evento online:'),
+            Text(AppLocalizations.of(context)!.enterLinkForOnlineAccess),
             const SizedBox(height: 16),
             TextFormField(
               controller: urlController,
-              decoration: const InputDecoration(
-                labelText: 'URL del evento',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.eventURL,
                 hintText: 'https://zoom.us/meeting/...',
                 border: OutlineInputBorder(),
               ),
@@ -205,7 +206,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 if (value != null && value.isNotEmpty && !value.startsWith('http')) {
-                  return 'El enlace debe comenzar con http:// o https://';
+                  return AppLocalizations.of(context)!.linkMustStartWithHttp;
                 }
                 return null;
               },
@@ -217,11 +218,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context, ''),  // Valor vacío para eliminar el enlace
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Eliminar enlace'),
+              child: Text(AppLocalizations.of(context)!.removeLink),
             ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -230,7 +231,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Navigator.pop(context, url);
               }
             },
-            child: const Text('Guardar'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -252,13 +253,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         // Determinar si se está añadiendo, actualizando o eliminando el enlace
         String mensaje;
         if (result.isEmpty) {
-          mensaje = 'Enlace del evento eliminado correctamente';
+          mensaje = AppLocalizations.of(context)!.eventLinkRemovedSuccessfully;
         } else if (hasExistingUrl) {
-          mensaje = 'Enlace del evento actualizado correctamente';
+          mensaje = AppLocalizations.of(context)!.eventLinkUpdatedSuccessfully;
           // Enviar notificaciones a los asistentes registrados
           _sendUrlUpdateNotifications();
         } else {
-          mensaje = 'Enlace del evento añadido correctamente';
+          mensaje = AppLocalizations.of(context)!.eventLinkAddedSuccessfully;
           // Enviar notificaciones a los asistentes registrados
           _sendUrlUpdateNotifications();
         }
@@ -271,7 +272,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al actualizar el enlace: $e')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingLink(e.toString()))),
           );
         }
       }
@@ -304,7 +305,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (user == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Debes iniciar sesión para registrar tu asistencia')), 
+          SnackBar(content: Text(AppLocalizations.of(context)!.mustBeLoggedToRegisterAttendance)), 
         );
       }
       return;
@@ -355,8 +356,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Asistencia registrada correctamente!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.attendanceRegisteredSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
@@ -365,14 +366,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No se pudo abrir el enlace')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenLink(urlString))),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al abrir el enlace: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOpeningLink(e.toString()))),
         );
       }
     }
@@ -381,8 +382,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Future<void> _deleteEvent(BuildContext context) async {
     if (!_canUserDeleteThisEvent()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No tienes permiso para eliminar este evento'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.noPermissionToDeleteThisEvent),
           backgroundColor: Colors.red,
         ),
       );
@@ -392,19 +393,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Evento'),
-        content: const Text('¿Estás seguro que deseas eliminar este evento?'),
+        title: Text(AppLocalizations.of(context)!.deleteEvent),
+        content: Text(AppLocalizations.of(context)!.sureDeleteEvent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -421,14 +422,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       // Navegar hacia atrás después de eliminar
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Evento eliminado con éxito')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.eventDeletedSuccessfully2)),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorDeleting(e.toString()))),
         );
       }
     }
@@ -438,19 +439,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Entrada'),
-        content: const Text('¿Estás seguro que deseas eliminar esta entrada? Esta acción no se puede deshacer.'),
+        title: Text(AppLocalizations.of(context)!.deleteTicket),
+        content: Text(AppLocalizations.of(context)!.sureDeleteTicket),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -464,7 +465,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Entrada eliminada con éxito')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.ticketDeletedSuccessfully)),
         );
         setState(() => _loadingMyTicket = false); // Refrescar la interfaz
       }
@@ -472,7 +473,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (context.mounted) {
         setState(() => _loadingMyTicket = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorDeleting(e.toString()))),
         );
       }
     }
@@ -484,19 +485,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar mi entrada'),
-        content: const Text('¿Estás seguro que deseas eliminar tu entrada? Esta acción no se puede deshacer.'),
+        title: Text(AppLocalizations.of(context)!.deleteMyTicket),
+        content: Text(AppLocalizations.of(context)!.sureDeleteYourTicket),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -518,13 +519,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Entrada eliminada con éxito')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.ticketDeletedSuccessfully)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar la entrada: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorDeleting(e.toString()))),
         );
       }
     }
@@ -553,15 +554,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   String _formatEventDate(DateTime? date, String format) {
-    if (date == null) return 'No definido';
-    return DateFormat(format).format(date);
+    if (date == null) return AppLocalizations.of(context)!.locationNotSpecified;
+    return DateFormat(format, Localizations.localeOf(context).toString()).format(date);
   }
 
   Widget _buildLocationSection(BuildContext context) {
     String locationText = '';
     
     if (widget.event.eventType == 'online') {
-      locationText = 'Evento online';
+      locationText = AppLocalizations.of(context)!.onlineEvent;
       
       // Para eventos online, mostrar un widget especial con el enlace
       List<Widget> onlineWidgets = [
@@ -628,7 +629,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             ? () => _openUrlAndTrackAttendance(widget.event.url)
                             : null,
                         icon: const Icon(Icons.videocam_outlined, color: Colors.white),
-                        label: const Text('Acessar o evento'),
+                        label: Text(AppLocalizations.of(context)!.accessEvent),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
@@ -645,14 +646,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     IconButton(
                       icon: const Icon(Icons.copy_outlined),
                       color: Theme.of(context).primaryColor.withOpacity(0.7),
-                      tooltip: 'Copiar link do evento',
+                      tooltip: AppLocalizations.of(context)!.copyEventLink,
                       onPressed: isWithinAllowedTime 
                           ? () {
                               if (widget.event.url != null) {
                                 Clipboard.setData(ClipboardData(text: widget.event.url!));
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Link copiado!'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.linkCopied),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -684,7 +685,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Enlace no configurado',
+                            AppLocalizations.of(context)!.linkNotConfigured,
                             style: TextStyle(
                               color: Colors.orange.shade700,
                               fontWeight: FontWeight.bold,
@@ -696,7 +697,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Añade un enlace para que los asistentes puedan acceder al evento',
+                      AppLocalizations.of(context)!.addLinkForAttendees,
                       style: TextStyle(
                         color: Colors.orange.shade700,
                         fontSize: 14,
@@ -708,7 +709,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _updateEventUrl,
                         icon: const Icon(Icons.add_link),
-                        label: const Text('Añadir enlace'),
+                        label: Text(AppLocalizations.of(context)!.addLink),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange.shade700,
                           foregroundColor: Colors.white,
@@ -740,7 +741,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           physicalLocationText += ', ${widget.event.city}';
         }
       } else {
-        physicalLocationText = 'Ubicación física no especificada';
+        physicalLocationText = AppLocalizations.of(context)!.physicalLocationNotSpecified;
       }
       
       List<Widget> hybridWidgets = [
@@ -770,8 +771,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
-                     const Text(
-                       'Ubicación física',
+                     Text(
+                       AppLocalizations.of(context)!.physicalLocation,
                        style: TextStyle(
                          fontWeight: FontWeight.bold,
                          fontSize: 14,
@@ -819,7 +820,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                        ? () => _openUrlAndTrackAttendance(widget.event.url)
                        : null,
                    icon: const Icon(Icons.videocam_outlined, color: Colors.white),
-                   label: const Text('Acessar online'),
+                   label: Text(AppLocalizations.of(context)!.accessOnline),
                    style: ElevatedButton.styleFrom(
                      backgroundColor: Theme.of(context).primaryColor,
                      foregroundColor: Colors.white,
@@ -836,14 +837,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                IconButton(
                  icon: const Icon(Icons.copy_outlined),
                  color: Theme.of(context).primaryColor.withOpacity(0.7),
-                 tooltip: 'Copiar link do evento',
+                 tooltip: AppLocalizations.of(context)!.copyEventLink,
                  onPressed: isWithinAllowedTime 
                      ? () {
                          if (widget.event.url != null) {
                            Clipboard.setData(ClipboardData(text: widget.event.url!));
                            ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                               content: Text('Link copiado!'),
+                             SnackBar(
+                               content: Text(AppLocalizations.of(context)!.linkCopied),
                                duration: Duration(seconds: 2),
                              ),
                            );
@@ -874,7 +875,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                    const SizedBox(width: 8),
                    Expanded(
                      child: Text(
-                       'Enlace no configurado',
+                       AppLocalizations.of(context)!.linkNotConfigured,
                        style: TextStyle(
                          color: Colors.orange.shade700,
                          fontWeight: FontWeight.bold,
@@ -886,7 +887,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                ),
                const SizedBox(height: 8),
                Text(
-                 'Añade un enlace para la asistencia online',
+                 AppLocalizations.of(context)!.addLinkForOnlineAttendance,
                  style: TextStyle(
                    color: Colors.orange.shade700,
                    fontSize: 14,
@@ -898,7 +899,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                  child: ElevatedButton.icon(
                    onPressed: _updateEventUrl,
                    icon: const Icon(Icons.add_link),
-                   label: const Text('Añadir enlace'),
+                   label: Text(AppLocalizations.of(context)!.addLink),
                    style: ElevatedButton.styleFrom(
                      backgroundColor: Colors.orange.shade700,
                      foregroundColor: Colors.white,
@@ -928,7 +929,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         locationText += ', ${widget.event.city}';
       }
     } else {
-      locationText = 'Lugar no especificado';
+      locationText = AppLocalizations.of(context)!.locationNotSpecified;
     }
     
     return Container(
@@ -984,7 +985,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           if (_isPastor || _canManageAttendance)
             IconButton(
               icon: const Icon(Icons.people, color: Colors.white),
-              tooltip: 'Gestionar asistentes',
+              tooltip: AppLocalizations.of(context)!.manageAttendees,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -1000,7 +1001,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           if (_isPastor && (widget.event.eventType == 'presential' || widget.event.eventType == 'hybrid'))
             IconButton(
               icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-              tooltip: 'Escanear entradas',
+              tooltip: AppLocalizations.of(context)!.scanTickets,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -1015,18 +1016,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           if ((_isPastor || _canCreateEvents) && (widget.event.eventType == 'online' || widget.event.eventType == 'hybrid'))
             IconButton(
               icon: const Icon(Icons.link, color: Colors.white),
-              tooltip: 'Actualizar enlace',
+              tooltip: AppLocalizations.of(context)!.updateLink,
               onPressed: _updateEventUrl,
             ),
           if (_isPastor || _canManageTickets)
             IconButton(
               icon: const Icon(Icons.add_card, color: Colors.white),
-              tooltip: 'Crear nuevo ticket',
+              tooltip: AppLocalizations.of(context)!.createNewTicket,
               onPressed: () {
                 if (!_canManageTickets && !_isPastor) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No tienes permiso para crear tickets'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.noPermissionToCreateTickets),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -1044,7 +1045,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           if (_canUserDeleteThisEvent())
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.white),
-              tooltip: 'Eliminar evento',
+              tooltip: AppLocalizations.of(context)!.deleteEvent,
               onPressed: () => _deleteEvent(context),
             ),
         ],
@@ -1134,7 +1135,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Início: ${_formatEventDate(widget.event.startDate, 'EEE, d MMM')} · ${_formatEventDate(widget.event.startDate, 'HH:mm')}',
+                                  '${AppLocalizations.of(context)!.start}: ${_formatEventDate(widget.event.startDate, 'EEE, d MMM')} · ${_formatEventDate(widget.event.startDate, 'HH:mm')}',
                                   style: TextStyle(
                                     color: Colors.grey.shade700,
                                     fontSize: 14,
@@ -1142,7 +1143,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 ),
                                 if (widget.event.endDate != null)
                                   Text(
-                                    'Fim: ${_formatEventDate(widget.event.endDate, 'EEE, d MMM')} · ${_formatEventDate(widget.event.endDate, 'HH:mm')}',
+                                    '${AppLocalizations.of(context)!.end}: ${_formatEventDate(widget.event.endDate, 'EEE, d MMM')} · ${_formatEventDate(widget.event.endDate, 'HH:mm')}',
                                     style: TextStyle(
                                       color: Colors.grey.shade700,
                                       fontSize: 14,
@@ -1160,7 +1161,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       // Descripción
                       if (widget.event.description.isNotEmpty) ...[
                         Text(
-                          'Descrição',
+                          AppLocalizations.of(context)!.description,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -1187,7 +1188,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                   CircularProgressIndicator(),
                                   SizedBox(height: 8),
                                   Text(
-                                    _loadingMyTicket ? 'Atualizando ingressos...' : 'Carregando ingressos...',
+                                    _loadingMyTicket ? AppLocalizations.of(context)!.updatingTickets : AppLocalizations.of(context)!.loadingTickets,
                                     style: TextStyle(color: Colors.grey.shade600),
                                   ),
                                 ],
@@ -1211,7 +1212,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Ingressos disponíveis',
+                                    AppLocalizations.of(context)!.availableTickets,
                                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1227,7 +1228,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                         );
                                       },
                                       icon: const Icon(Icons.add_circle, color: Colors.deepOrange),
-                                      tooltip: 'Criar ingresso',
+                                      tooltip: AppLocalizations.of(context)!.createTicket,
                                     ),
                                 ],
                               ),
@@ -1247,7 +1248,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                       Icon(Icons.event_busy, size: 48, color: Colors.grey.shade400),
                                       SizedBox(height: 16),
                                       Text(
-                                        'Não há ingressos disponíveis',
+                                        AppLocalizations.of(context)!.noTicketsAvailable,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -1256,7 +1257,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                       ),
                                       SizedBox(height: 8),
                                       Text(
-                                        'Crie um ingresso para que os usuários possam se registrar',
+                                        AppLocalizations.of(context)!.createTicketForRegistration,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(color: Colors.grey.shade600),
                                       ),
@@ -1271,7 +1272,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                           );
                                         },
                                         icon: Icon(Icons.add),
-                                        label: Text('Criar ingresso'),
+                                        label: Text(AppLocalizations.of(context)!.createTicket),
                                         style: ElevatedButton.styleFrom(
                                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                         ),
@@ -1331,7 +1332,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 CircularProgressIndicator(),
                 SizedBox(height: 8),
                 Text(
-                  _loadingMyTicket ? 'Atualizando ingressos...' : 'Carregando ingressos...',
+                  _loadingMyTicket ? AppLocalizations.of(context)!.updatingTickets : AppLocalizations.of(context)!.loadingTickets,
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
               ],
@@ -1346,7 +1347,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Icon(Icons.error_outline, color: Colors.red, size: 48),
                 SizedBox(height: 8),
                 Text(
-                  'Erro ao carregar ingressos: ${snapshot.error}',
+                  AppLocalizations.of(context)!.errorLoadingTickets(snapshot.error.toString()),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.red.shade700),
                 ),
@@ -1370,7 +1371,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Icon(Icons.event_busy, size: 48, color: Colors.grey.shade400),
                 SizedBox(height: 16),
                 Text(
-                  'Não há ingressos disponíveis',
+                  AppLocalizations.of(context)!.noTicketsAvailable,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -1379,7 +1380,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Crie um ingresso para que os usuários possam se registrar',
+                  AppLocalizations.of(context)!.createTicketForRegistration,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
@@ -1394,7 +1395,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     );
                   },
                   icon: Icon(Icons.add),
-                  label: Text('Criar ingresso'),
+                  label: Text(AppLocalizations.of(context)!.createTicket),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
@@ -1579,7 +1580,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     child: ElevatedButton.icon(
                       icon: Icon(Icons.delete_outline, color: Colors.white, size: 18),
                       label: Text(
-                        'Excluir ingresso',
+                        AppLocalizations.of(context)!.deleteTicket,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.normal,
@@ -1635,7 +1636,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 Icon(Icons.check_circle, size: 16, color: Colors.green.shade800),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Já cadastrado',
+                                  AppLocalizations.of(context)!.alreadyRegistered,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -1646,7 +1647,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 Icon(Icons.qr_code, size: 16, color: Colors.green.shade800),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Ver QR',
+                                  AppLocalizations.of(context)!.viewQR,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -1681,7 +1682,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 backgroundColor: Theme.of(context).primaryColor, // Cor primária
                                 foregroundColor: Colors.white, // Texto branco
                               ),
-                              child: const Text('Registrar-se'), // Texto traduzido
+                              child: Text(AppLocalizations.of(context)!.register), // Texto traduzido
                             ),
                         ],
                       ),
@@ -1712,13 +1713,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   String _getTypeText(String eventType) {
     switch (eventType) {
       case 'presential':
-        return 'Presencial';
+        return AppLocalizations.of(context)!.presential;
       case 'online':
-        return 'Online';
+        return AppLocalizations.of(context)!.online;
       case 'hybrid':
-        return 'Híbrido';
+        return AppLocalizations.of(context)!.hybrid;
       default:
-        return 'Desconocido';
+        return AppLocalizations.of(context)!.unknown;
     }
   }
 

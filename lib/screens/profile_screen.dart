@@ -41,7 +41,8 @@ import '../widgets/profile/profile_additional_fields_section.dart'; // <-- IMPOR
 import '../widgets/profile/profile_personal_information_section.dart'; // <-- AÑADIR IMPORT DEL NUEVO WIDGET
 import 'events/events_page.dart'; // <-- IMPORT PARA GERENCIAR EVENTOS
 import '../l10n/app_localizations.dart';
-import '../widgets/debug/superuser_diagnostic_widget.dart'; // <-- IMPORT PARA DIAGNÓSTICO SUPERUSER
+import '../services/language_service.dart';
+import 'admin/app_customization_screen.dart'; // <-- IMPORT PARA PERSONALIZACIÓN DE APP
 
 
 class ProfileScreen extends StatefulWidget {
@@ -61,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   // Variables para controlar si se muestran las opciones administrativas
   bool _hasAdminAccess = false; // Reemplaza a _isPastor
+  bool _isSuperUser = false; // Para verificar si es superusuario
   
   @override
   void initState() {
@@ -124,6 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (userData['isSuperUser'] == true) {
         setState(() {
             _hasAdminAccess = true;
+            _isSuperUser = true;
             print('✅ SuperUser verificado: Acceso completo otorgado');
           });
           return;
@@ -1007,6 +1010,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           // --- Lista de Opciones Administrativas --- 
                           
+                          // Opción exclusiva para SuperUsuarios
+                          if (_isSuperUser)
+                            ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.palette_outlined,
+                                  color: Colors.purple,
+                                  size: 24,
+                                ),
+                              ),
+                              title: Text(
+                                AppLocalizations.of(context)!.appCustomization,
+                                style: AppTextStyles.bodyText1.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              subtitle: Text(
+                                AppLocalizations.of(context)!.appCustomizationDescription,
+                                style: AppTextStyles.bodyText2.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: AppColors.textSecondary,
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AppCustomizationScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          Divider(indent: 70, endIndent: 16, color: Colors.grey[300]),
+                          
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_donations_config',
                             icon: Icons.volunteer_activism, 
@@ -1290,8 +1337,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ], // <<< Fin del if (_hasAdminAccess)
 
-                  // Botón de Cerrar Sesión 
+                  // Selector de Idioma
                   const SizedBox(height: 32),
+                  _buildLanguageSelector(),
+
+                  // Botón de Cerrar Sesión 
+                  const SizedBox(height: 24),
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.white),
@@ -1356,15 +1407,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   
-                  // Botón de Diagnóstico SuperUser (herramienta de depuración)
+                  // Botón de Diagnóstico SuperUser (herramienta de depuración) - OCULTO
                   // Útil para diagnosticar problemas cuando un usuario con isSuperUser = true
                   // no puede ver las opciones de administración
-                  const SizedBox(height: 16),
-                  Center(
-                    child: SuperUserDiagnosticWidget.buildDiagnosticButton(
-                      hasAdminAccess: _hasAdminAccess,
-                    ),
-                  ),
+                  // const SizedBox(height: 16),
+                  // Center(
+                  //   child: SuperUserDiagnosticWidget.buildDiagnosticButton(
+                  //     hasAdminAccess: _hasAdminAccess,
+                  //   ),
+                  // ),
                   
                   const SizedBox(height: 20),
                   
@@ -2619,6 +2670,121 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() => _isLoading = false);
         }
       }
+    }
+  }
+
+  // Método para construir el selector de idioma
+  Widget _buildLanguageSelector() {
+    final languageService = Provider.of<LanguageService>(context, listen: false);
+    final currentLocale = languageService.locale.languageCode;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(Icons.language, color: AppColors.primary),
+            title: Text(
+              AppLocalizations.of(context)!.language,
+              style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.w500),
+            ),
+            subtitle: Text(
+              AppLocalizations.of(context)!.selectYourPreferredLanguage,
+              style: AppTextStyles.caption,
+            ),
+            dense: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildLanguageOption(
+                    languageCode: 'es',
+                    languageName: AppLocalizations.of(context)!.spanish,
+                    flag: '🇪🇸',
+                    isSelected: currentLocale == 'es',
+                    onTap: () => _changeLanguage('es'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildLanguageOption(
+                    languageCode: 'pt',
+                    languageName: AppLocalizations.of(context)!.portugueseBrazil,
+                    flag: '🇧🇷',
+                    isSelected: currentLocale == 'pt',
+                    onTap: () => _changeLanguage('pt'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1, indent: 70, endIndent: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption({
+    required String languageCode,
+    required String languageName,
+    required String flag,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              flag,
+              style: const TextStyle(fontSize: 32),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              languageName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? AppColors.primary : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _changeLanguage(String languageCode) async {
+    final languageService = Provider.of<LanguageService>(context, listen: false);
+    await languageService.setLanguage(languageCode);
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.languageChangedSuccessfully),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 } 

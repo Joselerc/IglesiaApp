@@ -5,11 +5,11 @@ import '../../models/group_event.dart';
 import '../../models/group.dart';
 import '../../services/auth_service.dart';
 import '../../services/event_service.dart';
-import '../../widgets/event_attendees_list.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
 import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
 
 class GroupEventDetailScreen extends StatefulWidget {
   final GroupEvent event;
@@ -25,16 +25,14 @@ class GroupEventDetailScreen extends StatefulWidget {
 
 class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
   bool _isLoading = false;
-  List<Map<String, dynamic>> _attendees = [];
   bool _isJoining = false;
-  String _groupName = "Grupo";
+  String _groupName = ""; // Se cargará dinámicamente
   bool _hasReminder = false;
   
   @override
   void initState() {
     super.initState();
     _loadGroupName();
-    _loadAttendees();
     _checkReminder();
   }
   
@@ -48,24 +46,6 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
       }
     } catch (e) {
       debugPrint('Erro ao carregar informações do grupo: $e');
-    }
-  }
-  
-  Future<void> _loadAttendees() async {
-    try {
-      final attendeesSnapshot = await FirebaseFirestore.instance
-          .collection('event_attendees')
-          .where('eventId', isEqualTo: widget.event.id)
-          .where('eventType', isEqualTo: 'group')
-          .get();
-      
-      if (mounted) {
-        setState(() {
-          _attendees = attendeesSnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-        });
-      }
-    } catch (e) {
-      debugPrint('Erro ao carregar participantes: $e');
     }
   }
   
@@ -115,7 +95,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao configurar lembrete: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSettingReminder(e.toString()))),
         );
       }
     } finally {
@@ -151,8 +131,8 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
     if (!isCreator && !isAdmin) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No tienes permisos para eliminar este evento'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noPermissionToDeleteEvent),
             backgroundColor: Colors.red,
           ),
         );
@@ -163,17 +143,17 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Evento'),
-        content: const Text('Tem certeza de que deseja excluir este evento?'),
+        title: Text(AppLocalizations.of(context)!.deleteEvent),
+        content: Text(AppLocalizations.of(context)!.sureDeleteEvent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -197,8 +177,8 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
       Future.delayed(Duration.zero, () {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Evento excluído com sucesso'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.eventDeletedSuccessfully),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 2),
             ),
@@ -209,7 +189,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao excluir o evento: $e'),
+            content: Text(AppLocalizations.of(context)!.errorDeletingEvent(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -236,8 +216,8 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(attending 
-              ? 'Você confirmou sua presença em "${widget.event.title}"'
-              : 'Você cancelou sua presença em "${widget.event.title}"'),
+              ? AppLocalizations.of(context)!.youConfirmedAttendance
+              : AppLocalizations.of(context)!.youCancelledAttendance),
           backgroundColor: attending ? Colors.green : Colors.amber,
         ),
       );
@@ -247,7 +227,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao atualizar presença: $e'),
+          content: Text(AppLocalizations.of(context)!.errorUpdatingAttendance(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -260,8 +240,6 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = Provider.of<AuthService>(context).currentUser;
-    final isCreator = widget.event.createdBy.id == currentUser?.uid;
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
 
     return Scaffold(
@@ -342,7 +320,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                             color: Colors.white,
                             size: 22,
                           ),
-                          tooltip: 'Excluir Evento',
+                          tooltip: AppLocalizations.of(context)!.deleteEvent,
                           padding: EdgeInsets.zero,
                           splashColor: Colors.red.withOpacity(0.3),
                           onPressed: () => _deleteEvent(context),
@@ -402,7 +380,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            "De: ${dateFormat.format(widget.event.date)}",
+                            "${AppLocalizations.of(context)!.from}: ${dateFormat.format(widget.event.date)}",
                             style: AppTextStyles.bodyText2.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
@@ -433,7 +411,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "Até: ${dateFormat.format(widget.event.endDate!)}",
+                              "${AppLocalizations.of(context)!.until}: ${dateFormat.format(widget.event.endDate!)}",
                               style: AppTextStyles.bodyText2.copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
@@ -460,7 +438,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                               color: AppColors.textOnDark,
                               size: 28,
                             ),
-                            tooltip: _hasReminder ? 'Lembrete Adicionado' : 'Adicionar Lembrete',
+                            tooltip: _hasReminder ? AppLocalizations.of(context)!.reminderAdded : AppLocalizations.of(context)!.addReminder,
                             padding: const EdgeInsets.all(12),
                           ),
                         ),
@@ -480,7 +458,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                                   color: AppColors.textOnDark,
                                 ),
                                 label: Text(
-                                  isAttending ? 'Declinar' : 'Participar',
+                                  isAttending ? AppLocalizations.of(context)!.decline : AppLocalizations.of(context)!.participate,
                                   style: AppTextStyles.button.copyWith(
                                     color: AppColors.textOnDark,
                                   ),
@@ -501,7 +479,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                     
                     // Descripción
                     Text(
-                      'Descrição',
+                      AppLocalizations.of(context)!.description,
                       style: AppTextStyles.subtitle1,
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -546,7 +524,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                         ),
                           const SizedBox(width: 8),
                         Text(
-                          'Participantes',
+                          AppLocalizations.of(context)!.participants,
                             style: AppTextStyles.subtitle1.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -600,7 +578,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                                   builder: (context, snapshot) {
                                     final count = snapshot.data ?? 0;
                                     return Text(
-                                      'Asistentes ($count)',
+                                      AppLocalizations.of(context)!.attendees(count),
                                       style: AppTextStyles.subtitle2.copyWith(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,
@@ -646,7 +624,7 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                                         ),
                                         const SizedBox(height: AppSpacing.xs),
                                         Text(
-                                          'Ninguém confirmou presença ainda',
+                                          AppLocalizations.of(context)!.noOneConfirmedYet,
                                           style: AppTextStyles.bodyText2.copyWith(
                                             color: AppColors.mutedGray,
                                           ),

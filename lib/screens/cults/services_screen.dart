@@ -6,6 +6,7 @@ import '../../models/service.dart';
 import './cults_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../services/permission_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               ),
               Center(
                 child: Text(
-                  'Criar Novo Serviço',
+                  AppLocalizations.of(context)!.createNewService,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -80,7 +81,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Nome do Serviço',
+                  labelText: AppLocalizations.of(context)!.serviceName,
                   prefixIcon: const Icon(Icons.church),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -115,7 +116,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  labelText: 'Descrição (opcional)',
+                  labelText: AppLocalizations.of(context)!.descriptionOptional,
                   prefixIcon: const Icon(Icons.description),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -154,13 +155,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         foregroundColor: Colors.red,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w500)),
+                      child: Text(AppLocalizations.of(context)!.cancel, style: TextStyle(fontWeight: FontWeight.w500)),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         if (_nameController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Por favor, insira um nome para o serviço')),
+                            SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterServiceName)),
                           );
                           return;
                         }
@@ -176,7 +177,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Criar', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(AppLocalizations.of(context)!.create, style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -197,7 +198,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       bool hasPermission = await _permissionService.hasPermission('manage_cults');
       if (!hasPermission) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você não tem permissão para criar serviços')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToCreateServices)),
         );
         return;
       }
@@ -218,11 +219,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
       _descriptionController.clear();
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Serviço criado com sucesso')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.serviceCreatedSuccessfully)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao criar o serviço: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.errorCreatingService}: $e')),
       );
     }
   }
@@ -235,7 +236,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Editar Serviço'),
+        title: Text(AppLocalizations.of(context)!.editService),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -264,7 +265,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -272,14 +273,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
               final newDescription = editDescriptionController.text.trim();
               if (newName.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('O nome não pode ficar vazio')),
+                  SnackBar(content: Text(AppLocalizations.of(context)!.nameCannotBeEmpty)),
                 );
                 return;
               }
               _updateService(service.id, newName, newDescription);
               Navigator.pop(context);
             },
-            child: const Text('Salvar'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -293,7 +294,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       bool hasPermission = await _permissionService.hasPermission('manage_cults');
       if (!hasPermission) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você não tem permissão para atualizar serviços')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToUpdateServices)),
         );
         return;
       }
@@ -305,11 +306,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
         // 'updatedAt': FieldValue.serverTimestamp(), 
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Serviço atualizado com sucesso')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.serviceUpdatedSuccessfully)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar o serviço: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.errorUpdatingService}: $e')),
       );
     }
   }
@@ -319,12 +320,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Serviço'),
-        content: Text('Tem certeza que deseja excluir o serviço "${service.name}" e todo seu conteúdo? Esta ação não pode ser desfeita.'),
+        title: Text(AppLocalizations.of(context)!.deleteService),
+        content: Text(AppLocalizations.of(context)!.sureDeleteServiceAndContent(service.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -334,7 +335,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -348,7 +349,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       bool hasPermission = await _permissionService.hasPermission('manage_cults');
       if (!hasPermission) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você não tem permissão para excluir serviços')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToDeleteServices)),
         );
         return;
       }
@@ -357,13 +358,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
+        builder: (context) => AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Excluindo serviço e todo seu conteúdo...'),
+              Text(AppLocalizations.of(context)!.deletingServiceAndContent),
             ],
           ),
         ),
@@ -475,8 +476,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
       
       // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Serviço excluído com sucesso'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.serviceDeletedSuccessfully),
           backgroundColor: AppColors.success,
         ),
       );
@@ -487,7 +488,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       // Mostrar mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao excluir o serviço: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorDeletingService}: $e'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -499,7 +500,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     // Interfaz principal para pastores
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Serviços'),
+        title: Text(AppLocalizations.of(context)!.services),
         backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<bool>(
@@ -510,7 +511,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
           }
           
           if (permissionSnapshot.hasError) {
-            return Center(child: Text('Erro ao verificar permissão: ${permissionSnapshot.error}'));
+            return Center(child: Text('${AppLocalizations.of(context)!.errorVerifyingPermission}: ${permissionSnapshot.error}'));
           }
           
           if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
@@ -522,9 +523,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   children: [
                     Icon(Icons.lock_outline, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Acesso Negado', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Você não tem permissão para gerenciar cultos.', textAlign: TextAlign.center),
+                    Text(AppLocalizations.of(context)!.noPermissionToManageCults, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -547,11 +548,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Não há serviços disponíveis'),
+                      Text(AppLocalizations.of(context)!.noServicesAvailable),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _showCreateServiceDialog,
-                        child: const Text('Criar Serviço'),
+                        child: Text(AppLocalizations.of(context)!.createService),
                       ),
                     ],
                   ),

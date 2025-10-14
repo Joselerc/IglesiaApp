@@ -1,4 +1,4 @@
-package com.iglesia.app
+package com.masiglesia.demo
 
 import io.flutter.embedding.android.FlutterActivity
 

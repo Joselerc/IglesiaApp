@@ -5,6 +5,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/loading_indicator.dart';
+import '../l10n/app_localizations.dart';
 
 // ... (Clase _FeaturedMemberEditState)
 class _FeaturedMemberEditState {
@@ -28,7 +29,7 @@ class _FeaturedMemberEditState {
       customInfoDecoded = currentInfoDeltaJson.isNotEmpty ? jsonDecode(currentInfoDeltaJson) : null;
     } catch (e) {
       print("Error decodificando Delta JSON de miembro destacado: $e");
-      customInfoDecoded = {'insert': 'Erro ao salvar info.\n'};
+      customInfoDecoded = {'insert': 'Error al guardar info.\n'};
     }
     return {
       'userId': userId,
@@ -88,7 +89,7 @@ class _DeltaEditorModalState extends State<DeltaEditorModal> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            tooltip: 'Confirmar',
+            tooltip: AppLocalizations.of(context)!.confirm,
             onPressed: () {
               final deltaJson = jsonEncode(_controller.document.toDelta().toJson());
               Navigator.pop(context, deltaJson);
@@ -124,10 +125,10 @@ class _DeltaEditorModalState extends State<DeltaEditorModal> {
               child: QuillEditor.basic(
                 controller: _controller,
                 focusNode: _focusNode,
-                config: const QuillEditorConfig(
+                config: QuillEditorConfig(
                   padding: EdgeInsets.zero,
                   autoFocus: true,
-                  placeholder: 'Digite o conteúdo aqui...',
+                  placeholder: AppLocalizations.of(context)!.typeContentHere,
                   expands: false,
                 ),
               ),
@@ -168,7 +169,9 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
 
   // ... (Getters _collectionPath, _entityTypeName, _adminFieldName)
   String get _collectionPath => widget.entityType == EntityType.ministry ? 'ministries' : 'groups';
-  String get _entityTypeName => widget.entityType == EntityType.ministry ? 'Ministério' : 'Grupo';
+  String _getEntityTypeName(BuildContext context) => widget.entityType == EntityType.ministry 
+    ? AppLocalizations.of(context)!.ministry 
+    : AppLocalizations.of(context)!.group;
 
   @override
   void initState() {
@@ -190,7 +193,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
     try {
       final docSnapshot = await FirebaseFirestore.instance.collection(_collectionPath).doc(widget.entityId).get();
       if (!docSnapshot.exists || docSnapshot.data() == null) {
-        throw Exception('$_entityTypeName não encontrado.');
+        throw Exception('${_getEntityTypeName(context)} ${AppLocalizations.of(context)!.notFound}');
       }
       final data = docSnapshot.data()!;
 
@@ -211,7 +214,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
       print("Error cargando datos para edición: $e");
       setState(() {
         _isLoading = false;
-        _errorMessage = "Erro ao carregar dados: ${e.toString()}";
+        _errorMessage = "${AppLocalizations.of(context)!.errorLoadingData}: ${e.toString()}";
       });
     }
   }
@@ -226,7 +229,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
     for (var memberDoc in allMembersDocs) {
       final userId = memberDoc.id;
       final userData = memberDoc.data() as Map<String, dynamic>;
-      final name = userData['name'] ?? userData['displayName'] ?? 'Usuário Desconhecido';
+      final name = userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.unknown;
       final photoUrl = userData['photoUrl'] as String? ?? '';
 
       final featuredData = featuredMembersData.firstWhere(
@@ -270,7 +273,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
         document = Document.fromJson(deltaList);
       } catch (e) {
         print('Error parseando descriptionDelta: $e');
-        document = Document()..insert(0, '(Erro ao carregar)');
+        document = Document()..insert(0, '(${AppLocalizations.of(context)!.errorLoadingData})');
       }
     } else if (descriptionData is String && descriptionData.isNotEmpty) {
       document = Document()..insert(0, descriptionData);
@@ -286,7 +289,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
       context,
       MaterialPageRoute(
         builder: (context) => DeltaEditorModal(
-          title: 'Editar Info: ${memberState.name}',
+          title: '${AppLocalizations.of(context)!.editInfo}: ${memberState.name}',
           initialContentJson: memberState.currentInfoDeltaJson,
         ),
         fullscreenDialog: true,
@@ -318,13 +321,13 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
         'updatedAt': FieldValue.serverTimestamp(), 
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Informações salvas com sucesso!')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.informationSavedSuccessfully)));
         Navigator.pop(context);
       }
     } catch (e) {
       print("Error guardando todo: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao salvar informações.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.errorSavingInformation)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -357,7 +360,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Informações do $_entityTypeName'),
+        title: Text('${AppLocalizations.of(context)!.editInfoFor} ${_getEntityTypeName(context)}'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -365,7 +368,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
             ? const Padding(padding: EdgeInsets.all(16), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white)))
             : IconButton(
                 icon: const Icon(Icons.save),
-                tooltip: 'Salvar Tudo',
+                tooltip: AppLocalizations.of(context)!.saveAll,
                 onPressed: _isLoading ? null : _saveAllChanges,
               ),
         ],
@@ -378,7 +381,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
   Widget _buildBody() {
     if (_isLoading) return const Center(child: LoadingIndicator());
     if (_errorMessage != null) return Center(child: Padding(padding: const EdgeInsets.all(16), child: Text(_errorMessage!, style: const TextStyle(color: Colors.red))));
-    if (_descriptionController == null) return const Center(child: Text('Erro ao inicializar editor.'));
+    if (_descriptionController == null) return Center(child: Text(AppLocalizations.of(context)!.errorInitializingEditor));
 
     return Column(
       children: [
@@ -387,9 +390,9 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
             padding: const EdgeInsets.all(16.0),
             children: [
               // --- Sección Miembros Destacados --- 
-              Text('Seção "Membros em Destaque"' , style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.featuredMembersSection , style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
               SwitchListTile(
-                title: const Text('Mostrar esta seção?', style: AppTextStyles.bodyText1),
+                title: Text(AppLocalizations.of(context)!.showThisSection, style: AppTextStyles.bodyText1),
                 value: _showFeaturedSection,
                 onChanged: (value) => setState(() => _showFeaturedSection = value),
                 activeColor: AppColors.primary,
@@ -399,16 +402,16 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _featuredTitleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título da Seção',
-                    hintText: 'Ex: Liderança, Contatos...',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.sectionTitle,
+                    hintText: AppLocalizations.of(context)!.exLeadershipContacts,
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Selecione membros para destacar e edite suas informações:',
+                  AppLocalizations.of(context)!.selectMembersToHighlight,
                   style: AppTextStyles.subtitle2.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
@@ -416,13 +419,13 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
               ],
               const Divider(height: 16, thickness: 1),
               // --- Sección Descripción Principal --- 
-              Text('Descrição Principal do $_entityTypeName', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+              Text('${AppLocalizations.of(context)!.mainDescriptionOf} ${_getEntityTypeName(context)}', style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(
                 controller: _descriptionTitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Título Opcional da Descrição',
-                  hintText: 'Ex: Sobre Nós, Nosso Propósito...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.optionalDescriptionTitle,
+                  hintText: AppLocalizations.of(context)!.exAboutUsPurpose,
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
@@ -448,10 +451,10 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
                   child: QuillEditor.basic(
                     controller: _descriptionController!, 
                     focusNode: FocusNode(),
-                    config: const QuillEditorConfig(
+                    config: QuillEditorConfig(
                       padding: EdgeInsets.zero,
                       autoFocus: false,
-                      placeholder: 'Digite a descrição principal aqui...',
+                      placeholder: AppLocalizations.of(context)!.typeMainDescriptionHere,
                       expands: false,
                     ),
                   ),
@@ -466,7 +469,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
 
   // ... (_buildFeaturedMembersList)
   Widget _buildFeaturedMembersList() {
-    if (_membersStateList.isEmpty) return const Text('Nenhum membro encontrado neste grupo/ministério.');
+    if (_membersStateList.isEmpty) return Text(AppLocalizations.of(context)!.noMembersFound);
 
     return ListView.builder(
       shrinkWrap: true,
@@ -502,7 +505,7 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
                     Expanded(child: Text(_getPreviewText(memberState.currentInfoDeltaJson), style: AppTextStyles.caption.copyWith(color: Colors.grey[600]), overflow: TextOverflow.ellipsis)),
                     TextButton.icon(
                       icon: const Icon(Icons.edit_note, size: 20),
-                      label: const Text('Editar Info'),
+                      label: Text(AppLocalizations.of(context)!.editInfo),
                       onPressed: () => _editMemberInfo(memberState),
                       style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), textStyle: AppTextStyles.caption),
                     ),
@@ -518,11 +521,11 @@ class _EditEntityInfoModalState extends State<EditEntityInfoModal> {
 
   // ... (_getPreviewText)
   String _getPreviewText(String deltaJson) {
-    if (deltaJson.isEmpty) return '(Sem info adicional)';
+    if (deltaJson.isEmpty) return '(${AppLocalizations.of(context)!.noAdditionalInfo})';
     try {
       final doc = Document.fromJson(jsonDecode(deltaJson));
       final text = doc.toPlainText().trim().replaceAll('\n', ' ');
-      return text.isNotEmpty ? text : '(Info definida)';
-    } catch (e) { return '(Erro ao ler info)'; }
+      return text.isNotEmpty ? text : '(${AppLocalizations.of(context)!.infoDefined})';
+    } catch (e) { return '(${AppLocalizations.of(context)!.errorReadingInfo})'; }
   }
 } // <<< --- FIN _EditEntityInfoModalState CONTEXTO --- >>> 

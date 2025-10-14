@@ -8,6 +8,7 @@ import '../services/event_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../l10n/app_localizations.dart';
 
 class CreateMinistryEventModal extends StatefulWidget {
   final Ministry ministry;
@@ -55,7 +56,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao selecionar imagem: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorSelectingImage(e.toString())}')),
         );
       }
     }
@@ -201,7 +202,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
       
       // Validar que a data de término seja posterior à data de início
       if (eventEndDateTime.isBefore(eventStartDateTime)) {
-        throw Exception('A data de término deve ser posterior à data de início');
+        throw Exception(AppLocalizations.of(context)!.endDateMustBeAfterStartDate);
       }
       
       // Crear evento usando o serviço
@@ -228,7 +229,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Evento criado com sucesso!'),
+            content: Text(AppLocalizations.of(context)!.eventCreatedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -237,7 +238,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar evento: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorCreatingEvent}: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -287,7 +288,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 Text(
-                  'Criar Evento do Ministério',
+                  AppLocalizations.of(context)!.createMinistryEvent,
                   style: AppTextStyles.subtitle1,
                 ),
                 _isLoading
@@ -320,14 +321,14 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                     TextFormField(
                       controller: _titleController,
                       decoration: InputDecoration(
-                        labelText: 'Título do evento',
-                        hintText: 'Ex: Reunião semanal',
+                        labelText: AppLocalizations.of(context)!.eventTitle,
+                        hintText: AppLocalizations.of(context)!.exWeeklyMeeting,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.event),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira um título';
+                          return AppLocalizations.of(context)!.pleaseEnterTitle;
                         }
                         return null;
                       },
@@ -339,15 +340,15 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                     TextFormField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
-                        labelText: 'Descrição',
-                        hintText: 'Detalhes sobre o evento...',
+                        labelText: AppLocalizations.of(context)!.description,
+                        hintText: AppLocalizations.of(context)!.eventDetails,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.description),
                       ),
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira uma descrição';
+                          return AppLocalizations.of(context)!.pleaseEnterDescription;
                         }
                         return null;
                       },
@@ -360,7 +361,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Data e hora de início',
+                          AppLocalizations.of(context)!.startDateAndTime,
                           style: AppTextStyles.subtitle2,
                         ),
                         SizedBox(height: AppSpacing.md),
@@ -372,7 +373,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                                 onTap: _selectDate,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Data',
+                                    labelText: AppLocalizations.of(context)!.date,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
                                   ),
@@ -392,7 +393,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                                 onTap: _selectTime,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Hora',
+                                    labelText: AppLocalizations.of(context)!.time,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
                                   ),
@@ -409,7 +410,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                         SizedBox(height: AppSpacing.lg),
                         
                         Text(
-                          'Data e hora de término',
+                          AppLocalizations.of(context)!.endDateAndTime,
                           style: AppTextStyles.subtitle2,
                         ),
                         SizedBox(height: AppSpacing.md),
@@ -421,7 +422,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                                 onTap: _selectEndDate,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Data',
+                                    labelText: AppLocalizations.of(context)!.date,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
                                   ),
@@ -441,7 +442,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                                 onTap: _selectEndTime,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Hora',
+                                    labelText: AppLocalizations.of(context)!.time,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
                                   ),
@@ -463,14 +464,14 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                     TextFormField(
                       controller: _locationController,
                       decoration: InputDecoration(
-                        labelText: 'Localização',
-                        hintText: 'Ex: Salão principal',
+                        labelText: AppLocalizations.of(context)!.location,
+                        hintText: AppLocalizations.of(context)!.exMainHall,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.location_on),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira uma localização';
+                          return AppLocalizations.of(context)!.pleaseEnterLocation;
                         }
                         return null;
                       },
@@ -487,11 +488,11 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Imagem (opcional)',
+                              AppLocalizations.of(context)!.imageOptional,
                               style: AppTextStyles.subtitle2,
                             ),
                             Text(
-                              'Recomendado: formato 16:9',
+                              AppLocalizations.of(context)!.recommended16x9,
                               style: AppTextStyles.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontStyle: FontStyle.italic,
@@ -559,14 +560,14 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                                   ),
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Adicionar imagem no formato 16:9',
+                                    AppLocalizations.of(context)!.addImageIn16x9,
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
                                   ),
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Imagem de capa do evento',
+                                    AppLocalizations.of(context)!.eventCoverImage,
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppColors.textSecondary,
                                       fontStyle: FontStyle.italic,
@@ -625,7 +626,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                     ),
                   )
                 : Text(
-                    'CRIAR EVENTO',
+                    AppLocalizations.of(context)!.createEvent,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

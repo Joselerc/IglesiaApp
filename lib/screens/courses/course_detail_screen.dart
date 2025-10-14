@@ -48,12 +48,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         if (courseSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Erro'),
+              title: Text(AppLocalizations.of(context)!.errorText),
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             body: Center(
-              child: Text('Erro: ${courseSnapshot.error}'),
+              child: Text('${AppLocalizations.of(context)!.errorText}: ${courseSnapshot.error}'),
             ),
           );
         }
@@ -123,7 +123,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                     _buildCourseInfo(course, realTotalLessons),
                                     const SizedBox(height: 16),
                                     Text(
-                                      'Descrição',
+                                      AppLocalizations.of(context)!.description,
                                       style: AppTextStyles.headline3.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: AppColors.textPrimary, // Asegurar color
@@ -709,7 +709,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $message'),
+          content: Text('${AppLocalizations.of(context)!.errorText}: $message'),
           backgroundColor: Colors.red,
         ),
       );

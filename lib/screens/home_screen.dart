@@ -28,6 +28,7 @@ import '../widgets/home/private_prayer_section.dart';
 import '../widgets/home/public_prayer_section.dart';
 import 'dart:async';
 import '../l10n/app_localizations.dart';
+import '../services/app_config_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -392,14 +393,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 16),
                     // Nombre de la iglesia con el mismo estilo que los títulos de sección
                     Expanded(
-                      child: Text(
-                        AppLocalizations.of(context)!.churchName,
-                        style: AppTextStyles.headline3.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: StreamBuilder<DocumentSnapshot>(
+                        stream: AppConfigService().getAppConfigStream(),
+                        builder: (context, snapshot) {
+                          String churchName = AppLocalizations.of(context)!.churchName;
+                          
+                          if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
+                            final config = snapshot.data!.data() as Map<String, dynamic>?;
+                            if (config != null && config['churchName'] != null) {
+                              churchName = config['churchName'];
+                            }
+                          }
+                          
+                          return Text(
+                            churchName,
+                            style: AppTextStyles.headline3.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
                       ),
                     ),
                     // Foto de perfil

@@ -8,6 +8,7 @@ import '../services/event_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../l10n/app_localizations.dart';
 
 class CreateGroupEventModal extends StatefulWidget {
   final Group group;
@@ -55,7 +56,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao selecionar imagem: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorSelectingImage}: $e')),
         );
       }
     }
@@ -201,7 +202,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       
       // Validar que a data de término seja posterior à data de início
       if (eventEndDateTime.isBefore(eventStartDateTime)) {
-        throw Exception('A data de término deve ser posterior à data de início');
+        throw Exception(AppLocalizations.of(context)!.endDateMustBeAfterStartDate);
       }
       
       // Criar evento usando o serviço
@@ -220,7 +221,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Evento criado com sucesso!'),
+            content: Text(AppLocalizations.of(context)!.eventCreatedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -229,7 +230,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar evento: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorCreatingEvent}: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -279,7 +280,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 Text(
-                  'Criar Evento do Grupo',
+                  AppLocalizations.of(context)!.createGroupEvent,
                   style: AppTextStyles.subtitle1,
                 ),
                 _isLoading
@@ -312,14 +313,14 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                     TextFormField(
                       controller: _titleController,
                       decoration: InputDecoration(
-                        labelText: 'Título do evento',
-                        hintText: 'Ex: Reunião semanal',
+                        labelText: AppLocalizations.of(context)!.eventTitle,
+                        hintText: AppLocalizations.of(context)!.exWeeklyMeeting,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.event),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira um título';
+                          return AppLocalizations.of(context)!.pleaseEnterTitle;
                         }
                         return null;
                       },
@@ -331,15 +332,15 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                     TextFormField(
                       controller: _descriptionController,
                       decoration: InputDecoration(
-                        labelText: 'Descrição',
-                        hintText: 'Detalhes sobre o evento...',
+                        labelText: AppLocalizations.of(context)!.description,
+                        hintText: AppLocalizations.of(context)!.eventDetails,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.description),
                       ),
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira uma descrição';
+                          return AppLocalizations.of(context)!.pleaseEnterDescription;
                         }
                         return null;
                       },
@@ -352,7 +353,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Data e hora de início',
+                          AppLocalizations.of(context)!.startDateAndTime,
                           style: AppTextStyles.subtitle2,
                         ),
                         SizedBox(height: AppSpacing.md),
@@ -364,7 +365,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                 onTap: _selectDate,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Data',
+                                    labelText: AppLocalizations.of(context)!.date,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
                                   ),
@@ -384,7 +385,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                 onTap: _selectTime,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Hora',
+                                    labelText: AppLocalizations.of(context)!.time,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
                                   ),
@@ -401,7 +402,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                         SizedBox(height: AppSpacing.lg),
                         
                         Text(
-                          'Data e hora de término',
+                          AppLocalizations.of(context)!.endDateAndTime,
                           style: AppTextStyles.subtitle2,
                         ),
                         SizedBox(height: AppSpacing.md),
@@ -413,7 +414,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                 onTap: _selectEndDate,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Data',
+                                    labelText: AppLocalizations.of(context)!.date,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
                                   ),
@@ -433,7 +434,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                 onTap: _selectEndTime,
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Hora',
+                                    labelText: AppLocalizations.of(context)!.time,
                                     border: OutlineInputBorder(),
                                     prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
                                   ),
@@ -455,14 +456,14 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                     TextFormField(
                       controller: _locationController,
                       decoration: InputDecoration(
-                        labelText: 'Localização',
-                        hintText: 'Ex: Salão principal',
+                        labelText: AppLocalizations.of(context)!.location,
+                        hintText: AppLocalizations.of(context)!.exMainHall,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.location_on),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor, insira uma localização';
+                          return AppLocalizations.of(context)!.pleaseEnterLocation;
                         }
                         return null;
                       },
@@ -479,11 +480,11 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Imagem (opcional)',
+                              AppLocalizations.of(context)!.imageOptional,
                               style: AppTextStyles.subtitle2,
                             ),
                             Text(
-                              'Recomendado: formato 16:9',
+                              AppLocalizations.of(context)!.recommended16x9,
                               style: AppTextStyles.caption.copyWith(
                                 color: AppColors.textSecondary,
                                 fontStyle: FontStyle.italic,
@@ -554,14 +555,14 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                   ),
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Adicionar imagem no formato 16:9',
+                                    AppLocalizations.of(context)!.addImageIn16x9,
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
                                   ),
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Imagem de capa do evento',
+                                    AppLocalizations.of(context)!.eventCoverImage,
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppColors.textSecondary,
                                       fontStyle: FontStyle.italic,
@@ -620,7 +621,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                     ),
                   )
                 : Text(
-                    'CRIAR EVENTO',
+                    AppLocalizations.of(context)!.createEvent,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

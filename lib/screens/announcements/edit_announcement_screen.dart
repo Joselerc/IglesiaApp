@@ -8,6 +8,7 @@ import '../../models/announcement_model.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditAnnouncementScreen extends StatefulWidget {
   final AnnouncementModel announcement;
@@ -61,18 +62,18 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
       if (eventDoc.exists && mounted) {
         final data = eventDoc.data() as Map<String, dynamic>;
         setState(() {
-          _selectedEventTitle = data['title'] ?? 'Evento sem título';
+          _selectedEventTitle = data['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle;
         });
       } else if (mounted) {
            setState(() {
-               _selectedEventTitle = 'Evento não encontrado';
+               _selectedEventTitle = AppLocalizations.of(context)!.eventNotFound;
            });
        }
     } catch (e) {
-      print('Error al cargar detalles del evento: $e');
+      print('${AppLocalizations.of(context)!.errorLoadingEventDetails(e.toString())}');
        if (mounted) {
            setState(() {
-               _selectedEventTitle = 'Erro ao carregar evento';
+               _selectedEventTitle = AppLocalizations.of(context)!.errorLoadingEventDetails(e.toString());
            });
        }
     }
@@ -106,7 +107,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
     } catch (e) {
       if (mounted) {
           setState(() {
-              _errorMessage = 'Erro ao selecionar imagem: $e';
+              _errorMessage = '${AppLocalizations.of(context)!.errorSelectingImageText}: $e';
           });
       }
     }
@@ -120,10 +121,10 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
       initialDate: _selectedDate ?? now,
       firstDate: now.subtract(const Duration(days: 30)), 
       lastDate: now.add(const Duration(days: 365 * 2)),
-      helpText: 'Selecione uma data',
-      cancelText: 'Cancelar',
-      confirmText: 'Confirmar',
-      locale: const Locale('pt', 'BR'),
+      helpText: AppLocalizations.of(context)!.selectDate,
+      cancelText: AppLocalizations.of(context)!.cancel,
+      confirmText: AppLocalizations.of(context)!.confirm,
+      locale: Localizations.localeOf(context),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -139,8 +140,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           _selectedEventId != null 
-              ? 'Alterar Evento Vinculado'
-              : 'Selecionar Evento',
+              ? AppLocalizations.of(context)!.changeLinkedEvent
+              : AppLocalizations.of(context)!.selectEvent,
           style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary),
         ),
         contentPadding: const EdgeInsets.only(top: AppSpacing.md),
@@ -170,7 +171,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
-                                'Evento vinculado atualmente',
+                                AppLocalizations.of(context)!.currentlyLinkedEvent,
                                 style: AppTextStyles.subtitle2.copyWith(
                                   color: AppColors.error,
                                   fontWeight: FontWeight.bold,
@@ -181,7 +182,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          _selectedEventTitle ?? 'Evento sem título',
+                          _selectedEventTitle ?? AppLocalizations.of(context)!.eventWithoutTitle,
                           style: AppTextStyles.bodyText1.copyWith(color: AppColors.error),
                         ),
                         const SizedBox(height: AppSpacing.md),
@@ -196,7 +197,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.link_off, size: 18),
-                            label: const Text('Desvincular evento'),
+                            label: Text(AppLocalizations.of(context)!.unlinkEvent),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.error,
                               side: BorderSide(color: AppColors.error),
@@ -212,8 +213,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                 padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
                 child: Text(
                   _selectedEventId == null 
-                    ? 'Selecione um evento futuro para vincular a este anúncio.'
-                    : 'Selecione outro evento futuro para alterar o vínculo.',
+                    ? AppLocalizations.of(context)!.selectFutureEventToLink
+                    : AppLocalizations.of(context)!.selectOtherFutureEventToLink,
                   style: AppTextStyles.bodyText2.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -234,7 +235,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                     
                     if (snapshot.hasError) {
                         return Center(
-                            child: Text('Erro ao carregar eventos: ${snapshot.error}', textAlign: TextAlign.center)
+                            child: Text('${AppLocalizations.of(context)!.errorLoadingEvents}: ${snapshot.error}', textAlign: TextAlign.center)
                         );
                     }
 
@@ -246,7 +247,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                             Icon(Icons.event_busy_outlined, size: 48, color: AppColors.textSecondary.withOpacity(0.5)),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'Não há eventos futuros disponíveis',
+                              AppLocalizations.of(context)!.noFutureEventsAvailable,
                               textAlign: TextAlign.center,
                               style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
                             ),
@@ -278,7 +279,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                             ),
                           ),
                           title: Text(
-                            data['title'] ?? 'Evento sem título',
+                            data['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle,
                             style: AppTextStyles.subtitle2.copyWith(
                               color: isSelected ? AppColors.primary : AppColors.textPrimary,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -300,7 +301,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                           selectedTileColor: AppColors.primary.withOpacity(0.05),
                           onTap: () => Navigator.pop(context, {
                             'id': event.id,
-                            'title': data['title'] ?? 'Evento sem título',
+                            'title': data['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle,
                           }),
                         );
                       },
@@ -314,7 +315,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
         shape: RoundedRectangleBorder(
@@ -347,26 +348,26 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
   String _getEventTypeText(String eventType) {
     switch (eventType.toLowerCase()) {
       case 'presential':
-        return 'Presencial';
+        return AppLocalizations.of(context)!.presential;
       case 'online':
-        return 'Online';
+        return AppLocalizations.of(context)!.online;
       case 'hybrid':
-        return 'Híbrido';
+        return AppLocalizations.of(context)!.hybrid;
       default:
-        return 'Evento';
+        return AppLocalizations.of(context)!.unknown;
     }
   }
   
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) {
        setState(() {
-           _errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+           _errorMessage = AppLocalizations.of(context)!.fillAllRequiredFields;
        });
        return;
     }
     if (_selectedDate == null) {
         setState(() {
-            _errorMessage = 'Por favor, selecione uma data para o anúncio.';
+            _errorMessage = AppLocalizations.of(context)!.pleaseSelectDateForAnnouncement;
         });
         return;
     }
@@ -388,7 +389,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
           try {
             await FirebaseStorage.instance.refFromURL(imageUrl).delete();
           } catch (e) {
-            print('Erro ao eliminar imagem anterior (pode já não existir): $e');
+            print('${AppLocalizations.of(context)!.errorDeletingPreviousImageMayNotExist}: $e');
           }
         }
         
@@ -404,7 +405,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
               try {
                   await FirebaseStorage.instance.refFromURL(imageUrl).delete();
               } catch (e) {
-                  print('Erro ao eliminar imagem anterior: $e');
+                  print('${AppLocalizations.of(context)!.errorDeletingPreviousImage}: $e');
               }
           }
           imageUrl = '';
@@ -424,7 +425,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Anúncio atualizado com sucesso'),
+            content: Text(AppLocalizations.of(context)!.announcementUpdatedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );
@@ -434,7 +435,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
       if (mounted) {
           setState(() {
               _isLoading = false;
-              _errorMessage = 'Erro ao atualizar anúncio: $e';
+              _errorMessage = '${AppLocalizations.of(context)!.errorUpdatingAnnouncement}: $e';
           });
       }
     } finally {
@@ -453,7 +454,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(isCultAnnouncement ? 'Editar Anúncio de Culto' : 'Editar Anúncio'),
+        title: Text(isCultAnnouncement ? AppLocalizations.of(context)!.editCultAnnouncement : AppLocalizations.of(context)!.editAnnouncement),
         actions: const [ 
          ], 
       ),
@@ -489,7 +490,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isCultAnnouncement ? 'Anuncio de Culto' : 'Anuncio Regular',
+                          isCultAnnouncement ? AppLocalizations.of(context)!.cultAnnouncement : AppLocalizations.of(context)!.regularAnnouncement,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: isCultAnnouncement ? Colors.blue : Colors.purple,
@@ -502,7 +503,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   
                   Text(
-                    'Imagem do Anúncio',
+                    AppLocalizations.of(context)!.announcementImage,
                     style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -533,11 +534,11 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                   
                   _buildTextField(
                     controller: _titleController,
-                    label: 'Título',
-                    hint: 'Título do anúncio',
+                    label: AppLocalizations.of(context)!.title,
+                    hint: AppLocalizations.of(context)!.announcementTitlePlaceholder,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Por favor, insira um título';
+                        return AppLocalizations.of(context)!.pleaseEnterTitle;
                       }
                       return null;
                     },
@@ -547,12 +548,12 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                   
                   _buildTextField(
                     controller: _descriptionController,
-                    label: 'Descrição',
-                    hint: 'Descrição detalhada do anúncio',
+                    label: AppLocalizations.of(context)!.description,
+                    hint: AppLocalizations.of(context)!.detailedAnnouncementDescription,
                     maxLines: 5,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Por favor, insira uma descrição';
+                        return AppLocalizations.of(context)!.pleaseEnterDescription;
                       }
                       return null;
                     },
@@ -561,7 +562,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   
                   Text(
-                    'Data do Anúncio',
+                    AppLocalizations.of(context)!.announcementDate,
                     style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -590,7 +591,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                           Text(
                             _selectedDate != null 
                                 ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                                : 'Selecione uma data',
+                                : AppLocalizations.of(context)!.selectDate,
                             style: AppTextStyles.bodyText1.copyWith(
                                 color: _selectedDate == null ? AppColors.textSecondary : AppColors.textPrimary,
                             ),
@@ -608,7 +609,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                   if (isCultAnnouncement) ...[
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Evento Vinculado (Opcional)',
+                      AppLocalizations.of(context)!.linkedEventOptional,
                       style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -631,7 +632,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                             const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: Text(
-                                _selectedEventTitle ?? 'Selecionar evento',
+                                _selectedEventTitle ?? AppLocalizations.of(context)!.selectEventToLink,
                                 style: AppTextStyles.bodyText1.copyWith(
                                   color: _selectedEventId != null ? AppColors.textPrimary : AppColors.textSecondary,
                                 ),
@@ -719,7 +720,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                 ) 
               : const Icon(Icons.save_alt_outlined, size: 20),
           label: Text(
-              _isLoading ? 'Salvando...' : 'Salvar Alterações',
+              _isLoading ? AppLocalizations.of(context)!.savingText : AppLocalizations.of(context)!.saveChanges,
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -812,7 +813,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                         child: Text(
-                          'Erro ao carregar imagem',
+                          AppLocalizations.of(context)!.errorLoadingImage,
                           textAlign: TextAlign.center,
                           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
                         ),
@@ -831,7 +832,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
                 Icon(Icons.add_photo_alternate_outlined, size: 40, color: AppColors.textSecondary.withOpacity(0.5)),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Adicionar imagem',
+                  AppLocalizations.of(context)!.addImage,
                   style: AppTextStyles.bodyText2.copyWith(color: AppColors.textSecondary),
                 ),
               ],
@@ -845,7 +846,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen> {
           ),
           child: Center(
             child: Text(
-              'Toque para alterar a imagem',
+              AppLocalizations.of(context)!.tapToChangeImage,
               textAlign: TextAlign.center,
               style: AppTextStyles.button.copyWith(color: Colors.white),
             ),

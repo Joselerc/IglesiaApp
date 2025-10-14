@@ -63,7 +63,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('es'),
-    Locale('pt'),
+    Locale('pt')
   ];
 
   /// No description provided for @myProfile.
@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar fecha'**
+  /// **'Seleccionar Fecha'**
   String get selectDate;
 
   /// No description provided for @gender.
@@ -971,7 +971,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingEvents.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar eventos: {error}'**
+  /// **'Error al cargar eventos'**
   String errorLoadingEvents(String error);
 
   /// No description provided for @calendars.
@@ -989,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @services.
   ///
   /// In es, this message translates to:
-  /// **'Escalas'**
+  /// **'Servicios'**
   String get services;
 
   /// No description provided for @counseling.
@@ -1055,7 +1055,7 @@ abstract class AppLocalizations {
   /// No description provided for @today.
   ///
   /// In es, this message translates to:
-  /// **'Hoy'**
+  /// **'(Hoy)'**
   String get today;
 
   /// No description provided for @tomorrow.
@@ -1283,7 +1283,7 @@ abstract class AppLocalizations {
   /// No description provided for @informationSavedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Información guardada con éxito'**
+  /// **'Informaciones guardadas con éxito!'**
   String get informationSavedSuccessfully;
 
   /// No description provided for @birthDateLabel.
@@ -1709,7 +1709,7 @@ abstract class AppLocalizations {
   /// No description provided for @online.
   ///
   /// In es, this message translates to:
-  /// **'En línea'**
+  /// **'Online'**
   String get online;
 
   /// No description provided for @inPerson.
@@ -2039,7 +2039,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorUpdatingLink.
   ///
   /// In es, this message translates to:
-  /// **'Error al actualizar el enlace: {error}'**
+  /// **'Error al actualizar el enlace'**
   String errorUpdatingLink(String error);
 
   /// No description provided for @errorSendingNotifications.
@@ -2057,19 +2057,19 @@ abstract class AppLocalizations {
   /// No description provided for @attendanceRegisteredSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Asistencia registrada con éxito'**
+  /// **'¡Asistencia registrada correctamente!'**
   String get attendanceRegisteredSuccessfully;
 
   /// No description provided for @couldNotOpenLink.
   ///
   /// In es, this message translates to:
-  /// **'No se pudo abrir el link: {url}'**
+  /// **'No se pudo abrir el enlace'**
   String couldNotOpenLink(String url);
 
   /// No description provided for @errorOpeningLink.
   ///
   /// In es, this message translates to:
-  /// **'Error al abrir el enlace: {error}'**
+  /// **'Error al abrir el enlace'**
   String errorOpeningLink(String error);
 
   /// No description provided for @noPermissionToDeleteEvent.
@@ -2099,7 +2099,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteTicket.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar Entrada'**
+  /// **'Eliminar entrada'**
   String get deleteTicket;
 
   /// No description provided for @confirmDeleteTicket.
@@ -2159,13 +2159,13 @@ abstract class AppLocalizations {
   /// No description provided for @copyEventLink.
   ///
   /// In es, this message translates to:
-  /// **'Copiar enlace del evento'**
+  /// **'Copiar link del evento'**
   String get copyEventLink;
 
   /// No description provided for @linkCopied.
   ///
   /// In es, this message translates to:
-  /// **'¡Enlace copiado!'**
+  /// **'Link copiado!'**
   String get linkCopied;
 
   /// No description provided for @linkNotConfigured.
@@ -2309,7 +2309,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingTickets.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar entradas: {error}'**
+  /// **'Error al cargar entradas'**
   String errorLoadingTickets(String error);
 
   /// No description provided for @alreadyRegistered.
@@ -2633,7 +2633,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorSavingInfo.
   ///
   /// In es, this message translates to:
-  /// **'Error al guardar: {error}'**
+  /// **'Error al guardar info.'**
   String errorSavingInfo(String error);
 
   /// No description provided for @requiredFieldTooltip.
@@ -2807,7 +2807,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingData.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar datos: {error}'**
+  /// **'Error al cargar datos'**
   String errorLoadingData(String error);
 
   /// No description provided for @noPermissionManageLiveStream.
@@ -4295,7 +4295,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterTitle.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, introduce un título'**
+  /// **'Por favor, ingresa un título'**
   String get pleaseEnterTitle;
 
   /// No description provided for @pagesIncludedInSection.
@@ -4343,7 +4343,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorDeleting.
   ///
   /// In es, this message translates to:
-  /// **'Error al eliminar: {error}'**
+  /// **'Error al eliminar'**
   String errorDeleting(String error);
 
   /// No description provided for @sectionNameUpdated.
@@ -4805,7 +4805,7 @@ abstract class AppLocalizations {
   /// No description provided for @announcementCreatedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Anuncio creado con éxito'**
+  /// **'Anuncio creado correctamente'**
   String get announcementCreatedSuccessfully;
 
   /// No description provided for @errorCreatingAnnouncement.
@@ -4817,13 +4817,13 @@ abstract class AppLocalizations {
   /// No description provided for @addImage.
   ///
   /// In es, this message translates to:
-  /// **'Añadir imagen'**
+  /// **'Agregar imagen'**
   String get addImage;
 
   /// No description provided for @recommended16x9.
   ///
   /// In es, this message translates to:
-  /// **'Recomendado: 16:9 (1920x1080)'**
+  /// **'Recomendado: formato 16:9'**
   String get recommended16x9;
 
   /// No description provided for @announcementTitle.
@@ -4871,7 +4871,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseSelectAnnouncementImage.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, selecciona una imagen para el anuncio'**
+  /// **'Por favor selecciona una imagen para el anuncio'**
   String get pleaseSelectAnnouncementImage;
 
   /// No description provided for @publishAnnouncement.
@@ -4883,7 +4883,7 @@ abstract class AppLocalizations {
   /// No description provided for @createEvent.
   ///
   /// In es, this message translates to:
-  /// **'Crear Evento'**
+  /// **'CREAR EVENTO'**
   String get createEvent;
 
   /// No description provided for @upcoming.
@@ -5228,6 +5228,12 @@ abstract class AppLocalizations {
   /// **'No tienes permiso para eliminar ministerios'**
   String get noPermissionDeleteMinistries;
 
+  /// No description provided for @errorText.
+  ///
+  /// In es, this message translates to:
+  /// **'Error'**
+  String get errorText;
+
   /// No description provided for @confirmDeleteMinistry.
   ///
   /// In es, this message translates to:
@@ -5357,7 +5363,7 @@ abstract class AppLocalizations {
   /// No description provided for @noMembersFound.
   ///
   /// In es, this message translates to:
-  /// **'Ningún miembro encontrado'**
+  /// **'Ningún miembro encontrado en este grupo/ministerio.'**
   String get noMembersFound;
 
   /// No description provided for @confirmedStatus.
@@ -5495,7 +5501,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectLocation.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar ubicación'**
+  /// **'Seleccionar localización'**
   String get selectLocation;
 
   /// No description provided for @addNewLocation.
@@ -8702,12 +8708,6 @@ abstract class AppLocalizations {
   /// **'Solicitud aprobada'**
   String get requestApproved;
 
-  /// No description provided for @attendees.
-  ///
-  /// In es, this message translates to:
-  /// **'Asistentes: {count}'**
-  String attendees(Object count);
-
   /// No description provided for @userNotInAnyGroup.
   ///
   /// In es, this message translates to:
@@ -8789,7 +8789,7 @@ abstract class AppLocalizations {
   /// No description provided for @serviceName.
   ///
   /// In es, this message translates to:
-  /// **'Nombre del servicio'**
+  /// **'Nombre del Servicio'**
   String get serviceName;
 
   /// No description provided for @serviceNameHint.
@@ -9905,7 +9905,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorCreatingEvent.
   ///
   /// In es, this message translates to:
-  /// **'Error al crear evento: {error}'**
+  /// **'Error al crear evento'**
   String errorCreatingEvent(String error);
 
   /// No description provided for @creatingEvent.
@@ -10532,10 +10532,16 @@ abstract class AppLocalizations {
   /// **'hasta {count} repeticiones'**
   String untilXOccurrences(int count);
 
+  /// No description provided for @from.
+  ///
+  /// In es, this message translates to:
+  /// **'De'**
+  String get from;
+
   /// No description provided for @until.
   ///
   /// In es, this message translates to:
-  /// **'hasta'**
+  /// **'Hasta'**
   String get until;
 
   /// No description provided for @defineEventOccurrenceType.
@@ -11719,6 +11725,798 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Aprende con nuestros cursos exclusivos'**
   String get learnWithOurExclusiveCourses;
+
+  /// No description provided for @language.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get language;
+
+  /// No description provided for @selectYourPreferredLanguage.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tu idioma preferido'**
+  String get selectYourPreferredLanguage;
+
+  /// No description provided for @spanish.
+  ///
+  /// In es, this message translates to:
+  /// **'Español'**
+  String get spanish;
+
+  /// No description provided for @portugueseBrazil.
+  ///
+  /// In es, this message translates to:
+  /// **'Português (Brasil)'**
+  String get portugueseBrazil;
+
+  /// No description provided for @languageChangedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma cambiado exitosamente'**
+  String get languageChangedSuccessfully;
+
+  /// No description provided for @endDateMustBeAfterStartDate.
+  ///
+  /// In es, this message translates to:
+  /// **'La fecha de término debe ser posterior a la fecha de inicio'**
+  String get endDateMustBeAfterStartDate;
+
+  /// No description provided for @createGroupEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Evento del Grupo'**
+  String get createGroupEvent;
+
+  /// No description provided for @createMinistryEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Evento del Ministerio'**
+  String get createMinistryEvent;
+
+  /// No description provided for @eventTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del evento'**
+  String get eventTitle;
+
+  /// No description provided for @exWeeklyMeeting.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Reunión semanal'**
+  String get exWeeklyMeeting;
+
+  /// No description provided for @eventDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles sobre el evento...'**
+  String get eventDetails;
+
+  /// No description provided for @startDateAndTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y hora de inicio'**
+  String get startDateAndTime;
+
+  /// No description provided for @endDateAndTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y hora de término'**
+  String get endDateAndTime;
+
+  /// No description provided for @exMainHall.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Salón principal'**
+  String get exMainHall;
+
+  /// No description provided for @pleaseEnterLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa una localización'**
+  String get pleaseEnterLocation;
+
+  /// No description provided for @imageOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen (opcional)'**
+  String get imageOptional;
+
+  /// No description provided for @addImageIn16x9.
+  ///
+  /// In es, this message translates to:
+  /// **'Adicionar imagen en formato 16:9'**
+  String get addImageIn16x9;
+
+  /// No description provided for @eventCoverImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de portada del evento'**
+  String get eventCoverImage;
+
+  /// No description provided for @saveInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Información'**
+  String get saveInformation;
+
+  /// No description provided for @saveAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Todo'**
+  String get saveAll;
+
+  /// No description provided for @featuredMembersSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección \"Miembros Destacados\"'**
+  String get featuredMembersSection;
+
+  /// No description provided for @showThisSection.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Mostrar esta sección?'**
+  String get showThisSection;
+
+  /// No description provided for @sectionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título de la Sección'**
+  String get sectionTitle;
+
+  /// No description provided for @exLeadershipContacts.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Liderazgo, Contactos...'**
+  String get exLeadershipContacts;
+
+  /// No description provided for @selectMembersToHighlight.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona miembros para destacar y edita sus informaciones:'**
+  String get selectMembersToHighlight;
+
+  /// No description provided for @mainDescriptionOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción Principal del'**
+  String get mainDescriptionOf;
+
+  /// No description provided for @optionalDescriptionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título Opcional de la Descripción'**
+  String get optionalDescriptionTitle;
+
+  /// No description provided for @exAboutUsPurpose.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Sobre Nosotros, Nuestro Propósito...'**
+  String get exAboutUsPurpose;
+
+  /// No description provided for @typeMainDescriptionHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe la descripción principal aquí...'**
+  String get typeMainDescriptionHere;
+
+  /// No description provided for @noAdditionalInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'(Sin info adicional)'**
+  String get noAdditionalInfo;
+
+  /// No description provided for @infoDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'(Info definida)'**
+  String get infoDefined;
+
+  /// No description provided for @errorReadingInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'(Error al leer info)'**
+  String get errorReadingInfo;
+
+  /// No description provided for @editInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Info'**
+  String get editInfo;
+
+  /// No description provided for @editInfoFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Info:'**
+  String get editInfoFor;
+
+  /// No description provided for @editContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Contenido'**
+  String get editContent;
+
+  /// No description provided for @typeContentHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe el contenido aquí...'**
+  String get typeContentHere;
+
+  /// No description provided for @errorSavingInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar informaciones.'**
+  String get errorSavingInformation;
+
+  /// No description provided for @errorInitializingEditor.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al inicializar editor.'**
+  String get errorInitializingEditor;
+
+  /// No description provided for @notFound.
+  ///
+  /// In es, this message translates to:
+  /// **'no encontrado.'**
+  String get notFound;
+
+  /// No description provided for @createNewService.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Nuevo Servicio'**
+  String get createNewService;
+
+  /// No description provided for @pleaseEnterServiceName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa un nombre para el servicio'**
+  String get pleaseEnterServiceName;
+
+  /// No description provided for @noPermissionToCreateServices.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para crear servicios'**
+  String get noPermissionToCreateServices;
+
+  /// No description provided for @serviceCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio creado con éxito'**
+  String get serviceCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingService.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear el servicio'**
+  String get errorCreatingService;
+
+  /// No description provided for @editService.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Servicio'**
+  String get editService;
+
+  /// No description provided for @noPermissionToUpdateServices.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para actualizar servicios'**
+  String get noPermissionToUpdateServices;
+
+  /// No description provided for @serviceUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio actualizado con éxito'**
+  String get serviceUpdatedSuccessfully;
+
+  /// No description provided for @errorUpdatingService.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar el servicio'**
+  String get errorUpdatingService;
+
+  /// No description provided for @deleteService.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Servicio'**
+  String get deleteService;
+
+  /// No description provided for @sureDeleteServiceAndContent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro que deseas eliminar el servicio \"{serviceName}\" y todo su contenido? Esta acción no se puede deshacer.'**
+  String sureDeleteServiceAndContent(Object serviceName);
+
+  /// No description provided for @noPermissionToDeleteServices.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para eliminar servicios'**
+  String get noPermissionToDeleteServices;
+
+  /// No description provided for @deletingServiceAndContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminando servicio y todo su contenido...'**
+  String get deletingServiceAndContent;
+
+  /// No description provided for @serviceDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio eliminado con éxito'**
+  String get serviceDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingService.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar el servicio'**
+  String get errorDeletingService;
+
+  /// No description provided for @noPermissionToManageCults.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para gestionar cultos.'**
+  String get noPermissionToManageCults;
+
+  /// No description provided for @noServicesAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay servicios disponibles'**
+  String get noServicesAvailable;
+
+  /// No description provided for @createService.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Servicio'**
+  String get createService;
+
+  /// No description provided for @createCultAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Anuncio del Culto'**
+  String get createCultAnnouncement;
+
+  /// No description provided for @pleaseEnterTitle2.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa un título'**
+  String get pleaseEnterTitle2;
+
+  /// No description provided for @cultInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información sobre el culto...'**
+  String get cultInformation;
+
+  /// No description provided for @pleaseEnterDescription2.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa una descripción'**
+  String get pleaseEnterDescription2;
+
+  /// No description provided for @linkedEventOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento Vinculado (Opcional)'**
+  String get linkedEventOptional;
+
+  /// No description provided for @selectEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Evento'**
+  String get selectEvent;
+
+  /// No description provided for @eventLinkedToAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento vinculado a este anuncio'**
+  String get eventLinkedToAnnouncement;
+
+  /// No description provided for @announcementStartDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de inicio del anuncio'**
+  String get announcementStartDate;
+
+  /// No description provided for @willBeAdaptedTo16x9.
+  ///
+  /// In es, this message translates to:
+  /// **'Será adaptada automáticamente al formato 16:9'**
+  String get willBeAdaptedTo16x9;
+
+  /// No description provided for @processingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Procesando imagen...'**
+  String get processingImage;
+
+  /// No description provided for @pleaseSelectOrEnterLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor selecciona o ingresa una localización'**
+  String get pleaseSelectOrEnterLocation;
+
+  /// No description provided for @selectingEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Evento'**
+  String get selectingEvent;
+
+  /// No description provided for @selectEventToLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar evento'**
+  String get selectEventToLink;
+
+  /// No description provided for @noEventsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos disponibles'**
+  String get noEventsAvailable;
+
+  /// No description provided for @eventWithoutTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento sin título'**
+  String get eventWithoutTitle;
+
+  /// No description provided for @createTicketForRegistration.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea una entrada para que los usuarios puedan registrarse'**
+  String get createTicketForRegistration;
+
+  /// No description provided for @viewQR.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver QR'**
+  String get viewQR;
+
+  /// No description provided for @mustBeLoggedToRegisterAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para registrar tu asistencia'**
+  String get mustBeLoggedToRegisterAttendance;
+
+  /// No description provided for @sureDeleteEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro que deseas eliminar este evento?'**
+  String get sureDeleteEvent;
+
+  /// No description provided for @sureDeleteTicket.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro que deseas eliminar esta entrada? Esta acción no se puede deshacer.'**
+  String get sureDeleteTicket;
+
+  /// No description provided for @sureDeleteYourTicket.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro que deseas eliminar tu entrada? Esta acción no se puede deshacer.'**
+  String get sureDeleteYourTicket;
+
+  /// No description provided for @enterLinkForOnlineAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce el enlace para que los asistentes accedan al evento online:'**
+  String get enterLinkForOnlineAccess;
+
+  /// No description provided for @eventURL.
+  ///
+  /// In es, this message translates to:
+  /// **'URL del evento'**
+  String get eventURL;
+
+  /// No description provided for @linkMustStartWithHttp.
+  ///
+  /// In es, this message translates to:
+  /// **'El enlace debe comenzar con http:// o https://'**
+  String get linkMustStartWithHttp;
+
+  /// No description provided for @removeLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar enlace'**
+  String get removeLink;
+
+  /// No description provided for @eventLinkRemovedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Enlace del evento eliminado correctamente'**
+  String get eventLinkRemovedSuccessfully;
+
+  /// No description provided for @eventLinkUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Enlace del evento actualizado correctamente'**
+  String get eventLinkUpdatedSuccessfully;
+
+  /// No description provided for @eventLinkAddedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Enlace del evento añadido correctamente'**
+  String get eventLinkAddedSuccessfully;
+
+  /// No description provided for @noPermissionToDeleteThisEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permisos para eliminar este evento'**
+  String get noPermissionToDeleteThisEvent;
+
+  /// No description provided for @eventDeletedSuccessfully2.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento eliminado con éxito'**
+  String get eventDeletedSuccessfully2;
+
+  /// No description provided for @errorDeletingEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar el evento: {error}'**
+  String errorDeletingEvent(String error);
+
+  /// No description provided for @youConfirmedAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmaste tu presencia'**
+  String get youConfirmedAttendance;
+
+  /// No description provided for @youCancelledAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelaste tu presencia'**
+  String get youCancelledAttendance;
+
+  /// No description provided for @errorUpdatingAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar presencia: {error}'**
+  String errorUpdatingAttendance(String error);
+
+  /// No description provided for @addReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Adicionar Lembrete'**
+  String get addReminder;
+
+  /// No description provided for @reminderAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Lembrete Adicionado'**
+  String get reminderAdded;
+
+  /// No description provided for @errorSettingReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al configurar recordatorio: {error}'**
+  String errorSettingReminder(String error);
+
+  /// No description provided for @decline.
+  ///
+  /// In es, this message translates to:
+  /// **'Declinar'**
+  String get decline;
+
+  /// No description provided for @participate.
+  ///
+  /// In es, this message translates to:
+  /// **'Participar'**
+  String get participate;
+
+  /// No description provided for @participants.
+  ///
+  /// In es, this message translates to:
+  /// **'Participantes'**
+  String get participants;
+
+  /// No description provided for @attendees.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistentes ({count})'**
+  String attendees(int count);
+
+  /// No description provided for @noOneConfirmedYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Nadie confirmó presencia aún'**
+  String get noOneConfirmedYet;
+
+  /// No description provided for @appCustomization.
+  ///
+  /// In es, this message translates to:
+  /// **'Personalización de la App'**
+  String get appCustomization;
+
+  /// No description provided for @appCustomizationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Personaliza el nombre, logo y color de la app'**
+  String get appCustomizationDescription;
+
+  /// No description provided for @churchNameConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la Iglesia'**
+  String get churchNameConfig;
+
+  /// No description provided for @churchLogoConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Logo de la Iglesia'**
+  String get churchLogoConfig;
+
+  /// No description provided for @primaryColorConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Color Principal'**
+  String get primaryColorConfig;
+
+  /// No description provided for @selectColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Color'**
+  String get selectColor;
+
+  /// No description provided for @uploadLogo.
+  ///
+  /// In es, this message translates to:
+  /// **'Subir Logo'**
+  String get uploadLogo;
+
+  /// No description provided for @selectedColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Color Seleccionado'**
+  String get selectedColor;
+
+  /// No description provided for @changeColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar Color'**
+  String get changeColor;
+
+  /// No description provided for @saveColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Color'**
+  String get saveColor;
+
+  /// No description provided for @appRestartRequiredForColorChange.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota: Es necesario reiniciar la aplicación para que el cambio de color tenga efecto completo'**
+  String get appRestartRequiredForColorChange;
+
+  /// No description provided for @errorSelectingImageText.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al seleccionar imagen'**
+  String get errorSelectingImageText;
+
+  /// No description provided for @changeLinkedEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar Evento Vinculado'**
+  String get changeLinkedEvent;
+
+  /// No description provided for @currentlyLinkedEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento vinculado actualmente'**
+  String get currentlyLinkedEvent;
+
+  /// No description provided for @unlinkEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Desvincular evento'**
+  String get unlinkEvent;
+
+  /// No description provided for @selectFutureEventToLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un evento futuro para vincularlo con este anuncio.'**
+  String get selectFutureEventToLink;
+
+  /// No description provided for @selectOtherFutureEventToLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona otro evento futuro para cambiar el vínculo.'**
+  String get selectOtherFutureEventToLink;
+
+  /// No description provided for @noFutureEventsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos futuros disponibles'**
+  String get noFutureEventsAvailable;
+
+  /// No description provided for @fillAllRequiredFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, rellena todos los campos obligatorios.'**
+  String get fillAllRequiredFields;
+
+  /// No description provided for @pleaseSelectDateForAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor selecciona una fecha para el anuncio.'**
+  String get pleaseSelectDateForAnnouncement;
+
+  /// No description provided for @errorDeletingPreviousImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar imagen anterior'**
+  String get errorDeletingPreviousImage;
+
+  /// No description provided for @errorDeletingPreviousImageMayNotExist.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar imagen anterior (puede que ya no exista)'**
+  String get errorDeletingPreviousImageMayNotExist;
+
+  /// No description provided for @announcementUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncio actualizado con éxito'**
+  String get announcementUpdatedSuccessfully;
+
+  /// No description provided for @errorUpdatingAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar anuncio'**
+  String get errorUpdatingAnnouncement;
+
+  /// No description provided for @editCultAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Anuncio de Culto'**
+  String get editCultAnnouncement;
+
+  /// No description provided for @regularAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncio Regular'**
+  String get regularAnnouncement;
+
+  /// No description provided for @announcementImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen del Anuncio'**
+  String get announcementImage;
+
+  /// No description provided for @announcementTitlePlaceholder.
+  ///
+  /// In es, this message translates to:
+  /// **'Título del anuncio'**
+  String get announcementTitlePlaceholder;
+
+  /// No description provided for @detailedAnnouncementDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción detallada del anuncio'**
+  String get detailedAnnouncementDescription;
+
+  /// No description provided for @announcementDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha del Anuncio'**
+  String get announcementDate;
+
+  /// No description provided for @savingText.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get savingText;
+
+  /// No description provided for @errorLoadingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar imagen'**
+  String get errorLoadingImage;
+
+  /// No description provided for @tapToChangeImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para cambiar la imagen'**
+  String get tapToChangeImage;
 }
 
 class _AppLocalizationsDelegate
@@ -11748,9 +12546,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

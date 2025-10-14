@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'screens/main_screen.dart';
@@ -33,6 +32,7 @@ import 'services/cloud_functions_service.dart';
 import 'services/event_service.dart';
 import 'services/work_schedule_service.dart';
 import 'services/performance_service.dart';
+import 'services/language_service.dart';
 import 'cubits/navigation_cubit.dart';
 import 'screens/auth/auth_wrapper.dart';
 import 'firebase_options.dart';
@@ -68,9 +68,7 @@ import 'screens/admin/course_progress_stats_screen.dart';
 import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
-import 'dart:io'; // Para Platform checks
 import 'l10n/app_localizations.dart'; // Importación generada automáticamente
-import 'package:shared_preferences/shared_preferences.dart'; // Importar SharedPreferences
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -162,6 +160,10 @@ void main() async {
         Provider<FCMService>.value(value: fcmService),
         // Proporcionar CloudFunctionsService como un singleton
         Provider<CloudFunctionsService>.value(value: cloudFunctionsService),
+        // Proporcionar LanguageService
+        ChangeNotifierProvider(
+          create: (_) => LanguageService(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -173,29 +175,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => navigationCubit,
-        ),
-      ],
-      child: MaterialApp(
-        title: 'IglesiaApp',
-        navigatorKey: EventService.navigatorKey,
-        theme: AppTheme.lightTheme,
-        home: const AuthWrapper(),
-        localizationsDelegates: const [
-          AppLocalizations.delegate, // Añadir delegado generado automáticamente
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          FlutterQuillLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es', ''),
-          Locale('pt', ''),
-        ],
-        locale: const Locale('es', ''), // Forzar español por defecto
+    return Consumer<LanguageService>(
+      builder: (context, languageService, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => navigationCubit,
+            ),
+          ],
+          child: MaterialApp(
+            title: 'IglesiaApp',
+            navigatorKey: EventService.navigatorKey,
+            theme: AppTheme.lightTheme,
+            home: const AuthWrapper(),
+            localizationsDelegates: const [
+              AppLocalizations.delegate, // Añadir delegado generado automáticamente
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              FlutterQuillLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('es', ''),
+              Locale('pt', ''),
+            ],
+            locale: languageService.locale, // Usar el idioma del servicio
         routes: {
           '/auth': (context) => const AuthWrapper(),
           '/login': (context) => const LoginScreen(),
@@ -443,6 +447,8 @@ class MyApp extends StatelessWidget {
           return null;
         },
       ),
+        );
+      },
     );
   }
 }

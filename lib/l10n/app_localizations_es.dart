@@ -39,7 +39,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get birthDate => 'Fecha de Nacimiento';
 
   @override
-  String get selectDate => 'Seleccionar fecha';
+  String get selectDate => 'Seleccionar Fecha';
 
   @override
   String get gender => 'Sexo';
@@ -499,7 +499,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorLoadingEvents(String error) {
-    return 'Error al cargar eventos: $error';
+    return 'Error al cargar eventos';
   }
 
   @override
@@ -509,7 +509,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get events => 'Eventos';
 
   @override
-  String get services => 'Escalas';
+  String get services => 'Servicios';
 
   @override
   String get counseling => 'Asesoramiento';
@@ -548,7 +548,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noScheduledCults => 'No hay cultos programados';
 
   @override
-  String get today => 'Hoy';
+  String get today => '(Hoy)';
 
   @override
   String get tomorrow => 'Mañana';
@@ -678,7 +678,8 @@ class AppLocalizationsEs extends AppLocalizations {
       'Por favor, rellena todos los campos adicionales obligatorios (*)';
 
   @override
-  String get informationSavedSuccessfully => 'Información guardada con éxito';
+  String get informationSavedSuccessfully =>
+      'Informaciones guardadas con éxito!';
 
   @override
   String get birthDateLabel => 'Fecha de Nacimiento';
@@ -907,7 +908,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noUpcomingEvents => 'No hay eventos futuros en este momento';
 
   @override
-  String get online => 'En línea';
+  String get online => 'Online';
 
   @override
   String get inPerson => 'En persona';
@@ -1113,7 +1114,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorUpdatingLink(String error) {
-    return 'Error al actualizar el enlace: $error';
+    return 'Error al actualizar el enlace';
   }
 
   @override
@@ -1127,16 +1128,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get attendanceRegisteredSuccessfully =>
-      'Asistencia registrada con éxito';
+      '¡Asistencia registrada correctamente!';
 
   @override
   String couldNotOpenLink(String url) {
-    return 'No se pudo abrir el link: $url';
+    return 'No se pudo abrir el enlace';
   }
 
   @override
   String errorOpeningLink(String error) {
-    return 'Error al abrir el enlace: $error';
+    return 'Error al abrir el enlace';
   }
 
   @override
@@ -1154,7 +1155,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get eventDeletedSuccessfully => 'Evento eliminado con éxito';
 
   @override
-  String get deleteTicket => 'Eliminar Entrada';
+  String get deleteTicket => 'Eliminar entrada';
 
   @override
   String get confirmDeleteTicket =>
@@ -1190,10 +1191,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accessEvent => 'Acceder al evento';
 
   @override
-  String get copyEventLink => 'Copiar enlace del evento';
+  String get copyEventLink => 'Copiar link del evento';
 
   @override
-  String get linkCopied => '¡Enlace copiado!';
+  String get linkCopied => 'Link copiado!';
 
   @override
   String get linkNotConfigured => 'Enlace no configurado';
@@ -1270,7 +1271,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorLoadingTickets(String error) {
-    return 'Error al cargar entradas: $error';
+    return 'Error al cargar entradas';
   }
 
   @override
@@ -1455,7 +1456,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorSavingInfo(String error) {
-    return 'Error al guardar: $error';
+    return 'Error al guardar info.';
   }
 
   @override
@@ -1555,7 +1556,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorLoadingData(String error) {
-    return 'Error al cargar datos: $error';
+    return 'Error al cargar datos';
   }
 
   @override
@@ -2180,10 +2181,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String progressWithDetails(
-    Object completed,
-    Object percentage,
-    Object total,
-  ) {
+      Object completed, Object percentage, Object total) {
     return 'Progreso: $percentage% ($completed/$total)';
   }
 
@@ -2415,7 +2413,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sectionTitleLabel => 'Título de la Sección';
 
   @override
-  String get pleaseEnterTitle => 'Por favor, introduce un título';
+  String get pleaseEnterTitle => 'Por favor, ingresa un título';
 
   @override
   String get pagesIncludedInSection => 'Páginas Incluidas en esta Sección';
@@ -2447,7 +2445,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorDeleting(String error) {
-    return 'Error al eliminar: $error';
+    return 'Error al eliminar';
   }
 
   @override
@@ -2724,7 +2722,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirm => 'Confirmar';
 
   @override
-  String get announcementCreatedSuccessfully => 'Anuncio creado con éxito';
+  String get announcementCreatedSuccessfully => 'Anuncio creado correctamente';
 
   @override
   String errorCreatingAnnouncement(Object error) {
@@ -2732,10 +2730,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get addImage => 'Añadir imagen';
+  String get addImage => 'Agregar imagen';
 
   @override
-  String get recommended16x9 => 'Recomendado: 16:9 (1920x1080)';
+  String get recommended16x9 => 'Recomendado: formato 16:9';
 
   @override
   String get announcementTitle => 'Título del Anuncio';
@@ -2761,13 +2759,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pleaseSelectAnnouncementImage =>
-      'Por favor, selecciona una imagen para el anuncio';
+      'Por favor selecciona una imagen para el anuncio';
 
   @override
   String get publishAnnouncement => 'Publicar Anuncio';
 
   @override
-  String get createEvent => 'Crear Evento';
+  String get createEvent => 'CREAR EVENTO';
 
   @override
   String get upcoming => 'Próximas';
@@ -2962,6 +2960,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'No tienes permiso para eliminar ministerios';
 
   @override
+  String get errorText => 'Error';
+
+  @override
   String confirmDeleteMinistry(Object name) {
     return '¿Estás seguro de que quieres eliminar el ministerio \"$name\"? Esta acción no se puede deshacer.';
   }
@@ -3036,7 +3037,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add => 'Añadir';
 
   @override
-  String get noMembersFound => 'Ningún miembro encontrado';
+  String get noMembersFound =>
+      'Ningún miembro encontrado en este grupo/ministerio.';
 
   @override
   String get confirmedStatus => 'Confirmado';
@@ -3115,7 +3117,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get location => 'Localización';
 
   @override
-  String get selectLocation => 'Seleccionar ubicación';
+  String get selectLocation => 'Seleccionar localización';
 
   @override
   String get addNewLocation => 'Añadir nueva ubicación';
@@ -4865,11 +4867,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get requestApproved => 'Solicitud aprobada';
 
   @override
-  String attendees(Object count) {
-    return 'Asistentes: $count';
-  }
-
-  @override
   String get userNotInAnyGroup => 'El usuario no pertenece a ningún grupo';
 
   @override
@@ -4914,7 +4911,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get serviceName => 'Nombre del servicio';
+  String get serviceName => 'Nombre del Servicio';
 
   @override
   String get serviceNameHint => 'Ej: Culto Dominical';
@@ -5555,7 +5552,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorCreatingEvent(String error) {
-    return 'Error al crear evento: $error';
+    return 'Error al crear evento';
   }
 
   @override
@@ -5919,7 +5916,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get until => 'hasta';
+  String get from => 'De';
+
+  @override
+  String get until => 'Hasta';
 
   @override
   String get defineEventOccurrenceType =>
@@ -6587,4 +6587,440 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get learnWithOurExclusiveCourses =>
       'Aprende con nuestros cursos exclusivos';
+
+  @override
+  String get language => 'Idioma';
+
+  @override
+  String get selectYourPreferredLanguage => 'Selecciona tu idioma preferido';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get portugueseBrazil => 'Português (Brasil)';
+
+  @override
+  String get languageChangedSuccessfully => 'Idioma cambiado exitosamente';
+
+  @override
+  String get endDateMustBeAfterStartDate =>
+      'La fecha de término debe ser posterior a la fecha de inicio';
+
+  @override
+  String get createGroupEvent => 'Crear Evento del Grupo';
+
+  @override
+  String get createMinistryEvent => 'Crear Evento del Ministerio';
+
+  @override
+  String get eventTitle => 'Título del evento';
+
+  @override
+  String get exWeeklyMeeting => 'Ej: Reunión semanal';
+
+  @override
+  String get eventDetails => 'Detalles sobre el evento...';
+
+  @override
+  String get startDateAndTime => 'Fecha y hora de inicio';
+
+  @override
+  String get endDateAndTime => 'Fecha y hora de término';
+
+  @override
+  String get exMainHall => 'Ej: Salón principal';
+
+  @override
+  String get pleaseEnterLocation => 'Por favor, ingresa una localización';
+
+  @override
+  String get imageOptional => 'Imagen (opcional)';
+
+  @override
+  String get addImageIn16x9 => 'Adicionar imagen en formato 16:9';
+
+  @override
+  String get eventCoverImage => 'Imagen de portada del evento';
+
+  @override
+  String get saveInformation => 'Guardar Información';
+
+  @override
+  String get saveAll => 'Guardar Todo';
+
+  @override
+  String get featuredMembersSection => 'Sección \"Miembros Destacados\"';
+
+  @override
+  String get showThisSection => '¿Mostrar esta sección?';
+
+  @override
+  String get sectionTitle => 'Título de la Sección';
+
+  @override
+  String get exLeadershipContacts => 'Ej: Liderazgo, Contactos...';
+
+  @override
+  String get selectMembersToHighlight =>
+      'Selecciona miembros para destacar y edita sus informaciones:';
+
+  @override
+  String get mainDescriptionOf => 'Descripción Principal del';
+
+  @override
+  String get optionalDescriptionTitle => 'Título Opcional de la Descripción';
+
+  @override
+  String get exAboutUsPurpose => 'Ej: Sobre Nosotros, Nuestro Propósito...';
+
+  @override
+  String get typeMainDescriptionHere =>
+      'Escribe la descripción principal aquí...';
+
+  @override
+  String get noAdditionalInfo => '(Sin info adicional)';
+
+  @override
+  String get infoDefined => '(Info definida)';
+
+  @override
+  String get errorReadingInfo => '(Error al leer info)';
+
+  @override
+  String get editInfo => 'Editar Info';
+
+  @override
+  String get editInfoFor => 'Editar Info:';
+
+  @override
+  String get editContent => 'Editar Contenido';
+
+  @override
+  String get typeContentHere => 'Escribe el contenido aquí...';
+
+  @override
+  String get errorSavingInformation => 'Error al guardar informaciones.';
+
+  @override
+  String get errorInitializingEditor => 'Error al inicializar editor.';
+
+  @override
+  String get notFound => 'no encontrado.';
+
+  @override
+  String get createNewService => 'Crear Nuevo Servicio';
+
+  @override
+  String get pleaseEnterServiceName =>
+      'Por favor, ingresa un nombre para el servicio';
+
+  @override
+  String get noPermissionToCreateServices =>
+      'No tienes permiso para crear servicios';
+
+  @override
+  String get serviceCreatedSuccessfully => 'Servicio creado con éxito';
+
+  @override
+  String get errorCreatingService => 'Error al crear el servicio';
+
+  @override
+  String get editService => 'Editar Servicio';
+
+  @override
+  String get noPermissionToUpdateServices =>
+      'No tienes permiso para actualizar servicios';
+
+  @override
+  String get serviceUpdatedSuccessfully => 'Servicio actualizado con éxito';
+
+  @override
+  String get errorUpdatingService => 'Error al actualizar el servicio';
+
+  @override
+  String get deleteService => 'Eliminar Servicio';
+
+  @override
+  String sureDeleteServiceAndContent(Object serviceName) {
+    return '¿Estás seguro que deseas eliminar el servicio \"$serviceName\" y todo su contenido? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String get noPermissionToDeleteServices =>
+      'No tienes permiso para eliminar servicios';
+
+  @override
+  String get deletingServiceAndContent =>
+      'Eliminando servicio y todo su contenido...';
+
+  @override
+  String get serviceDeletedSuccessfully => 'Servicio eliminado con éxito';
+
+  @override
+  String get errorDeletingService => 'Error al eliminar el servicio';
+
+  @override
+  String get noPermissionToManageCults =>
+      'No tienes permiso para gestionar cultos.';
+
+  @override
+  String get noServicesAvailable => 'No hay servicios disponibles';
+
+  @override
+  String get createService => 'Crear Servicio';
+
+  @override
+  String get createCultAnnouncement => 'Crear Anuncio del Culto';
+
+  @override
+  String get pleaseEnterTitle2 => 'Por favor, ingresa un título';
+
+  @override
+  String get cultInformation => 'Información sobre el culto...';
+
+  @override
+  String get pleaseEnterDescription2 => 'Por favor, ingresa una descripción';
+
+  @override
+  String get linkedEventOptional => 'Evento Vinculado (Opcional)';
+
+  @override
+  String get selectEvent => 'Seleccionar Evento';
+
+  @override
+  String get eventLinkedToAnnouncement => 'Evento vinculado a este anuncio';
+
+  @override
+  String get announcementStartDate => 'Fecha de inicio del anuncio';
+
+  @override
+  String get willBeAdaptedTo16x9 =>
+      'Será adaptada automáticamente al formato 16:9';
+
+  @override
+  String get processingImage => 'Procesando imagen...';
+
+  @override
+  String get pleaseSelectOrEnterLocation =>
+      'Por favor selecciona o ingresa una localización';
+
+  @override
+  String get selectingEvent => 'Seleccionar Evento';
+
+  @override
+  String get selectEventToLink => 'Seleccionar evento';
+
+  @override
+  String get noEventsAvailable => 'No hay eventos disponibles';
+
+  @override
+  String get eventWithoutTitle => 'Evento sin título';
+
+  @override
+  String get createTicketForRegistration =>
+      'Crea una entrada para que los usuarios puedan registrarse';
+
+  @override
+  String get viewQR => 'Ver QR';
+
+  @override
+  String get mustBeLoggedToRegisterAttendance =>
+      'Debes iniciar sesión para registrar tu asistencia';
+
+  @override
+  String get sureDeleteEvent =>
+      '¿Estás seguro que deseas eliminar este evento?';
+
+  @override
+  String get sureDeleteTicket =>
+      '¿Estás seguro que deseas eliminar esta entrada? Esta acción no se puede deshacer.';
+
+  @override
+  String get sureDeleteYourTicket =>
+      '¿Estás seguro que deseas eliminar tu entrada? Esta acción no se puede deshacer.';
+
+  @override
+  String get enterLinkForOnlineAccess =>
+      'Introduce el enlace para que los asistentes accedan al evento online:';
+
+  @override
+  String get eventURL => 'URL del evento';
+
+  @override
+  String get linkMustStartWithHttp =>
+      'El enlace debe comenzar con http:// o https://';
+
+  @override
+  String get removeLink => 'Eliminar enlace';
+
+  @override
+  String get eventLinkRemovedSuccessfully =>
+      'Enlace del evento eliminado correctamente';
+
+  @override
+  String get eventLinkUpdatedSuccessfully =>
+      'Enlace del evento actualizado correctamente';
+
+  @override
+  String get eventLinkAddedSuccessfully =>
+      'Enlace del evento añadido correctamente';
+
+  @override
+  String get noPermissionToDeleteThisEvent =>
+      'No tienes permisos para eliminar este evento';
+
+  @override
+  String get eventDeletedSuccessfully2 => 'Evento eliminado con éxito';
+
+  @override
+  String errorDeletingEvent(String error) {
+    return 'Error al eliminar el evento: $error';
+  }
+
+  @override
+  String get youConfirmedAttendance => 'Confirmaste tu presencia';
+
+  @override
+  String get youCancelledAttendance => 'Cancelaste tu presencia';
+
+  @override
+  String errorUpdatingAttendance(String error) {
+    return 'Error al actualizar presencia: $error';
+  }
+
+  @override
+  String get addReminder => 'Adicionar Lembrete';
+
+  @override
+  String get reminderAdded => 'Lembrete Adicionado';
+
+  @override
+  String errorSettingReminder(String error) {
+    return 'Error al configurar recordatorio: $error';
+  }
+
+  @override
+  String get decline => 'Declinar';
+
+  @override
+  String get participate => 'Participar';
+
+  @override
+  String get participants => 'Participantes';
+
+  @override
+  String attendees(int count) {
+    return 'Asistentes ($count)';
+  }
+
+  @override
+  String get noOneConfirmedYet => 'Nadie confirmó presencia aún';
+
+  @override
+  String get appCustomization => 'Personalización de la App';
+
+  @override
+  String get appCustomizationDescription =>
+      'Personaliza el nombre, logo y color de la app';
+
+  @override
+  String get churchNameConfig => 'Nombre de la Iglesia';
+
+  @override
+  String get churchLogoConfig => 'Logo de la Iglesia';
+
+  @override
+  String get primaryColorConfig => 'Color Principal';
+
+  @override
+  String get selectColor => 'Seleccionar Color';
+
+  @override
+  String get uploadLogo => 'Subir Logo';
+
+  @override
+  String get selectedColor => 'Color Seleccionado';
+
+  @override
+  String get changeColor => 'Cambiar Color';
+
+  @override
+  String get saveColor => 'Guardar Color';
+
+  @override
+  String get appRestartRequiredForColorChange =>
+      'Nota: Es necesario reiniciar la aplicación para que el cambio de color tenga efecto completo';
+
+  @override
+  String get errorSelectingImageText => 'Error al seleccionar imagen';
+
+  @override
+  String get changeLinkedEvent => 'Cambiar Evento Vinculado';
+
+  @override
+  String get currentlyLinkedEvent => 'Evento vinculado actualmente';
+
+  @override
+  String get unlinkEvent => 'Desvincular evento';
+
+  @override
+  String get selectFutureEventToLink =>
+      'Selecciona un evento futuro para vincularlo con este anuncio.';
+
+  @override
+  String get selectOtherFutureEventToLink =>
+      'Selecciona otro evento futuro para cambiar el vínculo.';
+
+  @override
+  String get noFutureEventsAvailable => 'No hay eventos futuros disponibles';
+
+  @override
+  String get fillAllRequiredFields =>
+      'Por favor, rellena todos los campos obligatorios.';
+
+  @override
+  String get pleaseSelectDateForAnnouncement =>
+      'Por favor selecciona una fecha para el anuncio.';
+
+  @override
+  String get errorDeletingPreviousImage => 'Error al eliminar imagen anterior';
+
+  @override
+  String get errorDeletingPreviousImageMayNotExist =>
+      'Error al eliminar imagen anterior (puede que ya no exista)';
+
+  @override
+  String get announcementUpdatedSuccessfully => 'Anuncio actualizado con éxito';
+
+  @override
+  String get errorUpdatingAnnouncement => 'Error al actualizar anuncio';
+
+  @override
+  String get editCultAnnouncement => 'Editar Anuncio de Culto';
+
+  @override
+  String get regularAnnouncement => 'Anuncio Regular';
+
+  @override
+  String get announcementImage => 'Imagen del Anuncio';
+
+  @override
+  String get announcementTitlePlaceholder => 'Título del anuncio';
+
+  @override
+  String get detailedAnnouncementDescription =>
+      'Descripción detallada del anuncio';
+
+  @override
+  String get announcementDate => 'Fecha del Anuncio';
+
+  @override
+  String get savingText => 'Guardando...';
+
+  @override
+  String get errorLoadingImage => 'Error al cargar imagen';
+
+  @override
+  String get tapToChangeImage => 'Toca para cambiar la imagen';
 }

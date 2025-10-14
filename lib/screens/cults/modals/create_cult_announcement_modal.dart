@@ -10,6 +10,7 @@ import '../../../models/cult.dart';
 import '../../../models/saved_location.dart';
 import './saved_locations_modal.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreateCultAnnouncementModal extends StatefulWidget {
   final Cult cult;
@@ -120,10 +121,12 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Error al seleccionar imagen: $e';
-        _isProcessingImage = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = '${AppLocalizations.of(context)!.errorSelectingImage(e.toString())}';
+          _isProcessingImage = false;
+        });
+      }
     }
   }
   
@@ -291,8 +294,8 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Seleccionar Evento',
+                      Text(
+                        AppLocalizations.of(context)!.selectingEvent,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -311,7 +314,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   
                   // Texto descriptivo
                   Text(
-                    'Selecciona un evento para vincularlo con este anuncio',
+                    AppLocalizations.of(context)!.selectEventToLink,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -342,7 +345,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                 Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No hay eventos disponibles',
+                                  AppLocalizations.of(context)!.noEventsAvailable,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[600],
@@ -360,7 +363,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                             final event = snapshot.data!.docs[index];
                             final eventData = event.data() as Map<String, dynamic>;
                             final eventDate = (eventData['startDate'] as Timestamp).toDate();
-                            final String eventTitle = eventData['title'] ?? 'Evento sin título';
+                            final String eventTitle = eventData['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle;
                             
                             return ListTile(
                               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -441,13 +444,13 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
   String _getEventTypeText(String eventType) {
     switch (eventType) {
       case 'presential':
-        return 'Presencial';
+        return AppLocalizations.of(context)!.presential;
       case 'online':
-        return 'En línea';
+        return AppLocalizations.of(context)!.online;
       case 'hybrid':
-        return 'Híbrido';
+        return AppLocalizations.of(context)!.hybrid;
       default:
-        return 'Evento';
+        return AppLocalizations.of(context)!.unknown;
     }
   }
   
@@ -458,14 +461,14 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
     
     if (_processedImage == null) {
       setState(() {
-        _errorMessage = 'Por favor selecciona una imagen para el anuncio';
+        _errorMessage = AppLocalizations.of(context)!.pleaseSelectAnnouncementImage;
       });
       return;
     }
     
     if (_location == null || _location!.isEmpty) {
       setState(() {
-        _errorMessage = 'Por favor selecciona o ingresa una localización';
+        _errorMessage = AppLocalizations.of(context)!.pleaseSelectOrEnterLocation;
       });
       return;
     }
@@ -540,14 +543,14 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
       if (mounted) {
         Navigator.pop(context, true); // Cerrar el modal con resultado exitoso
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Anuncio creado correctamente')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.announcementCreatedSuccessfully)),
         );
       }
     } catch (e) {
       print('Error al crear anuncio: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al crear el anuncio: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorCreatingAnnouncement(e.toString()))),
         );
       }
     } finally {
@@ -603,8 +606,8 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Criar Anúncio do Culto',
+                  Text(
+                    AppLocalizations.of(context)!.createCultAnnouncement,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -615,13 +618,13 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   // Título del anuncio
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Título do Anúncio',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.announcementTitle,
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Por favor, insira um título';
+                        return AppLocalizations.of(context)!.pleaseEnterTitle2;
                       }
                       return null;
                     },
@@ -631,15 +634,15 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   // Descripción del anuncio
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.description,
                       border: OutlineInputBorder(),
-                      hintText: 'Informações sobre o culto...',
+                      hintText: AppLocalizations.of(context)!.cultInformation,
                     ),
                     maxLines: 5,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Por favor, insira uma descrição';
+                        return AppLocalizations.of(context)!.pleaseEnterDescription2;
                       }
                       return null;
                     },
@@ -650,8 +653,8 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   InkWell(
                     onTap: _showLocationSelector,
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Localização',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.selectLocation,
                         border: OutlineInputBorder(),
                         suffixIcon: Icon(Icons.location_on),
                       ),
@@ -674,7 +677,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                 ),
                               ],
                             )
-                          : const Text('Selecionar localização'),
+                          : Text(AppLocalizations.of(context)!.selectLocation),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -683,8 +686,8 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   InkWell(
                     onTap: _selectEvent,
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Evento vinculado (opcional)',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.linkedEventOptional,
                         border: OutlineInputBorder(),
                         suffixIcon: Icon(Icons.event),
                       ),
@@ -719,7 +722,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                   ],
                                 ),
                                 Text(
-                                  'Evento vinculado a este anúncio',
+                                  AppLocalizations.of(context)!.eventLinkedToAnnouncement,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.blue[700],
@@ -727,7 +730,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                 ),
                               ],
                             )
-                          : const Text('Selecionar evento'),
+                          : Text(AppLocalizations.of(context)!.selectEvent),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -736,8 +739,8 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                   InkWell(
                     onTap: _selectStartDate,
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Data de início do anúncio',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.announcementStartDate,
                         border: OutlineInputBorder(),
                         suffixIcon: Icon(Icons.calendar_today),
                       ),
@@ -749,7 +752,11 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            _startDate == DateTime.now() ? '(Hoje)' : '',
+                            _startDate.day == DateTime.now().day && 
+                            _startDate.month == DateTime.now().month && 
+                            _startDate.year == DateTime.now().year 
+                              ? '(${AppLocalizations.of(context)!.today})' 
+                              : '',
                             style: TextStyle(color: Colors.grey[600], fontSize: 14),
                           ),
                         ],
@@ -778,7 +785,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                     const CircularProgressIndicator(),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Processando imagem...',
+                                      AppLocalizations.of(context)!.processingImage,
                                       style: TextStyle(color: Colors.grey[700]),
                                     ),
                                   ],
@@ -801,10 +808,10 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                                   children: [
                                     const Icon(Icons.add_photo_alternate, size: 50, color: Colors.grey),
                                     const SizedBox(height: 8),
-                                    const Text('Selecionar Imagem'),
+                                    Text(AppLocalizations.of(context)!.selectImage),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Será adaptada automaticamente para o formato 16:9',
+                                      AppLocalizations.of(context)!.willBeAdaptedTo16x9,
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -845,7 +852,7 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                       ),
                       child: _isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Criar Anúncio'),
+                          : Text(AppLocalizations.of(context)!.createAnnouncement),
                     ),
                   ),
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 32), // Espacio para evitar problemas con el teclado y respetar el padding inferior
