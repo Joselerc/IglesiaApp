@@ -12329,7 +12329,7 @@ abstract class AppLocalizations {
   /// No description provided for @appCustomizationDescription.
   ///
   /// In es, this message translates to:
-  /// **'Personaliza el nombre, logo y color de la app'**
+  /// **'Personaliza el nombre y logo de la app'**
   String get appCustomizationDescription;
 
   /// No description provided for @churchNameConfig.
@@ -12344,47 +12344,11 @@ abstract class AppLocalizations {
   /// **'Logo de la Iglesia'**
   String get churchLogoConfig;
 
-  /// No description provided for @primaryColorConfig.
-  ///
-  /// In es, this message translates to:
-  /// **'Color Principal'**
-  String get primaryColorConfig;
-
-  /// No description provided for @selectColor.
-  ///
-  /// In es, this message translates to:
-  /// **'Seleccionar Color'**
-  String get selectColor;
-
   /// No description provided for @uploadLogo.
   ///
   /// In es, this message translates to:
   /// **'Subir Logo'**
   String get uploadLogo;
-
-  /// No description provided for @selectedColor.
-  ///
-  /// In es, this message translates to:
-  /// **'Color Seleccionado'**
-  String get selectedColor;
-
-  /// No description provided for @changeColor.
-  ///
-  /// In es, this message translates to:
-  /// **'Cambiar Color'**
-  String get changeColor;
-
-  /// No description provided for @saveColor.
-  ///
-  /// In es, this message translates to:
-  /// **'Guardar Color'**
-  String get saveColor;
-
-  /// No description provided for @appRestartRequiredForColorChange.
-  ///
-  /// In es, this message translates to:
-  /// **'Nota: Es necesario reiniciar la aplicación para que el cambio de color tenga efecto completo'**
-  String get appRestartRequiredForColorChange;
 
   /// No description provided for @errorSelectingImageText.
   ///

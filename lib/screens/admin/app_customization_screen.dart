@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io';
 import '../../services/app_config_service.dart';
 import '../../theme/app_colors.dart';
@@ -21,7 +20,6 @@ class _AppCustomizationScreenState extends State<AppCustomizationScreen> {
   
   bool _isLoading = false;
   String? _currentLogoUrl;
-  Color _selectedColor = AppColors.primary;
   File? _selectedImage;
 
   @override
@@ -45,9 +43,6 @@ class _AppCustomizationScreenState extends State<AppCustomizationScreen> {
         setState(() {
           _churchNameController.text = config['churchName'] ?? 'Amor Em Movimento';
           _currentLogoUrl = config['logoUrl'];
-          if (config['primaryColor'] != null) {
-            _selectedColor = Color(config['primaryColor']);
-          }
         });
       }
     } catch (e) {
@@ -125,49 +120,6 @@ class _AppCustomizationScreenState extends State<AppCustomizationScreen> {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  Future<void> _saveColor() async {
-    setState(() => _isLoading = true);
-
-    try {
-      await _configService.updatePrimaryColor(_selectedColor.value);
-      if (mounted) {
-        _showSuccessMessage('Color actualizado correctamente. Reinicia la app para ver los cambios.');
-      }
-    } catch (e) {
-      _showErrorMessage('Error al guardar color: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  void _showColorPicker() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.selectColor),
-        content: SingleChildScrollView(
-          child: ColorPicker(
-            pickerColor: _selectedColor,
-            onColorChanged: (color) {
-              setState(() {
-                _selectedColor = color;
-              });
-            },
-            pickerAreaHeightPercent: 0.8,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.accept),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showSuccessMessage(String message) {
@@ -300,91 +252,6 @@ class _AppCustomizationScreenState extends State<AppCustomizationScreen> {
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Sección: Color Principal
-                  _buildSectionTitle(AppLocalizations.of(context)!.primaryColorConfig),
-                  const SizedBox(height: AppSpacing.md),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppSpacing.sm),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: _selectedColor,
-                            borderRadius: BorderRadius.circular(AppSpacing.sm),
-                            border: Border.all(color: Colors.grey[400]!),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.selectedColor,
-                                style: AppTextStyles.subtitle2,
-                              ),
-                              Text(
-                                '#${_selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
-                                style: AppTextStyles.bodyText2.copyWith(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: _showColorPicker,
-                          child: Text(AppLocalizations.of(context)!.changeColor),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _saveColor,
-                      icon: const Icon(Icons.save),
-                      label: Text(AppLocalizations.of(context)!.saveColor),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: AppSpacing.xl),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(AppSpacing.sm),
-                      border: Border.all(color: Colors.blue[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.blue[700]),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context)!.appRestartRequiredForColorChange,
-                            style: AppTextStyles.bodyText2.copyWith(
-                              color: Colors.blue[900],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),

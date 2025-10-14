@@ -6904,7 +6904,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get appCustomizationDescription =>
-      'Personalize o nome, logo e cor do aplicativo';
+      'Personalize o nome e logo do aplicativo';
 
   @override
   String get churchNameConfig => 'Nome da Igreja';
@@ -6913,26 +6913,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get churchLogoConfig => 'Logo da Igreja';
 
   @override
-  String get primaryColorConfig => 'Cor Principal';
-
-  @override
-  String get selectColor => 'Selecionar Cor';
-
-  @override
   String get uploadLogo => 'Enviar Logo';
-
-  @override
-  String get selectedColor => 'Cor Selecionada';
-
-  @override
-  String get changeColor => 'Mudar Cor';
-
-  @override
-  String get saveColor => 'Salvar Cor';
-
-  @override
-  String get appRestartRequiredForColorChange =>
-      'Nota: É necessário reiniciar o aplicativo para que a mudança de cor tenha efeito completo';
 
   @override
   String get errorSelectingImageText => 'Erro ao selecionar imagem';
