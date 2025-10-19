@@ -266,16 +266,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hint: AppLocalizations.of(context)!.phoneNumberHint,
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
-                    isRequired: true,
+                    isRequired: false,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(11),
                     ],
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.pleaseEnterYourPhone;
-                      }
-                      if (value.length < 10) {
+                      // Solo validar si el usuario ingresó algo
+                      if (value != null && value.isNotEmpty && value.length < 10) {
                         return AppLocalizations.of(context)!.pleaseEnterAValidPhone;
                       }
                       return null;

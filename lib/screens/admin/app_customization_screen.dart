@@ -166,7 +166,7 @@ class _AppCustomizationScreenState extends State<AppCustomizationScreen> {
                     controller: _churchNameController,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.churchName,
-                      hintText: 'Ej: Amor Em Movimento',
+                      hintText: 'Ej: ChurchConnect',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppSpacing.sm),
                       ),
