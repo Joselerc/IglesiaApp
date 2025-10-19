@@ -15,7 +15,7 @@
     <!-- Permisos para flutter_downloader eliminados - ahora usando Dio -->
     
     <application
-        android:label="IglesiaApp"
+        android:label="ChurchConnect"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
