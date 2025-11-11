@@ -106,8 +106,8 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
 
     if (widget.ministry.adminIds.length == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Você não pode sair do ministério porque é o único administrador'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.cannotLeaveOnlyAdmin),
         ),
       );
       return;
@@ -116,12 +116,12 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sair do ministério'),
-        content: const Text('Tem certeza de que deseja sair deste ministério?'),
+        title: Text(AppLocalizations.of(context)!.leaveMinistry),
+        content: Text(AppLocalizations.of(context)!.areYouSureLeaveMinistry),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -129,7 +129,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sair'),
+            child: Text(AppLocalizations.of(context)!.leaveGroup),
           ),
         ],
       ),
@@ -149,13 +149,13 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você saiu do ministério'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.youLeftMinistry))
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao sair do ministério: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLeavingMinistry}: $e')),
         );
       }
     }
@@ -168,12 +168,12 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir ministério'),
-        content: const Text('Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do ministério.'),
+        title: Text(AppLocalizations.of(context)!.deleteMinistry),
+        content: Text(AppLocalizations.of(context)!.areYouSureDeleteMinistry),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -181,7 +181,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -198,13 +198,13 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ministério excluído')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.ministryDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir ministério: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorDeletingMinistry2}: $e')),
         );
       }
     }
@@ -499,7 +499,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Informações do ministério'),
+        title: Text(AppLocalizations.of(context)!.ministryInformation),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -514,12 +514,12 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('Este ministério não existe mais'));
+            return Center(child: Text(AppLocalizations.of(context)!.thisMinistryNoLongerExists));
           }
 
           final ministryData = snapshot.data!.data() as Map<String, dynamic>;
           final ministryImageUrl = ministryData['imageUrl'] as String? ?? '';
-          final ministryName = ministryData['name'] as String? ?? 'Ministério sem nome';
+          final ministryName = ministryData['name'] as String? ?? AppLocalizations.of(context)!.ministryNoName;
           final descriptionDelta = ministryData['descriptionDelta'];
           _extractDescriptionText(descriptionDelta);
           
@@ -571,7 +571,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Ministério · ${memberIds.length} membros',
+                          AppLocalizations.of(context)!.ministryMembers(memberIds.length),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[700],
                           ),
@@ -620,9 +620,9 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                               if (hasDescription)
                                 Text(_descriptionText, style: AppTextStyles.bodyText1)
                               else if (currentIsAdmin)
-                                Text('Adicionar descrição do ministério...', style: TextStyle(color: AppColors.primary, fontStyle: FontStyle.italic))
+                                Text(AppLocalizations.of(context)!.addMinistryDescription, style: TextStyle(color: AppColors.primary, fontStyle: FontStyle.italic))
                               else
-                                const Text('Sem descrição', style: TextStyle(fontStyle: FontStyle.italic)),
+                                Text(AppLocalizations.of(context)!.noDescription, style: TextStyle(fontStyle: FontStyle.italic)),
                               
                               if (currentIsAdmin && hasDescription) ...[
                                 const SizedBox(height: 8),
@@ -913,7 +913,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    'Admin. do ministério',
+                                    AppLocalizations.of(context)!.adminOfMinistry,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: theme.primaryColor,
@@ -970,7 +970,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.exit_to_app),
-                          label: const Text('Sair do ministério'),
+                          label: Text(AppLocalizations.of(context)!.leaveMinistry),
                           onPressed: _leaveMinistry,
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
@@ -985,7 +985,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.delete_forever, color: Colors.red),
-                            label: const Text('Excluir ministério', style: TextStyle(color: Colors.red)),
+                            label: Text(AppLocalizations.of(context)!.deleteMinistry, style: TextStyle(color: Colors.red)),
                             onPressed: _deleteMinistry,
                               style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),

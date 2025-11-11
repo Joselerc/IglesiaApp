@@ -392,8 +392,8 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Adicionar usuários',
+                      Text(
+                        AppLocalizations.of(context)!.addUsers,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -410,7 +410,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search),
-                      hintText: 'Buscar usuários...',
+                      hintText: AppLocalizations.of(context)!.searchUsers,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -433,13 +433,13 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                           });
                         },
                       ),
-                      const Text('Mostrar só usuários que não são membros'),
+                      Text(AppLocalizations.of(context)!.showOnlyNonMembers),
                     ],
                   ),
                   
                   // Contador de seleccionados
                   Text(
-                    'Usuários selecionados: ${selectedUsers.length}',
+                    AppLocalizations.of(context)!.selectedUsers(selectedUsers.length),
                     style: TextStyle(
                       color: Colors.green[700],
                       fontWeight: FontWeight.bold,
@@ -451,7 +451,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                   Expanded(
                     child: filteredUsers.isEmpty
                       ? Center(
-                          child: Text('Nenhum usuário encontrado',
+                          child: Text(AppLocalizations.of(context)!.noUserFound,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         )
@@ -490,8 +490,8 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                           borderRadius: BorderRadius.circular(10),
                                           border: Border.all(color: Colors.green.withOpacity(0.5)),
                                         ),
-                                        child: const Text(
-                                          'Membro',
+                                        child: Text(
+                                          AppLocalizations.of(context)!.member,
                                           style: TextStyle(
                                             color: Colors.green,
                                             fontSize: 10,
@@ -571,12 +571,12 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                     _isLoading = false;
                                   });
                                   
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('${selectedUsers.length} usuários adicionados ao grupo'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.usersAddedToGroup(selectedUsers.length)),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
                                   
                                   // Recargar datos
                                   _loadRequests();
@@ -607,7 +607,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         ),
                         elevation: 2,
                       ),
-                      child: const Text('Adicionar usuários selecionados'),
+                      child: Text(AppLocalizations.of(context)!.addSelectedUsers),
                     ),
                   ),
                 ],
@@ -765,9 +765,9 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddUserModal,
-        tooltip: 'Adicionar usuários',
-        backgroundColor: Colors.green,
+      onPressed: _showAddUserModal,
+      tooltip: AppLocalizations.of(context)!.addUsers,
+      backgroundColor: Colors.green,
         child: const Icon(Icons.person_add),
       ),
     );

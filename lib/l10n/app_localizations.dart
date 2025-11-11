@@ -12659,7 +12659,7 @@ abstract class AppLocalizations {
   /// No description provided for @addUsers.
   ///
   /// In es, this message translates to:
-  /// **'Añadir usuarios'**
+  /// **'Agregar usuarios'**
   String get addUsers;
 
   /// No description provided for @showOnlyNonMembers.
@@ -12683,7 +12683,7 @@ abstract class AppLocalizations {
   /// No description provided for @addSelectedUsers.
   ///
   /// In es, this message translates to:
-  /// **'Añadir usuarios seleccionados'**
+  /// **'Agregar usuarios seleccionados'**
   String get addSelectedUsers;
 
   /// No description provided for @manageRequests.
@@ -12719,13 +12719,13 @@ abstract class AppLocalizations {
   /// No description provided for @usersAddedToMinistry.
   ///
   /// In es, this message translates to:
-  /// **'{count} usuarios añadidos al ministerio'**
+  /// **'{count} usuarios agregados al ministerio'**
   String usersAddedToMinistry(int count);
 
   /// No description provided for @usersAddedToGroup.
   ///
   /// In es, this message translates to:
-  /// **'{count} usuarios añadidos al grupo'**
+  /// **'{count} usuarios agregados al grupo'**
   String usersAddedToGroup(int count);
 
   /// No description provided for @requestAcceptedSuccessfully.
@@ -13045,6 +13045,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al hacer administrador del ministerio'**
   String get errorMakingMinistryAdmin;
+
+  /// No description provided for @cannotLeaveOnlyAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes salir porque eres el único administrador'**
+  String get cannotLeaveOnlyAdmin;
+
+  /// No description provided for @youLeftMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Has salido del ministerio'**
+  String get youLeftMinistry;
+
+  /// No description provided for @errorDeletingMinistry2.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar ministerio'**
+  String get errorDeletingMinistry2;
+
+  /// No description provided for @ministryNoName.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio sin nombre'**
+  String get ministryNoName;
+
+  /// No description provided for @ministryMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio · {count} miembros'**
+  String ministryMembers(int count);
+
+  /// No description provided for @adminOfMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin. del ministerio'**
+  String get adminOfMinistry;
+
+  /// No description provided for @selectedUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios seleccionados: {count}'**
+  String selectedUsers(int count);
+
+  /// No description provided for @noUserFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún usuario encontrado'**
+  String get noUserFound;
+
+  /// No description provided for @errorProcessingUserAddition.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al procesar la adición de usuarios'**
+  String get errorProcessingUserAddition;
 }
 
 class _AppLocalizationsDelegate

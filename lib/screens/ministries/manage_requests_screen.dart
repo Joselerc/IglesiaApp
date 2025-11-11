@@ -392,8 +392,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Adicionar usuários',
+                          Text(
+                            AppLocalizations.of(context)!.addUsers,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -410,7 +410,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                       TextField(
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.search),
-                          hintText: 'Buscar usuários...',
+                          hintText: AppLocalizations.of(context)!.searchUsers,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -433,13 +433,13 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                               });
                             },
                           ),
-                          const Text('Mostrar só usuários que não são membros'),
+                          Text(AppLocalizations.of(context)!.showOnlyNonMembers),
                         ],
                       ),
                       
                       // Contador de seleccionados
                       Text(
-                        'Usuários selecionados: ${selectedUsers.length}',
+                        AppLocalizations.of(context)!.selectedUsers(selectedUsers.length),
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -451,7 +451,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                       Expanded(
                         child: filteredUsers.isEmpty
                           ? Center(
-                              child: Text('Nenhum usuário encontrado',
+                              child: Text(AppLocalizations.of(context)!.noUserFound,
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                             )
@@ -491,7 +491,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                               border: Border.all(color: AppColors.primary.withOpacity(0.5)),
                                             ),
                                             child: Text(
-                                              'Membro',
+                                              AppLocalizations.of(context)!.member,
                                               style: TextStyle(
                                                 color: AppColors.primary,
                                                 fontSize: 10,
@@ -573,7 +573,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                     
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('${selectedUsers.length} usuários adicionados ao ministério'),
+                                        content: Text(AppLocalizations.of(context)!.usersAddedToMinistry(selectedUsers.length)),
                                         backgroundColor: Colors.green,
                                       ),
                                     );
@@ -607,7 +607,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             ),
                             elevation: 2,
                           ),
-                          child: const Text('Adicionar usuários selecionados'),
+                          child: Text(AppLocalizations.of(context)!.addSelectedUsers),
                         ),
                       ),
                     ],
@@ -761,7 +761,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddUsersModal,
-        tooltip: 'Adicionar usuários',
+        tooltip: AppLocalizations.of(context)!.addUsers,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.person_add),
       ),

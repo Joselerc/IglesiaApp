@@ -3689,5 +3689,58 @@
     }
   },
   "errorMakingGroupAdmin": "Error al hacer administrador del grupo",
-  "errorMakingMinistryAdmin": "Error al hacer administrador del ministerio"
+  "errorMakingMinistryAdmin": "Error al hacer administrador del ministerio",
+  "ministryInformation": "Información del ministerio",
+  "cannotLeaveOnlyAdmin": "No puedes salir porque eres el único administrador",
+  "leaveMinistry": "Salir del ministerio",
+  "areYouSureLeaveMinistry": "¿Estás seguro de que deseas salir de este ministerio?",
+  "youLeftMinistry": "Has salido del ministerio",
+  "errorLeavingMinistry": "Error al salir del ministerio",
+  "deleteMinistry": "Eliminar ministerio",
+  "ministryDeleted": "Ministerio eliminado",
+  "errorDeletingMinistry2": "Error al eliminar ministerio",
+  "thisMinistryNoLongerExists": "Este ministerio ya no existe",
+  "ministryNoName": "Ministerio sin nombre",
+  "ministryMembers": "Ministerio · {count} miembros",
+  "@ministryMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addMinistryDescription": "Agregar descripción del ministerio...",
+  "noDescription": "Sin descripción",
+  "adminOfMinistry": "Admin. del ministerio",
+  "addUsers": "Agregar usuarios",
+  "searchUsers": "Buscar usuarios...",
+  "showOnlyNonMembers": "Mostrar solo usuarios que no son miembros",
+  "selectedUsers": "Usuarios seleccionados: {count}",
+  "@selectedUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noUserFound": "Ningún usuario encontrado",
+  "member": "Miembro",
+  "addSelectedUsers": "Agregar usuarios seleccionados",
+  "usersAddedToMinistry": "{count} usuarios agregados al ministerio",
+  "@usersAddedToMinistry": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersAddedToGroup": "{count} usuarios agregados al grupo",
+  "@usersAddedToGroup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorProcessingUserAddition": "Error al procesar la adición de usuarios"
 }

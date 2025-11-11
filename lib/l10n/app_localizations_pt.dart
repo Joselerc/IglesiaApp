@@ -7291,4 +7291,37 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get errorMakingMinistryAdmin =>
       'Erro ao tornar administrador do ministério';
+
+  @override
+  String get cannotLeaveOnlyAdmin =>
+      'Você não pode sair porque é o único administrador';
+
+  @override
+  String get youLeftMinistry => 'Você saiu do ministério';
+
+  @override
+  String get errorDeletingMinistry2 => 'Erro ao excluir ministério';
+
+  @override
+  String get ministryNoName => 'Ministério sem nome';
+
+  @override
+  String ministryMembers(int count) {
+    return 'Ministério · $count membros';
+  }
+
+  @override
+  String get adminOfMinistry => 'Admin. do ministério';
+
+  @override
+  String selectedUsers(int count) {
+    return 'Usuários selecionados: $count';
+  }
+
+  @override
+  String get noUserFound => 'Nenhum usuário encontrado';
+
+  @override
+  String get errorProcessingUserAddition =>
+      'Erro ao processar a adição de usuários';
 }

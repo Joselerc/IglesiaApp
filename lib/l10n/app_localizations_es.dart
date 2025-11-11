@@ -7091,7 +7091,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get timeInGroup => 'Tiempo en el grupo';
 
   @override
-  String get addUsers => 'Añadir usuarios';
+  String get addUsers => 'Agregar usuarios';
 
   @override
   String get showOnlyNonMembers => 'Mostrar solo usuarios que no son miembros';
@@ -7103,7 +7103,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get member => 'Miembro';
 
   @override
-  String get addSelectedUsers => 'Añadir usuarios seleccionados';
+  String get addSelectedUsers => 'Agregar usuarios seleccionados';
 
   @override
   String get manageRequests => 'Gestionar solicitudes';
@@ -7122,12 +7122,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String usersAddedToMinistry(int count) {
-    return '$count usuarios añadidos al ministerio';
+    return '$count usuarios agregados al ministerio';
   }
 
   @override
   String usersAddedToGroup(int count) {
-    return '$count usuarios añadidos al grupo';
+    return '$count usuarios agregados al grupo';
   }
 
   @override
@@ -7308,4 +7308,37 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errorMakingMinistryAdmin =>
       'Error al hacer administrador del ministerio';
+
+  @override
+  String get cannotLeaveOnlyAdmin =>
+      'No puedes salir porque eres el único administrador';
+
+  @override
+  String get youLeftMinistry => 'Has salido del ministerio';
+
+  @override
+  String get errorDeletingMinistry2 => 'Error al eliminar ministerio';
+
+  @override
+  String get ministryNoName => 'Ministerio sin nombre';
+
+  @override
+  String ministryMembers(int count) {
+    return 'Ministerio · $count miembros';
+  }
+
+  @override
+  String get adminOfMinistry => 'Admin. del ministerio';
+
+  @override
+  String selectedUsers(int count) {
+    return 'Usuarios seleccionados: $count';
+  }
+
+  @override
+  String get noUserFound => 'Ningún usuario encontrado';
+
+  @override
+  String get errorProcessingUserAddition =>
+      'Error al procesar la adición de usuarios';
 }

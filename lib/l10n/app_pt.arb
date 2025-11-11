@@ -3690,5 +3690,58 @@
     }
   },
   "errorMakingGroupAdmin": "Erro ao tornar administrador do grupo",
-  "errorMakingMinistryAdmin": "Erro ao tornar administrador do ministério"
+  "errorMakingMinistryAdmin": "Erro ao tornar administrador do ministério",
+  "ministryInformation": "Informações do ministério",
+  "cannotLeaveOnlyAdmin": "Você não pode sair porque é o único administrador",
+  "leaveMinistry": "Sair do ministério",
+  "areYouSureLeaveMinistry": "Tem certeza de que deseja sair deste ministério?",
+  "youLeftMinistry": "Você saiu do ministério",
+  "errorLeavingMinistry": "Erro ao sair do ministério",
+  "deleteMinistry": "Excluir ministério",
+  "ministryDeleted": "Ministério excluído",
+  "errorDeletingMinistry2": "Erro ao excluir ministério",
+  "thisMinistryNoLongerExists": "Este ministério não existe mais",
+  "ministryNoName": "Ministério sem nome",
+  "ministryMembers": "Ministério · {count} membros",
+  "@ministryMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addMinistryDescription": "Adicionar descrição do ministério...",
+  "noDescription": "Sem descrição",
+  "adminOfMinistry": "Admin. do ministério",
+  "addUsers": "Adicionar usuários",
+  "searchUsers": "Buscar usuários...",
+  "showOnlyNonMembers": "Mostrar só usuários que não são membros",
+  "selectedUsers": "Usuários selecionados: {count}",
+  "@selectedUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noUserFound": "Nenhum usuário encontrado",
+  "member": "Membro",
+  "addSelectedUsers": "Adicionar usuários selecionados",
+  "usersAddedToMinistry": "{count} usuários adicionados ao ministério",
+  "@usersAddedToMinistry": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersAddedToGroup": "{count} usuários adicionados ao grupo",
+  "@usersAddedToGroup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorProcessingUserAddition": "Erro ao processar a adição de usuários"
 }
