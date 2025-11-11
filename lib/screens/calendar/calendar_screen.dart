@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'calendar_global_view.dart';
 import 'calendar_events_view.dart';
 import 'calendar_ministries_view.dart';
 import 'calendar_groups_view.dart';
@@ -41,10 +42,34 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
   
   bool _isLoading = true;
   
+  // Método para obtener el título de la pestaña actual
+  String _getCurrentTabTitle() {
+    if (!mounted) return '';
+    
+    switch (_tabController.index) {
+      case 0:
+        return AppLocalizations.of(context)!.globalView;
+      case 1:
+        return AppLocalizations.of(context)!.events;
+      case 2:
+        return AppLocalizations.of(context)!.ministries;
+      case 3:
+        return AppLocalizations.of(context)!.groups;
+      case 4:
+        return AppLocalizations.of(context)!.cultsTab;
+      case 5:
+        return AppLocalizations.of(context)!.services;
+      case 6:
+        return AppLocalizations.of(context)!.counseling;
+      default:
+        return AppLocalizations.of(context)!.calendars;
+    }
+  }
+  
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _selectedDay = _focusedDay;
     _loadAllEvents();
     
@@ -466,26 +491,38 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
 
     switch (currentTabIndex) {
       case 0:
+        tabName = AppLocalizations.of(context)!.globalView;
+        // Para la vista global, combinar todos los eventos
+        events = [
+          ...(_allEvents[normalizedDay] ?? []),
+          ...(_ministryEvents[normalizedDay] ?? []),
+          ...(_groupEvents[normalizedDay] ?? []),
+          ...(_cultEvents[normalizedDay] ?? []),
+          ...(_serviceEvents[normalizedDay] ?? []),
+          ...(_counselingEvents[normalizedDay] ?? []),
+        ];
+        break;
+      case 1:
         tabName = AppLocalizations.of(context)!.events;
         events = _allEvents[normalizedDay] ?? [];
         break;
-      case 1:
+      case 2:
         tabName = AppLocalizations.of(context)!.ministries;
         events = _ministryEvents[normalizedDay] ?? [];
         break;
-      case 2:
+      case 3:
         tabName = AppLocalizations.of(context)!.groups;
         events = _groupEvents[normalizedDay] ?? [];
         break;
-      case 3:
+      case 4:
         tabName = AppLocalizations.of(context)!.cultsTab;
         events = _cultEvents[normalizedDay] ?? [];
         break;
-      case 4:
+      case 5:
         tabName = AppLocalizations.of(context)!.services;
         events = _serviceEvents[normalizedDay] ?? [];
         break;
-      case 5:
+      case 6:
         tabName = AppLocalizations.of(context)!.counseling;
         events = _counselingEvents[normalizedDay] ?? [];
         break;
@@ -494,10 +531,10 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
     }
 
     // --- Debug Print Detallado ---
-    if (currentTabIndex == 1 || currentTabIndex == 2 || currentTabIndex == 5) {
-      final mapToCheck = currentTabIndex == 1 
+    if (currentTabIndex == 2 || currentTabIndex == 3 || currentTabIndex == 6) {
+      final mapToCheck = currentTabIndex == 2 
           ? _ministryEvents 
-          : (currentTabIndex == 2 ? _groupEvents : _counselingEvents);
+          : (currentTabIndex == 3 ? _groupEvents : _counselingEvents);
       bool foundInMap = mapToCheck.containsKey(normalizedDay);
       int countInMap = foundInMap ? mapToCheck[normalizedDay]!.length : 0;
       int countReturned = events.length;
@@ -549,7 +586,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
                             },
                           ),
                           Text(
-                            AppLocalizations.of(context)!.calendars,
+                            _getCurrentTabTitle(),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -698,26 +735,75 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
   }
   
   Widget _buildTabs() {
-    return TabBar(
-      controller: _tabController,
-      isScrollable: true,
-      indicatorColor: Colors.white,
-      indicatorWeight: 3,
-      labelColor: Colors.white,
-      unselectedLabelColor: Colors.white.withOpacity(0.7),
-      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-      padding: const EdgeInsets.only(left: 6),
-      indicatorPadding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-      tabAlignment: TabAlignment.start,
-      tabs: [
-        Tab(text: AppLocalizations.of(context)!.events),
-        Tab(text: AppLocalizations.of(context)!.ministries),
-        Tab(text: AppLocalizations.of(context)!.groups),
-        Tab(text: AppLocalizations.of(context)!.cultsTab),
-        Tab(text: AppLocalizations.of(context)!.services),
-        Tab(text: AppLocalizations.of(context)!.counseling),
-      ],
+    final currentIndex = _tabController.index;
+    final allTabs = [
+      AppLocalizations.of(context)!.globalView,
+      AppLocalizations.of(context)!.events,
+      AppLocalizations.of(context)!.ministries,
+      AppLocalizations.of(context)!.groups,
+      AppLocalizations.of(context)!.cultsTab,
+      AppLocalizations.of(context)!.services,
+      AppLocalizations.of(context)!.counseling,
+    ];
+    
+    // Crear lista de pestañas excluyendo la actual
+    final visibleTabs = <Widget>[];
+    for (int i = 0; i < allTabs.length; i++) {
+      if (i != currentIndex) {
+        visibleTabs.add(Tab(text: allTabs[i]));
+      }
+    }
+    
+    // Si solo hay 1 pestaña visible o menos, no mostrar el TabBar
+    if (visibleTabs.length <= 1) {
+      return const SizedBox.shrink();
+    }
+    
+    return SizedBox(
+      height: 48,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        itemCount: allTabs.length - 1, // Excluir la pestaña actual
+        itemBuilder: (context, index) {
+          // Ajustar el índice para saltar la pestaña actual
+          int tabIndex = index;
+          if (index >= currentIndex) {
+            tabIndex = index + 1;
+          }
+          
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: InkWell(
+              onTap: () {
+                _tabController.animateTo(tabIndex);
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    allTabs[tabIndex],
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -739,6 +825,7 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
     return TabBarView(
       controller: _tabController,
       children: [
+        _buildCalendarWithEvents(CalendarGlobalView(selectedDate: dateForView)), // Nueva vista global
         _buildCalendarWithEvents(CalendarEventsView(selectedDate: dateForView)), // Sin cambios necesarios
         _buildCalendarWithEvents(CalendarMinistriesView(events: ministryEventsForDay, selectedDate: dateForView)), // Pasar lista filtrada
         _buildCalendarWithEvents(CalendarGroupsView(events: groupEventsForDay, selectedDate: dateForView)),       // Pasar lista filtrada
@@ -752,17 +839,19 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
   // Obtener un color para los marcadores según la pestaña seleccionada
   Color _getMarkerColor(int tabIndex) {
     switch (tabIndex) {
-      case 0: // Eventos
+      case 0: // Global (usar un color mixto/gris)
+        return Colors.grey;
+      case 1: // Eventos
         return Colors.red;
-      case 1: // Ministerios
+      case 2: // Ministerios
         return AppColors.primary;
-      case 2: // Grupos
+      case 3: // Grupos
         return Colors.green;
-      case 3: // Cultos
+      case 4: // Cultos
         return Colors.purple;
-      case 4: // Servicios
+      case 5: // Servicios
         return AppColors.primary;
-      case 5: // Aconselhamento
+      case 6: // Aconselhamento
         return Colors.blue;
       default:
         return Colors.red;

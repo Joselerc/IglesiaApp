@@ -9,6 +9,7 @@ import '../../services/ministry_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../modals/edit_entity_info_modal.dart';
+import '../../l10n/app_localizations.dart';
 
 class MinistryDetailsScreen extends StatefulWidget {
   final Ministry ministry;
@@ -216,12 +217,12 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remover membro'),
-        content: Text('Tem certeza de que deseja remover $userName do ministério?'),
+        title: Text(AppLocalizations.of(context)!.removeMember),
+        content: Text(AppLocalizations.of(context)!.areYouSureRemoveMemberMinistry(userName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -229,7 +230,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Remover'),
+            child: Text(AppLocalizations.of(context)!.remove),
           ),
         ],
       ),
@@ -248,12 +249,73 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
       );
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Membro removido do ministério')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.memberRemovedFromMinistry)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao remover membro: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.errorRemovingMember}: $e')),
       );
+    }
+  }
+
+  Future<void> _showMakeAdminConfirmation(String userId, String userName) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null || !widget.ministry.adminIds.contains(currentUser.uid)) return;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.confirmMakeAdmin),
+        content: Text(AppLocalizations.of(context)!.confirmMakeMinistryAdmin(userName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(AppLocalizations.of(context)!.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _makeMinistryAdmin(userId, userName);
+    }
+  }
+
+  Future<void> _makeMinistryAdmin(String userId, String userName) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null || !widget.ministry.adminIds.contains(currentUser.uid)) return;
+
+    try {
+      final ministryService = MinistryService();
+      
+      await ministryService.promoteToAdmin(
+        userId,
+        widget.ministry.id,
+        reason: 'Promovido por administrador'
+      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.userIsNowMinistryAdmin(userName))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.errorMakingMinistryAdmin}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -866,25 +928,29 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                           onTap: currentIsAdmin && !isCurrentUser ? () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (context) => Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ListTile(
-                                    leading: const Icon(Icons.person),
-                                    title: Text('Ver perfil de $name'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                                    title: Text('Remover $name'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      _removeMember(memberId, name);
-                                    },
-                                  ),
-                                ],
+                              builder: (context) => Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+                                      title: Text(AppLocalizations.of(context)!.makeMinistryAdmin),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        _showMakeAdminConfirmation(memberId, name);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                      title: Text('Remover $name'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        _removeMember(memberId, name);
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           } : null,

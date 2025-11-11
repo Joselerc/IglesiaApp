@@ -1431,7 +1431,7 @@ Padding(
                                     const Icon(Icons.comment, size: 16, color: Colors.grey),
                                     const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text(AppLocalizations.of(context)!.reason(attendance.reason ?? '')),
+                                      child: Text('${AppLocalizations.of(context)!.reason}: ${attendance.reason ?? ''}'),
                                     ),
                                   ],
                                 ),

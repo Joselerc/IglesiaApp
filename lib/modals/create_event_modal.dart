@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../models/ministry.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
@@ -316,14 +318,49 @@ class _CreateEventModalState extends State<CreateEventModal> {
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () async {
-                            final picker = ImagePicker();
-                            final pickedFile = await picker.pickImage(
-                              source: ImageSource.gallery,
-                            );
-                            if (pickedFile != null) {
+                            try {
+                              final picker = ImagePicker();
+                              final pickedFile = await picker.pickImage(
+                                source: ImageSource.gallery,
+                              );
+                              
+                              if (pickedFile == null) return;
+                              
+                              // Leer los bytes del archivo directamente del XFile
+                              final bytes = await pickedFile.readAsBytes();
+                              
+                              // Crear un archivo temporal con los bytes leídos
+                              final tempDir = await getTemporaryDirectory();
+                              final String fileName = 'temp_${DateTime.now().millisecondsSinceEpoch}${path.extension(pickedFile.path)}';
+                              final String tempPath = path.join(tempDir.path, fileName);
+                              
+                              // Escribir los bytes al archivo temporal
+                              File tempFile = File(tempPath);
+                              await tempFile.writeAsBytes(bytes);
+                              
+                              // Verificar que el archivo temporal se creó correctamente
+                              if (!await tempFile.exists()) {
+                                throw Exception('No se pudo crear el archivo temporal');
+                              }
+                              
+                              // Comprimir la imagen usando ImageService
+                              final compressedImage = await ImageService().compressImage(
+                                tempFile,
+                                quality: 85,
+                              );
+                              
                               setState(() {
-                                imageFile = File(pickedFile.path);
+                                imageFile = compressedImage ?? tempFile;
                               });
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error al seleccionar la imagen. Por favor, intenta con otra.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           },
                           child: Container(

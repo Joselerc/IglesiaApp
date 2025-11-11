@@ -21,6 +21,7 @@ import '../admin/event_attendance_screen.dart';
 import '../admin/admin_events_list_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../services/permission_service.dart'; // Importar servicio de permisos
+import '../../l10n/app_localizations.dart';
 
 class GroupFeedScreen extends StatefulWidget {
   final Group group;
@@ -238,10 +239,27 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
             ),
           // Mostrar botón de gestionar solicitudes solo si tiene permiso
           if (_canManageRequests) 
-            IconButton(
-              icon: const Icon(Icons.people, color: Colors.white),
-              tooltip: 'Gestionar solicitudes',
-              onPressed: _navigateToManageRequests,
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('membership_requests')
+                  .where('entityId', isEqualTo: widget.group.id)
+                  .where('entityType', isEqualTo: 'group')
+                  .where('status', isEqualTo: 'pending')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                
+                return Badge(
+                  isLabelVisible: pendingCount > 0,
+                  label: Text('$pendingCount'),
+                  backgroundColor: Colors.red,
+                  child: IconButton(
+                    icon: const Icon(Icons.people, color: Colors.white),
+                    tooltip: AppLocalizations.of(context)!.manageRequests,
+                    onPressed: _navigateToManageRequests,
+                  ),
+                );
+              },
             ),
           const SizedBox(width: 8),
         ],
@@ -302,9 +320,9 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         ),
                         const SizedBox(height: 24),
                         // Mensaje principal
-                        const Text(
-                          'Compartilhe algo com seu grupo!',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.shareWithGroup,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -313,7 +331,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         const SizedBox(height: 12),
                         // Mensaje secundario
                         Text(
-                          'Este grupo ainda não tem publicações. Inicie a conversa compartilhando algo interessante com os outros membros.',
+                          AppLocalizations.of(context)!.groupNoPostsYet,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[600],
@@ -325,7 +343,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                         if (_canCreatePosts) 
                           ElevatedButton.icon(
                             icon: const Icon(Icons.add),
-                            label: const Text('Criar publicação'),
+                            label: Text(AppLocalizations.of(context)!.createPost),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
@@ -653,15 +671,15 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
             }
           },
           items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Início',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
+              label: AppLocalizations.of(context)!.start,
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              activeIcon: Icon(Icons.chat_bubble),
-              label: 'Chat',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.chat_bubble_outline),
+              activeIcon: const Icon(Icons.chat_bubble),
+              label: AppLocalizations.of(context)!.chat,
             ),
             BottomNavigationBarItem(
               icon: _canCreatePosts 
@@ -674,12 +692,12 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                     child: const Icon(Icons.add, color: Colors.white, size: 24),
                   )
                 : const Icon(Icons.info_outline),
-              label: _canCreatePosts ? 'Novo' : 'Info',
+              label: _canCreatePosts ? AppLocalizations.of(context)!.newItem : AppLocalizations.of(context)!.info,
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Perfil',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: AppLocalizations.of(context)!.profile,
             ),
           ],
           type: BottomNavigationBarType.fixed,

@@ -497,7 +497,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                        AppLocalizations.of(context)!.errorLoadingMembers(snapshot.error.toString()),
+                        '${AppLocalizations.of(context)!.errorLoadingMembers}: ${snapshot.error.toString()}',
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),

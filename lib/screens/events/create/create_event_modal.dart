@@ -5,6 +5,8 @@ import './event_datetime_step.dart';
 import './event_recurrence_step.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 import '../../../models/event_model.dart';
 import '../../../theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -47,13 +49,13 @@ class _CreateEventModalState extends State<CreateEventModal> {
     String title, 
     String category, 
     String description,
-    String? imageUrl,
+    File? imageFile,
   ) {
     setState(() {
       _eventData['title'] = title;
       _eventData['category'] = category;
       _eventData['description'] = description;
-      _eventData['imageUrl'] = imageUrl;
+      _eventData['imageFile'] = imageFile;
       _currentStep++;
       _pageController.animateToPage(
         _currentStep,
@@ -137,6 +139,77 @@ class _CreateEventModalState extends State<CreateEventModal> {
     
     try {
       _eventData.addAll(recurrenceData);
+      
+      // Subir imagen si existe
+      String imageUrl = '';
+      if (_eventData['imageFile'] != null && _eventData['imageFile'] is File) {
+        final File imageFile = _eventData['imageFile'] as File;
+        try {
+          debugPrint('📤 Iniciando subida de imagen a Firebase Storage...');
+          debugPrint('📁 Archivo a subir: ${imageFile.path}');
+          debugPrint('📏 Tamaño: ${await imageFile.length()} bytes');
+          debugPrint('✅ Archivo existe: ${await imageFile.exists()}');
+          
+          final String fileName = 'event_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          final Reference storageRef = FirebaseStorage.instance
+              .ref()
+              .child('event_images')
+              .child(fileName);
+          
+          debugPrint('🎯 Ruta de destino: event_images/$fileName');
+          
+          final SettableMetadata metadata = SettableMetadata(
+            contentType: 'image/jpeg',
+            customMetadata: {
+              'uploadedBy': FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
+              'createdAt': DateTime.now().toIso8601String(),
+            },
+          );
+          
+          debugPrint('⏳ Subiendo archivo...');
+          final uploadTask = storageRef.putFile(imageFile, metadata);
+          
+          // Escuchar eventos de la subida
+          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+            double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+            debugPrint('📊 Progreso: ${(progress * 100).toStringAsFixed(0)}%');
+          });
+          
+          final snapshot = await uploadTask;
+          debugPrint('✅ Subida completada, obteniendo URL...');
+          imageUrl = await snapshot.ref.getDownloadURL();
+          debugPrint('🎉 Imagen subida exitosamente: $imageUrl');
+        } on FirebaseException catch (e) {
+          debugPrint('❌ Error de Firebase al subir imagen:');
+          debugPrint('   Código: ${e.code}');
+          debugPrint('   Mensaje: ${e.message}');
+          debugPrint('   Plugin: ${e.plugin}');
+          // Continuar sin imagen si falla la subida
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error al subir imagen: ${e.message}'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('❌ Error general al subir imagen: $e');
+          debugPrint('   Tipo: ${e.runtimeType}');
+          // Continuar sin imagen si falla la subida
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error al subir imagen. El evento se creará sin imagen.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      }
+      
+      // Guardar la URL de la imagen en _eventData
+      _eventData['imageUrl'] = imageUrl;
       
       // Si se está utilizando una ubicación de iglesia, cargar los datos de dirección
       if (_eventData['useChurchLocation'] == true && _eventData['churchLocationId'] != null) {
@@ -489,7 +562,7 @@ class _CreateEventModalState extends State<CreateEventModal> {
                   initialTitle: _eventData['title'],
                   initialCategory: _eventData['category'],
                   initialDescription: _eventData['description'],
-                  initialImageUrl: _eventData['imageUrl'],
+                  initialImageFile: _eventData['imageFile'],
                 ),
                 EventLocationStep(
                   onNext: _handleLocationComplete,

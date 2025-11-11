@@ -224,6 +224,9 @@
         }
     },
     "calendars": "Calendários",
+    "globalView": "Global",
+    "allActivities": "Todas as Atividades",
+    "noActivitiesForThisDay": "Não há atividades para este dia",
     "events": "Eventos",
     "services": "Serviços",
     "counseling": "Aconselhamento",
@@ -1412,12 +1415,26 @@
   "delete": "Excluir",
   "ministryDeletedSuccessfully": "Ministério excluído com sucesso",
   "errorDeletingMinistry": "Erro ao excluir ministério: {error}",
+  "@errorDeletingMinistry": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "deleteGroups": "Eliminar Grupos",
   "noPermissionDeleteGroups": "Você não tem permissão para excluir grupos",
   "noGroupsAvailable": "Não há grupos disponíveis",
   "confirmDeleteGroup": "Você tem certeza de que deseja excluir o grupo \"{name}\"? Esta ação não pode ser desfeita.",
   "groupDeletedSuccessfully": "Grupo excluído com sucesso",
   "errorDeletingGroup": "Erro ao excluir grupo: {error}",
+  "@errorDeletingGroup": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "kidsAdministration": "Administração Kids",
   "attendance": "Assistência",
   "reload": "Recarregar",
@@ -3479,5 +3496,199 @@
   "saveChanges": "Salvar Alterações",
   "errorLoadingImage": "Erro ao carregar imagem",
   "addImage": "Adicionar imagem",
-  "tapToChangeImage": "Toque para alterar a imagem"
+  "tapToChangeImage": "Toque para alterar a imagem",
+  "beFirstToPublish": "Seja o primeiro a publicar!",
+  "ministryNoPostsYet": "Este ministério ainda não tem publicações. Que tal compartilhar algo inspirador para a comunidade?",
+  "groupNoPostsYet": "Este grupo ainda não tem publicações. Inicie a conversa compartilhando algo interessante com os outros membros.",
+  "shareWithGroup": "Compartilhe algo com seu grupo!",
+  "createPost": "Criar publicação",
+  "start": "Início",
+  "newItem": "Novo",
+  "memberManagement": "Gestão de Membros",
+  "hideStatistics": "Ocultar estatísticas",
+  "viewStatistics": "Ver estatísticas",
+  "refresh": "Atualizar",
+  "pending": "Pendentes",
+  "approved": "Aprovadas",
+  "rejected": "Reprovadas",
+  "exits": "Saídas",
+  "requestStatistics": "Estatísticas de solicitações",
+  "total": "Total",
+  "noPendingRequests": "Não há solicitações pendentes",
+  "allUpToDate": "Tudo em dia!",
+  "message": "Mensagem",
+  "reject": "Rejeitar",
+  "accept": "Aceitar",
+  "noApprovedRequests": "Não há solicitações aprovadas",
+  "noRejectedRequests": "Não há solicitações reprovadas",
+  "noExitsRecorded": "Nenhuma saída registrada",
+  "accepted": "Aceita",
+  "date": "Data",
+  "chat": "Chat",
+  "info": "Info",
+  "addedBy": "Adicionado por",
+  "requested": "Solicitado",
+  "responseTime": "Tempo de resposta",
+  "reason": "Motivo",
+  "noMemberExitsMinistry": "Nenhum membro saiu do ministério",
+  "noMemberExitsGroup": "Nenhum membro saiu do grupo",
+  "exitedOn": "Saiu em",
+  "approvedOn": "Aprovado em",
+  "rejectedOn": "Rejeitado em",
+  "voluntaryExit": "Saída voluntária",
+  "removed": "Removido",
+  "joinedOn": "Entrou em",
+  "timeInMinistry": "Tempo no ministério",
+  "timeInGroup": "Tempo no grupo",
+  "removedBy": "Removido por",
+  "addUsers": "Adicionar usuários",
+  "searchUsers": "Buscar usuários...",
+  "showOnlyNonMembers": "Mostrar só usuários que não são membros",
+  "usersSelected": "Usuários selecionados",
+  "noUsersFound": "Nenhum usuário encontrado",
+  "member": "Membro",
+  "addSelectedUsers": "Adicionar usuários selecionados",
+  "manageRequests": "Gestionar solicitações",
+  "day": "dia",
+  "days": "dias",
+  "hour": "hora",
+  "hours": "horas",
+  "minute": "minuto",
+  "minutes": "minutos",
+  "second": "segundo",
+  "seconds": "segundos",
+  "usersAddedToMinistry": "{count} usuários adicionados ao ministério",
+  "@usersAddedToMinistry": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersAddedToGroup": "{count} usuários adicionados ao grupo",
+  "@usersAddedToGroup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorLoadingUsers": "Erro ao carregar usuários: {error}",
+  "@errorLoadingUsers": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "requestAcceptedSuccessfully": "Solicitação aceita corretamente",
+  "requestRejected": "Solicitação rejeitada",
+  "groupInformation": "Informações do grupo",
+  "ministryInformation": "Informações do ministério",
+  "group": "Grupo",
+  "ministry": "Ministério",
+  "members": "membros",
+  "addDescription": "Adicionar descrição...",
+  "addMinistryDescription": "Adicionar descrição do ministério...",
+  "noDescription": "Sem descrição",
+  "edit": "Editar",
+  "createdBy": "Criado por",
+  "filesLinksAndDocuments": "Arquivos, links e documentos",
+  "noSharedFiles": "Não há arquivos compartilhados",
+  "searchMember": "Buscar membro",
+  "leaveGroup": "Sair do grupo",
+  "leaveMinistry": "Sair do ministério",
+  "deleteGroup": "Excluir grupo",
+  "deleteMinistry": "Excluir ministério",
+  "unknown": "Desconhecido",
+  "available": "Disponível",
+  "viewProfileOf": "Ver perfil de",
+  "remove": "Remover",
+  "you": "Você",
+  "groupAdmin": "Admin. do grupo",
+  "ministryAdmin": "Admin. do ministério",
+  "today": "Hoje",
+  "cannotLeaveAsOnlyAdmin": "Você não pode sair porque é o único administrador",
+  "areYouSureLeaveGroup": "Tem certeza de que deseja sair deste grupo?",
+  "areYouSureLeaveMinistry": "Tem certeza de que deseja sair deste ministério?",
+  "cancel": "Cancelar",
+  "leave": "Sair",
+  "youLeftTheGroup": "Você saiu do grupo",
+  "youLeftTheMinistry": "Você saiu do ministério",
+  "errorLeavingGroup": "Erro ao sair do grupo",
+  "errorLeavingMinistry": "Erro ao sair do ministério",
+  "areYouSureDeleteGroup": "Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do grupo.",
+  "areYouSureDeleteMinistry": "Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do ministério.",
+  "delete": "Excluir",
+  "groupDeleted": "Grupo excluído",
+  "ministryDeleted": "Ministério excluído",
+  "removeMember": "Remover membro",
+  "areYouSureRemoveMemberMinistry": "Tem certeza de que deseja remover {name} do ministério?",
+  "@areYouSureRemoveMemberMinistry": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberRemovedFromGroup": "Membro removido do grupo",
+  "memberRemovedFromMinistry": "Membro removido do ministério",
+  "errorRemovingMember": "Erro ao remover membro",
+  "cannotOpenInvalidFileUrl": "Não é possível abrir: URL de arquivo inválida",
+  "downloadFile": "Baixar arquivo",
+  "download": "Baixar",
+  "noMemberFound": "Nenhum membro encontrado",
+  "noMembersMatchingSearch": "Não há membros que correspondam a '{query}'",
+  "@noMembersMatchingSearch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingMembers": "Erro ao carregar membros",
+  "thisGroupNoLongerExists": "Este grupo não existe mais",
+  "thisMinistryNoLongerExists": "Este ministério não existe mais",
+  "notificationsEnabled": "Notificações ativadas",
+  "notificationsDisabled": "Notificações desativadas",
+  "errorUpdatingNotificationSettings": "Erro ao atualizar configurações de notificações",
+  "makeAdmin": "Tornar administrador",
+  "makeGroupAdmin": "Tornar administrador do grupo",
+  "makeMinistryAdmin": "Tornar administrador do ministério",
+  "confirmMakeAdmin": "Confirmar novo administrador",
+  "confirmMakeGroupAdmin": "Tem certeza de que deseja tornar {name} administrador do grupo?",
+  "@confirmMakeGroupAdmin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmMakeMinistryAdmin": "Tem certeza de que deseja tornar {name} administrador do ministério?",
+  "@confirmMakeMinistryAdmin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "confirm": "Confirmar",
+  "userIsNowGroupAdmin": "{name} agora é administrador do grupo",
+  "@userIsNowGroupAdmin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "userIsNowMinistryAdmin": "{name} agora é administrador do ministério",
+  "@userIsNowMinistryAdmin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "errorMakingGroupAdmin": "Erro ao tornar administrador do grupo",
+  "errorMakingMinistryAdmin": "Erro ao tornar administrador do ministério"
 }

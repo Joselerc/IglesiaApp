@@ -6,6 +6,7 @@ import '../../models/ministry.dart';
 import '../../services/ministry_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ManageRequestsScreen extends StatefulWidget {
   final Ministry ministry;
@@ -302,16 +303,22 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         // Comprobar si el usuario ya es miembro
         final isMember = memberIds.contains(doc.id);
         
+        // Obtener datos del documento de forma segura
+        final userData = doc.data() as Map<String, dynamic>?;
+        if (userData == null) continue;
+        
+        final userName = userData['name'] ?? userData['displayName'] ?? 'Usuário sem nome';
+        
         if (isMember) {
-          print('Usuário ministério ${doc.id} (${doc['name'] ?? 'sem nome'}) é membro');
+          print('Usuário ministério ${doc.id} ($userName) é membro');
         }
         
         // Añadir todos los usuarios, pero marcar los que ya son miembros
         allUsers.add({
           'id': doc.id,
-          'name': doc['name'] ?? doc['displayName'] ?? 'Usuário sem nome',
-          'email': doc['email'] ?? '',
-          'photoUrl': doc['photoUrl'] ?? '',
+          'name': userName,
+          'email': userData['email'] ?? '',
+          'photoUrl': userData['photoUrl'] ?? '',
           'isMember': isMember,
         });
       }
@@ -632,7 +639,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestão de Membros'),
+        title: Text(AppLocalizations.of(context)!.memberManagement),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -654,7 +661,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                 _showStats = !_showStats;
               });
             },
-            tooltip: _showStats ? 'Ocultar estatísticas' : 'Ver estatísticas',
+            tooltip: _showStats ? AppLocalizations.of(context)!.hideStatistics : AppLocalizations.of(context)!.viewStatistics,
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -662,7 +669,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
               _loadPendingRequests();
               _loadStats();
             },
-            tooltip: 'Atualizar',
+            tooltip: AppLocalizations.of(context)!.refresh,
           ),
         ],
         bottom: TabBar(
@@ -670,11 +677,11 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.7),
-          tabs: const [
-            Tab(text: 'Pendentes'),
-            Tab(text: 'Aprovadas'),
-            Tab(text: 'Reprovadas'),
-            Tab(text: 'Saídas'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.pending),
+            Tab(text: AppLocalizations.of(context)!.approved),
+            Tab(text: AppLocalizations.of(context)!.rejected),
+            Tab(text: AppLocalizations.of(context)!.exits),
           ],
         ),
       ),
@@ -690,9 +697,9 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                     color: Colors.grey[100],
                     child: Column(
                       children: [
-                        const Text(
-                          'Estatísticas de solicitações',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.requestStatistics,
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -702,25 +709,25 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildStatCard(
-                              'Total',
+                              AppLocalizations.of(context)!.total,
                               _totalRequests,
                               AppColors.primary,
                               Icons.people_outline,
                             ),
                             _buildStatCard(
-                              'Aprovadas',
+                              AppLocalizations.of(context)!.approved,
                               _acceptedRequests,
                               Colors.green,
                               Icons.check_circle_outline,
                             ),
                             _buildStatCard(
-                              'Reprovadas',
+                              AppLocalizations.of(context)!.rejected,
                               _rejectedRequests,
                               Colors.orange,
                               Icons.cancel_outlined,
                             ),
                             _buildStatCard(
-                              'Saídas',
+                              AppLocalizations.of(context)!.exits,
                               _exitedMembers,
                               Colors.red,
                               Icons.exit_to_app,
@@ -807,16 +814,16 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Não há solicitações pendentes',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.noPendingRequests,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Tudo em dia!',
+                        AppLocalizations.of(context)!.allUpToDate,
                         style: TextStyle(
                           color: Colors.grey[600],
                         ),
@@ -924,7 +931,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensagem:',
+                              '${AppLocalizations.of(context)!.message}:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -949,7 +956,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                               children: [
                         TextButton.icon(
                           icon: const Icon(Icons.cancel),
-                          label: const Text('Rejeitar'),
+                          label: Text(AppLocalizations.of(context)!.reject),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
@@ -958,7 +965,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                         const SizedBox(width: 8),
                         ElevatedButton.icon(
                                   icon: const Icon(Icons.check_circle),
-                          label: const Text('Aceitar'),
+                          label: Text(AppLocalizations.of(context)!.accept),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -1009,7 +1016,9 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Não há solicitações ${status == 'accepted' ? 'aprovadas' : 'rejeitadas'}',
+                  status == 'accepted' 
+                    ? AppLocalizations.of(context)!.noApprovedRequests 
+                    : AppLocalizations.of(context)!.noRejectedRequests,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1105,7 +1114,9 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             ),
                           ),
                           child: Text(
-                            status == 'accepted' ? 'Aceita' : 'Rejeitada',
+                            status == 'accepted' 
+                              ? AppLocalizations.of(context)!.accepted 
+                              : AppLocalizations.of(context)!.rejected,
                             style: TextStyle(
                               color: status == 'accepted' ? Colors.green[800] : Colors.orange[800],
                               fontSize: 11,
@@ -1134,7 +1145,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    'Adicionado por: $addedByName',
+                                    '${AppLocalizations.of(context)!.addedBy}: $addedByName',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -1153,7 +1164,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    'Solicitado: ${DateFormat('dd/MM/yyyy HH:mm').format(requestDate)}',
+                                    '${AppLocalizations.of(context)!.requested}: ${DateFormat('dd/MM/yyyy HH:mm').format(requestDate)}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[700],
@@ -1177,8 +1188,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                 Expanded(
                                   child: Text(
                                     isDirectAdd 
-                                      ? 'Data: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}'
-                                      : '${status == 'accepted' ? 'Aceito' : 'Rejeitado'}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
+                                      ? '${AppLocalizations.of(context)!.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}'
+                                      : '${status == 'accepted' ? AppLocalizations.of(context)!.accepted : AppLocalizations.of(context)!.rejected}: ${DateFormat('dd/MM/yyyy HH:mm').format(responseDate)}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: status == 'accepted' ? Colors.green[700] : Colors.orange[700],
@@ -1199,7 +1210,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      'Tempo de resposta: ${_formatDuration(responseTime)}',
+                                      '${AppLocalizations.of(context)!.responseTime}: ${_formatDuration(responseTime)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[700],
@@ -1223,7 +1234,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Mensagem:',
+                              '${AppLocalizations.of(context)!.message}:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1255,7 +1266,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Motivo:',
+                              '${AppLocalizations.of(context)!.reason}:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1335,9 +1346,9 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                   color: Colors.grey,
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Nenhum membro saiu do ministério',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.noExitsRecorded,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1428,7 +1439,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      'Saiu em: ${DateFormat('dd/MM/yyyy HH:mm').format(exitDate)}',
+                                      '${AppLocalizations.of(context)!.exitedOn}: ${DateFormat('dd/MM/yyyy HH:mm').format(exitDate)}',
                                       style: TextStyle(
                                         color: Colors.grey[500],
                                         fontSize: 12,
@@ -1455,7 +1466,9 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             ),
                           ),
                           child: Text(
-                            isVoluntaryExit ? 'Saída voluntária' : 'Removido',
+                            isVoluntaryExit 
+                              ? AppLocalizations.of(context)!.voluntaryExit 
+                              : AppLocalizations.of(context)!.removed,
                             style: TextStyle(
                               color: isVoluntaryExit ? Colors.orange[800] : Colors.red[800],
                               fontSize: 11,
@@ -1533,7 +1546,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'Removido por: $adminName',
+                                        '${AppLocalizations.of(context)!.removedBy}: $adminName',
                                         style: const TextStyle(fontSize: 14, color: Colors.red),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -1556,7 +1569,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Motivo:',
+                              '${AppLocalizations.of(context)!.reason}:',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,

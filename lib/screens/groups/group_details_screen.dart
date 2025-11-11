@@ -9,6 +9,7 @@ import '../../services/group_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../modals/edit_entity_info_modal.dart';
+import '../../l10n/app_localizations.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -85,7 +86,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              value ? 'Notificações ativadas' : 'Notificações desativadas',
+              value ? AppLocalizations.of(context)!.notificationsEnabled : AppLocalizations.of(context)!.notificationsDisabled,
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -93,8 +94,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       } catch (e) {
         print('Error al actualizar configuración de notificaciones: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao atualizar configurações de notificações'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorUpdatingNotificationSettings),
           ),
         );
       }
@@ -116,8 +117,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
     if (isAdmin && widget.group.adminIds.length == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Você não pode sair do grupo porque é o único administrador'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.cannotLeaveAsOnlyAdmin),
         ),
       );
       return;
@@ -126,12 +127,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sair do grupo'),
-        content: const Text('Tem certeza de que deseja sair deste grupo?'),
+        title: Text(AppLocalizations.of(context)!.leaveGroup),
+        content: Text(AppLocalizations.of(context)!.areYouSureLeaveGroup),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -139,7 +140,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sair'),
+            child: Text(AppLocalizations.of(context)!.leave),
           ),
         ],
       ),
@@ -159,13 +160,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Você saiu do grupo'))
+          SnackBar(content: Text(AppLocalizations.of(context)!.youLeftTheGroup))
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao sair do grupo: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLeavingGroup}: $e')),
         );
       }
     }
@@ -177,12 +178,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir grupo'),
-        content: const Text('Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do grupo.'),
+        title: Text(AppLocalizations.of(context)!.deleteGroup),
+        content: Text(AppLocalizations.of(context)!.areYouSureDeleteGroup),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -190,7 +191,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -207,13 +208,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Grupo excluído')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.groupDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir grupo: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorDeletingGroup}: $e')),
         );
       }
     }
@@ -225,12 +226,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remover membro'),
-        content: Text('Tem certeza de que deseja remover $userName do grupo?'),
+        title: Text(AppLocalizations.of(context)!.removeMember),
+        content: Text('${AppLocalizations.of(context)!.areYouSureLeaveGroup.replaceAll('deseja sair deste grupo', 'deseja remover $userName del grupo')}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -238,7 +239,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Remover'),
+            child: Text(AppLocalizations.of(context)!.remove),
           ),
         ],
       ),
@@ -260,12 +261,71 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       );
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Membro removido do grupo')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.memberRemovedFromGroup)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao remover membro: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.errorRemovingMember}: $e')),
       );
+    }
+  }
+
+  Future<void> _showMakeAdminConfirmation(String userId, String userName) async {
+    if (!isAdmin) return;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.confirmMakeAdmin),
+        content: Text(AppLocalizations.of(context)!.confirmMakeGroupAdmin(userName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(AppLocalizations.of(context)!.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _makeGroupAdmin(userId, userName);
+    }
+  }
+
+  Future<void> _makeGroupAdmin(String userId, String userName) async {
+    if (!isAdmin) return;
+
+    try {
+      final groupService = GroupService();
+      
+      await groupService.promoteToAdmin(
+        userId,
+        widget.group.id,
+        reason: 'Promovido por administrador'
+      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.userIsNowGroupAdmin(userName))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.errorMakingGroupAdmin}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -281,7 +341,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
     if (!isValidUrl) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não é possível abrir: URL de arquivo inválida')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.cannotOpenInvalidFileUrl)),
       );
       return;
     }
@@ -300,18 +360,18 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Baixar arquivo'),
-          content: Text('Deseja baixar "$fileName"?'),
+          title: Text(AppLocalizations.of(context)!.downloadFile),
+          content: Text('${AppLocalizations.of(context)!.areYouSureLeaveGroup.split('?')[0].replaceAll('Tem certeza de que deseja sair deste grupo', 'Deseja baixar')} "$fileName"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Baixar'),
+              child: Text(AppLocalizations.of(context)!.download),
             ),
           ],
         ),
@@ -424,7 +484,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Informações do grupo'),
+        title: Text(AppLocalizations.of(context)!.groupInformation),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -440,7 +500,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           }
           
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('Este grupo não existe mais'));
+            return Center(child: Text(AppLocalizations.of(context)!.thisGroupNoLongerExists));
           }
 
           final groupData = snapshot.data!.data() as Map<String, dynamic>;
@@ -492,7 +552,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Grupo · ${memberIds.length} membros',
+                          '${AppLocalizations.of(context)!.group} · ${memberIds.length} ${AppLocalizations.of(context)!.members}',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[700],
                           ),
@@ -542,7 +602,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                 Text(_descriptionText, style: AppTextStyles.bodyText1)
                               else if (currentIsAdmin)
                                 Text(
-                                  'Adicionar descrição...',
+                                  AppLocalizations.of(context)!.addDescription,
                                   style: TextStyle(
                                     color: AppColors.primary,
                                     fontStyle: FontStyle.italic,
@@ -556,7 +616,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                     Icon(Icons.edit, size: 16, color: theme.primaryColor),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Editar',
+                                      AppLocalizations.of(context)!.edit,
                                       style: TextStyle(
                                         color: theme.primaryColor,
                                         fontSize: 12,
@@ -576,16 +636,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                             .doc(_getCreatorId(groupData['createdBy']))
                             .get(),
                         builder: (context, snapshot) {
-                          String creatorName = 'Desconhecido';
+                          String creatorName = AppLocalizations.of(context)!.unknown;
                           if (snapshot.hasData && snapshot.data!.exists) {
                             final userData = snapshot.data!.data() as Map<String, dynamic>?;
                             if (userData != null) {
-                              creatorName = userData['name'] ?? userData['displayName'] ?? 'Desconhecido';
+                              creatorName = userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.unknown;
                             }
                           }
                           
                           return Text(
-                            'Criado por $creatorName · ${_formatDate(groupData['createdAt'] as Timestamp)}',
+                            '${AppLocalizations.of(context)!.createdBy} $creatorName · ${_formatDate(groupData['createdAt'] as Timestamp)}',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -605,7 +665,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Arquivos, links e documentos',
+                        AppLocalizations.of(context)!.filesLinksAndDocuments,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -653,7 +713,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                         return Center(
                           child: Text(
-                            'Não há arquivos compartilhados',
+                            AppLocalizations.of(context)!.noSharedFiles,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         );
@@ -669,7 +729,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       if (fileMessages.isEmpty) {
                         return Center(
                           child: Text(
-                            'Não há arquivos compartilhados',
+                            AppLocalizations.of(context)!.noSharedFiles,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         );
@@ -721,7 +781,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${memberIds.length} membros',
+                        '${memberIds.length} ${AppLocalizations.of(context)!.members}',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -732,7 +792,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: 'Buscar membro',
+                          hintText: AppLocalizations.of(context)!.searchMember,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -763,7 +823,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       print('Error en la consulta: ${snapshot.error}');
                       print('Error stack trace: ${snapshot.stackTrace}');
                       return Center(
-                        child: Text('Erro ao carregar membros: ${snapshot.error}'),
+                        child: Text('${AppLocalizations.of(context)!.errorLoadingMembers}: ${snapshot.error}'),
                       );
                     }
                     
@@ -774,7 +834,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       print('Estado: No hay datos o lista vacía');
-                      return const Center(child: Text('Nenhum membro encontrado'));
+                      return Center(child: Text(AppLocalizations.of(context)!.noMemberFound));
                     }
                     
                     final members = snapshot.data!;
@@ -796,7 +856,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'Não há membros que correspondam a "$_searchQuery"',
+                            AppLocalizations.of(context)!.noMembersMatchingSearch(_searchQuery),
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         ),
@@ -811,7 +871,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         final memberDoc = filteredMembers[index];
                         final memberId = memberDoc.id;
                         final userData = memberDoc.data() as Map<String, dynamic>;
-                        final name = userData['name'] ?? userData['displayName'] ?? 'Usuário';
+                        final name = userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.unknown;
                         final photoUrl = userData['photoUrl'] ?? '';
                         final isCurrentUser = memberId == FirebaseAuth.instance.currentUser?.uid;
                         final isMemberAdmin = adminIds.contains(memberId);
@@ -826,7 +886,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  isCurrentUser ? 'Você' : name,
+                                  isCurrentUser ? AppLocalizations.of(context)!.you : name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -839,7 +899,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    'Admin. do grupo',
+                                    AppLocalizations.of(context)!.groupAdmin,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: theme.primaryColor,
@@ -848,31 +908,33 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                 ),
                             ],
                           ),
-                          subtitle: isCurrentUser 
-                              ? const Text('Disponível') 
-                              : const Text('Disponível'),
+                          subtitle: Text(AppLocalizations.of(context)!.available),
                           onTap: currentIsAdmin && !isCurrentUser ? () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (context) => Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ListTile(
-                                    leading: const Icon(Icons.person),
-                                    title: Text('Ver perfil de $name'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                                    title: Text('Remover $name'),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      _removeMember(memberId, name);
-                                    },
-                                  ),
-                                ],
+                              builder: (context) => Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+                                      title: Text(AppLocalizations.of(context)!.makeGroupAdmin),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        _showMakeAdminConfirmation(memberId, name);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                      title: Text('${AppLocalizations.of(context)!.remove} $name'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        _removeMember(memberId, name);
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           } : null,
@@ -892,7 +954,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.exit_to_app),
-                          label: const Text('Sair do grupo'),
+                          label: Text(AppLocalizations.of(context)!.leaveGroup),
                           onPressed: _leaveGroup,
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
@@ -907,7 +969,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.delete_forever, color: Colors.red),
-                            label: const Text('Excluir grupo', style: TextStyle(color: Colors.red)),
+                            label: Text(AppLocalizations.of(context)!.deleteGroup, style: const TextStyle(color: Colors.red)),
                             onPressed: _deleteGroup,
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -939,7 +1001,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     } else if (difference.inDays > 0) {
       return '${date.day}/${date.month}/${date.year}';
     } else {
-      return 'Hoje';
+      return AppLocalizations.of(context)!.today;
     }
   }
 

@@ -304,7 +304,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unnamedMinistry => 'Ministério sem nome';
 
   @override
-  String get deleteGroup => 'Excluir Connect';
+  String get deleteGroup => 'Excluir grupo';
 
   @override
   String get confirmDeleteGroupQuestion =>
@@ -506,6 +506,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get calendars => 'Calendários';
 
   @override
+  String get globalView => 'Global';
+
+  @override
+  String get allActivities => 'Todas as Atividades';
+
+  @override
+  String get noActivitiesForThisDay => 'Não há atividades para este dia';
+
+  @override
   String get events => 'Eventos';
 
   @override
@@ -548,7 +557,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noScheduledCults => 'Não há cultos programados';
 
   @override
-  String get today => '(Hoje)';
+  String get today => 'Hoje';
 
   @override
   String get tomorrow => 'Amanhã';
@@ -816,10 +825,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pending => 'Pendentes';
 
   @override
-  String get accepted => 'Aceito';
+  String get accepted => 'Aceita';
 
   @override
-  String get rejected => 'Rejeitados';
+  String get rejected => 'Reprovadas';
 
   @override
   String get youHaveNoWorkInvites => 'Você não tem convites de trabalho';
@@ -842,7 +851,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pendingStatus => 'Pendente';
 
   @override
-  String get reject => 'Recusar';
+  String get reject => 'Rejeitar';
 
   @override
   String get accept => 'Aceitar';
@@ -940,7 +949,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String hours(int count) {
-    return '$count h';
+    return 'horas';
   }
 
   @override
@@ -1867,7 +1876,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get number => 'Número';
 
   @override
-  String get date => 'Data:';
+  String get date => 'Data';
 
   @override
   String select(Object count) {
@@ -2869,7 +2878,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get title => 'Título';
 
   @override
-  String get message => 'Mensagem:';
+  String get message => 'Mensagem';
 
   @override
   String get pleaseEnterMessage => 'Por favor insira uma mensagem';
@@ -2958,7 +2967,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String errorDeletingMinistry(Object error) {
+  String errorDeletingMinistry(String error) {
     return 'Erro ao excluir ministério: $error';
   }
 
@@ -3199,7 +3208,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get searchUsers => 'Buscar usuários...';
 
   @override
-  String get noUsersFound => 'Não foram encontrados usuários';
+  String get noUsersFound => 'Nenhum usuário encontrado';
 
   @override
   String get selectedAdministrators => 'Administradores selecionados:';
@@ -3265,9 +3274,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scheduledFor => 'Agendada para';
 
   @override
-  String reason(Object reason) {
-    return 'Razão: $reason';
-  }
+  String get reason => 'Motivo';
 
   @override
   String get contactPastor => 'Contatar Pastor';
@@ -4462,7 +4469,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get groupStatisticsTitle => 'Estatísticas de Grupos';
 
   @override
-  String get members => 'Membros';
+  String get members => 'membros';
 
   @override
   String get history => 'Histórico';
@@ -4492,9 +4499,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String errorLoadingMembers(Object error) {
-    return 'Erro ao carregar membros: $error';
-  }
+  String get errorLoadingMembers => 'Erro ao carregar membros';
 
   @override
   String get noMembersInGroup => 'Não há membros neste grupo';
@@ -4585,7 +4590,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unknownDate => 'Data desconhecida';
 
   @override
-  String get addedBy => 'Adicionado por:';
+  String get addedBy => 'Adicionado por';
 
   @override
   String get administrator => 'Administrador';
@@ -4612,7 +4617,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get removed => 'Removido';
 
   @override
-  String get removedBy => 'Removido por:';
+  String get removedBy => 'Removido por';
 
   @override
   String get exitReason => 'Motivo de saída:';
@@ -6987,4 +6992,303 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tapToChangeImage => 'Toque para alterar a imagem';
+
+  @override
+  String get beFirstToPublish => 'Seja o primeiro a publicar!';
+
+  @override
+  String get ministryNoPostsYet =>
+      'Este ministério ainda não tem publicações. Que tal compartilhar algo inspirador para a comunidade?';
+
+  @override
+  String get groupNoPostsYet =>
+      'Este grupo ainda não tem publicações. Inicie a conversa compartilhando algo interessante com os outros membros.';
+
+  @override
+  String get shareWithGroup => 'Compartilhe algo com seu grupo!';
+
+  @override
+  String get createPost => 'Criar publicação';
+
+  @override
+  String get newItem => 'Novo';
+
+  @override
+  String get memberManagement => 'Gestão de Membros';
+
+  @override
+  String get hideStatistics => 'Ocultar estatísticas';
+
+  @override
+  String get viewStatistics => 'Ver estatísticas';
+
+  @override
+  String get requestStatistics => 'Estatísticas de solicitações';
+
+  @override
+  String get allUpToDate => 'Tudo em dia!';
+
+  @override
+  String get noApprovedRequests => 'Não há solicitações aprovadas';
+
+  @override
+  String get noRejectedRequests => 'Não há solicitações reprovadas';
+
+  @override
+  String get noExitsRecorded => 'Nenhuma saída registrada';
+
+  @override
+  String get chat => 'Chat';
+
+  @override
+  String get info => 'Info';
+
+  @override
+  String get requested => 'Solicitado';
+
+  @override
+  String get responseTime => 'Tempo de resposta';
+
+  @override
+  String get noMemberExitsMinistry => 'Nenhum membro saiu do ministério';
+
+  @override
+  String get noMemberExitsGroup => 'Nenhum membro saiu do grupo';
+
+  @override
+  String get exitedOn => 'Saiu em';
+
+  @override
+  String get approvedOn => 'Aprovado em';
+
+  @override
+  String get rejectedOn => 'Rejeitado em';
+
+  @override
+  String get voluntaryExit => 'Saída voluntária';
+
+  @override
+  String get timeInMinistry => 'Tempo no ministério';
+
+  @override
+  String get timeInGroup => 'Tempo no grupo';
+
+  @override
+  String get addUsers => 'Adicionar usuários';
+
+  @override
+  String get showOnlyNonMembers => 'Mostrar só usuários que não são membros';
+
+  @override
+  String get usersSelected => 'Usuários selecionados';
+
+  @override
+  String get member => 'Membro';
+
+  @override
+  String get addSelectedUsers => 'Adicionar usuários selecionados';
+
+  @override
+  String get manageRequests => 'Gestionar solicitações';
+
+  @override
+  String get hour => 'hora';
+
+  @override
+  String get minute => 'minuto';
+
+  @override
+  String get second => 'segundo';
+
+  @override
+  String get seconds => 'segundos';
+
+  @override
+  String usersAddedToMinistry(int count) {
+    return '$count usuários adicionados ao ministério';
+  }
+
+  @override
+  String usersAddedToGroup(int count) {
+    return '$count usuários adicionados ao grupo';
+  }
+
+  @override
+  String get requestAcceptedSuccessfully => 'Solicitação aceita corretamente';
+
+  @override
+  String get requestRejected => 'Solicitação rejeitada';
+
+  @override
+  String get groupInformation => 'Informações do grupo';
+
+  @override
+  String get ministryInformation => 'Informações do ministério';
+
+  @override
+  String get addDescription => 'Adicionar descrição...';
+
+  @override
+  String get addMinistryDescription => 'Adicionar descrição do ministério...';
+
+  @override
+  String get createdBy => 'Criado por';
+
+  @override
+  String get filesLinksAndDocuments => 'Arquivos, links e documentos';
+
+  @override
+  String get noSharedFiles => 'Não há arquivos compartilhados';
+
+  @override
+  String get searchMember => 'Buscar membro';
+
+  @override
+  String get leaveGroup => 'Sair do grupo';
+
+  @override
+  String get leaveMinistry => 'Sair do ministério';
+
+  @override
+  String get viewProfileOf => 'Ver perfil de';
+
+  @override
+  String get remove => 'Remover';
+
+  @override
+  String get groupAdmin => 'Admin. do grupo';
+
+  @override
+  String get ministryAdmin => 'Admin. do ministério';
+
+  @override
+  String get cannotLeaveAsOnlyAdmin =>
+      'Você não pode sair porque é o único administrador';
+
+  @override
+  String get areYouSureLeaveGroup =>
+      'Tem certeza de que deseja sair deste grupo?';
+
+  @override
+  String get areYouSureLeaveMinistry =>
+      'Tem certeza de que deseja sair deste ministério?';
+
+  @override
+  String get leave => 'Sair';
+
+  @override
+  String get youLeftTheGroup => 'Você saiu do grupo';
+
+  @override
+  String get youLeftTheMinistry => 'Você saiu do ministério';
+
+  @override
+  String get errorLeavingGroup => 'Erro ao sair do grupo';
+
+  @override
+  String get errorLeavingMinistry => 'Erro ao sair do ministério';
+
+  @override
+  String get areYouSureDeleteGroup =>
+      'Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do grupo.';
+
+  @override
+  String get areYouSureDeleteMinistry =>
+      'Tem certeza? Esta ação não pode ser desfeita e excluirá todo o conteúdo do ministério.';
+
+  @override
+  String get groupDeleted => 'Grupo excluído';
+
+  @override
+  String get ministryDeleted => 'Ministério excluído';
+
+  @override
+  String get removeMember => 'Remover membro';
+
+  @override
+  String areYouSureRemoveMemberMinistry(String name) {
+    return 'Tem certeza de que deseja remover $name do ministério?';
+  }
+
+  @override
+  String get memberRemovedFromGroup => 'Membro removido do grupo';
+
+  @override
+  String get memberRemovedFromMinistry => 'Membro removido do ministério';
+
+  @override
+  String get errorRemovingMember => 'Erro ao remover membro';
+
+  @override
+  String get cannotOpenInvalidFileUrl =>
+      'Não é possível abrir: URL de arquivo inválida';
+
+  @override
+  String get downloadFile => 'Baixar arquivo';
+
+  @override
+  String get download => 'Baixar';
+
+  @override
+  String get noMemberFound => 'Nenhum membro encontrado';
+
+  @override
+  String noMembersMatchingSearch(String query) {
+    return 'Não há membros que correspondam a \'$query\'';
+  }
+
+  @override
+  String get thisGroupNoLongerExists => 'Este grupo não existe mais';
+
+  @override
+  String get thisMinistryNoLongerExists => 'Este ministério não existe mais';
+
+  @override
+  String get notificationsEnabled => 'Notificações ativadas';
+
+  @override
+  String get notificationsDisabled => 'Notificações desativadas';
+
+  @override
+  String get errorUpdatingNotificationSettings =>
+      'Erro ao atualizar configurações de notificações';
+
+  @override
+  String get makeAdmin => 'Tornar administrador';
+
+  @override
+  String get makeGroupAdmin => 'Tornar administrador do grupo';
+
+  @override
+  String get makeMinistryAdmin => 'Tornar administrador do ministério';
+
+  @override
+  String get confirmMakeAdmin => 'Confirmar novo administrador';
+
+  @override
+  String confirmMakeGroupAdmin(String name) {
+    return 'Tem certeza de que deseja tornar $name administrador do grupo?';
+  }
+
+  @override
+  String confirmMakeMinistryAdmin(String name) {
+    return 'Tem certeza de que deseja tornar $name administrador do ministério?';
+  }
+
+  @override
+  String userIsNowGroupAdmin(String name) {
+    return '$name agora é administrador do grupo';
+  }
+
+  @override
+  String userIsNowMinistryAdmin(String name) {
+    return '$name agora é administrador do ministério';
+  }
+
+  @override
+  String get errorMakingGroupAdmin => 'Erro ao tornar administrador do grupo';
+
+  @override
+  String get errorMakingMinistryAdmin =>
+      'Erro ao tornar administrador do ministério';
 }

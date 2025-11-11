@@ -3,8 +3,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../models/ministry.dart';
 import '../services/event_service.dart';
+import '../services/image_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
@@ -48,15 +51,42 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
+      if (image == null) return;
+
+      // Leer los bytes del archivo directamente del XFile
+      final bytes = await image.readAsBytes();
+      
+      // Crear un archivo temporal con los bytes leídos
+      final tempDir = await getTemporaryDirectory();
+      final String fileName = 'temp_${DateTime.now().millisecondsSinceEpoch}${path.extension(image.path)}';
+      final String tempPath = path.join(tempDir.path, fileName);
+      
+      // Escribir los bytes al archivo temporal
+      File tempFile = File(tempPath);
+      await tempFile.writeAsBytes(bytes);
+      
+      // Verificar que el archivo temporal se creó correctamente
+      if (!await tempFile.exists()) {
+        throw Exception('No se pudo crear el archivo temporal');
       }
+
+      // Comprimir la imagen usando ImageService
+      final compressedImage = await ImageService().compressImage(
+        tempFile,
+        quality: 85,
+      );
+      
+      setState(() {
+        // Usar la imagen comprimida si está disponible, sino usar el temporal
+        _selectedImage = compressedImage ?? tempFile;
+      });
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.errorSelectingImage(e.toString())}')),
+          SnackBar(
+            content: Text('Error al seleccionar la imagen. Por favor, intenta con otra.'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

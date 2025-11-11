@@ -641,7 +641,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteGroup.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar Connect'**
+  /// **'Eliminar grupo'**
   String get deleteGroup;
 
   /// No description provided for @confirmDeleteGroupQuestion.
@@ -980,6 +980,24 @@ abstract class AppLocalizations {
   /// **'Calendarios'**
   String get calendars;
 
+  /// No description provided for @globalView.
+  ///
+  /// In es, this message translates to:
+  /// **'Global'**
+  String get globalView;
+
+  /// No description provided for @allActivities.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las Actividades'**
+  String get allActivities;
+
+  /// No description provided for @noActivitiesForThisDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay actividades para este día'**
+  String get noActivitiesForThisDay;
+
   /// No description provided for @events.
   ///
   /// In es, this message translates to:
@@ -1055,7 +1073,7 @@ abstract class AppLocalizations {
   /// No description provided for @today.
   ///
   /// In es, this message translates to:
-  /// **'(Hoy)'**
+  /// **'Hoy'**
   String get today;
 
   /// No description provided for @tomorrow.
@@ -1535,13 +1553,13 @@ abstract class AppLocalizations {
   /// No description provided for @accepted.
   ///
   /// In es, this message translates to:
-  /// **'Aceptado'**
+  /// **'Aceptada'**
   String get accepted;
 
   /// No description provided for @rejected.
   ///
   /// In es, this message translates to:
-  /// **'Rechazados'**
+  /// **'Rechazadas'**
   String get rejected;
 
   /// No description provided for @youHaveNoWorkInvites.
@@ -1763,7 +1781,7 @@ abstract class AppLocalizations {
   /// No description provided for @hours.
   ///
   /// In es, this message translates to:
-  /// **'{count} h'**
+  /// **'horas'**
   String hours(int count);
 
   /// No description provided for @hoursAndMinutes.
@@ -3341,7 +3359,7 @@ abstract class AppLocalizations {
   /// No description provided for @date.
   ///
   /// In es, this message translates to:
-  /// **'Fecha:'**
+  /// **'Fecha'**
   String get date;
 
   /// No description provided for @select.
@@ -5093,7 +5111,7 @@ abstract class AppLocalizations {
   /// No description provided for @message.
   ///
   /// In es, this message translates to:
-  /// **'Mensaje:'**
+  /// **'Mensaje'**
   String get message;
 
   /// No description provided for @pleaseEnterMessage.
@@ -5244,7 +5262,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Error al eliminar ministerio: {error}'**
-  String errorDeletingMinistry(Object error);
+  String errorDeletingMinistry(String error);
 
   /// No description provided for @noPermissionDeleteGroups.
   ///
@@ -5669,7 +5687,7 @@ abstract class AppLocalizations {
   /// No description provided for @noUsersFound.
   ///
   /// In es, this message translates to:
-  /// **'No se encontraron usuarios'**
+  /// **'Ningún usuario encontrado'**
   String get noUsersFound;
 
   /// No description provided for @selectedAdministrators.
@@ -5795,8 +5813,8 @@ abstract class AppLocalizations {
   /// No description provided for @reason.
   ///
   /// In es, this message translates to:
-  /// **'Razón: {reason}'**
-  String reason(Object reason);
+  /// **'Motivo'**
+  String get reason;
 
   /// No description provided for @contactPastor.
   ///
@@ -5999,7 +6017,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinedOn.
   ///
   /// In es, this message translates to:
-  /// **'Se unió el'**
+  /// **'Entró el'**
   String get joinedOn;
 
   /// No description provided for @role.
@@ -8033,7 +8051,7 @@ abstract class AppLocalizations {
   /// No description provided for @members.
   ///
   /// In es, this message translates to:
-  /// **'Miembros'**
+  /// **'miembros'**
   String get members;
 
   /// No description provided for @history.
@@ -8087,8 +8105,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingMembers.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar miembros: {error}'**
-  String errorLoadingMembers(Object error);
+  /// **'Error al cargar miembros'**
+  String get errorLoadingMembers;
 
   /// No description provided for @noMembersInGroup.
   ///
@@ -8249,7 +8267,7 @@ abstract class AppLocalizations {
   /// No description provided for @addedBy.
   ///
   /// In es, this message translates to:
-  /// **'Añadido por:'**
+  /// **'Añadido por'**
   String get addedBy;
 
   /// No description provided for @administrator.
@@ -8297,13 +8315,13 @@ abstract class AppLocalizations {
   /// No description provided for @removed.
   ///
   /// In es, this message translates to:
-  /// **'Removido'**
+  /// **'Eliminado'**
   String get removed;
 
   /// No description provided for @removedBy.
   ///
   /// In es, this message translates to:
-  /// **'Removido por:'**
+  /// **'Eliminado por'**
   String get removedBy;
 
   /// No description provided for @exitReason.
@@ -12481,6 +12499,552 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Toca para cambiar la imagen'**
   String get tapToChangeImage;
+
+  /// No description provided for @beFirstToPublish.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Sé el primero en publicar!'**
+  String get beFirstToPublish;
+
+  /// No description provided for @ministryNoPostsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Este ministerio aún no tiene publicaciones. ¿Qué tal compartir algo inspirador para la comunidad?'**
+  String get ministryNoPostsYet;
+
+  /// No description provided for @groupNoPostsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Este grupo aún no tiene publicaciones. Inicia la conversación compartiendo algo interesante con los otros miembros.'**
+  String get groupNoPostsYet;
+
+  /// No description provided for @shareWithGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Comparte algo con tu grupo!'**
+  String get shareWithGroup;
+
+  /// No description provided for @createPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear publicación'**
+  String get createPost;
+
+  /// No description provided for @newItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo'**
+  String get newItem;
+
+  /// No description provided for @memberManagement.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de Miembros'**
+  String get memberManagement;
+
+  /// No description provided for @hideStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar estadísticas'**
+  String get hideStatistics;
+
+  /// No description provided for @viewStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver estadísticas'**
+  String get viewStatistics;
+
+  /// No description provided for @requestStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de solicitudes'**
+  String get requestStatistics;
+
+  /// No description provided for @allUpToDate.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Todo al día!'**
+  String get allUpToDate;
+
+  /// No description provided for @noApprovedRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay solicitudes aprobadas'**
+  String get noApprovedRequests;
+
+  /// No description provided for @noRejectedRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay solicitudes rechazadas'**
+  String get noRejectedRequests;
+
+  /// No description provided for @noExitsRecorded.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay salidas registradas'**
+  String get noExitsRecorded;
+
+  /// No description provided for @chat.
+  ///
+  /// In es, this message translates to:
+  /// **'Chat'**
+  String get chat;
+
+  /// No description provided for @info.
+  ///
+  /// In es, this message translates to:
+  /// **'Info'**
+  String get info;
+
+  /// No description provided for @requested.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitado'**
+  String get requested;
+
+  /// No description provided for @responseTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo de respuesta'**
+  String get responseTime;
+
+  /// No description provided for @noMemberExitsMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún miembro ha salido del ministerio'**
+  String get noMemberExitsMinistry;
+
+  /// No description provided for @noMemberExitsGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún miembro ha salido del grupo'**
+  String get noMemberExitsGroup;
+
+  /// No description provided for @exitedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Salió el'**
+  String get exitedOn;
+
+  /// No description provided for @approvedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobado el'**
+  String get approvedOn;
+
+  /// No description provided for @rejectedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazado el'**
+  String get rejectedOn;
+
+  /// No description provided for @voluntaryExit.
+  ///
+  /// In es, this message translates to:
+  /// **'Salida voluntaria'**
+  String get voluntaryExit;
+
+  /// No description provided for @timeInMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo en el ministerio'**
+  String get timeInMinistry;
+
+  /// No description provided for @timeInGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo en el grupo'**
+  String get timeInGroup;
+
+  /// No description provided for @addUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir usuarios'**
+  String get addUsers;
+
+  /// No description provided for @showOnlyNonMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar solo usuarios que no son miembros'**
+  String get showOnlyNonMembers;
+
+  /// No description provided for @usersSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios seleccionados'**
+  String get usersSelected;
+
+  /// No description provided for @member.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro'**
+  String get member;
+
+  /// No description provided for @addSelectedUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir usuarios seleccionados'**
+  String get addSelectedUsers;
+
+  /// No description provided for @manageRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar solicitudes'**
+  String get manageRequests;
+
+  /// No description provided for @hour.
+  ///
+  /// In es, this message translates to:
+  /// **'hora'**
+  String get hour;
+
+  /// No description provided for @minute.
+  ///
+  /// In es, this message translates to:
+  /// **'minuto'**
+  String get minute;
+
+  /// No description provided for @second.
+  ///
+  /// In es, this message translates to:
+  /// **'segundo'**
+  String get second;
+
+  /// No description provided for @seconds.
+  ///
+  /// In es, this message translates to:
+  /// **'segundos'**
+  String get seconds;
+
+  /// No description provided for @usersAddedToMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} usuarios añadidos al ministerio'**
+  String usersAddedToMinistry(int count);
+
+  /// No description provided for @usersAddedToGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} usuarios añadidos al grupo'**
+  String usersAddedToGroup(int count);
+
+  /// No description provided for @requestAcceptedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud aceptada correctamente'**
+  String get requestAcceptedSuccessfully;
+
+  /// No description provided for @requestRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud rechazada'**
+  String get requestRejected;
+
+  /// No description provided for @groupInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información del grupo'**
+  String get groupInformation;
+
+  /// No description provided for @ministryInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Información del ministerio'**
+  String get ministryInformation;
+
+  /// No description provided for @addDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar descripción...'**
+  String get addDescription;
+
+  /// No description provided for @addMinistryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar descripción del ministerio...'**
+  String get addMinistryDescription;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Creado por'**
+  String get createdBy;
+
+  /// No description provided for @filesLinksAndDocuments.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivos, enlaces y documentos'**
+  String get filesLinksAndDocuments;
+
+  /// No description provided for @noSharedFiles.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay archivos compartidos'**
+  String get noSharedFiles;
+
+  /// No description provided for @searchMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar miembro'**
+  String get searchMember;
+
+  /// No description provided for @leaveGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del grupo'**
+  String get leaveGroup;
+
+  /// No description provided for @leaveMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del ministerio'**
+  String get leaveMinistry;
+
+  /// No description provided for @viewProfileOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver perfil de'**
+  String get viewProfileOf;
+
+  /// No description provided for @remove.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get remove;
+
+  /// No description provided for @groupAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin. del grupo'**
+  String get groupAdmin;
+
+  /// No description provided for @ministryAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin. del ministerio'**
+  String get ministryAdmin;
+
+  /// No description provided for @cannotLeaveAsOnlyAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes salir porque eres el único administrador'**
+  String get cannotLeaveAsOnlyAdmin;
+
+  /// No description provided for @areYouSureLeaveGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas salir de este grupo?'**
+  String get areYouSureLeaveGroup;
+
+  /// No description provided for @areYouSureLeaveMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas salir de este ministerio?'**
+  String get areYouSureLeaveMinistry;
+
+  /// No description provided for @leave.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir'**
+  String get leave;
+
+  /// No description provided for @youLeftTheGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Has salido del grupo'**
+  String get youLeftTheGroup;
+
+  /// No description provided for @youLeftTheMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Has salido del ministerio'**
+  String get youLeftTheMinistry;
+
+  /// No description provided for @errorLeavingGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al salir del grupo'**
+  String get errorLeavingGroup;
+
+  /// No description provided for @errorLeavingMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al salir del ministerio'**
+  String get errorLeavingMinistry;
+
+  /// No description provided for @areYouSureDeleteGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro? Esta acción no se puede deshacer y eliminará todo el contenido del grupo.'**
+  String get areYouSureDeleteGroup;
+
+  /// No description provided for @areYouSureDeleteMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro? Esta acción no se puede deshacer y eliminará todo el contenido del ministerio.'**
+  String get areYouSureDeleteMinistry;
+
+  /// No description provided for @groupDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo eliminado'**
+  String get groupDeleted;
+
+  /// No description provided for @ministryDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio eliminado'**
+  String get ministryDeleted;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar miembro'**
+  String get removeMember;
+
+  /// No description provided for @areYouSureRemoveMemberMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar a {name} del ministerio?'**
+  String areYouSureRemoveMemberMinistry(String name);
+
+  /// No description provided for @memberRemovedFromGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro eliminado del grupo'**
+  String get memberRemovedFromGroup;
+
+  /// No description provided for @memberRemovedFromMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro eliminado del ministerio'**
+  String get memberRemovedFromMinistry;
+
+  /// No description provided for @errorRemovingMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar miembro'**
+  String get errorRemovingMember;
+
+  /// No description provided for @cannotOpenInvalidFileUrl.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede abrir: URL de archivo inválida'**
+  String get cannotOpenInvalidFileUrl;
+
+  /// No description provided for @downloadFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar archivo'**
+  String get downloadFile;
+
+  /// No description provided for @download.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar'**
+  String get download;
+
+  /// No description provided for @noMemberFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún miembro encontrado'**
+  String get noMemberFound;
+
+  /// No description provided for @noMembersMatchingSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay miembros que correspondan a \'{query}\''**
+  String noMembersMatchingSearch(String query);
+
+  /// No description provided for @thisGroupNoLongerExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Este grupo ya no existe'**
+  String get thisGroupNoLongerExists;
+
+  /// No description provided for @thisMinistryNoLongerExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Este ministerio ya no existe'**
+  String get thisMinistryNoLongerExists;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones activadas'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationsDisabled.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones desactivadas'**
+  String get notificationsDisabled;
+
+  /// No description provided for @errorUpdatingNotificationSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar configuración de notificaciones'**
+  String get errorUpdatingNotificationSettings;
+
+  /// No description provided for @makeAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Hacer administrador'**
+  String get makeAdmin;
+
+  /// No description provided for @makeGroupAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Hacer administrador del grupo'**
+  String get makeGroupAdmin;
+
+  /// No description provided for @makeMinistryAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Hacer administrador del ministerio'**
+  String get makeMinistryAdmin;
+
+  /// No description provided for @confirmMakeAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar nuevo administrador'**
+  String get confirmMakeAdmin;
+
+  /// No description provided for @confirmMakeGroupAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas hacer a {name} administrador del grupo?'**
+  String confirmMakeGroupAdmin(String name);
+
+  /// No description provided for @confirmMakeMinistryAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas hacer a {name} administrador del ministerio?'**
+  String confirmMakeMinistryAdmin(String name);
+
+  /// No description provided for @userIsNowGroupAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} ahora es administrador del grupo'**
+  String userIsNowGroupAdmin(String name);
+
+  /// No description provided for @userIsNowMinistryAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} ahora es administrador del ministerio'**
+  String userIsNowMinistryAdmin(String name);
+
+  /// No description provided for @errorMakingGroupAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al hacer administrador del grupo'**
+  String get errorMakingGroupAdmin;
+
+  /// No description provided for @errorMakingMinistryAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al hacer administrador del ministerio'**
+  String get errorMakingMinistryAdmin;
 }
 
 class _AppLocalizationsDelegate

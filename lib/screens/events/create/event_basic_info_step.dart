@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/image_service.dart';
 
 class EventBasicInfoStep extends StatefulWidget {
-  final Function(String title, String category, String description, String? imageUrl) onNext;
+  final Function(String title, String category, String description, File? imageFile) onNext;
   final VoidCallback onCancel;
   final String? initialTitle;
   final String? initialCategory;
   final String? initialDescription;
-  final String? initialImageUrl;
+  final File? initialImageFile;
 
   const EventBasicInfoStep({
     super.key,
@@ -23,7 +25,7 @@ class EventBasicInfoStep extends StatefulWidget {
     this.initialTitle,
     this.initialCategory,
     this.initialDescription,
-    this.initialImageUrl,
+    this.initialImageFile,
   });
 
   @override
@@ -37,9 +39,9 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
   String? _selectedCategory;
   List<String> _categories = [];
   List<String> _hiddenCategories = []; // Lista de categorías ocultas
-  String? _imageUrl;
+  File? _imageFile;
   bool _isLoading = false;
-  bool _isUploadingImage = false;
+  bool _isSelectingImage = false;
 
   @override
   void initState() {
@@ -47,7 +49,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
     _titleController = TextEditingController(text: widget.initialTitle);
     _descriptionController = TextEditingController(text: widget.initialDescription);
     _selectedCategory = widget.initialCategory;
-    _imageUrl = widget.initialImageUrl;
+    _imageFile = widget.initialImageFile;
     _loadHiddenCategories().then((_) => _loadCategories());
   }
 
@@ -247,52 +249,71 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
 
   Future<void> _pickImage() async {
     try {
+      setState(() {
+        _isSelectingImage = true;
+      });
+
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1920, // Limitar tamaño máximo
+        maxWidth: 1920,
         maxHeight: 1080,
       );
       
-      if (image != null) {
+      if (image == null) {
         setState(() {
-          // Mostrar loading mientras se sube la imagen
-          _isUploadingImage = true;
+          _isSelectingImage = false;
         });
+        return;
+      }
 
-        // Crear referencia única para la imagen
-        final String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-        final Reference storageRef = FirebaseStorage.instance
-            .ref()
-            .child('event_images')
-            .child('$fileName.jpg');
+      // Leer los bytes del archivo directamente del XFile
+      final bytes = await image.readAsBytes();
+      debugPrint('Imagen seleccionada: ${bytes.length} bytes');
+      
+      // Crear un archivo temporal con los bytes leídos
+      final tempDir = await getTemporaryDirectory();
+      final String fileName = 'temp_${DateTime.now().millisecondsSinceEpoch}${path.extension(image.path)}';
+      final String tempPath = path.join(tempDir.path, fileName);
+      
+      // Escribir los bytes al archivo temporal
+      File tempFile = File(tempPath);
+      await tempFile.writeAsBytes(bytes);
+      debugPrint('Archivo temporal creado: $tempPath');
+      
+      // Verificar que el archivo temporal se creó correctamente
+      if (!await tempFile.exists()) {
+        throw Exception('No se pudo crear el archivo temporal');
+      }
 
-        // Subir imagen
-        final UploadTask uploadTask = storageRef.putFile(File(image.path));
-
-        // Mostrar progreso
-        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          // Aquí podrías actualizar un indicador de progreso si quisieras
-          // final progress = snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-
-        // Esperar a que se complete la subida y obtener URL
-        final TaskSnapshot taskSnapshot = await uploadTask;
-        final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
+      // Comprimir la imagen usando ImageService
+      final compressedImage = await ImageService().compressImage(
+        tempFile,
+        quality: 85,
+      );
+      
+      // Usar la imagen comprimida si está disponible, sino usar el temporal
+      final finalFile = compressedImage ?? tempFile;
+      debugPrint('Archivo preparado: ${finalFile.path}, tamaño: ${await finalFile.length()} bytes');
+      
+      if (mounted) {
         setState(() {
-          _imageUrl = downloadUrl;
-          _isUploadingImage = false;
+          _imageFile = finalFile;
+          _isSelectingImage = false;
         });
       }
     } catch (e) {
-      setState(() {
-        _isUploadingImage = false;
-      });
-      // Mostrar error
+      debugPrint('Error al seleccionar imagen: $e');
       if (mounted) {
+        setState(() {
+          _isSelectingImage = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorUploadingImage(e.toString()))),
+          SnackBar(
+            content: Text('Error al procesar la imagen. Por favor, intenta con otra imagen.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
         );
       }
     }
@@ -317,7 +338,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
             ),
           ],
         ),
-        child: _isUploadingImage
+        child: _isSelectingImage
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -327,35 +348,21 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      AppLocalizations.of(context)!.uploadingImage,
+                      'Procesando imagen...',
                       style: TextStyle(color: Colors.grey.shade600),
                     )
                   ],
                 ),
               )
-            : _imageUrl != null
+            : _imageFile != null
                 ? Stack(
                     fit: StackFit.expand,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          _imageUrl!,
+                        child: Image.file(
+                          _imageFile!,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / 
-                                      (loadingProgress.expectedTotalBytes ?? 1)
-                                    : null,
-                                color: AppColors.primary,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) => 
-                            const Center(child: Icon(Icons.error, color: Colors.red, size: 40)),
                         ),
                       ),
                       Positioned(
@@ -369,7 +376,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                             icon: const Icon(Icons.delete, color: Colors.white),
                             onPressed: () {
                               setState(() {
-                                _imageUrl = null;
+                                _imageFile = null;
                               });
                             },
                             tooltip: AppLocalizations.of(context)!.deleteImage,
@@ -693,7 +700,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                       child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton.icon(
-                      onPressed: _isLoading || _isUploadingImage 
+                      onPressed: _isLoading || _isSelectingImage 
                           ? null 
                           : () {
                               if (_formKey.currentState!.validate()) {
@@ -701,7 +708,7 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                                   _titleController.text.trim(),
                                   _selectedCategory!,
                                   _descriptionController.text.trim(),
-                                  _imageUrl,
+                                  _imageFile,
                                 );
                               }
                             },

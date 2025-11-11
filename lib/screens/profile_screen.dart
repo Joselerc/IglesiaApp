@@ -2547,7 +2547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.errorDeletingGroup(e.toString())),
+              content: Text('${AppLocalizations.of(context)!.errorDeletingGroup}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -2615,7 +2615,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.errorDeletingMinistry(e.toString())),
+              content: Text('${AppLocalizations.of(context)!.errorDeletingMinistry}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
