@@ -7132,7 +7132,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addMinistryDescription => 'Adicionar descrição do ministério...';
 
   @override
-  String get createdBy => 'Criado por';
+  String createdBy(String name, String date) {
+    return 'Criado por $name · $date';
+  }
 
   @override
   String get filesLinksAndDocuments => 'Arquivos, links e documentos';
@@ -7324,4 +7326,15 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get errorProcessingUserAddition =>
       'Erro ao processar a adição de usuários';
+
+  @override
+  String get filesLinksDocuments => 'Arquivos, links e documentos';
+
+  @override
+  String xMembers(int count) {
+    return '$count membros';
+  }
+
+  @override
+  String get errorLoadingMembers2 => 'Erro ao carregar membros';
 }

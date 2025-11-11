@@ -3742,5 +3742,31 @@
       }
     }
   },
-  "errorProcessingUserAddition": "Error al procesar la adición de usuarios"
+  "errorProcessingUserAddition": "Error al procesar la adición de usuarios",
+  "createdBy": "Creado por {name} · {date}",
+  "@createdBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "filesLinksDocuments": "Archivos, enlaces y documentos",
+  "noSharedFiles": "No hay archivos compartidos",
+  "xMembers": "{count} miembros",
+  "@xMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchMember": "Buscar miembro",
+  "errorLoadingMembers2": "Error al cargar miembros",
+  "you": "Tú",
+  "available": "Disponible",
+  "today": "Hoy"
 }

@@ -12767,8 +12767,8 @@ abstract class AppLocalizations {
   /// No description provided for @createdBy.
   ///
   /// In es, this message translates to:
-  /// **'Creado por'**
-  String get createdBy;
+  /// **'Creado por {name} · {date}'**
+  String createdBy(String name, String date);
 
   /// No description provided for @filesLinksAndDocuments.
   ///
@@ -13099,6 +13099,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al procesar la adición de usuarios'**
   String get errorProcessingUserAddition;
+
+  /// No description provided for @filesLinksDocuments.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivos, enlaces y documentos'**
+  String get filesLinksDocuments;
+
+  /// No description provided for @xMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} miembros'**
+  String xMembers(int count);
+
+  /// No description provided for @errorLoadingMembers2.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar miembros'**
+  String get errorLoadingMembers2;
 }
 
 class _AppLocalizationsDelegate

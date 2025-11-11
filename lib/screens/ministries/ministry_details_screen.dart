@@ -661,7 +661,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                           }
                           
                           return Text(
-                            'Criado por $creatorName · ${_formatDate(ministryData['createdAt'] as Timestamp)}',
+                            AppLocalizations.of(context)!.createdBy(creatorName, _formatDate(ministryData['createdAt'] as Timestamp)),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -679,7 +679,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Arquivos, links e documentos',
+                        AppLocalizations.of(context)!.filesLinksDocuments,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -727,7 +727,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                         return Center(
                           child: Text(
-                            'Não há arquivos compartilhados',
+                            AppLocalizations.of(context)!.noSharedFiles,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         );
@@ -743,11 +743,11 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                       if (fileMessages.isEmpty) {
                         return Center(
                           child: Text(
-                            'Não há arquivos compartilhados',
+                            AppLocalizations.of(context)!.noSharedFiles,
                             style: TextStyle(color: Colors.grey[600]),
                               ),
                           );
-                        }
+                      }
 
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -795,7 +795,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${memberIds.length} membros',
+                        AppLocalizations.of(context)!.xMembers(memberIds.length),
                 style: TextStyle(
                           fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -806,7 +806,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                       TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: 'Buscar membro',
+                          hintText: AppLocalizations.of(context)!.searchMember,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -837,7 +837,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                       print('Error en la consulta: ${snapshot.error}');
                       print('Error stack trace: ${snapshot.stackTrace}');
                       return Center(
-                        child: Text('Erro ao carregar membros: ${snapshot.error}'),
+                        child: Text('${AppLocalizations.of(context)!.errorLoadingMembers2}: ${snapshot.error}'),
                       );
                     }
                     
@@ -870,7 +870,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                         child: Padding(
                             padding: const EdgeInsets.all(16),
                           child: Text(
-                            'Não há membros que correspondam a "$_searchQuery"',
+                            AppLocalizations.of(context)!.noMembersMatchingSearch(_searchQuery),
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         ),
@@ -900,7 +900,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                             children: [
                               Expanded(
               child: Text(
-                                  isCurrentUser ? 'Você' : name,
+                                  isCurrentUser ? AppLocalizations.of(context)!.you : name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                                 ),
@@ -922,9 +922,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
             ),
           ],
                                     ),
-                          subtitle: isCurrentUser 
-                              ? const Text('Disponível') 
-                              : const Text('Disponível'),
+                          subtitle: Text(AppLocalizations.of(context)!.available),
                           onTap: currentIsAdmin && !isCurrentUser ? () {
                             showModalBottomSheet(
                               context: context,
@@ -1017,7 +1015,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
     } else if (difference.inDays > 0) {
       return '${date.day}/${date.month}/${date.year}';
     } else {
-      return 'Hoje';
+      return AppLocalizations.of(context)!.today;
     }
   }
 
