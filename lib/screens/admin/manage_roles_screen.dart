@@ -85,7 +85,7 @@ class _ManageRolesScreenState extends State<ManageRolesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success ? AppLocalizations.of(context)!.roleDeletedSuccessfully : AppLocalizations.of(context)!.failedDeleteRole),
+            content: Text(success ? AppLocalizations.of(context)!.roleDeletedSuccessfully2 : AppLocalizations.of(context)!.failedDeleteRole),
             backgroundColor: success ? Colors.green : Colors.red,
           ),
         );

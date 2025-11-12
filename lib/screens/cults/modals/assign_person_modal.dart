@@ -5,6 +5,7 @@ import '../../../models/cult.dart';
 import '../../../models/time_slot.dart';
 import '../../../services/work_schedule_service.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class UserData {
   final String id;
@@ -219,8 +220,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
           });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Capacidade atualizada com sucesso'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.capacityUpdatedSuccessfully),
           backgroundColor: AppColors.success,
         ),
       );
@@ -251,8 +252,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
             TextField(
               controller: _capacityController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Capacidade',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.capacity,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -270,8 +271,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
               final newCapacity = int.tryParse(_capacityController.text.trim());
               if (newCapacity == null || newCapacity < details['current']) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Capacidade inválida ou menor que pessoas assinadas'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.invalidCapacityOrLessThanAssigned),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -898,7 +899,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Atribuir Papel em ${widget.ministryName}',
+                      AppLocalizations.of(context)!.assignRoleIn(widget.ministryName),
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -925,9 +926,9 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Papel a desempenhar',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.roleToPerform,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -936,7 +937,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                             TextField(
                               controller: _roleController,
                               decoration: InputDecoration(
-                                hintText: 'Insira um papel (ex. "Diretor", "Músico")',
+                                hintText: AppLocalizations.of(context)!.enterRoleExample,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -944,9 +945,9 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            const Text(
-                              'Capacidade do papel',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.roleCapacity,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -959,7 +960,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                                     controller: _capacityController,
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
-                                      hintText: 'Número de pessoas',
+                                      hintText: AppLocalizations.of(context)!.numberOfPeople,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -1086,9 +1087,9 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Rol a asignar',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.roleToAssign,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -1129,9 +1130,9 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Seleccionar Persona',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.selectPerson,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -1140,7 +1141,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                             TextField(
                               controller: _searchController,
                               decoration: InputDecoration(
-                                hintText: 'Buscar persona...',
+                                hintText: AppLocalizations.of(context)!.searchPerson,
                                 prefixIcon: const Icon(Icons.search),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -1161,7 +1162,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Text(
-                          'Personas seleccionadas: ${_selectedUserIds.length}',
+                          AppLocalizations.of(context)!.selectedPeople(_selectedUserIds.length),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
@@ -1192,7 +1193,11 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                   color: Colors.white,
                 ),
                 label: Text(
-                  _isCreatingRoleOnly ? 'Criar Apenas Papel' : widget.predefinedRole != null ? 'Atribuir Pessoa' : 'Atribuir Papel e Pessoa',
+                  _isCreatingRoleOnly 
+                    ? AppLocalizations.of(context)!.createRoleOnly 
+                    : widget.predefinedRole != null 
+                      ? AppLocalizations.of(context)!.assignPerson 
+                      : AppLocalizations.of(context)!.assignRoleAndPerson,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

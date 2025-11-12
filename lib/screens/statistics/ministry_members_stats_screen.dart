@@ -77,7 +77,7 @@ class _MinistryMembersStatsScreenState extends State<MinistryMembersStatsScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingMinistries(e.toString()))),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingMinistries}: ${e.toString()}')),
         );
         setState(() {
           _isLoading = false;

@@ -5,6 +5,7 @@ import '../../../models/cult.dart';
 import '../../../models/time_slot.dart';
 import '../../../models/ministry.dart';
 import '../../../theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AssignMinistryModal extends StatefulWidget {
   final TimeSlot timeSlot;
@@ -104,7 +105,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
         _isLoadingMinistries = false;
       });
     } catch (e) {
-      debugPrint('Erro ao carregar ministérios: $e');
+      debugPrint('${AppLocalizations.of(context)!.errorLoadingMinistries}: $e');
       setState(() {
         _isLoadingMinistries = false;
       });
@@ -118,8 +119,8 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
     // Si estamos en modo temporal y no hay nombre, validar
     if (_isTemporaryMinistry && _tempMinistryNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, insira um nome para o ministério temporário'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseEnterTemporaryMinistryName),
           backgroundColor: Colors.red,
         ),
       );
@@ -129,8 +130,8 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
     // Si no estamos en modo temporal y no hay ministerios seleccionados, validar
     if (!_isTemporaryMinistry && _selectedMinistryIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, selecione pelo menos um ministério'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseSelectAtLeastOneMinistry),
           backgroundColor: Colors.red,
         ),
       );
@@ -217,8 +218,8 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
         
         if (successCount > 0) {
           final mensaje = successCount == 1
-              ? 'Ministério "${assignedMinistryNames.first}" atribuído com sucesso'
-              : '$successCount ministérios atribuídos com sucesso';
+              ? AppLocalizations.of(context)!.ministryAssignedSuccessfully(assignedMinistryNames.first)
+              : AppLocalizations.of(context)!.ministriesAssignedSuccessfully(successCount);
               
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -228,8 +229,8 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Nenhum ministério novo foi atribuído'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.noNewMinistriesAssigned),
               backgroundColor: Colors.orange,
             ),
           );
@@ -239,7 +240,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao atribuir ministérios: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorAssigningMinistries}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -273,9 +274,9 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Atribuir Ministérios',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.assignMinistries,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -298,17 +299,17 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Selecione os ministérios que participarão nesta faixa horária',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    AppLocalizations.of(context)!.selectMinistriesForTimeSlot,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Você pode selecionar vários ministérios ao mesmo tempo. Depois você poderá definir os papéis específicos para cada ministério.',
-                    style: TextStyle(fontSize: 12),
+                    AppLocalizations.of(context)!.canSelectMultipleMinistries,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -321,7 +322,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar ministério...',
+                hintText: AppLocalizations.of(context)!.searchMinistry,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -350,10 +351,10 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
                     });
                   },
                 ),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Criar ministério temporário',
-                    style: TextStyle(fontSize: 14),
+                    AppLocalizations.of(context)!.createTemporaryMinistry,
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],
@@ -367,7 +368,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
               child: TextField(
                 controller: _tempMinistryNameController,
                 decoration: InputDecoration(
-                  hintText: 'Nome do ministério temporário',
+                  hintText: AppLocalizations.of(context)!.temporaryMinistryName,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -388,7 +389,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
                   border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                 ),
                 child: Text(
-                  '${_selectedMinistryIds.length} ministérios selecionados',
+                  AppLocalizations.of(context)!.ministriesSelected(_selectedMinistryIds.length),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -405,7 +406,7 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
                 : _filteredMinistries.isEmpty && !_isTemporaryMinistry
                     ? Center(
                         child: Text(
-                          'Não foram encontrados ministérios disponíveis',
+                          AppLocalizations.of(context)!.noMinistriesAvailable,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
@@ -526,10 +527,10 @@ class _AssignMinistryModalState extends State<AssignMinistryModal> {
                     ),
               label: Text(
                 _isLoading
-                    ? 'Salvando...'
+                    ? AppLocalizations.of(context)!.saving
                     : _isTemporaryMinistry
-                        ? 'Criar ministério temporário'
-                        : 'Atribuir ministérios selecionados',
+                        ? AppLocalizations.of(context)!.createTemporaryMinistry
+                        : AppLocalizations.of(context)!.assignSelectedMinistries,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

@@ -3769,5 +3769,290 @@
   "errorLoadingMembers2": "Erro ao carregar membros",
   "you": "Você",
   "available": "Disponível",
-  "today": "Hoje"
+  "today": "Hoje",
+  "newPost": "Nova Publicação",
+  "whatDoYouWantToShare": "O que você quer compartilhar?",
+  "selectedImages": "Imagens selecionadas:",
+  "imageAspectRatio": "Proporção da imagem:",
+  "square": "Quadrada",
+  "vertical": "Vertical",
+  "horizontal": "Horizontal",
+  "addImages": "Adicionar imagens",
+  "addMoreImages": "Adicionar mais imagens",
+  "publish": "Publicar",
+  "pleaseAddContentOrImages": "Por favor, adicione texto ou imagens à sua publicação",
+  "pleaseAddContent": "Por favor, adicione conteúdo à sua publicação",
+  "postCreatedSuccessfully": "Publicação criada com sucesso!",
+  "errorCreatingPost": "Erro ao criar publicação",
+  "onlyAdminsCanSendFiles": "Apenas administradores podem enviar arquivos",
+  "sendImage": "Enviar imagem",
+  "send": "Enviar",
+  "audioDownloadNotAllowed": "O download de arquivos de áudio não é permitido",
+  "downloadFile2": "Baixar arquivo",
+  "doYouWantToDownloadFile": "Deseja baixar \"{filename}\"?",
+  "@doYouWantToDownloadFile": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteMessage": "Excluir mensagem",
+  "areYouSureDeleteMessage": "Tem certeza de que deseja excluir esta mensagem?",
+  "errorDeletingMessage": "Erro ao excluir mensagem",
+  "errorSendingMessage": "Erro ao enviar mensagem",
+  "messageDeleted": "Mensagem excluída",
+  "errorUploadingFile": "Erro ao carregar o arquivo",
+  "errorUploadingAudio": "Erro ao carregar o áudio",
+  "couldNotStartRecording": "Não foi possível iniciar a gravação",
+  "recordingTooShort": "A gravação é muito curta",
+  "noMessagesYet": "Sem mensagens ainda",
+  "writeMessage": "Escreva uma mensagem...",
+  "noMembers": "Sem membros",
+  "addMessageOptional": "Adicionar uma mensagem (opcional)",
+  "assignRoleIn": "Atribuir Papel em {ministryName}",
+  "@assignRoleIn": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "roleToPerform": "Papel a desempenhar",
+  "enterRoleExample": "Insira um papel (ex. \"Diretor\", \"Músico\")",
+  "roleCapacity": "Capacidade do papel",
+  "numberOfPeople": "Número de pessoas",
+  "roleToAssign": "Rol a asignar",
+  "selectPerson": "Seleccionar Persona",
+  "searchPerson": "Buscar persona...",
+  "selectedPeople": "Personas seleccionadas: {count}",
+  "@selectedPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createRoleOnly": "Criar Apenas Papel",
+  "assignPerson": "Atribuir Pessoa",
+  "assignRoleAndPerson": "Atribuir Papel e Pessoa",
+  "capacityUpdatedSuccessfully": "Capacidade atualizada com sucesso",
+  "invalidCapacityOrLessThanAssigned": "Capacidade inválida ou menor que pessoas assinadas",
+  "capacity": "Capacidade",
+  "pending": "Pendente",
+  "confirmed": "Confirmado",
+  "accepted": "Aceito",
+  "addParticipant": "Adicionar participante",
+  "noRolesDefined": "Não há papéis definidos para esta faixa horária",
+  "noRole": "Sem papel",
+  "assignedOriginally": "Atribuído originalmente",
+  "rejected": "Recusado",
+  "declined": "Recusado",
+  "seen": "Visto",
+  "notAttended": "Não compareceu",
+  "deleteInvite": "Excluir Convite",
+  "confirmDeleteInviteFor": "Tem certeza que deseja excluir o convite enviado para \"{userName}\"?",
+  "@confirmDeleteInviteFor": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteMinistry": "Excluir Ministério",
+  "confirmDeleteMinistry": "Tem certeza que deseja excluir o ministério \"{ministryName}\" desta faixa horária? Todas as atribuições associadas serão excluídas.",
+  "@confirmDeleteMinistry": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAssignment": "Excluir Atribuição",
+  "confirmDeleteAssignment": "Tem certeza que deseja excluir a atribuição de \"{userName}\"?",
+  "@confirmDeleteAssignment": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteRole": "Excluir Função",
+  "confirmDeleteRole": "Tem certeza que deseja excluir a função \"{roleName}\"? Todas as atribuições associadas serão excluídas.",
+  "@confirmDeleteRole": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "save": "Salvar",
+  "deletingMinistry": "Excluindo ministério...",
+  "ministryDeletedSuccessfully": "Ministério \"{ministryName}\" excluído com sucesso",
+  "@ministryDeletedSuccessfully": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingMinistry3": "Erro ao excluir ministério",
+  "deletingAssignment": "Excluindo atribuição...",
+  "assignmentDeletedSuccessfully": "Atribuição de \"{userName}\" excluída com sucesso",
+  "@assignmentDeletedSuccessfully": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingAssignment": "Erro ao excluir atribuição",
+  "inviteDeleted": "Convite para \"{userName}\" excluído",
+  "@inviteDeleted": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingInvite": "Erro ao excluir convite",
+  "editCapacityFor": "Editar capacidade para \"{roleName}\"",
+  "@editCapacityFor": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseEnterValidNumber": "Por favor insira um número válido maior que zero",
+  "capacityCannotBeLessThanAssigned": "A capacidade não pode ser menor que o número de pessoas atribuídas",
+  "updatingCapacity": "Atualizando capacidade...",
+  "capacityUpdatedSuccessfully2": "Capacidade da função \"{roleName}\" atualizada com sucesso",
+  "@capacityUpdatedSuccessfully2": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUpdatingCapacity": "Erro ao atualizar capacidade",
+  "deletingRole": "Excluindo função...",
+  "errorDeletingRole": "Erro ao excluir função",
+  "selectExistingRole": "Selecionar papel existente",
+  "capacityMustBeAtLeast1": "A capacidade deve ser pelo menos 1",
+  "errorCreatingRole": "Erro ao criar papel",
+  "attendanceUpdated": "Presença de {userName} atualizada",
+  "@attendanceUpdated": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRegisteringAttendee": "Erro ao registrar participante",
+  "attendanceConfirmed": "Presença de {userName} confirmada",
+  "@attendanceConfirmed": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorConfirmingAttendance": "Erro ao confirmar presença",
+  "errorRestoringState": "Erro ao restaurar estado",
+  "attendanceChangedTo": "Presença alterada para {newUserName}",
+  "@attendanceChangedTo": {
+    "placeholders": {
+      "newUserName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorChangingAttendee": "Erro ao alterar participante",
+  "errorMarkingAsAbsent": "Erro ao marcar como ausente",
+  "deleteInviteTooltip": "Excluir convite",
+  "confirmTooltip": "Confirmar",
+  "unconfirmTooltip": "Desconfirmar",
+  "didNotAttendTooltip": "Não compareceu",
+  "resetTooltip": "Resetar",
+  "roleDeletedSuccessfully": "Função \"{roleName}\" excluída com sucesso",
+  "@roleDeletedSuccessfully": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "roleCreatedSuccessfully": "Papel \"{roleName}\" criado com sucesso",
+  "@roleCreatedSuccessfully": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "stateRestored": "Estado de {userName} restaurado",
+  "@stateRestored": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "user": "Usuário",
+  "assignMinistries": "Atribuir Ministérios",
+  "selectMinistriesForTimeSlot": "Selecione os ministérios que participarão nesta faixa horária",
+  "canSelectMultipleMinistries": "Você pode selecionar vários ministérios ao mesmo tempo. Depois você poderá definir os papéis específicos para cada ministério.",
+  "searchMinistry": "Buscar ministério...",
+  "createTemporaryMinistry": "Criar ministério temporário",
+  "temporaryMinistryName": "Nome do ministério temporário",
+  "ministriesSelected": "{count} ministérios selecionados",
+  "@ministriesSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noMinistriesAvailable": "Não foram encontrados ministérios disponíveis",
+  "saving": "Salvando...",
+  "assignSelectedMinistries": "Atribuir ministérios selecionados",
+  "pleaseEnterTemporaryMinistryName": "Por favor, insira um nome para o ministério temporário",
+  "pleaseSelectAtLeastOneMinistry": "Por favor, selecione pelo menos um ministério",
+  "ministryAssignedSuccessfully": "Ministério \"{ministryName}\" atribuído com sucesso",
+  "@ministryAssignedSuccessfully": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "ministriesAssignedSuccessfully": "{count} ministérios atribuídos com sucesso",
+  "@ministriesAssignedSuccessfully": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noNewMinistriesAssigned": "Nenhum ministério novo foi atribuído",
+  "errorAssigningMinistries": "Erro ao atribuir ministérios",
+  "errorLoadingMinistries": "Erro ao carregar ministérios",
+  "addNewRoleIn": "Adicionar Nova Função em {ministryName}",
+  "@addNewRoleIn": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPredefinedRole": "Selecione um papel predefinido:",
+  "orCreateNewRole": "Ou crie um novo papel:",
+  "roleName": "Nome do Papel",
+  "saveAsPredefinedRole": "Salvar como papel predefinido",
+  "predefinedRoleDescription": "Se desativar esta opção, o papel só será criado para este ministério e não aparecerá na lista de papéis predefinidos",
+  "createRole": "Criar Papel",
+  "numberOfPeopleForRole": "Número de pessoas para este papel",
+  "roleDeletedSuccessfully2": "Papel excluído com sucesso",
+  "failedDeleteRole": "Erro ao excluir papel"
 }

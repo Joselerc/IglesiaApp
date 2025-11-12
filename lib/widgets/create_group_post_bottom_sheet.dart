@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import '../services/image_service.dart';
+import '../l10n/app_localizations.dart';
 
 enum AspectRatioOption {
   square, // 1:1
@@ -72,7 +73,7 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
     final content = _contentController.text.trim();
     if (content.isEmpty && _selectedImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, adicione conteúdo à sua publicação')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseAddContent)),
       );
       return;
     }
@@ -142,13 +143,13 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Publicação criada com sucesso!')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.postCreatedSuccessfully)),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao criar publicação: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorCreatingPost}: $e')),
         );
       }
     } finally {
@@ -190,8 +191,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
                 ),
-                const Text(
-                  'Nova Publicação',
+                Text(
+                  AppLocalizations.of(context)!.newPost,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -217,8 +218,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                   // Campo de texto
                   TextField(
                     controller: _contentController,
-                    decoration: const InputDecoration(
-                      hintText: 'O que você quer compartilhar?',
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.whatDoYouWantToShare,
                       border: InputBorder.none,
                     ),
                     maxLines: 5,
@@ -229,8 +230,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
 
                   // Imágenes seleccionadas
                   if (_selectedImages.isNotEmpty) ...[
-                    const Text(
-                      'Imagens selecionadas:',
+                    Text(
+                      AppLocalizations.of(context)!.selectedImages,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -286,8 +287,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                     
                     // Selector de relación de aspecto
                     if (_selectedImages.isNotEmpty) ...[
-                      const Text(
-                        'Proporção da imagem:',
+                      Text(
+                        AppLocalizations.of(context)!.imageAspectRatio,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -300,17 +301,17 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                           _buildAspectRatioOption(
                             AspectRatioOption.square,
                             '1:1',
-                            'Quadrada',
+                            AppLocalizations.of(context)!.square,
                           ),
                           _buildAspectRatioOption(
                             AspectRatioOption.portrait,
                             '9:16',
-                            'Vertical',
+                            AppLocalizations.of(context)!.vertical,
                           ),
                           _buildAspectRatioOption(
                             AspectRatioOption.landscape,
                             '16:9',
-                            'Horizontal',
+                            AppLocalizations.of(context)!.horizontal,
                           ),
                         ],
                       ),
@@ -349,8 +350,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                       icon: const Icon(Icons.image),
                       label: Text(
                         _selectedImages.isEmpty
-                            ? 'Adicionar imagens'
-                            : 'Adicionar mais imagens',
+                            ? AppLocalizations.of(context)!.addImages
+                            : AppLocalizations.of(context)!.addMoreImages,
                       ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -381,8 +382,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
                     ? const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       )
-                    : const Text(
-                        'Publicar',
+                    : Text(
+                        AppLocalizations.of(context)!.publish,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

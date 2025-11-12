@@ -13117,6 +13117,84 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al cargar miembros'**
   String get errorLoadingMembers2;
+
+  /// No description provided for @newPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva publicación'**
+  String get newPost;
+
+  /// No description provided for @whatDoYouWantToShare.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué quieres compartilhar?'**
+  String get whatDoYouWantToShare;
+
+  /// No description provided for @selectedImages.
+  ///
+  /// In es, this message translates to:
+  /// **'Imágenes seleccionadas:'**
+  String get selectedImages;
+
+  /// No description provided for @imageAspectRatio.
+  ///
+  /// In es, this message translates to:
+  /// **'Proporción de la imagen:'**
+  String get imageAspectRatio;
+
+  /// No description provided for @square.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadrada'**
+  String get square;
+
+  /// No description provided for @vertical.
+  ///
+  /// In es, this message translates to:
+  /// **'Vertical'**
+  String get vertical;
+
+  /// No description provided for @horizontal.
+  ///
+  /// In es, this message translates to:
+  /// **'Horizontal'**
+  String get horizontal;
+
+  /// No description provided for @addImages.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar imágenes'**
+  String get addImages;
+
+  /// No description provided for @addMoreImages.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar más imágenes'**
+  String get addMoreImages;
+
+  /// No description provided for @pleaseAddContentOrImages.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, agrega texto o imágenes a tu publicación'**
+  String get pleaseAddContentOrImages;
+
+  /// No description provided for @pleaseAddContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, agrega contenido a tu publicación'**
+  String get pleaseAddContent;
+
+  /// No description provided for @postCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Publicación creada con éxito!'**
+  String get postCreatedSuccessfully;
+
+  /// No description provided for @errorCreatingPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear publicación'**
+  String get errorCreatingPost;
 }
 
 class _AppLocalizationsDelegate

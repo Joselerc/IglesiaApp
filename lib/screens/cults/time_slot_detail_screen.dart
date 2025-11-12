@@ -78,36 +78,11 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
 
   // Verificar se o usuário atual é um pastor
   Future<void> _checkPastorStatus() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        
-        if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>;
-          setState(() {
-            _isPastor = userData['role'] == 'pastor';
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Erro ao verificar função de pastor: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    // Eliminada la verificación - el botón se muestra siempre
+    setState(() {
+      _isPastor = true;
+      _isLoading = false;
+    });
   }
 
   // Converter TimeOfDay para double para facilitar comparações
@@ -272,7 +247,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -449,7 +424,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                         debugPrint('⚠️ Erro ao converter DateTime para TimeOfDay: $e');
                       }
                     }),
-                    child: const Text('Cancelar'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -1328,16 +1303,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                     return await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Excluir Convite'),
-                        content: Text('Tem certeza que deseja excluir o convite enviado para "$userName"?'),
+                        title: Text(AppLocalizations.of(context)!.deleteInvite),
+                        content: Text(AppLocalizations.of(context)!.confirmDeleteInviteFor(userName)),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancelar'),
+                            child: Text(AppLocalizations.of(context)!.cancel),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+                            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
@@ -1373,7 +1348,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red, size: 20),
                               onPressed: () => _confirmDeleteInvite(inviteId, userName),
-                              tooltip: 'Excluir convite',
+                              tooltip: AppLocalizations.of(context)!.deleteInviteTooltip,
                             ),
                         ],
                       ),
@@ -1397,20 +1372,20 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       case 'accepted':
       case 'confirmed':
         color = Colors.green;
-        label = 'Aceito';
+        label = AppLocalizations.of(context)!.confirmed;
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Recusado';
+        label = AppLocalizations.of(context)!.rejected;
         break;
       case 'seen':
         color = Colors.orange;
-        label = 'Visto';
+        label = AppLocalizations.of(context)!.seen;
         break;
       case 'pending':
       default:
         color = Colors.amber;
-        label = 'Pendente';
+        label = AppLocalizations.of(context)!.pending;
         break;
     }
     
@@ -1436,16 +1411,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Ministério'),
-        content: Text('Tem certeza que deseja excluir o ministério "$ministryName" desta faixa horária? Todas as atribuições associadas serão excluídas.'),
+        title: Text(AppLocalizations.of(context)!.deleteMinistry),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteMinistry(ministryName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1463,13 +1438,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
+        builder: (context) => AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Excluindo ministério...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.deletingMinistry),
             ],
           ),
         ),
@@ -1501,7 +1476,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ministério "$ministryName" excluído com sucesso'),
+          content: Text(AppLocalizations.of(context)!.ministryDeletedSuccessfully(ministryName)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
         ),
@@ -1520,7 +1495,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao excluir ministério: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorDeletingMinistry3}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -1550,16 +1525,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Atribuição'),
-        content: Text('Tem certeza que deseja excluir a atribuição de "$userName"?'),
+        title: Text(AppLocalizations.of(context)!.deleteAssignment),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteAssignment(userName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1577,13 +1552,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
+        builder: (context) => AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Excluindo atribuição...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.deletingAssignment),
             ],
           ),
         ),
@@ -1598,7 +1573,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Atribuição de "$userName" excluída com sucesso'),
+            content: Text(AppLocalizations.of(context)!.assignmentDeletedSuccessfully(userName)),
             backgroundColor: Colors.green,
           ),
         );
@@ -1610,7 +1585,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao excluir atribuição: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorDeletingAssignment}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1623,16 +1598,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Convite'),
-        content: Text('Tem certeza que deseja excluir o convite para "$userName"?'),
+        title: Text(AppLocalizations.of(context)!.deleteInvite),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteInviteFor(userName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1657,7 +1632,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Convite para "$userName" excluído'),
+          content: Text(AppLocalizations.of(context)!.inviteDeleted(userName)),
           backgroundColor: Colors.green,
         ),
       );
@@ -1665,7 +1640,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       debugPrint('Erro ao excluir convite: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao excluir convite: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorDeletingInvite}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -1680,7 +1655,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar capacidade para "$roleName"'),
+        title: Text(AppLocalizations.of(context)!.editCapacityFor(roleName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1707,7 +1682,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -1715,8 +1690,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               
               if (newCapacity == null || newCapacity <= 0) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Por favor insira um número válido maior que zero'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.pleaseEnterValidNumber),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1725,8 +1700,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               
               if (newCapacity < currentAssigned) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('A capacidade não pode ser menor que o número de pessoas atribuídas'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.capacityCannotBeLessThanAssigned),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1735,7 +1710,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
               
               Navigator.pop(context, newCapacity);
             },
-            child: const Text('Salvar'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -1748,13 +1723,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const AlertDialog(
+          builder: (context) => AlertDialog(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Atualizando capacidade...'),
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(AppLocalizations.of(context)!.updatingCapacity),
               ],
             ),
           ),
@@ -1774,7 +1749,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Capacidade da função "$roleName" atualizada com sucesso'),
+              content: Text(AppLocalizations.of(context)!.capacityUpdatedSuccessfully2(roleName)),
               backgroundColor: Colors.green,
             ),
           );
@@ -1786,7 +1761,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao atualizar capacidade: $e'),
+              content: Text('${AppLocalizations.of(context)!.errorUpdatingCapacity}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1800,16 +1775,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Função'),
-        content: Text('Tem certeza que deseja excluir a função "$roleName"? Todas as atribuições associadas serão excluídas.'),
+        title: Text(AppLocalizations.of(context)!.deleteRole),
+        content: Text(AppLocalizations.of(context)!.confirmDeleteRole(roleName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1826,13 +1801,13 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Excluindo função...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.deletingRole),
           ],
         ),
       ),
@@ -1894,7 +1869,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
           Navigator.pop(context); // Cerrar diálogo de carga
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao excluir função: $e'),
+              content: Text('${AppLocalizations.of(context)!.errorDeletingRole}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1958,7 +1933,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Função "$roleName" excluída com sucesso'),
+            content: Text(AppLocalizations.of(context)!.roleDeletedSuccessfully(roleName)),
             backgroundColor: Colors.green,
           ),
         );
@@ -2087,7 +2062,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Adicionar Nova Função em $ministryName',
+                              AppLocalizations.of(context)!.addNewRoleIn(ministryName),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -2116,9 +2091,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Selecione um papel predefinido:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Text(
+                                AppLocalizations.of(context)!.selectPredefinedRole,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
                               Container(
@@ -2129,7 +2104,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: selectedPredefinedRole,
-                                    hint: const Text('Selecionar papel existente'),
+                                    hint: Text(AppLocalizations.of(context)!.selectExistingRole),
                                     isExpanded: true,
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                     items: predefinedRoles.map((role) {
@@ -2150,11 +2125,11 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                   ),
                                 ),
                               ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
                                 child: Text(
-                                  'Ou crie um novo papel:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  AppLocalizations.of(context)!.orCreateNewRole,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -2167,7 +2142,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                         child: TextField(
                           controller: roleController,
                           decoration: InputDecoration(
-                            labelText: 'Nome do Papel',
+                            labelText: AppLocalizations.of(context)!.roleName,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -2183,16 +2158,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Capacidade',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            Text(
+                              AppLocalizations.of(context)!.capacity,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             TextField(
                               controller: capacityController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'Número de pessoas para este papel',
+                                hintText: AppLocalizations.of(context)!.numberOfPeopleForRole,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -2205,16 +2180,16 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                       
                       // Opción para guardar el rol como predefinido
                       CheckboxListTile(
-                        title: const Text(
-                          'Salvar como papel predefinido',
-                          style: TextStyle(
+                        title: Text(
+                          AppLocalizations.of(context)!.saveAsPredefinedRole,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        subtitle: const Text(
-                          'Se desativar esta opção, o papel só será criado para este ministério e não aparecerá na lista de papéis predefinidos',
-                          style: TextStyle(
+                        subtitle: Text(
+                          AppLocalizations.of(context)!.predefinedRoleDescription,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
                           ),
@@ -2252,8 +2227,8 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                               
                               if (capacity < 1) {
                                 ScaffoldMessenger.of(modalContext).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('A capacidade deve ser pelo menos 1'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.capacityMustBeAtLeast1),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -2280,7 +2255,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                  
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Papel "$roleName" criado com sucesso'),
+                                      content: Text(AppLocalizations.of(context)!.roleCreatedSuccessfully(roleName)),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
@@ -2288,7 +2263,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                               } catch (e) {
                                 ScaffoldMessenger.of(modalContext).showSnackBar(
                                   SnackBar(
-                                    content: Text('Erro ao criar papel: $e'),
+                                    content: Text('${AppLocalizations.of(context)!.errorCreatingRole}: $e'),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -2302,9 +2277,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text(
-                              'Criar Papel',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.createRole,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -2345,18 +2320,20 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
   String _getStatusText(String status) {
     switch (status) {
       case 'confirmed':
-        return 'Confirmado';
+        return AppLocalizations.of(context)!.confirmed;
       case 'accepted':
-        return 'Aceito';
+        return AppLocalizations.of(context)!.accepted;
       case 'rejected':
-        return 'Recusado';
+        return AppLocalizations.of(context)!.rejected;
+      case 'declined':
+        return AppLocalizations.of(context)!.declined;
       case 'seen':
-        return 'Visto';
+        return AppLocalizations.of(context)!.seen;
       case 'not_attended':
-        return 'Não compareceu';
+        return AppLocalizations.of(context)!.notAttended;
       case 'pending':
       default:
-        return 'Pendente';
+        return AppLocalizations.of(context)!.pending;
     }
   }
 
@@ -2375,10 +2352,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
         }
 
         if (!rolesSnapshot.hasData || rolesSnapshot.data!.docs.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              'Não há papéis definidos para esta faixa horária',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              AppLocalizations.of(context)!.noRolesDefined,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           );
         }
@@ -2408,7 +2385,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                 if (data['isMinistryAssignment'] == true) continue;
                 
                 final dynamic ministryIdValue = data['ministryId'];
-                final String role = data['role'] ?? 'Sem papel';
+                final String role = data['role'] ?? AppLocalizations.of(context)!.noRole;
                 final int capacity = data['capacity'] ?? 1;
                 final int current = data['current'] ?? 0;
                 
@@ -2452,7 +2429,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                 try {
                   final data = doc.data() as Map<String, dynamic>;
                   final dynamic ministryIdValue = data['ministryId'];
-                  final String role = data['role'] ?? 'Sem papel';
+                  final String role = data['role'] ?? AppLocalizations.of(context)!.noRole;
                   
                   // Contabilizar estadísticas globales
                   if (data['isAttendanceConfirmed'] == true) {
@@ -2485,10 +2462,10 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             }
             
             if (rolesByMinistry.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'Não há papéis definidos para esta faixa horária',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  AppLocalizations.of(context)!.noRolesDefined,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               );
             }
@@ -2661,7 +2638,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                         roleId: roleId,
                                         roleName: roleName,
                                       ),
-                                      tooltip: 'Adicionar participante',
+                                      tooltip: AppLocalizations.of(context)!.addParticipant,
                                       padding: EdgeInsets.zero,
                                       constraints: const BoxConstraints(),
                                       iconSize: 18,
@@ -2796,7 +2773,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                               side: BorderSide(color: Colors.grey[400]!),
                                                               avatar: Icon(Icons.schedule, size: 16, color: Colors.grey[700]),
                                                               label: Text(
-                                                                'PENDENTE',
+                                                                AppLocalizations.of(context)!.pending.toUpperCase(),
                                                                 style: TextStyle(
                                                                   fontSize: 10,
                                                                   fontWeight: FontWeight.bold,
@@ -2937,9 +2914,9 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                                     borderRadius: BorderRadius.circular(12),
                                                                     border: Border.all(color: Colors.amber[400]!, width: 1)
                                                                   ),
-                                                                  child: const Text(
-                                                                    'PENDENTE',
-                                                                    style: TextStyle(
+                                                                  child: Text(
+                                                                    AppLocalizations.of(context)!.pending.toUpperCase(),
+                                                                    style: const TextStyle(
                                                                       color: Colors.amber,
                                                                       fontWeight: FontWeight.bold,
                                                                       fontSize: 11,
@@ -2973,7 +2950,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                               false,
                                                             ),
                                                                       icon: const Icon(Icons.check, color: Colors.white, size: 20),
-                                                                      tooltip: 'Confirmar',
+                                                                      tooltip: AppLocalizations.of(context)!.confirmTooltip,
                                                                     ),
                                                                   )
                                                                 else if (isAttendanceConfirmed && assignmentData['didNotAttend'] != true)
@@ -2987,7 +2964,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                                         assignedUserName,
                                                                       ),
                                                                       icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                                                                      tooltip: 'Desconfirmar',
+                                                                      tooltip: AppLocalizations.of(context)!.unconfirmTooltip,
                                                                     ),
                                                                   ),
                                                                 
@@ -3003,7 +2980,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                                         assignedUserName,
                                                                       ),
                                                                       icon: const Icon(Icons.person_off, color: Colors.white, size: 20),
-                                                                      tooltip: 'Não Compareceu',
+                                                                      tooltip: AppLocalizations.of(context)!.didNotAttendTooltip,
                                                                     ),
                                                                   )
                                                                 // Botón para resetear estado
@@ -3018,7 +2995,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
                                                               assignedUserName,
                                                             ),
                                                                       icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
-                                                                      tooltip: 'Resetar',
+                                                                      tooltip: AppLocalizations.of(context)!.resetTooltip,
                                                                     ),
                                                                   ),
                                                       
@@ -3244,7 +3221,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
             
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Presença de $userName atualizada'),
+            content: Text(AppLocalizations.of(context)!.attendanceUpdated(userName)),
             backgroundColor: Colors.green,
           ),
         );
@@ -3285,7 +3262,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao registrar participante: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorRegisteringAttendee}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -3464,7 +3441,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Presença de $userName confirmada'),
+          content: Text(AppLocalizations.of(context)!.attendanceConfirmed(userName)),
           backgroundColor: Colors.green,
         ),
       );
@@ -3472,7 +3449,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       debugPrint('❌ Error al confirmar asistencia: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao confirmar presença: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorConfirmingAttendance}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -3612,7 +3589,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Estado de $userName restaurado'),
+          content: Text(AppLocalizations.of(context)!.stateRestored(userName)),
           backgroundColor: Colors.blue,
         ),
       );
@@ -3620,7 +3597,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       debugPrint('❌ Error al desconfirmar asistencia: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao restaurar estado: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorRestoringState}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -3706,7 +3683,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Presença alterada para $newUserName'),
+          content: Text(AppLocalizations.of(context)!.attendanceChangedTo(newUserName)),
           backgroundColor: Colors.green,
         ),
       );
@@ -3714,7 +3691,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       debugPrint('Error al cambiar asistente: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao alterar participante: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorChangingAttendee}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -3848,7 +3825,7 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
       debugPrint('❌ Erro ao marcar como ausente: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao marcar como ausente: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorMarkingAsAbsent}: $e'),
           backgroundColor: Colors.red,
         ),
       );

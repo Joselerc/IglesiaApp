@@ -3768,5 +3768,290 @@
   "errorLoadingMembers2": "Error al cargar miembros",
   "you": "Tú",
   "available": "Disponible",
-  "today": "Hoy"
+  "today": "Hoy",
+  "newPost": "Nueva publicación",
+  "whatDoYouWantToShare": "¿Qué quieres compartilhar?",
+  "selectedImages": "Imágenes seleccionadas:",
+  "imageAspectRatio": "Proporción de la imagen:",
+  "square": "Cuadrada",
+  "vertical": "Vertical",
+  "horizontal": "Horizontal",
+  "addImages": "Agregar imágenes",
+  "addMoreImages": "Agregar más imágenes",
+  "publish": "Publicar",
+  "pleaseAddContentOrImages": "Por favor, agrega texto o imágenes a tu publicación",
+  "pleaseAddContent": "Por favor, agrega contenido a tu publicación",
+  "postCreatedSuccessfully": "¡Publicación creada con éxito!",
+  "errorCreatingPost": "Error al crear publicación",
+  "onlyAdminsCanSendFiles": "Solo los administradores pueden enviar archivos",
+  "sendImage": "Enviar imagen",
+  "send": "Enviar",
+  "audioDownloadNotAllowed": "No se permite la descarga de archivos de audio",
+  "downloadFile2": "Descargar archivo",
+  "doYouWantToDownloadFile": "¿Deseas descargar \"{filename}\"?",
+  "@doYouWantToDownloadFile": {
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteMessage": "Eliminar mensaje",
+  "areYouSureDeleteMessage": "¿Estás seguro de que deseas eliminar este mensaje?",
+  "errorDeletingMessage": "Error al eliminar mensaje",
+  "errorSendingMessage": "Error al enviar mensaje",
+  "messageDeleted": "Mensaje eliminado",
+  "errorUploadingFile": "Error al subir el archivo",
+  "errorUploadingAudio": "Error al subir el audio",
+  "couldNotStartRecording": "No se pudo iniciar la grabación",
+  "recordingTooShort": "La grabación es demasiado corta",
+  "noMessagesYet": "Sin mensajes aún",
+  "writeMessage": "Escribe un mensaje...",
+  "noMembers": "Sin miembros",
+  "addMessageOptional": "Agregar un mensaje (opcional)",
+  "assignRoleIn": "Asignar Rol en {ministryName}",
+  "@assignRoleIn": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "roleToPerform": "Rol a desempeñar",
+  "enterRoleExample": "Ingresa un rol (ej. \"Director\", \"Músico\")",
+  "roleCapacity": "Capacidad del rol",
+  "numberOfPeople": "Número de personas",
+  "roleToAssign": "Rol a asignar",
+  "selectPerson": "Seleccionar Persona",
+  "searchPerson": "Buscar persona...",
+  "selectedPeople": "Personas seleccionadas: {count}",
+  "@selectedPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createRoleOnly": "Crear Solo Rol",
+  "assignPerson": "Asignar Persona",
+  "assignRoleAndPerson": "Asignar Rol y Persona",
+  "capacityUpdatedSuccessfully": "Capacidad actualizada con éxito",
+  "invalidCapacityOrLessThanAssigned": "Capacidad inválida o menor que personas asignadas",
+  "capacity": "Capacidad",
+  "pending": "Pendiente",
+  "confirmed": "Confirmado",
+  "accepted": "Aceptado",
+  "addParticipant": "Agregar participante",
+  "noRolesDefined": "No hay roles definidos para esta franja horaria",
+  "noRole": "Sin rol",
+  "assignedOriginally": "Asignado originalmente",
+  "rejected": "Rechazado",
+  "declined": "Declinado",
+  "seen": "Visto",
+  "notAttended": "No asistió",
+  "deleteInvite": "Eliminar Invitación",
+  "confirmDeleteInviteFor": "¿Estás seguro de que deseas eliminar la invitación enviada a \"{userName}\"?",
+  "@confirmDeleteInviteFor": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteMinistry": "Eliminar Ministerio",
+  "confirmDeleteMinistry": "¿Estás seguro de que deseas eliminar el ministerio \"{ministryName}\" de esta franja horaria? Todas las asignaciones asociadas serán eliminadas.",
+  "@confirmDeleteMinistry": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAssignment": "Eliminar Asignación",
+  "confirmDeleteAssignment": "¿Estás seguro de que deseas eliminar la asignación de \"{userName}\"?",
+  "@confirmDeleteAssignment": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteRole": "Eliminar Rol",
+  "confirmDeleteRole": "¿Estás seguro de que deseas eliminar el rol \"{roleName}\"? Todas las asignaciones asociadas serán eliminadas.",
+  "@confirmDeleteRole": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "save": "Guardar",
+  "deletingMinistry": "Eliminando ministerio...",
+  "ministryDeletedSuccessfully": "Ministerio \"{ministryName}\" eliminado con éxito",
+  "@ministryDeletedSuccessfully": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingMinistry3": "Error al eliminar ministerio",
+  "deletingAssignment": "Eliminando asignación...",
+  "assignmentDeletedSuccessfully": "Asignación de \"{userName}\" eliminada con éxito",
+  "@assignmentDeletedSuccessfully": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingAssignment": "Error al eliminar asignación",
+  "inviteDeleted": "Invitación para \"{userName}\" eliminada",
+  "@inviteDeleted": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingInvite": "Error al eliminar invitación",
+  "editCapacityFor": "Editar capacidad para \"{roleName}\"",
+  "@editCapacityFor": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseEnterValidNumber": "Por favor ingresa un número válido mayor que cero",
+  "capacityCannotBeLessThanAssigned": "La capacidad no puede ser menor que el número de personas asignadas",
+  "updatingCapacity": "Actualizando capacidad...",
+  "capacityUpdatedSuccessfully2": "Capacidad del rol \"{roleName}\" actualizada con éxito",
+  "@capacityUpdatedSuccessfully2": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUpdatingCapacity": "Error al actualizar capacidad",
+  "deletingRole": "Eliminando rol...",
+  "errorDeletingRole": "Error al eliminar rol",
+  "selectExistingRole": "Seleccionar rol existente",
+  "capacityMustBeAtLeast1": "La capacidad debe ser al menos 1",
+  "errorCreatingRole": "Error al crear rol",
+  "attendanceUpdated": "Asistencia de {userName} actualizada",
+  "@attendanceUpdated": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRegisteringAttendee": "Error al registrar participante",
+  "attendanceConfirmed": "Asistencia de {userName} confirmada",
+  "@attendanceConfirmed": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorConfirmingAttendance": "Error al confirmar asistencia",
+  "errorRestoringState": "Error al restaurar estado",
+  "attendanceChangedTo": "Asistencia cambiada a {newUserName}",
+  "@attendanceChangedTo": {
+    "placeholders": {
+      "newUserName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorChangingAttendee": "Error al cambiar participante",
+  "errorMarkingAsAbsent": "Error al marcar como ausente",
+  "deleteInviteTooltip": "Eliminar invitación",
+  "confirmTooltip": "Confirmar",
+  "unconfirmTooltip": "Desconfirmar",
+  "didNotAttendTooltip": "No asistió",
+  "resetTooltip": "Resetear",
+  "roleDeletedSuccessfully": "Rol \"{roleName}\" eliminado con éxito",
+  "@roleDeletedSuccessfully": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "roleCreatedSuccessfully": "Rol \"{roleName}\" creado con éxito",
+  "@roleCreatedSuccessfully": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "stateRestored": "Estado de {userName} restaurado",
+  "@stateRestored": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "user": "Usuario",
+  "assignMinistries": "Asignar Ministerios",
+  "selectMinistriesForTimeSlot": "Selecciona los ministerios que participarán en esta franja horaria",
+  "canSelectMultipleMinistries": "Puedes seleccionar varios ministerios al mismo tiempo. Después podrás definir los roles específicos para cada ministerio.",
+  "searchMinistry": "Buscar ministerio...",
+  "createTemporaryMinistry": "Crear ministerio temporal",
+  "temporaryMinistryName": "Nombre del ministerio temporal",
+  "ministriesSelected": "{count} ministerios seleccionados",
+  "@ministriesSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noMinistriesAvailable": "No se encontraron ministerios disponibles",
+  "saving": "Guardando...",
+  "assignSelectedMinistries": "Asignar ministerios seleccionados",
+  "pleaseEnterTemporaryMinistryName": "Por favor, ingresa un nombre para el ministerio temporal",
+  "pleaseSelectAtLeastOneMinistry": "Por favor, selecciona al menos un ministerio",
+  "ministryAssignedSuccessfully": "Ministerio \"{ministryName}\" asignado con éxito",
+  "@ministryAssignedSuccessfully": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "ministriesAssignedSuccessfully": "{count} ministerios asignados con éxito",
+  "@ministriesAssignedSuccessfully": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noNewMinistriesAssigned": "Ningún ministerio nuevo fue asignado",
+  "errorAssigningMinistries": "Error al asignar ministerios",
+  "errorLoadingMinistries": "Error al cargar ministerios",
+  "addNewRoleIn": "Agregar Nuevo Rol en {ministryName}",
+  "@addNewRoleIn": {
+    "placeholders": {
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPredefinedRole": "Selecciona un rol predefinido:",
+  "orCreateNewRole": "O crea un nuevo rol:",
+  "roleName": "Nombre del Rol",
+  "saveAsPredefinedRole": "Guardar como rol predefinido",
+  "predefinedRoleDescription": "Si desactivas esta opción, el rol solo será creado para este ministerio y no aparecerá en la lista de roles predefinidos",
+  "createRole": "Crear Rol",
+  "numberOfPeopleForRole": "Número de personas para este rol",
+  "roleDeletedSuccessfully2": "Rol eliminado con éxito",
+  "failedDeleteRole": "Error al eliminar rol"
 }

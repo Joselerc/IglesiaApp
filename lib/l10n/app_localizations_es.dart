@@ -7354,4 +7354,44 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorLoadingMembers2 => 'Error al cargar miembros';
+
+  @override
+  String get newPost => 'Nueva publicación';
+
+  @override
+  String get whatDoYouWantToShare => '¿Qué quieres compartilhar?';
+
+  @override
+  String get selectedImages => 'Imágenes seleccionadas:';
+
+  @override
+  String get imageAspectRatio => 'Proporción de la imagen:';
+
+  @override
+  String get square => 'Cuadrada';
+
+  @override
+  String get vertical => 'Vertical';
+
+  @override
+  String get horizontal => 'Horizontal';
+
+  @override
+  String get addImages => 'Agregar imágenes';
+
+  @override
+  String get addMoreImages => 'Agregar más imágenes';
+
+  @override
+  String get pleaseAddContentOrImages =>
+      'Por favor, agrega texto o imágenes a tu publicación';
+
+  @override
+  String get pleaseAddContent => 'Por favor, agrega contenido a tu publicación';
+
+  @override
+  String get postCreatedSuccessfully => '¡Publicación creada con éxito!';
+
+  @override
+  String get errorCreatingPost => 'Error al crear publicación';
 }
