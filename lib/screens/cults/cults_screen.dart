@@ -1041,7 +1041,7 @@ class _CultsScreenState extends State<CultsScreen> {
         if (permissionSnapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cultsTab} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1062,7 +1062,7 @@ class _CultsScreenState extends State<CultsScreen> {
         if (permissionSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cultsTab} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1083,7 +1083,7 @@ class _CultsScreenState extends State<CultsScreen> {
         if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cultsTab} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1120,7 +1120,7 @@ class _CultsScreenState extends State<CultsScreen> {
           length: 2,
           child: Scaffold(
             appBar: AppBar(
-              title: Text('${AppLocalizations.of(context)!.cults} - ${widget.service.name}'),
+              title: Text('${AppLocalizations.of(context)!.cultsTab} - ${widget.service.name}'),
               flexibleSpace: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/time_slot.dart';
 import '../models/work_assignment.dart';
 import '../models/work_invite.dart';
+import '../models/notification.dart';
 import '../services/notification_service.dart';
 import 'dart:math';
 
@@ -165,13 +166,15 @@ class WorkScheduleService {
   // =========== MÉTODOS PARA ASIGNACIONES DE TRABAJO ===========
 
   // Crear una nueva asignación de trabajo
-  Future<String> createWorkAssignment({
+  Future<dynamic> createWorkAssignment({
     required String timeSlotId,
     required dynamic ministryId,
     required String userId,
     required String role,
     int capacity = 1,
     String? notes,
+    String? notificationTitle,
+    String? notificationMessage,
   }) async {
     try {
       final currentUser = _auth.currentUser;
@@ -202,7 +205,7 @@ class WorkScheduleService {
       debugPrint('Criando atribuição para timeSlotId: $timeSlotId, ministryId: $ministryIdStr, userId: $userId, role: $role');
 
       // Usar una transacción para evitar condiciones de carrera
-      return await _firestore.runTransaction<String>(
+      return await _firestore.runTransaction<dynamic>(
         (transaction) async {
           // 1. Buscar todas las asignaciones existentes para este usuario en esta franja horaria
           final userRef = _firestore.collection('users').doc(userId);
@@ -422,6 +425,8 @@ class WorkScheduleService {
               'timeSlotId': timeSlotId,
         'entityId': cultId,
         'entityType': 'cult',
+        'entityName': timeSlotData['entityName'] ?? 'Culto',
+        'date': timeSlotData['date'] ?? FieldValue.serverTimestamp(),
               'userId': userRef,
         'ministryId': _firestore.collection('ministries').doc(ministryIdStr),
         'ministryName': ministryName,
@@ -439,23 +444,51 @@ class WorkScheduleService {
             final inviteRef = _firestore.collection('work_invites').doc();
             transaction.set(inviteRef, inviteData);
             
-            return assignmentRef.id;
+            // Retornar tanto el assignmentId como el inviteId
+            return {'assignmentId': assignmentRef.id, 'inviteId': inviteRef.id, 'ministryName': ministryName, 'entityName': timeSlotData['entityName'] ?? 'Culto'};
           }
         },
         timeout: const Duration(seconds: 30),
-      ).then((assignmentId) async {
-        // Enviar notificación fuera de la transacción
-      await _notificationService.sendNotification(
-        userId: userId,
-          title: 'Novo convite de serviço',
-          body: 'Você foi convidado para servir como $role',
-        data: {
-            'assignmentId': assignmentId,
-          'status': 'pending',
-        },
-      );
-      
-        return assignmentId;
+      ).then((result) async {
+        // Enviar notificación in-app fuera de la transacción
+        if (result is Map) {
+          await _notificationService.createNotification(
+            title: notificationTitle ?? 'Nueva invitación de servicio',
+            message: notificationMessage ?? 'Has sido invitado a servir como $role',
+            type: NotificationType.ministryNewWorkSchedule,
+            userId: userId,
+            senderId: currentUser.uid,
+            entityId: result['inviteId'] as String?, // ID del work_invite creado
+            entityType: 'work_invite',
+            data: {
+              'ministryId': ministryIdStr,
+              'ministryName': result['ministryName'] as String?,
+              'entityName': result['entityName'] as String?,
+              'role': role,
+              'assignmentId': result['assignmentId'] as String?,
+            },
+          );
+          
+          return result['assignmentId'] as String;
+        } else {
+          // Caso legacy donde solo se retorna el assignmentId (reactivaciones)
+          await _notificationService.createNotification(
+            title: notificationTitle ?? 'Nueva invitación de servicio',
+            message: notificationMessage ?? 'Has sido invitado a servir como $role',
+            type: NotificationType.ministryNewWorkSchedule,
+            userId: userId,
+            senderId: currentUser.uid,
+            entityId: null,
+            entityType: 'work_assignment',
+            data: {
+              'ministryId': ministryIdStr,
+              'role': role,
+              'assignmentId': result as String?,
+            },
+          );
+          
+          return result as String;
+        }
       });
     } catch (e) {
       debugPrint('Erro ao criar atribuição de trabalho: $e');
@@ -463,85 +496,6 @@ class WorkScheduleService {
     }
   }
 
-  // Método privado para crear la invitación de trabajo
-  Future<void> _createWorkInviteForAssignment(
-    String assignmentId, 
-    String userId, 
-    DocumentSnapshot timeSlotDoc,
-    String ministryId,
-    String role
-  ) async {
-    try {
-      final currentUser = _auth.currentUser;
-      if (currentUser == null) return;
-      
-      final timeSlotData = timeSlotDoc.data() as Map<String, dynamic>;
-      final entityId = timeSlotData['entityId'] as String;
-      final entityType = timeSlotData['entityType'] as String;
-      
-      // Obtener información adicional según el tipo de entidad
-      String entityName = '';
-      DateTime date = (timeSlotData['startTime'] as Timestamp).toDate();
-      
-      if (entityType == 'cult') {
-        final cultDoc = await _firestore.collection('cults').doc(entityId).get();
-        if (cultDoc.exists) {
-          final cultData = cultDoc.data() as Map<String, dynamic>;
-          entityName = cultData['name'] as String;
-          date = (cultData['date'] as Timestamp).toDate();
-        }
-      } else if (entityType == 'event') {
-        final eventDoc = await _firestore.collection('events').doc(entityId).get();
-        if (eventDoc.exists) {
-          final eventData = eventDoc.data() as Map<String, dynamic>;
-          entityName = eventData['title'] as String;
-          date = (eventData['date'] as Timestamp).toDate();
-        }
-      }
-      
-      // Obtener información del ministerio
-      String ministryName = '';
-      final ministryDoc = await _firestore.collection('ministries').doc(ministryId).get();
-      if (ministryDoc.exists) {
-        final ministryData = ministryDoc.data() as Map<String, dynamic>;
-        ministryName = ministryData['name'] as String;
-      }
-      
-      // Crear la invitación
-      final inviteData = {
-        'assignmentId': assignmentId,
-        'userId': _firestore.collection('users').doc(userId),
-        'entityId': entityId,
-        'entityType': entityType,
-        'entityName': entityName,
-        'date': Timestamp.fromDate(date),
-        'startTime': timeSlotData['startTime'],
-        'endTime': timeSlotData['endTime'],
-        'ministryId': _firestore.collection('ministries').doc(ministryId),
-        'ministryName': ministryName,
-        'role': role,
-        'status': 'pending',
-        'isRead': false,
-        'createdAt': Timestamp.fromDate(DateTime.now()),
-        'sentBy': _firestore.collection('users').doc(currentUser.uid),
-      };
-      
-      await _firestore.collection('work_invites').add(inviteData);
-      
-      // Enviar notificación al usuario
-      await _notificationService.sendNotification(
-        userId: userId,
-        title: 'Novo convite de trabalho',
-        body: 'Você foi convidado para participar em $entityName como $role',
-        data: {
-          'entityId': entityId,
-          'entityType': entityType,
-        },
-      );
-    } catch (e) {
-      debugPrint('Erro ao criar convite de trabalho: $e');
-    }
-  }
 
   // Método privado para actualizar invitaciones después de cambios en los horarios
   Future<void> _updateWorkInviteAfterTimeChange(
@@ -1243,16 +1197,22 @@ class WorkScheduleService {
         'sentBy': _firestore.collection('users').doc(currentUser.uid),
       };
       
-      await _firestore.collection('work_invites').add(inviteData);
+      final inviteDoc = await _firestore.collection('work_invites').add(inviteData);
       
-      // Enviar notificación al usuario
-      await _notificationService.sendNotification(
+      // Crear notificación in-app para el usuario
+      await _notificationService.createNotification(
+        title: 'Novo convite de serviço',
+        message: 'Você foi convidado para servir como $role',
+        type: NotificationType.ministryNewWorkSchedule,
         userId: userId,
-        title: 'Nueva invitación de trabajo',
-        body: 'Has sido invitado a participar en ${cultData['name']} como $role',
+        senderId: currentUser.uid,
+        entityId: inviteDoc.id, // ID del work_invite creado
+        entityType: 'work_invite',
         data: {
-          'entityId': cultId,
-          'entityType': 'cult',
+          'ministryId': ministryId,
+          'ministryName': ministryData['name'],
+          'entityName': cultData['name'],
+          'role': role,
         },
       );
     } catch (e) {
@@ -1387,6 +1347,10 @@ class WorkScheduleService {
           debugPrint('Adicionando convite para excluir: ${doc.id}');
           
           // 5. Enviar notificación a los usuarios afectados
+          // TODO: Implementar notificación con traducciones correctas
+          // La notificación se ha comentado temporalmente porque requiere
+          // access a context para las traducciones
+          /* 
           try {
             final inviteData = doc.data();
             final userId = inviteData['userId'].id;
@@ -1403,6 +1367,7 @@ class WorkScheduleService {
           } catch (e) {
             debugPrint('Erro ao enviar notificação: $e');
           }
+          */
         }
       }
       
@@ -1458,6 +1423,10 @@ class WorkScheduleService {
             });
             debugPrint('Adicionando convite ministerial para excluir: ${doc.id}');
             
+            // TODO: Implementar notificación con traducciones correctas
+            // La notificación se ha comentado temporalmente porque requiere
+            // access a context para las traducciones
+            /*
             try {
               final userId = inviteData['userId'].id;
               
@@ -1471,8 +1440,9 @@ class WorkScheduleService {
                 },
               );
             } catch (e) {
-              debugPrint('Erro ao enviar notificação: $e');
+              debugPrint('Erro ao enviar notificación: $e');
             }
+            */
           }
         }
         
@@ -1571,7 +1541,10 @@ class WorkScheduleService {
               'deletedBy': _firestore.collection('users').doc(currentUser.uid),
             });
             
-        // Enviar notificación al usuario
+        // TODO: Implementar notificación con traducciones correctas
+        // La notificación se ha comentado temporalmente porque requiere
+        // access a context para las traducciones
+        /*
         final inviteData = doc.data();
         final userId = inviteData['userId'].id;
         
@@ -1584,6 +1557,7 @@ class WorkScheduleService {
             'status': 'cancelled',
           },
         );
+        */
       }
     } catch (e) {
       debugPrint('Error al eliminar asignación: $e');

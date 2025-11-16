@@ -4054,5 +4054,47 @@
   "createRole": "Criar Papel",
   "numberOfPeopleForRole": "Número de pessoas para este papel",
   "roleDeletedSuccessfully2": "Papel excluído com sucesso",
-  "failedDeleteRole": "Erro ao excluir papel"
+  "failedDeleteRole": "Erro ao excluir papel",
+  "workSchedules": "Escalas",
+  "manageYourServiceSchedules": "Gerencie suas escalas e horários de serviço",
+  "myWorkSchedules": "Minhas Escalas",
+  "pendingSchedules": "Pendentes",
+  "acceptedSchedules": "Aceitas",
+  "rejectedSchedules": "Rejeitadas",
+  "allSchedules": "Todas",
+  "scheduleHistory": "Histórico",
+  "noSchedulesFound": "Não foram encontradas escalas",
+  "noPendingSchedules": "Você não tem escalas pendentes",
+  "noAcceptedSchedules": "Você não tem escalas aceitas",
+  "noRejectedSchedules": "Você não tem escalas rejeitadas",
+  "scheduleDetails": "Detalhes da Escala",
+  "acceptSchedule": "Aceitar Escala",
+  "rejectSchedule": "Rejeitar Escala",
+  "scheduleAcceptedSuccessfully": "Escala aceita com sucesso",
+  "scheduleRejectedSuccessfully": "Escala rejeitada com sucesso",
+  "errorAcceptingSchedule": "Erro ao aceitar a escala",
+  "errorRejectingSchedule": "Erro ao rejeitar a escala",
+  "confirmAcceptSchedule": "Confirmar aceitação?",
+  "confirmRejectSchedule": "Confirmar rejeição?",
+  "confirmAcceptScheduleMessage": "Tem certeza de que deseja aceitar esta escala?",
+  "confirmRejectScheduleMessage": "Tem certeza de que deseja rejeitar esta escala?",
+  "viewScheduleCalendar": "Ver Calendário",
+  "upcomingSchedules": "Próximas Escalas",
+  "pastSchedules": "Escalas Passadas",
+  "pendingSchedule": "pendente",
+  "pendingSchedulesLowercase": "pendentes",
+  "newServiceInvitation": "Novo convite de serviço",
+  "invitedToServeAs": "Você foi convidado para servir como {role}",
+  "@invitedToServeAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "assignmentCancelled": "Atribuição cancelada",
+  "assignmentCancelledMinistryRemoved": "Sua atribuição foi cancelada porque o ministério foi removido da faixa horária",
+  "invitationCancelled": "Convite cancelado",
+  "invitationCancelledMinistryRemoved": "Seu convite foi cancelado porque o ministério foi removido da faixa horária",
+  "invitationCancelledEventCancelled": "Seu convite para participar em um evento foi cancelado"
 }

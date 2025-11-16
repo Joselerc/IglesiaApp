@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/ministry.dart';
+import '../../models/work_invite.dart';
 import '../../widgets/circular_image_picker.dart';
 import 'image_viewer_screen.dart';
 import 'manage_requests_screen.dart';
@@ -10,6 +11,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../modals/edit_entity_info_modal.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import '../work_invites/work_invite_detail_screen.dart';
 
 class MinistryDetailsScreen extends StatefulWidget {
   final Ministry ministry;
@@ -61,6 +64,24 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
         print('Error al cargar configuración de notificaciones: $e');
       }
     }
+  }
+
+  Stream<List<WorkInvite>> _getMinistryInvites() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return Stream.value([]);
+    }
+
+    return FirebaseFirestore.instance
+        .collection('work_invites')
+        .where('userId', isEqualTo: FirebaseFirestore.instance.collection('users').doc(currentUser.uid))
+        .where('ministryId', isEqualTo: FirebaseFirestore.instance.collection('ministries').doc(widget.ministry.id))
+        .orderBy('date', descending: false)
+        .limit(5)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => WorkInvite.fromFirestore(doc)).toList();
+    });
   }
 
   Future<void> _toggleNotifications(bool value) async {
@@ -787,6 +808,88 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                   ),
                 ),
                 
+                // Sección de Escalas del Usuario
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 8),
+                  child: Text(
+                    AppLocalizations.of(context)!.myWorkSchedules,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryColor,
+                    ),
+                  ),
+                ),
+                
+                StreamBuilder<List<WorkInvite>>(
+                  stream: _getMinistryInvites(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              AppLocalizations.of(context)!.noSchedulesFound,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    final invites = snapshot.data!;
+                    
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 140,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: invites.length,
+                            itemBuilder: (context, index) {
+                              final invite = invites[index];
+                              return _buildInviteCard(invite, theme);
+                            },
+                          ),
+                        ),
+                        if (invites.length >= 5)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/work_schedules');
+                              },
+                              child: Text(
+                                AppLocalizations.of(context)!.viewAll,
+                                style: TextStyle(
+                                  color: theme.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+                
                 const Divider(),
                 
                 Padding(
@@ -1067,5 +1170,136 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
       } catch (e) { print('Error al cargar usuario $memberId: $e'); }
     }
     return memberDocs;
+  }
+
+  Widget _buildInviteCard(WorkInvite invite, ThemeData theme) {
+    final dateFormat = DateFormat('dd/MM');
+    final timeFormat = DateFormat('HH:mm');
+    final now = DateTime.now();
+    final isPast = invite.date.isBefore(now);
+
+    Color statusColor;
+    switch (invite.status) {
+      case 'accepted':
+      case 'confirmed':
+        statusColor = Colors.green;
+        break;
+      case 'rejected':
+      case 'declined':
+        statusColor = Colors.red;
+        break;
+      case 'pending':
+      default:
+        statusColor = Colors.amber;
+        break;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WorkInviteDetailScreen(invite: invite),
+          ),
+        );
+      },
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPast ? Colors.grey.shade300 : statusColor.withOpacity(0.3),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      invite.entityName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 12, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    dateFormat.format(invite.date),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.access_time, size: 12, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    timeFormat.format(invite.startTime),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  invite.role,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: statusColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

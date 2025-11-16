@@ -298,12 +298,15 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.65,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                         // Ícono o ilustración
                         Container(
                           height: 120,
@@ -362,8 +365,10 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                               );
                             },
                           ),
-                      ],
+                        ],
+                      ),
                     ),
+                  ),
                   ),
                 );
               }

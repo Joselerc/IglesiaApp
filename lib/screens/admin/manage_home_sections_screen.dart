@@ -151,6 +151,11 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         iconColor = Colors.grey[700]!;
         backgroundColor = Colors.grey[300]!;
         break;
+      case HomeScreenSectionType.workSchedules:
+        iconData = Icons.calendar_today;
+        iconColor = Colors.orange[700]!;
+        backgroundColor = Colors.orange[100]!;
+        break;
       default:
         iconData = Icons.help_outline;
         iconColor = Colors.grey[700]!;
@@ -594,6 +599,8 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:
         return AppLocalizations.of(context)!.publicPrayer;
+      case HomeScreenSectionType.workSchedules:
+        return AppLocalizations.of(context)!.workSchedules;
       case HomeScreenSectionType.customPageList:
         return AppLocalizations.of(context)!.customPages;
       default:
@@ -630,6 +637,8 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:
         return AppLocalizations.of(context)!.publicPrayer;
+      case HomeScreenSectionType.workSchedules:
+        return AppLocalizations.of(context)!.workSchedules;
       case HomeScreenSectionType.customPageList:
         return AppLocalizations.of(context)!.pageList;
       default:

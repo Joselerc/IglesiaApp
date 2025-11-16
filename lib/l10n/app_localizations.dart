@@ -227,8 +227,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingMinistries.
   ///
   /// In es, this message translates to:
-  /// **'Error al cargar ministerios: {error}'**
-  String errorLoadingMinistries(Object error);
+  /// **'Error al cargar ministerios'**
+  String get errorLoadingMinistries;
 
   /// No description provided for @mySchedules.
   ///
@@ -629,7 +629,7 @@ abstract class AppLocalizations {
   /// No description provided for @noMinistriesAvailable.
   ///
   /// In es, this message translates to:
-  /// **'No hay ministerios disponibles'**
+  /// **'No se encontraron ministerios disponibles'**
   String get noMinistriesAvailable;
 
   /// No description provided for @unnamedMinistry.
@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteMinistry.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar ministerio'**
+  /// **'Eliminar Ministerio'**
   String get deleteMinistry;
 
   /// No description provided for @confirmDeleteMinistryQuestion.
@@ -701,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @ministryDeletedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Ministerio eliminado con éxito'**
+  /// **'Ministerio \"{ministryName}\" eliminado con éxito'**
   String ministryDeletedSuccessfully(String ministryName);
 
   /// No description provided for @logOut.
@@ -1547,19 +1547,19 @@ abstract class AppLocalizations {
   /// No description provided for @pending.
   ///
   /// In es, this message translates to:
-  /// **'Pendientes'**
+  /// **'Pendiente'**
   String get pending;
 
   /// No description provided for @accepted.
   ///
   /// In es, this message translates to:
-  /// **'Aceptada'**
+  /// **'Aceptado'**
   String get accepted;
 
   /// No description provided for @rejected.
   ///
   /// In es, this message translates to:
-  /// **'Rechazadas'**
+  /// **'Rechazado'**
   String get rejected;
 
   /// No description provided for @youHaveNoWorkInvites.
@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// No description provided for @noRole.
   ///
   /// In es, this message translates to:
-  /// **'Sin Rol'**
+  /// **'Sin rol'**
   String get noRole;
 
   /// No description provided for @superUser.
@@ -3113,7 +3113,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeleteRole.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres eliminar el rol \'{roleName}\'?'**
+  /// **'¿Estás seguro de que deseas eliminar el rol \"{roleName}\"? Todas las asignaciones asociadas serán eliminadas.'**
   String confirmDeleteRole(String roleName);
 
   /// No description provided for @warningDeleteRole.
@@ -3131,13 +3131,13 @@ abstract class AppLocalizations {
   /// No description provided for @roleDeletedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Rol eliminado con éxito'**
-  String get roleDeletedSuccessfully;
+  /// **'Rol \"{roleName}\" eliminado exitosamente'**
+  String roleDeletedSuccessfully(String roleName);
 
   /// No description provided for @errorDeletingRole.
   ///
   /// In es, this message translates to:
-  /// **'Error al eliminar perfil: {error}'**
+  /// **'Error al eliminar rol: {error}'**
   String errorDeletingRole(String error);
 
   /// No description provided for @noPermissionManageRoles.
@@ -5255,8 +5255,8 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeleteMinistry.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres eliminar el ministerio \"{name}\"? Esta acción no se puede deshacer.'**
-  String confirmDeleteMinistry(Object name);
+  /// **'¿Estás seguro de que deseas eliminar el ministerio \"{ministryName}\" de esta franja horaria? Todas las asignaciones asociadas serán eliminadas.'**
+  String confirmDeleteMinistry(String ministryName);
 
   /// No description provided for @errorDeletingMinistry.
   ///
@@ -5357,7 +5357,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmed.
   ///
   /// In es, this message translates to:
-  /// **'Confirmados'**
+  /// **'Confirmado'**
   String get confirmed;
 
   /// No description provided for @present.
@@ -5423,7 +5423,7 @@ abstract class AppLocalizations {
   /// No description provided for @addParticipant.
   ///
   /// In es, this message translates to:
-  /// **'Añadir Participante'**
+  /// **'Agregar participante'**
   String get addParticipant;
 
   /// No description provided for @searchUserByName.
@@ -7043,7 +7043,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRole.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar función'**
+  /// **'Eliminar Rol'**
   String get deleteRole;
 
   /// No description provided for @createNewRole.
@@ -9281,7 +9281,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleDetails.
   ///
   /// In es, this message translates to:
-  /// **'Detalles del Horario'**
+  /// **'Detalles de la Escala'**
   String get scheduleDetails;
 
   /// No description provided for @timeSlotName.
@@ -9389,7 +9389,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAssignment.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar designación'**
+  /// **'Eliminar Asignación'**
   String get deleteAssignment;
 
   /// No description provided for @noInvitesSent.
@@ -9407,8 +9407,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorUploadingFile.
   ///
   /// In es, this message translates to:
-  /// **'Error al enviar archivo: {error}'**
-  String errorUploadingFile(Object error);
+  /// **'Error al subir el archivo'**
+  String get errorUploadingFile;
 
   /// No description provided for @uploadingProgress.
   ///
@@ -10661,7 +10661,7 @@ abstract class AppLocalizations {
   /// No description provided for @workSchedules.
   ///
   /// In es, this message translates to:
-  /// **'Escalas de trabajo'**
+  /// **'Escalas'**
   String get workSchedules;
 
   /// No description provided for @ministryMessages.
@@ -13195,6 +13195,840 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al crear publicación'**
   String get errorCreatingPost;
+
+  /// No description provided for @onlyAdminsCanSendFiles.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo los administradores pueden enviar archivos'**
+  String get onlyAdminsCanSendFiles;
+
+  /// No description provided for @sendImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar imagen'**
+  String get sendImage;
+
+  /// No description provided for @send.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar'**
+  String get send;
+
+  /// No description provided for @audioDownloadNotAllowed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se permite la descarga de archivos de audio'**
+  String get audioDownloadNotAllowed;
+
+  /// No description provided for @downloadFile2.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar archivo'**
+  String get downloadFile2;
+
+  /// No description provided for @doYouWantToDownloadFile.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Deseas descargar \"{filename}\"?'**
+  String doYouWantToDownloadFile(String filename);
+
+  /// No description provided for @areYouSureDeleteMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar este mensaje?'**
+  String get areYouSureDeleteMessage;
+
+  /// No description provided for @errorDeletingMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar mensaje'**
+  String get errorDeletingMessage;
+
+  /// No description provided for @errorSendingMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al enviar mensaje'**
+  String get errorSendingMessage;
+
+  /// No description provided for @messageDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje eliminado'**
+  String get messageDeleted;
+
+  /// No description provided for @errorUploadingAudio.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al subir el audio'**
+  String get errorUploadingAudio;
+
+  /// No description provided for @couldNotStartRecording.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo iniciar la grabación'**
+  String get couldNotStartRecording;
+
+  /// No description provided for @recordingTooShort.
+  ///
+  /// In es, this message translates to:
+  /// **'La grabación es demasiado corta'**
+  String get recordingTooShort;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin mensajes aún'**
+  String get noMessagesYet;
+
+  /// No description provided for @writeMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un mensaje...'**
+  String get writeMessage;
+
+  /// No description provided for @noMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin miembros'**
+  String get noMembers;
+
+  /// No description provided for @addMessageOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar un mensaje (opcional)'**
+  String get addMessageOptional;
+
+  /// No description provided for @assignRoleIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Rol en {ministryName}'**
+  String assignRoleIn(String ministryName);
+
+  /// No description provided for @enterRoleExample.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa un rol (ej. \"Director\", \"Músico\")'**
+  String get enterRoleExample;
+
+  /// No description provided for @roleCapacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Capacidad del rol'**
+  String get roleCapacity;
+
+  /// No description provided for @numberOfPeople.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de personas'**
+  String get numberOfPeople;
+
+  /// No description provided for @roleToAssign.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol a asignar'**
+  String get roleToAssign;
+
+  /// No description provided for @selectPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Persona'**
+  String get selectPerson;
+
+  /// No description provided for @searchPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar persona...'**
+  String get searchPerson;
+
+  /// No description provided for @selectedPeople.
+  ///
+  /// In es, this message translates to:
+  /// **'Personas seleccionadas: {count}'**
+  String selectedPeople(int count);
+
+  /// No description provided for @createRoleOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear Solo Rol'**
+  String get createRoleOnly;
+
+  /// No description provided for @assignPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Persona'**
+  String get assignPerson;
+
+  /// No description provided for @assignRoleAndPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Rol y Persona'**
+  String get assignRoleAndPerson;
+
+  /// No description provided for @capacityUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Capacidad actualizada con éxito'**
+  String get capacityUpdatedSuccessfully;
+
+  /// No description provided for @invalidCapacityOrLessThanAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Capacidad inválida o menor que personas asignadas'**
+  String get invalidCapacityOrLessThanAssigned;
+
+  /// No description provided for @capacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Capacidad'**
+  String get capacity;
+
+  /// No description provided for @noRolesDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay roles definidos para esta franja horaria'**
+  String get noRolesDefined;
+
+  /// No description provided for @assignedOriginally.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignado originalmente'**
+  String get assignedOriginally;
+
+  /// No description provided for @declined.
+  ///
+  /// In es, this message translates to:
+  /// **'Declinado'**
+  String get declined;
+
+  /// No description provided for @seen.
+  ///
+  /// In es, this message translates to:
+  /// **'Visto'**
+  String get seen;
+
+  /// No description provided for @notAttended.
+  ///
+  /// In es, this message translates to:
+  /// **'No asistió'**
+  String get notAttended;
+
+  /// No description provided for @deleteInvite.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Invitación'**
+  String get deleteInvite;
+
+  /// No description provided for @confirmDeleteInviteFor.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar la invitación enviada a \"{userName}\"?'**
+  String confirmDeleteInviteFor(String userName);
+
+  /// No description provided for @confirmDeleteAssignment.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar la asignación de \"{userName}\"?'**
+  String confirmDeleteAssignment(String userName);
+
+  /// No description provided for @deletingMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminando ministerio...'**
+  String get deletingMinistry;
+
+  /// No description provided for @errorDeletingMinistry3.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar ministerio'**
+  String get errorDeletingMinistry3;
+
+  /// No description provided for @deletingAssignment.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminando asignación...'**
+  String get deletingAssignment;
+
+  /// No description provided for @assignmentDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignación de \"{userName}\" eliminada con éxito'**
+  String assignmentDeletedSuccessfully(String userName);
+
+  /// No description provided for @errorDeletingAssignment.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar asignación'**
+  String get errorDeletingAssignment;
+
+  /// No description provided for @inviteDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitación para \"{userName}\" eliminada'**
+  String inviteDeleted(String userName);
+
+  /// No description provided for @errorDeletingInvite.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar invitación'**
+  String get errorDeletingInvite;
+
+  /// No description provided for @editCapacityFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar capacidad para \"{role}\"'**
+  String editCapacityFor(String role);
+
+  /// No description provided for @pleaseEnterValidNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un número válido mayor que cero'**
+  String get pleaseEnterValidNumber;
+
+  /// No description provided for @capacityCannotBeLessThanAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'La capacidad no puede ser menor que el número de personas asignadas'**
+  String get capacityCannotBeLessThanAssigned;
+
+  /// No description provided for @updatingCapacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizando capacidad...'**
+  String get updatingCapacity;
+
+  /// No description provided for @capacityUpdatedSuccessfully2.
+  ///
+  /// In es, this message translates to:
+  /// **'Capacidad del rol \"{roleName}\" actualizada con éxito'**
+  String capacityUpdatedSuccessfully2(String roleName);
+
+  /// No description provided for @errorUpdatingCapacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar capacidad: {error}'**
+  String errorUpdatingCapacity(String error);
+
+  /// No description provided for @deletingRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminando rol...'**
+  String get deletingRole;
+
+  /// No description provided for @selectExistingRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar rol existente'**
+  String get selectExistingRole;
+
+  /// No description provided for @capacityMustBeAtLeast1.
+  ///
+  /// In es, this message translates to:
+  /// **'La capacidad debe ser al menos 1'**
+  String get capacityMustBeAtLeast1;
+
+  /// No description provided for @errorCreatingRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al crear rol: {error}'**
+  String errorCreatingRole(String error);
+
+  /// No description provided for @attendanceUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencia de {userName} actualizada'**
+  String attendanceUpdated(String userName);
+
+  /// No description provided for @errorRegisteringAttendee.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al registrar participante'**
+  String get errorRegisteringAttendee;
+
+  /// No description provided for @attendanceConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencia de {userName} confirmada'**
+  String attendanceConfirmed(String userName);
+
+  /// No description provided for @errorConfirmingAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al confirmar asistencia'**
+  String get errorConfirmingAttendance;
+
+  /// No description provided for @errorRestoringState.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al restaurar estado'**
+  String get errorRestoringState;
+
+  /// No description provided for @attendanceChangedTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencia cambiada a {newUserName}'**
+  String attendanceChangedTo(String newUserName);
+
+  /// No description provided for @errorChangingAttendee.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cambiar participante'**
+  String get errorChangingAttendee;
+
+  /// No description provided for @errorMarkingAsAbsent.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al marcar como ausente'**
+  String get errorMarkingAsAbsent;
+
+  /// No description provided for @deleteInviteTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar invitación'**
+  String get deleteInviteTooltip;
+
+  /// No description provided for @confirmTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get confirmTooltip;
+
+  /// No description provided for @unconfirmTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Desconfirmar'**
+  String get unconfirmTooltip;
+
+  /// No description provided for @didNotAttendTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'No asistió'**
+  String get didNotAttendTooltip;
+
+  /// No description provided for @resetTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Resetear'**
+  String get resetTooltip;
+
+  /// No description provided for @roleCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol \"{roleName}\" creado con éxito'**
+  String roleCreatedSuccessfully(String roleName);
+
+  /// No description provided for @stateRestored.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado de {userName} restaurado'**
+  String stateRestored(String userName);
+
+  /// No description provided for @assignMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar Ministerios'**
+  String get assignMinistries;
+
+  /// No description provided for @selectMinistriesForTimeSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona los ministerios que participarán en esta franja horaria'**
+  String get selectMinistriesForTimeSlot;
+
+  /// No description provided for @canSelectMultipleMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes seleccionar varios ministerios al mismo tiempo. Después podrás definir los roles específicos para cada ministerio.'**
+  String get canSelectMultipleMinistries;
+
+  /// No description provided for @searchMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar ministerio...'**
+  String get searchMinistry;
+
+  /// No description provided for @createTemporaryMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear ministerio temporal'**
+  String get createTemporaryMinistry;
+
+  /// No description provided for @temporaryMinistryName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del ministerio temporal'**
+  String get temporaryMinistryName;
+
+  /// No description provided for @ministriesSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} ministerios seleccionados'**
+  String ministriesSelected(int count);
+
+  /// No description provided for @assignSelectedMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignar ministerios seleccionados'**
+  String get assignSelectedMinistries;
+
+  /// No description provided for @pleaseEnterTemporaryMinistryName.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa un nombre para el ministerio temporal'**
+  String get pleaseEnterTemporaryMinistryName;
+
+  /// No description provided for @pleaseSelectAtLeastOneMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona al menos un ministerio'**
+  String get pleaseSelectAtLeastOneMinistry;
+
+  /// No description provided for @ministryAssignedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio \"{ministryName}\" asignado con éxito'**
+  String ministryAssignedSuccessfully(String ministryName);
+
+  /// No description provided for @ministriesAssignedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} ministerios asignados con éxito'**
+  String ministriesAssignedSuccessfully(int count);
+
+  /// No description provided for @noNewMinistriesAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún ministerio nuevo fue asignado'**
+  String get noNewMinistriesAssigned;
+
+  /// No description provided for @errorAssigningMinistries.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al asignar ministerios'**
+  String get errorAssigningMinistries;
+
+  /// No description provided for @addNewRoleIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar Nuevo Rol en {ministryName}'**
+  String addNewRoleIn(String ministryName);
+
+  /// No description provided for @selectPredefinedRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un rol predefinido:'**
+  String get selectPredefinedRole;
+
+  /// No description provided for @orCreateNewRole.
+  ///
+  /// In es, this message translates to:
+  /// **'O crea un nuevo rol:'**
+  String get orCreateNewRole;
+
+  /// No description provided for @saveAsPredefinedRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar como rol predefinido'**
+  String get saveAsPredefinedRole;
+
+  /// No description provided for @predefinedRoleDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Si desactivas esta opción, el rol solo será creado para este ministerio y no aparecerá en la lista de roles predefinidos'**
+  String get predefinedRoleDescription;
+
+  /// No description provided for @numberOfPeopleForRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de personas para este rol'**
+  String get numberOfPeopleForRole;
+
+  /// No description provided for @roleDeletedSuccessfully2.
+  ///
+  /// In es, this message translates to:
+  /// **'Rol eliminado con éxito'**
+  String get roleDeletedSuccessfully2;
+
+  /// No description provided for @manageYourServiceSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona tus escalas y horarios de servicio'**
+  String get manageYourServiceSchedules;
+
+  /// No description provided for @myWorkSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis Escalas'**
+  String get myWorkSchedules;
+
+  /// No description provided for @pendingSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendientes'**
+  String get pendingSchedules;
+
+  /// No description provided for @acceptedSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptadas'**
+  String get acceptedSchedules;
+
+  /// No description provided for @rejectedSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazadas'**
+  String get rejectedSchedules;
+
+  /// No description provided for @allSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas'**
+  String get allSchedules;
+
+  /// No description provided for @scheduleHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Histórico'**
+  String get scheduleHistory;
+
+  /// No description provided for @noSchedulesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron escalas'**
+  String get noSchedulesFound;
+
+  /// No description provided for @noPendingSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes escalas pendientes'**
+  String get noPendingSchedules;
+
+  /// No description provided for @noAcceptedSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes escalas aceptadas'**
+  String get noAcceptedSchedules;
+
+  /// No description provided for @noRejectedSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes escalas rechazadas'**
+  String get noRejectedSchedules;
+
+  /// No description provided for @acceptSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar Escala'**
+  String get acceptSchedule;
+
+  /// No description provided for @rejectSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar Escala'**
+  String get rejectSchedule;
+
+  /// No description provided for @scheduleAcceptedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Escala aceptada con éxito'**
+  String get scheduleAcceptedSuccessfully;
+
+  /// No description provided for @scheduleRejectedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Escala rechazada con éxito'**
+  String get scheduleRejectedSuccessfully;
+
+  /// No description provided for @errorAcceptingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al aceptar la escala'**
+  String get errorAcceptingSchedule;
+
+  /// No description provided for @errorRejectingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al rechazar la escala'**
+  String get errorRejectingSchedule;
+
+  /// No description provided for @confirmAcceptSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Confirmar aceptación?'**
+  String get confirmAcceptSchedule;
+
+  /// No description provided for @confirmRejectSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Confirmar rechazo?'**
+  String get confirmRejectSchedule;
+
+  /// No description provided for @confirmAcceptScheduleMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres aceptar esta escala?'**
+  String get confirmAcceptScheduleMessage;
+
+  /// No description provided for @confirmRejectScheduleMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres rechazar esta escala?'**
+  String get confirmRejectScheduleMessage;
+
+  /// No description provided for @viewScheduleCalendar.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Calendario'**
+  String get viewScheduleCalendar;
+
+  /// No description provided for @upcomingSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximas Escalas'**
+  String get upcomingSchedules;
+
+  /// No description provided for @pastSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Escalas Pasadas'**
+  String get pastSchedules;
+
+  /// No description provided for @pendingSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'pendiente'**
+  String get pendingSchedule;
+
+  /// No description provided for @pendingSchedulesLowercase.
+  ///
+  /// In es, this message translates to:
+  /// **'pendientes'**
+  String get pendingSchedulesLowercase;
+
+  /// No description provided for @newServiceInvitation.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva invitación de trabajo'**
+  String get newServiceInvitation;
+
+  /// No description provided for @invitedToServeAs.
+  ///
+  /// In es, this message translates to:
+  /// **'Has sido invitado para servir como {role}'**
+  String invitedToServeAs(String role);
+
+  /// No description provided for @assignmentCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignación cancelada'**
+  String get assignmentCancelled;
+
+  /// No description provided for @assignmentCancelledMinistryRemoved.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu asignación fue cancelada porque el ministerio fue removido de la franja horaria'**
+  String get assignmentCancelledMinistryRemoved;
+
+  /// No description provided for @invitationCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitación cancelada'**
+  String get invitationCancelled;
+
+  /// No description provided for @invitationCancelledMinistryRemoved.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu invitación fue cancelada porque el ministerio fue removido de la franja horaria'**
+  String get invitationCancelledMinistryRemoved;
+
+  /// No description provided for @invitationCancelledEventCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu invitación para participar en un evento fue cancelada'**
+  String get invitationCancelledEventCancelled;
+
+  /// No description provided for @roleAlreadyExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Este rol ya existe'**
+  String get roleAlreadyExists;
+
+  /// No description provided for @noPersonSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'No has seleccionado ninguna persona para asignar'**
+  String get noPersonSelected;
+
+  /// No description provided for @peopleAssignedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Personas asignadas correctamente'**
+  String get peopleAssignedSuccessfully;
+
+  /// No description provided for @errorAssigningPeople.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al asignar personas: {error}'**
+  String errorAssigningPeople(String error);
+
+  /// No description provided for @savedRoles.
+  ///
+  /// In es, this message translates to:
+  /// **'Roles guardados'**
+  String get savedRoles;
+
+  /// No description provided for @createRoleWithoutAssigningPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear función sin atribuir persona (puedes atribuir personas después)'**
+  String get createRoleWithoutAssigningPerson;
+
+  /// No description provided for @noUsersInMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuarios registrados en este ministerio'**
+  String get noUsersInMinistry;
+
+  /// No description provided for @viewAllUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos los usuarios'**
+  String get viewAllUsers;
+
+  /// No description provided for @showingAllUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrando todos los usuarios. Considera agregar miembros al ministerio para una mejor organización.'**
+  String get showingAllUsers;
+
+  /// No description provided for @userRejectedInvitation.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario rechazó anteriormente esta invitación'**
+  String get userRejectedInvitation;
+
+  /// No description provided for @userHasActiveInvitation.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya tiene una invitación activa'**
+  String get userHasActiveInvitation;
+
+  /// No description provided for @currentlyAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Asignados actualmente: {count}'**
+  String currentlyAssigned(int count);
+
+  /// No description provided for @sureDeleteRole.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro que deseas eliminar el rol \"{roleName}\"?'**
+  String sureDeleteRole(String roleName);
+
+  /// No description provided for @tapToEditCapacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para editar capacidad'**
+  String get tapToEditCapacity;
 }
 
 class _AppLocalizationsDelegate

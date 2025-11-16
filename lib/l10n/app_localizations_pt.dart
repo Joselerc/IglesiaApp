@@ -74,9 +74,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ministries => 'Ministérios';
 
   @override
-  String errorLoadingMinistries(Object error) {
-    return 'Erro ao carregar ministérios: $error';
-  }
+  String get errorLoadingMinistries => 'Erro ao carregar ministérios';
 
   @override
   String get mySchedules => 'Minhas Escalas';
@@ -298,7 +296,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unnamedGroup => 'Grupo sem nome';
 
   @override
-  String get noMinistriesAvailable => 'Não há ministérios disponíveis';
+  String get noMinistriesAvailable =>
+      'Não foram encontrados ministérios disponíveis';
 
   @override
   String get unnamedMinistry => 'Ministério sem nome';
@@ -331,7 +330,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get deleteMinistry => 'Excluir ministério';
+  String get deleteMinistry => 'Excluir Ministério';
 
   @override
   String get confirmDeleteMinistryQuestion =>
@@ -343,7 +342,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String ministryDeletedSuccessfully(String ministryName) {
-    return 'Ministério excluído com sucesso';
+    return 'Ministério \"$ministryName\" excluído com sucesso';
   }
 
   @override
@@ -822,13 +821,13 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get pending => 'Pendentes';
+  String get pending => 'Pendente';
 
   @override
-  String get accepted => 'Aceita';
+  String get accepted => 'Aceito';
 
   @override
-  String get rejected => 'Reprovadas';
+  String get rejected => 'Recusado';
 
   @override
   String get youHaveNoWorkInvites => 'Você não tem convites de trabalho';
@@ -883,7 +882,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get jobDetails => 'Detalhes do Trabalho';
 
   @override
-  String get roleToPerform => 'Função a desempenhar';
+  String get roleToPerform => 'Papel a desempenhar';
 
   @override
   String get invitationInfo => 'Informações do Convite';
@@ -1400,7 +1399,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get roleIdLabel => 'ID do Papel';
 
   @override
-  String get noRole => 'Sem Papel';
+  String get noRole => 'Sem papel';
 
   @override
   String get superUser => 'SuperUser';
@@ -1731,7 +1730,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String confirmDeleteRole(String roleName) {
-    return 'Tem certeza que deseja excluir o papel \'$roleName\'?';
+    return 'Tem certeza que deseja excluir a função \"$roleName\"? Todas as atribuições associadas serão excluídas.';
   }
 
   @override
@@ -1742,11 +1741,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noPermissionDeleteRoles => 'Sem permissão para excluir papéis';
 
   @override
-  String get roleDeletedSuccessfully => 'Papel excluído com sucesso';
+  String roleDeletedSuccessfully(String roleName) {
+    return 'Função \"$roleName\" excluída com sucesso';
+  }
 
   @override
   String errorDeletingRole(String error) {
-    return 'Erro ao excluir papel: $error';
+    return 'Erro ao excluir função';
   }
 
   @override
@@ -2962,8 +2963,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get errorText => 'Erro';
 
   @override
-  String confirmDeleteMinistry(Object name) {
-    return 'Você tem certeza de que deseja excluir o ministério \"$name\"? Esta ação não pode ser desfeita.';
+  String confirmDeleteMinistry(String ministryName) {
+    return 'Tem certeza que deseja excluir o ministério \"$ministryName\" desta faixa horária? Todas as atribuições associadas serão excluídas.';
   }
 
   @override
@@ -3022,7 +3023,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get searchParticipants => 'Buscar participantes';
 
   @override
-  String get confirmed => 'Confirmados';
+  String get confirmed => 'Confirmado';
 
   @override
   String present(Object count) {
@@ -3063,7 +3064,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get addParticipant => 'Adicionar Participante';
+  String get addParticipant => 'Adicionar participante';
 
   @override
   String get searchUserByName => 'Buscar usuário por nome';
@@ -3919,13 +3920,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get editProfile => 'Editar Perfil';
 
   @override
-  String get deleteRole => 'Excluir função';
+  String get deleteRole => 'Excluir Função';
 
   @override
   String get createNewRole => 'Criar Novo Papel';
 
   @override
-  String get failedDeleteRole => 'Falha ao excluir papel';
+  String get failedDeleteRole => 'Erro ao excluir papel';
 
   @override
   String get editModule => 'Editar Módulo';
@@ -5159,7 +5160,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get editSchedule => 'Editar Horário';
 
   @override
-  String get scheduleDetails => 'Detalhes do Horário';
+  String get scheduleDetails => 'Detalhes da Escala';
 
   @override
   String get timeSlotName => 'Nome da faixa horária';
@@ -5220,7 +5221,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addPerson => 'Adicionar Pessoa';
 
   @override
-  String get deleteAssignment => 'Excluir designação';
+  String get deleteAssignment => 'Excluir Atribuição';
 
   @override
   String get noInvitesSent => 'Nenhum convite enviado';
@@ -5229,9 +5230,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get songNotFound => 'Música não encontrada';
 
   @override
-  String errorUploadingFile(Object error) {
-    return 'Erro ao enviar arquivo: $error';
-  }
+  String get errorUploadingFile => 'Erro ao carregar o arquivo';
 
   @override
   String uploadingProgress(Object progress) {
@@ -5958,7 +5957,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ministryPosts => 'Publicações dos ministérios';
 
   @override
-  String get workSchedules => 'Escalas de trabalho';
+  String get workSchedules => 'Escalas';
 
   @override
   String get ministryMessages => 'Mensagens dos ministérios';
@@ -7378,4 +7377,493 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get errorCreatingPost => 'Erro ao criar publicação';
+
+  @override
+  String get onlyAdminsCanSendFiles =>
+      'Apenas administradores podem enviar arquivos';
+
+  @override
+  String get sendImage => 'Enviar imagem';
+
+  @override
+  String get send => 'Enviar';
+
+  @override
+  String get audioDownloadNotAllowed =>
+      'O download de arquivos de áudio não é permitido';
+
+  @override
+  String get downloadFile2 => 'Baixar arquivo';
+
+  @override
+  String doYouWantToDownloadFile(String filename) {
+    return 'Deseja baixar \"$filename\"?';
+  }
+
+  @override
+  String get areYouSureDeleteMessage =>
+      'Tem certeza de que deseja excluir esta mensagem?';
+
+  @override
+  String get errorDeletingMessage => 'Erro ao excluir mensagem';
+
+  @override
+  String get errorSendingMessage => 'Erro ao enviar mensagem';
+
+  @override
+  String get messageDeleted => 'Mensagem excluída';
+
+  @override
+  String get errorUploadingAudio => 'Erro ao carregar o áudio';
+
+  @override
+  String get couldNotStartRecording => 'Não foi possível iniciar a gravação';
+
+  @override
+  String get recordingTooShort => 'A gravação é muito curta';
+
+  @override
+  String get noMessagesYet => 'Sem mensagens ainda';
+
+  @override
+  String get writeMessage => 'Escreva uma mensagem...';
+
+  @override
+  String get noMembers => 'Sem membros';
+
+  @override
+  String get addMessageOptional => 'Adicionar uma mensagem (opcional)';
+
+  @override
+  String assignRoleIn(String ministryName) {
+    return 'Atribuir Papel em $ministryName';
+  }
+
+  @override
+  String get enterRoleExample =>
+      'Insira um papel (ex. \"Diretor\", \"Músico\")';
+
+  @override
+  String get roleCapacity => 'Capacidade do papel';
+
+  @override
+  String get numberOfPeople => 'Número de pessoas';
+
+  @override
+  String get roleToAssign => 'Rol a asignar';
+
+  @override
+  String get selectPerson => 'Seleccionar Persona';
+
+  @override
+  String get searchPerson => 'Buscar persona...';
+
+  @override
+  String selectedPeople(int count) {
+    return 'Personas seleccionadas: $count';
+  }
+
+  @override
+  String get createRoleOnly => 'Criar Apenas Papel';
+
+  @override
+  String get assignPerson => 'Atribuir Pessoa';
+
+  @override
+  String get assignRoleAndPerson => 'Atribuir Papel e Pessoa';
+
+  @override
+  String get capacityUpdatedSuccessfully => 'Capacidade atualizada com sucesso';
+
+  @override
+  String get invalidCapacityOrLessThanAssigned =>
+      'Capacidade inválida ou menor que pessoas assinadas';
+
+  @override
+  String get capacity => 'Capacidade';
+
+  @override
+  String get noRolesDefined =>
+      'Não há papéis definidos para esta faixa horária';
+
+  @override
+  String get assignedOriginally => 'Atribuído originalmente';
+
+  @override
+  String get declined => 'Recusado';
+
+  @override
+  String get seen => 'Visto';
+
+  @override
+  String get notAttended => 'Não compareceu';
+
+  @override
+  String get deleteInvite => 'Excluir Convite';
+
+  @override
+  String confirmDeleteInviteFor(String userName) {
+    return 'Tem certeza que deseja excluir o convite enviado para \"$userName\"?';
+  }
+
+  @override
+  String confirmDeleteAssignment(String userName) {
+    return 'Tem certeza que deseja excluir a atribuição de \"$userName\"?';
+  }
+
+  @override
+  String get deletingMinistry => 'Excluindo ministério...';
+
+  @override
+  String get errorDeletingMinistry3 => 'Erro ao excluir ministério';
+
+  @override
+  String get deletingAssignment => 'Excluindo atribuição...';
+
+  @override
+  String assignmentDeletedSuccessfully(String userName) {
+    return 'Atribuição de \"$userName\" excluída com sucesso';
+  }
+
+  @override
+  String get errorDeletingAssignment => 'Erro ao excluir atribuição';
+
+  @override
+  String inviteDeleted(String userName) {
+    return 'Convite para \"$userName\" excluído';
+  }
+
+  @override
+  String get errorDeletingInvite => 'Erro ao excluir convite';
+
+  @override
+  String editCapacityFor(String role) {
+    return 'Editar capacidade para \"$roleName\"';
+  }
+
+  @override
+  String get pleaseEnterValidNumber =>
+      'Por favor insira um número válido maior que zero';
+
+  @override
+  String get capacityCannotBeLessThanAssigned =>
+      'A capacidade não pode ser menor que o número de pessoas atribuídas';
+
+  @override
+  String get updatingCapacity => 'Atualizando capacidade...';
+
+  @override
+  String capacityUpdatedSuccessfully2(String roleName) {
+    return 'Capacidade da função \"$roleName\" atualizada com sucesso';
+  }
+
+  @override
+  String errorUpdatingCapacity(String error) {
+    return 'Erro ao atualizar capacidade';
+  }
+
+  @override
+  String get deletingRole => 'Excluindo função...';
+
+  @override
+  String get selectExistingRole => 'Selecionar papel existente';
+
+  @override
+  String get capacityMustBeAtLeast1 => 'A capacidade deve ser pelo menos 1';
+
+  @override
+  String errorCreatingRole(String error) {
+    return 'Erro ao criar papel';
+  }
+
+  @override
+  String attendanceUpdated(String userName) {
+    return 'Presença de $userName atualizada';
+  }
+
+  @override
+  String get errorRegisteringAttendee => 'Erro ao registrar participante';
+
+  @override
+  String attendanceConfirmed(String userName) {
+    return 'Presença de $userName confirmada';
+  }
+
+  @override
+  String get errorConfirmingAttendance => 'Erro ao confirmar presença';
+
+  @override
+  String get errorRestoringState => 'Erro ao restaurar estado';
+
+  @override
+  String attendanceChangedTo(String newUserName) {
+    return 'Presença alterada para $newUserName';
+  }
+
+  @override
+  String get errorChangingAttendee => 'Erro ao alterar participante';
+
+  @override
+  String get errorMarkingAsAbsent => 'Erro ao marcar como ausente';
+
+  @override
+  String get deleteInviteTooltip => 'Excluir convite';
+
+  @override
+  String get confirmTooltip => 'Confirmar';
+
+  @override
+  String get unconfirmTooltip => 'Desconfirmar';
+
+  @override
+  String get didNotAttendTooltip => 'Não compareceu';
+
+  @override
+  String get resetTooltip => 'Resetar';
+
+  @override
+  String roleCreatedSuccessfully(String roleName) {
+    return 'Papel \"$roleName\" criado com sucesso';
+  }
+
+  @override
+  String stateRestored(String userName) {
+    return 'Estado de $userName restaurado';
+  }
+
+  @override
+  String get assignMinistries => 'Atribuir Ministérios';
+
+  @override
+  String get selectMinistriesForTimeSlot =>
+      'Selecione os ministérios que participarão nesta faixa horária';
+
+  @override
+  String get canSelectMultipleMinistries =>
+      'Você pode selecionar vários ministérios ao mesmo tempo. Depois você poderá definir os papéis específicos para cada ministério.';
+
+  @override
+  String get searchMinistry => 'Buscar ministério...';
+
+  @override
+  String get createTemporaryMinistry => 'Criar ministério temporário';
+
+  @override
+  String get temporaryMinistryName => 'Nome do ministério temporário';
+
+  @override
+  String ministriesSelected(int count) {
+    return '$count ministérios selecionados';
+  }
+
+  @override
+  String get assignSelectedMinistries => 'Atribuir ministérios selecionados';
+
+  @override
+  String get pleaseEnterTemporaryMinistryName =>
+      'Por favor, insira um nome para o ministério temporário';
+
+  @override
+  String get pleaseSelectAtLeastOneMinistry =>
+      'Por favor, selecione pelo menos um ministério';
+
+  @override
+  String ministryAssignedSuccessfully(String ministryName) {
+    return 'Ministério \"$ministryName\" atribuído com sucesso';
+  }
+
+  @override
+  String ministriesAssignedSuccessfully(int count) {
+    return '$count ministérios atribuídos com sucesso';
+  }
+
+  @override
+  String get noNewMinistriesAssigned => 'Nenhum ministério novo foi atribuído';
+
+  @override
+  String get errorAssigningMinistries => 'Erro ao atribuir ministérios';
+
+  @override
+  String addNewRoleIn(String ministryName) {
+    return 'Adicionar Nova Função em $ministryName';
+  }
+
+  @override
+  String get selectPredefinedRole => 'Selecione um papel predefinido:';
+
+  @override
+  String get orCreateNewRole => 'Ou crie um novo papel:';
+
+  @override
+  String get saveAsPredefinedRole => 'Salvar como papel predefinido';
+
+  @override
+  String get predefinedRoleDescription =>
+      'Se desativar esta opção, o papel só será criado para este ministério e não aparecerá na lista de papéis predefinidos';
+
+  @override
+  String get numberOfPeopleForRole => 'Número de pessoas para este papel';
+
+  @override
+  String get roleDeletedSuccessfully2 => 'Papel excluído com sucesso';
+
+  @override
+  String get manageYourServiceSchedules =>
+      'Gerencie suas escalas e horários de serviço';
+
+  @override
+  String get myWorkSchedules => 'Minhas Escalas';
+
+  @override
+  String get pendingSchedules => 'Pendentes';
+
+  @override
+  String get acceptedSchedules => 'Aceitas';
+
+  @override
+  String get rejectedSchedules => 'Rejeitadas';
+
+  @override
+  String get allSchedules => 'Todas';
+
+  @override
+  String get scheduleHistory => 'Histórico';
+
+  @override
+  String get noSchedulesFound => 'Não foram encontradas escalas';
+
+  @override
+  String get noPendingSchedules => 'Você não tem escalas pendentes';
+
+  @override
+  String get noAcceptedSchedules => 'Você não tem escalas aceitas';
+
+  @override
+  String get noRejectedSchedules => 'Você não tem escalas rejeitadas';
+
+  @override
+  String get acceptSchedule => 'Aceitar Escala';
+
+  @override
+  String get rejectSchedule => 'Rejeitar Escala';
+
+  @override
+  String get scheduleAcceptedSuccessfully => 'Escala aceita com sucesso';
+
+  @override
+  String get scheduleRejectedSuccessfully => 'Escala rejeitada com sucesso';
+
+  @override
+  String get errorAcceptingSchedule => 'Erro ao aceitar a escala';
+
+  @override
+  String get errorRejectingSchedule => 'Erro ao rejeitar a escala';
+
+  @override
+  String get confirmAcceptSchedule => 'Confirmar aceitação?';
+
+  @override
+  String get confirmRejectSchedule => 'Confirmar rejeição?';
+
+  @override
+  String get confirmAcceptScheduleMessage =>
+      'Tem certeza de que deseja aceitar esta escala?';
+
+  @override
+  String get confirmRejectScheduleMessage =>
+      'Tem certeza de que deseja rejeitar esta escala?';
+
+  @override
+  String get viewScheduleCalendar => 'Ver Calendário';
+
+  @override
+  String get upcomingSchedules => 'Próximas Escalas';
+
+  @override
+  String get pastSchedules => 'Escalas Passadas';
+
+  @override
+  String get pendingSchedule => 'pendente';
+
+  @override
+  String get pendingSchedulesLowercase => 'pendentes';
+
+  @override
+  String get newServiceInvitation => 'Novo convite de serviço';
+
+  @override
+  String invitedToServeAs(String role) {
+    return 'Você foi convidado para servir como $role';
+  }
+
+  @override
+  String get assignmentCancelled => 'Atribuição cancelada';
+
+  @override
+  String get assignmentCancelledMinistryRemoved =>
+      'Sua atribuição foi cancelada porque o ministério foi removido da faixa horária';
+
+  @override
+  String get invitationCancelled => 'Convite cancelado';
+
+  @override
+  String get invitationCancelledMinistryRemoved =>
+      'Seu convite foi cancelado porque o ministério foi removido da faixa horária';
+
+  @override
+  String get invitationCancelledEventCancelled =>
+      'Seu convite para participar em um evento foi cancelado';
+
+  @override
+  String get roleAlreadyExists => 'Este rol ya existe';
+
+  @override
+  String get noPersonSelected =>
+      'No has seleccionado ninguna persona para asignar';
+
+  @override
+  String get peopleAssignedSuccessfully => 'Personas asignadas correctamente';
+
+  @override
+  String errorAssigningPeople(String error) {
+    return 'Error al asignar personas: $error';
+  }
+
+  @override
+  String get savedRoles => 'Roles guardados';
+
+  @override
+  String get createRoleWithoutAssigningPerson =>
+      'Crear función sin atribuir persona (puedes atribuir personas después)';
+
+  @override
+  String get noUsersInMinistry =>
+      'No hay usuarios registrados en este ministerio';
+
+  @override
+  String get viewAllUsers => 'Ver todos los usuarios';
+
+  @override
+  String get showingAllUsers =>
+      'Mostrando todos los usuarios. Considera agregar miembros al ministerio para una mejor organización.';
+
+  @override
+  String get userRejectedInvitation =>
+      'Usuario rechazó anteriormente esta invitación';
+
+  @override
+  String get userHasActiveInvitation => 'Ya tiene una invitación activa';
+
+  @override
+  String currentlyAssigned(int count) {
+    return 'Asignados actualmente: $count';
+  }
+
+  @override
+  String sureDeleteRole(String roleName) {
+    return '¿Estás seguro que deseas eliminar el rol \"$roleName\"?';
+  }
+
+  @override
+  String get tapToEditCapacity => 'Toca para editar capacidad';
 }

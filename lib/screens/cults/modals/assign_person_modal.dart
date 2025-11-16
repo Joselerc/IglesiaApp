@@ -24,7 +24,7 @@ class UserData {
     final data = doc.data() as Map<String, dynamic>;
     return UserData(
       id: doc.id,
-      displayName: data['displayName'] ?? 'Usuário',
+      displayName: data['displayName'] ?? 'Usuario',
       email: data['email'] ?? '',
       photoUrl: data['photoUrl'] ?? '',
     );
@@ -245,7 +245,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar capacidade para "$role"'),
+        title: Text(AppLocalizations.of(context)!.editCapacityFor(role)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -258,13 +258,13 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
               ),
             ),
             const SizedBox(height: 8),
-            Text('Assinados atualmente: ${details['current']}'),
+            Text(AppLocalizations.of(context)!.currentlyAssigned(details['current'])),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -282,7 +282,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
               Navigator.pop(context);
               _updateRoleCapacity(details['id'], newCapacity);
             },
-            child: const Text('Salvar'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -683,8 +683,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     // Validación del rol cuando no hay uno predefinido
     if (widget.predefinedRole == null && role.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('El nombre del rol no puede estar vacío'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.roleNameRequired),
           backgroundColor: Colors.red,
         ),
       );
@@ -695,10 +695,10 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     if (_isCreatingRoleOnly) {
       if (widget.predefinedRole != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Este rol ya existe'),
-            backgroundColor: Colors.orange,
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.roleAlreadyExists),
+          backgroundColor: Colors.orange,
+        ),
         );
         return;
       }
@@ -712,10 +712,10 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
         await _saveRole(role, _selectedCapacity);
         
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Rol "$role" creado correctamente'),
-            backgroundColor: Colors.green,
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.roleCreatedSuccessfully(role)),
+          backgroundColor: Colors.green,
+        ),
         );
         
         debugPrint('Rol creado sin asignar personas. Cerrando modal...');
@@ -723,10 +723,10 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
       } catch (e) {
         debugPrint('Error al crear rol: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al crear rol: $e'),
-            backgroundColor: Colors.red,
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.errorCreatingRole(e.toString())),
+          backgroundColor: Colors.red,
+        ),
         );
       } finally {
         setState(() {
@@ -741,8 +741,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     
     if (_selectedUserIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No has seleccionado ninguna persona para asignar'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.noPersonSelected),
           backgroundColor: Colors.orange,
         ),
       );
@@ -789,11 +789,14 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
           }
           
           // Crear nueva invitación
+          // Usar claves fijas que se traducirán al mostrar la notificación
           await WorkScheduleService().createWorkAssignment(
             timeSlotId: widget.timeSlot.id,
             userId: userId,
             ministryId: widget.ministryId,
             role: widget.predefinedRole!,
+            notificationTitle: 'NEW_SERVICE_INVITATION',
+            notificationMessage: 'INVITED_TO_SERVE_AS:${widget.predefinedRole!}',
           );
         }
       } 
@@ -838,18 +841,21 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
           }
       
           // Crear invitación con el nuevo rol
+          // Usar claves fijas que se traducirán al mostrar la notificación
           await WorkScheduleService().createWorkAssignment(
             timeSlotId: widget.timeSlot.id,
             userId: userId,
             ministryId: widget.ministryId,
             role: role,
+            notificationTitle: 'NEW_SERVICE_INVITATION',
+            notificationMessage: 'INVITED_TO_SERVE_AS:$role',
           );
         }
       }
         
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Personas asignadas correctamente'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.peopleAssignedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -860,7 +866,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
       debugPrint('Error al asignar personas: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al asignar personas: $e'),
+          content: Text(AppLocalizations.of(context)!.errorAssigningPeople(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -1025,8 +1031,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Roles guardados',
+                              Text(
+                                AppLocalizations.of(context)!.savedRoles,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -1043,14 +1049,14 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                                   return GestureDetector(
                                     onTap: () => _showCapacityDialog(role),
                                     child: Tooltip(
-                                      message: 'Toca para editar capacidade',
+                                      message: AppLocalizations.of(context)!.tapToEditCapacity,
                                       child: Chip(
                                         label: Text('$role ${roleDetails != null ? "(${roleDetails['current']}/${roleDetails['capacity']})" : ""}'),
                                     backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
                                     deleteIcon: isUsed ? null : const Icon(Icons.close, size: 18),
                                     onDeleted: isUsed ? null : () => _confirmDeleteRole(role),
                                     labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                                    deleteButtonTooltipMessage: 'Eliminar rol',
+                                    deleteButtonTooltipMessage: AppLocalizations.of(context)!.deleteRole,
                                       ),
                                     ),
                                   );
@@ -1072,9 +1078,9 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                                 });
                               },
                             ),
-                            const Expanded(
+                            Expanded(
                               child: Text(
-                                'Criar funçao sem atribuir pessoa (você pode atribuir pessoas depois)',
+                                AppLocalizations.of(context)!.createRoleWithoutAssigningPerson,
                                 style: TextStyle(fontSize: 14),
                               ),
                             ),
@@ -1242,8 +1248,8 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
               color: Colors.grey[400],
             ),
             const SizedBox(height: 16),
-            const Text(
-              'No hay usuarios registrados en este ministerio',
+            Text(
+              AppLocalizations.of(context)!.noUsersInMinistry,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -1256,7 +1262,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                 _loadAllUsers();
               },
               icon: const Icon(Icons.people),
-              label: const Text('Ver todos los usuarios'),
+              label: Text(AppLocalizations.of(context)!.viewAllUsers),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
@@ -1289,13 +1295,13 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.orange.shade300),
                 ),
-                child: const Row(
+                  child: Row(
                   children: [
                     Icon(Icons.info_outline, color: Colors.orange),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Mostrando todos los usuarios. Considera agregar miembros al ministerio para una mejor organización.',
+                        AppLocalizations.of(context)!.showingAllUsers,
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -1330,18 +1336,18 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isRejected)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(right: 8.0),
                           child: Tooltip(
-                            message: 'Usuario rechazó anteriormente esta invitación',
+                            message: AppLocalizations.of(context)!.userRejectedInvitation,
                             child: Icon(Icons.warning_amber_rounded, color: Colors.orange),
                           ),
                         ),
                       if (isAlreadyInvited && !isRejected) 
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(right: 8.0),
                           child: Tooltip(
-                            message: 'Ya tiene una invitación activa',
+                            message: AppLocalizations.of(context)!.userHasActiveInvitation,
                             child: Icon(Icons.check_circle, color: Colors.green),
                           ),
                         ),
@@ -1382,19 +1388,19 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Rol'),
-        content: Text('¿Estás seguro que deseas eliminar el rol "$roleName"?'),
+        title: Text(AppLocalizations.of(context)!.deleteRole),
+        content: Text(AppLocalizations.of(context)!.sureDeleteRole(roleName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteRole(roleId, roleName);
             },
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -1406,13 +1412,13 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
+        builder: (context) => AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Eliminando rol...'),
+              Text(AppLocalizations.of(context)!.deletingRole),
             ],
           ),
         ),
@@ -1435,7 +1441,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Rol "$roleName" eliminado exitosamente'),
+          content: Text(AppLocalizations.of(context)!.roleDeletedSuccessfully(roleName)),
           backgroundColor: Colors.green,
         ),
       );
@@ -1444,7 +1450,7 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar rol: $e'),
+          content: Text(AppLocalizations.of(context)!.errorDeletingRole(e.toString())),
           backgroundColor: Colors.red,
         ),
       );

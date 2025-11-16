@@ -117,7 +117,7 @@ class _UploadProgressWidgetState extends State<UploadProgressWidget> {
       if (mounted) {
         setState(() {
           _isUploading = false;
-          _errorMessage = AppLocalizations.of(context)!.errorUploadingFile(e.toString());
+          _errorMessage = '${AppLocalizations.of(context)!.errorUploadingFile}: ${e.toString()}';
         });
       }
     }

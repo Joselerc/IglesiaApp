@@ -13,6 +13,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import '../../models/group.dart';
 import '../../screens/shared/image_viewer_screen.dart';
 import '../../screens/groups/group_details_screen.dart';
+import '../../l10n/app_localizations.dart';
 import 'dart:async';
 
 class GroupChatScreen extends StatefulWidget {
@@ -79,7 +80,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   Future<void> _pickAndUploadFile() async {
     if (!_isAdmin) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Apenas administradores podem enviar arquivos')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.onlyAdminsCanSendFiles)),
       );
       return;
     }
@@ -114,7 +115,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     final shouldSend = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enviar imagem'),
+        title: Text(AppLocalizations.of(context)!.sendImage),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -138,8 +139,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               // Campo opcional para añadir un mensaje
               TextField(
                 controller: messageController,
-                decoration: const InputDecoration(
-                  hintText: 'Adicionar uma mensagem (opcional)',
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.addMessageOptional,
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 2,
@@ -150,11 +151,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Enviar'),
+            child: Text(AppLocalizations.of(context)!.send),
           ),
         ],
       ),
@@ -208,7 +209,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         print('Error uploading file: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al subir el archivo: $e')),
+            SnackBar(content: Text('${AppLocalizations.of(context)!.errorUploadingFile}: $e')),
           );
         }
       } finally {
@@ -263,7 +264,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       print('Error uploading file: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al subir el archivo: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorUploadingFile}: $e')),
         );
       }
     } finally {
@@ -467,7 +468,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         fileName.toLowerCase().contains('audio')) {
       // Simplemente mostrar un mensaje o reproducir en lugar de descargar
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('O download de arquivos de áudio não é permitido')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.audioDownloadNotAllowed)),
       );
       return;
     }
@@ -476,16 +477,16 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     final shouldDownload = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Baixar arquivo'),
-        content: Text('Deseja baixar "$fileName"?'),
+        title: Text(AppLocalizations.of(context)!.downloadFile2),
+        content: Text(AppLocalizations.of(context)!.doYouWantToDownloadFile(fileName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Baixar'),
+            child: Text(AppLocalizations.of(context)!.download),
           ),
         ],
       ),
@@ -516,19 +517,19 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir mensagem'),
-        content: const Text('Tem certeza de que deseja excluir esta mensagem?'),
+        title: Text(AppLocalizations.of(context)!.deleteMessage),
+        content: Text(AppLocalizations.of(context)!.areYouSureDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               _deleteMessage(messageId);
               Navigator.pop(context);
             },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -550,11 +551,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mensagem excluída')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.messageDeleted)),
       );
     } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir mensagem: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.errorDeletingMessage}: $e')),
       );
     }
   }
@@ -579,7 +580,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     } catch (e) {
         if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al enviar mensaje: $e')),
+            SnackBar(content: Text('${AppLocalizations.of(context)!.errorSendingMessage}: $e')),
       );
         }
       }
@@ -649,7 +650,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         String memberText = "";
                         
                         if (members.isEmpty) {
-                          memberText = "Sem membros";
+                          memberText = AppLocalizations.of(context)!.noMembers;
                         } else if (members.length == 1) {
                           memberText = members.first;
                         } else {
@@ -723,7 +724,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 if (messages.isEmpty) {
                   return Center(
                     child: Text(
-                      "Sem mensagens ainda",
+                      AppLocalizations.of(context)!.noMessagesYet,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   );
@@ -1020,7 +1021,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Escreva uma mensagem...',
+                      hintText: AppLocalizations.of(context)!.writeMessage,
                       hintStyle: TextStyle(color: Colors.grey[500]),
                       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       filled: true,
@@ -1114,7 +1115,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     } catch (e) {
       print('Error al iniciar grabación: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo iniciar la grabación: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.couldNotStartRecording}: $e')),
       );
     }
   }
@@ -1199,13 +1200,13 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             print('Error al subir audio: $e');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error al subir el audio: $e')),
+                SnackBar(content: Text('${AppLocalizations.of(context)!.errorUploadingAudio}: $e')),
               );
             }
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('La grabación es demasiado corta')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.recordingTooShort)),
           );
         }
       }
@@ -1462,7 +1463,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         
         // Si es el usuario actual, mostrar "Tú"
         if (memberId == currentUserId) {
-          memberNames.add("Você");
+          memberNames.add(AppLocalizations.of(context)!.you);
           continue;
         }
         

@@ -1087,12 +1087,14 @@ class NotificationService {
     Map<String, dynamic> data = const {},
     String? imageUrl,
     String? actionRoute,
+    NotificationType type = NotificationType.generic, // Agregar parámetro type
   }) async {
     final currentUserId = _auth.currentUser?.uid ?? '';
     print('🔔 NotificationService - Enviando a: $userId');
     print('🔔 NotificationService - Remitente (currentUser): $currentUserId');
     print('🔔 NotificationService - ¿Es el mismo usuario?: ${userId == currentUserId}');
     print('🔔 NotificationService - Título: $title');
+    print('🔔 NotificationService - Tipo: $type');
     print('🔔 NotificationService - Datos adicionales: $data');
     
     try {
@@ -1100,8 +1102,9 @@ class NotificationService {
       await createNotification(
         title: title,
         message: body,
-        type: NotificationType.generic,
+        type: type, // Usar el parámetro type en lugar de generic
         userId: userId,
+        senderId: currentUserId,
         data: data,
         entityId: entityId,
         entityType: entityType,

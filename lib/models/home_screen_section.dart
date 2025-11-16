@@ -15,6 +15,7 @@ enum HomeScreenSectionType {
   groups,
   privatePrayer,
   publicPrayer,
+  workSchedules, // Nueva sección de Escalas de Trabajo
   unknown // Para manejo de errores o tipos futuros
 }
 
@@ -92,6 +93,7 @@ class HomeScreenSection {
       case 'groups': return HomeScreenSectionType.groups;
       case 'privatePrayer': return HomeScreenSectionType.privatePrayer;
       case 'publicPrayer': return HomeScreenSectionType.publicPrayer;
+      case 'workSchedules': return HomeScreenSectionType.workSchedules;
       default: return HomeScreenSectionType.unknown;
     }
   }
@@ -113,6 +115,7 @@ class HomeScreenSection {
       case HomeScreenSectionType.groups: return 'groups';
       case HomeScreenSectionType.privatePrayer: return 'privatePrayer';
       case HomeScreenSectionType.publicPrayer: return 'publicPrayer';
+      case HomeScreenSectionType.workSchedules: return 'workSchedules';
       default: return 'unknown';
     }
   }

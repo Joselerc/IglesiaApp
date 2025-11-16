@@ -478,10 +478,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             .toList()
                         : <HomeScreenSection>[];
 
+                    // DEBUG: Ver todas las secciones cargadas
+                    debugPrint('📋 HOME_SCREEN: Total secciones desde Firestore: ${sections.length}');
+                    for (var section in sections) {
+                      debugPrint('  - ${section.title} (type: ${section.type}, active: ${section.isActive}, order: ${section.order})');
+                    }
+
                     // Filtrar secciones activas aquí por si acaso (aunque el query ya lo hace)
                     final activeSections =
                         sections.where((s) => s.isActive).toList();
-                    // <-- DEBUG PRINT 1
+                    debugPrint('📋 HOME_SCREEN: Secciones activas filtradas: ${activeSections.length}');
 
                     return ListView.separated(
                       // Aumentar padding inferior general
@@ -554,7 +560,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         // Obtener la sección actual (ajustando índice por el banner)
                         final section = activeSections[index - 1];
-                        // <-- DEBUG PRINT 2
+                        
+                        // DEBUG: Ver qué sección se está procesando
+                        debugPrint('🔨 HOME_SCREEN: Procesando sección [${index - 1}]: ${section.title} (type: ${section.type})');
 
                         // Switch para renderizar el widget adecuado
                         switch (section.type) {
@@ -654,8 +662,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           case HomeScreenSectionType.publicPrayer:
                             return PublicPrayerSection(
                                 displayTitle: section.title);
+                          case HomeScreenSectionType.workSchedules:
+                            // Nota: workSchedules ahora está integrado dentro de MinistriesSection
+                            // Si alguien crea esta sección en Firebase, simplemente la ocultamos
+                            return const SizedBox.shrink();
                           case HomeScreenSectionType.unknown:
-                          default:
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),

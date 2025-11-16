@@ -21,13 +21,11 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
   final WorkScheduleService _workScheduleService = WorkScheduleService();
   bool _isLoading = false;
   String? _senderName;
-  String? _entityImageUrl;
   
   @override
   void initState() {
     super.initState();
     _loadSenderInfo();
-    _loadEntityInfo();
   }
   
   Future<void> _loadSenderInfo() async {
@@ -44,37 +42,6 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
       }
     } catch (e) {
       debugPrint('Error al cargar información del remitente: $e');
-    }
-  }
-  
-  Future<void> _loadEntityInfo() async {
-    try {
-      if (widget.invite.entityType == 'cult') {
-        final cultDoc = await FirebaseFirestore.instance
-            .collection('cults')
-            .doc(widget.invite.entityId)
-            .get();
-        
-        if (cultDoc.exists) {
-          // Los cultos no suelen tener imágenes, podríamos usar una imagen predeterminada
-          setState(() {
-            _entityImageUrl = 'https://via.placeholder.com/150?text=Culto';
-          });
-        }
-      } else if (widget.invite.entityType == 'event') {
-        final eventDoc = await FirebaseFirestore.instance
-            .collection('events')
-            .doc(widget.invite.entityId)
-            .get();
-        
-        if (eventDoc.exists) {
-          setState(() {
-            _entityImageUrl = (eventDoc.data() as Map<String, dynamic>)['imageUrl'];
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error al cargar información de la entidad: $e');
     }
   }
   
@@ -142,43 +109,29 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Imagen de la entidad
-                  if (_entityImageUrl != null)
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: Image.network(
-                        _entityImageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[300],
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 50,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  
                   // Información de la invitación
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Estado de la invitación
+                        // Estado de la invitación - versión compacta y responsive
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              AppLocalizations.of(context)!.workInvitation,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
+                            Flexible(
+                              child: Text(
+                                AppLocalizations.of(context)!.workInvitation,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
                               ),
                             ),
+                            const SizedBox(width: 8),
                             _buildStatusChip(widget.invite.status),
                           ],
                         ),
@@ -426,43 +379,45 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
       bottomNavigationBar: widget.invite.status == 'pending'
           ? Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.black12,
                     spreadRadius: 1,
                     blurRadius: 5,
-                    offset: const Offset(0, -3),
+                    offset: Offset(0, -3),
                   ),
                 ],
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => _respondToInvite('rejected'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : () => _respondToInvite('rejected'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: Text(AppLocalizations.of(context)!.reject),
                       ),
-                      child: Text(AppLocalizations.of(context)!.reject),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : () => _respondToInvite('accepted'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : () => _respondToInvite('accepted'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: Text(AppLocalizations.of(context)!.accept),
                       ),
-                      child: Text(AppLocalizations.of(context)!.accept),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             )
           : null,
@@ -494,18 +449,18 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     }
     
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color, width: 1),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: color == Colors.amber ? Colors.black : color,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

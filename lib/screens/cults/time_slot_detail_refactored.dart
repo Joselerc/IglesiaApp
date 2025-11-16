@@ -73,32 +73,11 @@ class _TimeSlotDetailScreenState extends State<TimeSlotDetailScreen> {
   
   // Verificar si el usuario actual es un pastor
   Future<void> _checkPastorStatus() async {
-    setState(() => _isLoading = true);
-    
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        
-        if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>;
-          setState(() {
-            _isPastor = userData['role'] == 'pastor';
-            _isLoading = false;
-          });
-        } else {
-          setState(() => _isLoading = false);
-        }
-      } else {
-        setState(() => _isLoading = false);
-      }
-    } catch (e) {
-      debugPrint('Error al verificar estado de pastor: $e');
-      setState(() => _isLoading = false);
-    }
+    // Eliminada la verificación - el botón se muestra siempre
+    setState(() {
+      _isPastor = true;
+      _isLoading = false;
+    });
   }
   
   // -- MÉTODOS DELEGADOS A LOS GESTORES --

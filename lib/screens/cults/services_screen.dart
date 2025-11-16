@@ -152,7 +152,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
+                        foregroundColor: Colors.grey.shade600,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       child: Text(AppLocalizations.of(context)!.cancel, style: TextStyle(fontWeight: FontWeight.w500)),
@@ -169,7 +169,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
+                        backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),

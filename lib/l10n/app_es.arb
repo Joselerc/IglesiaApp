@@ -3939,7 +3939,14 @@
   "errorDeletingRole": "Error al eliminar rol",
   "selectExistingRole": "Seleccionar rol existente",
   "capacityMustBeAtLeast1": "La capacidad debe ser al menos 1",
-  "errorCreatingRole": "Error al crear rol",
+  "errorCreatingRole": "Error al crear rol: {error}",
+  "@errorCreatingRole": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "attendanceUpdated": "Asistencia de {userName} actualizada",
   "@attendanceUpdated": {
     "placeholders": {
@@ -4053,5 +4060,116 @@
   "createRole": "Crear Rol",
   "numberOfPeopleForRole": "Número de personas para este rol",
   "roleDeletedSuccessfully2": "Rol eliminado con éxito",
-  "failedDeleteRole": "Error al eliminar rol"
+  "failedDeleteRole": "Error al eliminar rol",
+  "workSchedules": "Escalas",
+  "manageYourServiceSchedules": "Gestiona tus escalas y horarios de servicio",
+  "myWorkSchedules": "Mis Escalas",
+  "pendingSchedules": "Pendientes",
+  "acceptedSchedules": "Aceptadas",
+  "rejectedSchedules": "Rechazadas",
+  "allSchedules": "Todas",
+  "scheduleHistory": "Histórico",
+  "noSchedulesFound": "No se encontraron escalas",
+  "noPendingSchedules": "No tienes escalas pendientes",
+  "noAcceptedSchedules": "No tienes escalas aceptadas",
+  "noRejectedSchedules": "No tienes escalas rechazadas",
+  "scheduleDetails": "Detalles de la Escala",
+  "acceptSchedule": "Aceptar Escala",
+  "rejectSchedule": "Rechazar Escala",
+  "scheduleAcceptedSuccessfully": "Escala aceptada con éxito",
+  "scheduleRejectedSuccessfully": "Escala rechazada con éxito",
+  "errorAcceptingSchedule": "Error al aceptar la escala",
+  "errorRejectingSchedule": "Error al rechazar la escala",
+  "confirmAcceptSchedule": "¿Confirmar aceptación?",
+  "confirmRejectSchedule": "¿Confirmar rechazo?",
+  "confirmAcceptScheduleMessage": "¿Estás seguro de que quieres aceptar esta escala?",
+  "confirmRejectScheduleMessage": "¿Estás seguro de que quieres rechazar esta escala?",
+  "viewScheduleCalendar": "Ver Calendario",
+  "upcomingSchedules": "Próximas Escalas",
+  "pastSchedules": "Escalas Pasadas",
+  "pendingSchedule": "pendiente",
+  "pendingSchedulesLowercase": "pendientes",
+  "newServiceInvitation": "Nueva invitación de trabajo",
+  "invitedToServeAs": "Has sido invitado para servir como {role}",
+  "@invitedToServeAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "assignmentCancelled": "Asignación cancelada",
+  "assignmentCancelledMinistryRemoved": "Tu asignación fue cancelada porque el ministerio fue removido de la franja horaria",
+  "invitationCancelled": "Invitación cancelada",
+  "invitationCancelledMinistryRemoved": "Tu invitación fue cancelada porque el ministerio fue removido de la franja horaria",
+  "invitationCancelledEventCancelled": "Tu invitación para participar en un evento fue cancelada",
+  "roleAlreadyExists": "Este rol ya existe",
+  "noPersonSelected": "No has seleccionado ninguna persona para asignar",
+  "peopleAssignedSuccessfully": "Personas asignadas correctamente",
+  "errorAssigningPeople": "Error al asignar personas: {error}",
+  "@errorAssigningPeople": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUpdatingCapacity": "Error al actualizar capacidad: {error}",
+  "@errorUpdatingCapacity": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "editCapacityFor": "Editar capacidad para \"{role}\"",
+  "@editCapacityFor": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "savedRoles": "Roles guardados",
+  "createRoleWithoutAssigningPerson": "Crear función sin atribuir persona (puedes atribuir personas después)",
+  "noUsersInMinistry": "No hay usuarios registrados en este ministerio",
+  "viewAllUsers": "Ver todos los usuarios",
+  "showingAllUsers": "Mostrando todos los usuarios. Considera agregar miembros al ministerio para una mejor organización.",
+  "userRejectedInvitation": "Usuario rechazó anteriormente esta invitación",
+  "userHasActiveInvitation": "Ya tiene una invitación activa",
+  "currentlyAssigned": "Asignados actualmente: {count}",
+  "@currentlyAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sureDeleteRole": "¿Estás seguro que deseas eliminar el rol \"{roleName}\"?",
+  "@sureDeleteRole": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "deletingRole": "Eliminando rol...",
+  "roleDeletedSuccessfully": "Rol \"{roleName}\" eliminado exitosamente",
+  "@roleDeletedSuccessfully": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeletingRole": "Error al eliminar rol: {error}",
+  "@errorDeletingRole": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapToEditCapacity": "Toca para editar capacidad",
+  "delete": "Eliminar"
 }
