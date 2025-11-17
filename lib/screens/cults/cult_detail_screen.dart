@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/cult.dart';
 import './tabs/cult_songs_tab.dart';
 import './tabs/cult_time_slots_tab.dart';
+import './tabs/cult_summary_tab.dart';
 import './modals/create_cult_announcement_modal.dart';
 import './modals/duplicate_cult_type_modal.dart';
 import 'dart:async';
@@ -126,7 +126,7 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
     final isCreator = widget.cult.createdBy.id == currentUser?.uid;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.cult.name),
@@ -156,6 +156,7 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
             tabs: [
               Tab(text: AppLocalizations.of(context)!.timeSlotsTab),
               Tab(text: AppLocalizations.of(context)!.music),
+              Tab(text: AppLocalizations.of(context)!.cultSummary),
             ],
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withOpacity(0.7),
@@ -169,6 +170,9 @@ class _CultDetailScreenState extends State<CultDetailScreen> {
             
             // Pestaña de Canciones
             CultSongsTab(cult: widget.cult),
+            
+            // Pestaña de Resumen del Culto
+            CultSummaryTab(cult: widget.cult),
           ],
         ),
       ),

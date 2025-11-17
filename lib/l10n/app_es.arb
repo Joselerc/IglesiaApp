@@ -4171,5 +4171,23 @@
     }
   },
   "tapToEditCapacity": "Toca para editar capacidad",
-  "delete": "Eliminar"
+  "delete": "Eliminar",
+  "cultSummary": "Resumen",
+  "downloadSummary": "Descargar Resumen",
+  "summaryView": "Vista:",
+  "compact": "Compacta",
+  "detailed": "Detallada",
+  "filterVacant": "Vacantes",
+  "noTimeSlotsCreated": "No hay franjas horarias creadas",
+  "noRolesAssigned": "No hay roles asignados",
+  "noMinistry": "Sin ministerio",
+  "filled": "cubiertos",
+  "unassigned": "(Sin asignar)",
+  "vacantStatus": "Vacante",
+  "downloadPDF": "Descargar PDF",
+  "printableDocument": "Documento imprimible",
+  "downloadExcel": "Descargar Excel",
+  "editableSpreadsheet": "Hoja de cálculo editable",
+  "pdfFunctionalityInDevelopment": "Funcionalidad de PDF en desarrollo...",
+  "excelFunctionalityInDevelopment": "Funcionalidad de Excel en desarrollo..."
 }

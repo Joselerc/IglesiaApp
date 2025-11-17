@@ -63,6 +63,7 @@ dependencies:
   fl_chart: ^0.66.1
   pdf: ^3.10.8
   csv: ^5.1.1
+  excel: ^4.0.6
   flutter_markdown: ^0.7.2
   flutter_quill: ^11.2.0 # Versión estable
   flutter_quill_extensions: ^11.0.0

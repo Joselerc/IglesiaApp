@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../models/profile_field_response.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/profile_fields_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../theme/app_spacing.dart';
-import '../widgets/common/app_button.dart';
 import '../widgets/common/church_logo.dart'; // Logo optimizado
 import 'package:iglesia_app/screens/profile/additional_info_screen.dart';
 import '../widgets/home/announcements_section.dart';
@@ -690,238 +687,131 @@ class _HomeScreenState extends State<HomeScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutQuad,
-      margin: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.warmSand,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        // ignore: deprecated_member_use
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary.withOpacity(0.08),
+            AppColors.warmSand.withOpacity(0.6),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.15), width: 1),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
+            color: AppColors.primary.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showAdditionalInfoModal(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                const Icon(Icons.info_outline,
-                    color: AppColors.primary, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.additionalInformationRequired,
-                    style: AppTextStyles.subtitle2.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                // Icono con fondo circular
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.12),
+                    shape: BoxShape.circle,
                   ),
+                  child: Icon(
+                    Icons.edit_note_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Texto compacto
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.additionalInformationRequired,
+                        style: AppTextStyles.subtitle2.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Toca para completar',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Botón de acción integrado
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Botón close/skip
+                    Builder(
+                      builder: (context) {
+                        final skipCount = _userData?['bannerSkipCount'] as int? ?? 0;
+                        return IconButton(
+                          icon: Icon(
+                            skipCount >= 3 ? Icons.close : Icons.schedule_rounded,
+                            size: 20,
+                          ),
+                          color: AppColors.textSecondary,
+                          tooltip: skipCount >= 3 
+                            ? AppLocalizations.of(context)!.doNotShowAgain
+                            : AppLocalizations.of(context)!.skipForNow,
+                          onPressed: () async {
+                            if (mounted) {
+                              setState(() => _shouldShowBanner = false);
+                            }
+                            if (skipCount >= 3) {
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(_user!.uid)
+                                  .update({'neverShowBannerAgain': true});
+                            } else {
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(_user!.uid)
+                                  .update({
+                                'hasSkippedBanner': true,
+                                'lastBannerShown': FieldValue.serverTimestamp(),
+                                'bannerSkipCount': FieldValue.increment(1),
+                              });
+                            }
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    // Flecha para indicar acción
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              AppLocalizations.of(context)!.pleaseCompleteAdditionalInfo,
-              style: AppTextStyles.bodyText2.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              // ignore: deprecated_member_use
-              border: Border(
-                  top: BorderSide(
-                      color: AppColors.primary.withOpacity(0.1), width: 1)),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // Detectar si es una pantalla pequeña (menor a 350px de ancho)
-                final isSmallScreen = constraints.maxWidth < 350;
-
-                if (isSmallScreen) {
-                  // En pantallas pequeñas, usar Column para apilar verticalmente
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Botón principal centrado
-                      AppButton(
-                        text: AppLocalizations.of(context)!.completeNow,
-                        onPressed: () {
-                          _showAdditionalInfoModal(context);
-                        },
-                        isSmall:
-                            false, // Usar tamaño normal para mejor visibilidad
-                      ),
-                      const SizedBox(height: 8),
-                      // Botón secundario centrado
-                      Builder(
-                        builder: (context) {
-                          final skipCount =
-                              _userData?['bannerSkipCount'] as int? ?? 0;
-
-                          return Center(
-                            child: TextButton(
-                              onPressed: () async {
-                                if (mounted) {
-                                  setState(() {
-                                    _shouldShowBanner = false;
-                                  });
-                                }
-
-                                if (skipCount >= 3) {
-                                  await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(_user!.uid)
-                                      .update({
-                                    'neverShowBannerAgain': true,
-                                  });
-                                } else {
-                                  await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(_user!.uid)
-                                      .update({
-                                    'hasSkippedBanner': true,
-                                    'lastBannerShown':
-                                        FieldValue.serverTimestamp(),
-                                    'bannerSkipCount': FieldValue.increment(1),
-                                  });
-                                }
-                              },
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                skipCount >= 3
-                                    ? AppLocalizations.of(context)!
-                                        .doNotShowAgain
-                                    : AppLocalizations.of(context)!.skipForNow,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                } else {
-                  // En pantallas normales, usar Row como antes
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Verificar cuántas veces ha omitido el banner
-                      Flexible(
-                        child: Builder(
-                          builder: (context) {
-                            final skipCount =
-                                _userData?['bannerSkipCount'] as int? ?? 0;
-
-                            // Si ha omitido 3 o más veces, mostrar "No mostrar nunca más"
-                            if (skipCount >= 3) {
-                              return TextButton(
-                                onPressed: () async {
-                                  // Animar la desaparición antes de actualizar Firestore
-                                  if (mounted) {
-                                    setState(() {
-                                      _shouldShowBanner = false;
-                                    });
-                                  }
-
-                                  await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(_user!.uid)
-                                      .update({
-                                    'neverShowBannerAgain': true,
-                                  });
-                                },
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(context)!.doNotShowAgain,
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
-                            }
-
-                            return TextButton(
-                              onPressed: () async {
-                                // Animar la desaparición antes de actualizar Firestore
-                                if (mounted) {
-                                  setState(() {
-                                    _shouldShowBanner = false;
-                                  });
-                                }
-
-                                // Actualizar el contador de saltos y la fecha de la última vez que se mostró
-                                // SOLO ocultamos el banner temporalmente, no establecemos 'neverShowBannerAgain'
-                                await FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(_user!.uid)
-                                    .update({
-                                  'hasSkippedBanner': true,
-                                  'lastBannerShown':
-                                      FieldValue.serverTimestamp(),
-                                  'bannerSkipCount': FieldValue.increment(1),
-                                });
-                              },
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!.skipForNow,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8), // Espacio entre botones
-                      AppButton(
-                        text: AppLocalizations.of(context)!.completeNow,
-                        onPressed: () {
-                          // Muestra el modal para completar la información adicional
-                          _showAdditionalInfoModal(context);
-                        },
-                        isSmall: true,
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

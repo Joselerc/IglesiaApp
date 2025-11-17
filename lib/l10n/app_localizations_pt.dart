@@ -7866,4 +7866,60 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tapToEditCapacity => 'Toca para editar capacidad';
+
+  @override
+  String get cultSummary => 'Resumo';
+
+  @override
+  String get downloadSummary => 'Baixar Resumo';
+
+  @override
+  String get summaryView => 'Vista:';
+
+  @override
+  String get compact => 'Compacta';
+
+  @override
+  String get detailed => 'Detalhada';
+
+  @override
+  String get filterVacant => 'Vagos';
+
+  @override
+  String get noTimeSlotsCreated => 'Não há faixas horárias criadas';
+
+  @override
+  String get noRolesAssigned => 'Não há funções atribuídas';
+
+  @override
+  String get noMinistry => 'Sem ministério';
+
+  @override
+  String get filled => 'preenchidos';
+
+  @override
+  String get unassigned => '(Não atribuído)';
+
+  @override
+  String get vacantStatus => 'Vago';
+
+  @override
+  String get downloadPDF => 'Baixar PDF';
+
+  @override
+  String get printableDocument => 'Documento imprimível';
+
+  @override
+  String get downloadExcel => 'Baixar Excel';
+
+  @override
+  String get editableSpreadsheet => 'Planilha editável';
+
+  @override
+  String get pdfFunctionalityInDevelopment =>
+      'Funcionalidade de PDF em desenvolvimento...';
+
+  @override
+  String get excelFunctionalityInDevelopment =>
+      'Funcionalidade de Excel em desenvolvimento...';
 }

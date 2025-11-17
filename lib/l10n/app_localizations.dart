@@ -14029,6 +14029,114 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Toca para editar capacidad'**
   String get tapToEditCapacity;
+
+  /// No description provided for @cultSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get cultSummary;
+
+  /// No description provided for @downloadSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar Resumen'**
+  String get downloadSummary;
+
+  /// No description provided for @summaryView.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista:'**
+  String get summaryView;
+
+  /// No description provided for @compact.
+  ///
+  /// In es, this message translates to:
+  /// **'Compacta'**
+  String get compact;
+
+  /// No description provided for @detailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Detallada'**
+  String get detailed;
+
+  /// No description provided for @filterVacant.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacantes'**
+  String get filterVacant;
+
+  /// No description provided for @noTimeSlotsCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay franjas horarias creadas'**
+  String get noTimeSlotsCreated;
+
+  /// No description provided for @noRolesAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay roles asignados'**
+  String get noRolesAssigned;
+
+  /// No description provided for @noMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin ministerio'**
+  String get noMinistry;
+
+  /// No description provided for @filled.
+  ///
+  /// In es, this message translates to:
+  /// **'cubiertos'**
+  String get filled;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In es, this message translates to:
+  /// **'(Sin asignar)'**
+  String get unassigned;
+
+  /// No description provided for @vacantStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacante'**
+  String get vacantStatus;
+
+  /// No description provided for @downloadPDF.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar PDF'**
+  String get downloadPDF;
+
+  /// No description provided for @printableDocument.
+  ///
+  /// In es, this message translates to:
+  /// **'Documento imprimible'**
+  String get printableDocument;
+
+  /// No description provided for @downloadExcel.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar Excel'**
+  String get downloadExcel;
+
+  /// No description provided for @editableSpreadsheet.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoja de cálculo editable'**
+  String get editableSpreadsheet;
+
+  /// No description provided for @pdfFunctionalityInDevelopment.
+  ///
+  /// In es, this message translates to:
+  /// **'Funcionalidad de PDF en desarrollo...'**
+  String get pdfFunctionalityInDevelopment;
+
+  /// No description provided for @excelFunctionalityInDevelopment.
+  ///
+  /// In es, this message translates to:
+  /// **'Funcionalidad de Excel en desarrollo...'**
+  String get excelFunctionalityInDevelopment;
 }
 
 class _AppLocalizationsDelegate
