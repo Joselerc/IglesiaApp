@@ -3,14 +3,14 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../models/cult.dart';
 import '../models/time_slot.dart';
 
 class CultSummaryExportService {
-  /// Genera y comparte un PDF del resumen del culto
-  static Future<void> exportToPDF({
+  /// Genera y descarga un PDF del resumen del culto
+  /// Retorna la ruta del archivo guardado
+  static Future<String> exportToPDF({
     required Cult cult,
     required List<TimeSlot> timeSlots,
     required Map<String, List<Map<String, dynamic>>> rolesData,
@@ -261,16 +261,17 @@ class CultSummaryExportService {
       ),
     );
     
-    // Guardar y compartir
-    await _saveAndShareFile(
+    // Guardar archivo
+    return await _saveAndShareFile(
       bytes: await pdf.save(),
       fileName: 'resumen_culto_${cult.name.replaceAll(' ', '_')}_${DateFormat('yyyyMMdd').format(cult.date)}.pdf',
       mimeType: 'application/pdf',
     );
   }
   
-  /// Genera y comparte un archivo Excel del resumen del culto
-  static Future<void> exportToExcel({
+  /// Genera y descarga un archivo Excel del resumen del culto
+  /// Retorna la ruta del archivo guardado
+  static Future<String> exportToExcel({
     required Cult cult,
     required List<TimeSlot> timeSlots,
     required Map<String, List<Map<String, dynamic>>> rolesData,
@@ -430,15 +431,16 @@ class CultSummaryExportService {
     sheet.setColumnWidth(2, 25); // Persona
     sheet.setColumnWidth(3, 15); // Estado
     
-    // Guardar y compartir
+    // Guardar archivo
     final bytes = excel.encode();
     if (bytes != null) {
-      await _saveAndShareFile(
+      return await _saveAndShareFile(
         bytes: bytes,
         fileName: 'resumen_culto_${cult.name.replaceAll(' ', '_')}_${DateFormat('yyyyMMdd').format(cult.date)}.xlsx',
         mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       );
     }
+    throw Exception('No se pudo generar el archivo Excel');
   }
   
   // Helpers
@@ -542,19 +544,31 @@ class CultSummaryExportService {
     );
   }
   
-  static Future<void> _saveAndShareFile({
+  static Future<String> _saveAndShareFile({
     required List<int> bytes,
     required String fileName,
     required String mimeType,
   }) async {
+    // Intentar guardar en Downloads primero
+    String? downloadsPath;
+    
+    if (Platform.isAndroid) {
+      // En Android, usar la carpeta Downloads
+      downloadsPath = '/storage/emulated/0/Download';
+      final downloadsDir = Directory(downloadsPath);
+      
+      if (await downloadsDir.exists()) {
+        final file = File('$downloadsPath/$fileName');
+        await file.writeAsBytes(bytes);
+        return file.path;
+      }
+    }
+    
+    // Si no se puede acceder a Downloads, usar documentos de la app
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$fileName');
     await file.writeAsBytes(bytes);
-    
-    await Share.shareXFiles(
-      [XFile(file.path, mimeType: mimeType)],
-      subject: 'Resumen del Culto',
-    );
+    return file.path;
   }
 }
 

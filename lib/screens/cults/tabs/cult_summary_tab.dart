@@ -697,7 +697,7 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
       Navigator.pop(context);
       
       // Generar PDF
-      await CultSummaryExportService.exportToPDF(
+      final filePath = await CultSummaryExportService.exportToPDF(
         cult: widget.cult,
         timeSlots: data['timeSlots'],
         rolesData: data['rolesData'],
@@ -711,11 +711,35 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white),
               const SizedBox(width: 8),
-              const Expanded(child: Text('PDF generado exitosamente')),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'PDF descargado exitosamente',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      filePath,
+                      style: const TextStyle(fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Abrir',
+            textColor: Colors.white,
+            onPressed: () {
+              // Aquí podrías abrir el archivo si lo deseas
+            },
+          ),
         ),
       );
     } catch (e) {
@@ -771,7 +795,7 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
       Navigator.pop(context);
       
       // Generar Excel
-      await CultSummaryExportService.exportToExcel(
+      final filePath = await CultSummaryExportService.exportToExcel(
         cult: widget.cult,
         timeSlots: data['timeSlots'],
         rolesData: data['rolesData'],
@@ -785,11 +809,35 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white),
               const SizedBox(width: 8),
-              const Expanded(child: Text('Excel generado exitosamente')),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Excel descargado exitosamente',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      filePath,
+                      style: const TextStyle(fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Abrir',
+            textColor: Colors.white,
+            onPressed: () {
+              // Aquí podrías abrir el archivo si lo deseas
+            },
+          ),
         ),
       );
     } catch (e) {
