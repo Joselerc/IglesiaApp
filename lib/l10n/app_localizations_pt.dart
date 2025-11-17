@@ -7922,4 +7922,19 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get excelFunctionalityInDevelopment =>
       'Funcionalidade de Excel em desenvolvimento...';
+
+  @override
+  String get pdfDownloadedSuccessfully => 'PDF baixado com sucesso';
+
+  @override
+  String get excelDownloadedSuccessfully => 'Excel baixado com sucesso';
+
+  @override
+  String get openFile => 'Abrir';
+
+  @override
+  String get generatingPDF => 'Gerando PDF...';
+
+  @override
+  String get generatingExcel => 'Gerando Excel...';
 }

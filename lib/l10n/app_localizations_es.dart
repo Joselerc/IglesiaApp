@@ -7938,4 +7938,19 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get excelFunctionalityInDevelopment =>
       'Funcionalidad de Excel en desarrollo...';
+
+  @override
+  String get pdfDownloadedSuccessfully => 'PDF descargado exitosamente';
+
+  @override
+  String get excelDownloadedSuccessfully => 'Excel descargado exitosamente';
+
+  @override
+  String get openFile => 'Abrir';
+
+  @override
+  String get generatingPDF => 'Generando PDF...';
+
+  @override
+  String get generatingExcel => 'Generando Excel...';
 }

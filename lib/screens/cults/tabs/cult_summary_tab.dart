@@ -672,16 +672,16 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: Card(
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Generando PDF...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.generatingPDF),
                 ],
               ),
             ),
@@ -716,9 +716,9 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'PDF descargado exitosamente',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      AppLocalizations.of(context)!.pdfDownloadedSuccessfully,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       filePath,
@@ -734,10 +734,10 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
-            label: 'Abrir',
+            label: AppLocalizations.of(context)!.openFile,
             textColor: Colors.white,
             onPressed: () {
-              // Aquí podrías abrir el archivo si lo deseas
+              CultSummaryExportService.openFile(filePath);
             },
           ),
         ),
@@ -770,16 +770,16 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: Card(
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Generando Excel...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.generatingExcel),
                 ],
               ),
             ),
@@ -814,9 +814,9 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Excel descargado exitosamente',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      AppLocalizations.of(context)!.excelDownloadedSuccessfully,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       filePath,
@@ -832,10 +832,10 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
-            label: 'Abrir',
+            label: AppLocalizations.of(context)!.openFile,
             textColor: Colors.white,
             onPressed: () {
-              // Aquí podrías abrir el archivo si lo deseas
+              CultSummaryExportService.openFile(filePath);
             },
           ),
         ),

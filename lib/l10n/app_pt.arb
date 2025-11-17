@@ -4114,5 +4114,10 @@
   "downloadExcel": "Baixar Excel",
   "editableSpreadsheet": "Planilha editável",
   "pdfFunctionalityInDevelopment": "Funcionalidade de PDF em desenvolvimento...",
-  "excelFunctionalityInDevelopment": "Funcionalidade de Excel em desenvolvimento..."
+  "excelFunctionalityInDevelopment": "Funcionalidade de Excel em desenvolvimento...",
+  "pdfDownloadedSuccessfully": "PDF baixado com sucesso",
+  "excelDownloadedSuccessfully": "Excel baixado com sucesso",
+  "openFile": "Abrir",
+  "generatingPDF": "Gerando PDF...",
+  "generatingExcel": "Gerando Excel..."
 }

@@ -14137,6 +14137,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Funcionalidad de Excel en desarrollo...'**
   String get excelFunctionalityInDevelopment;
+
+  /// No description provided for @pdfDownloadedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'PDF descargado exitosamente'**
+  String get pdfDownloadedSuccessfully;
+
+  /// No description provided for @excelDownloadedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Excel descargado exitosamente'**
+  String get excelDownloadedSuccessfully;
+
+  /// No description provided for @openFile.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir'**
+  String get openFile;
+
+  /// No description provided for @generatingPDF.
+  ///
+  /// In es, this message translates to:
+  /// **'Generando PDF...'**
+  String get generatingPDF;
+
+  /// No description provided for @generatingExcel.
+  ///
+  /// In es, this message translates to:
+  /// **'Generando Excel...'**
+  String get generatingExcel;
 }
 
 class _AppLocalizationsDelegate

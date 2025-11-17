@@ -3,7 +3,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file/open_file.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 import '../models/cult.dart';
 import '../models/time_slot.dart';
 
@@ -549,26 +553,189 @@ class CultSummaryExportService {
     required String fileName,
     required String mimeType,
   }) async {
-    // Intentar guardar en Downloads primero
-    String? downloadsPath;
+    String filePath;
     
     if (Platform.isAndroid) {
-      // En Android, usar la carpeta Downloads
-      downloadsPath = '/storage/emulated/0/Download';
-      final downloadsDir = Directory(downloadsPath);
+      // Para Android, intentar guardar en Downloads
+      try {
+        // Solicitar permisos
+        await Permission.storage.request();
+        
+        // Usar la carpeta pública de Downloads
+        final downloadsPath = '/storage/emulated/0/Download';
+        final downloadsDir = Directory(downloadsPath);
+        
+        if (await downloadsDir.exists()) {
+          final file = File('$downloadsPath/$fileName');
+          await file.writeAsBytes(bytes);
+          filePath = file.path;
+          
+          // Mostrar notificación de descarga completada
+          await _showDownloadNotification(fileName, filePath);
+          
+          return filePath;
+        }
+      } catch (e) {
+        debugPrint('Error guardando en Downloads: $e');
+      }
       
-      if (await downloadsDir.exists()) {
-        final file = File('$downloadsPath/$fileName');
+      // Si falla, usar almacenamiento externo de la app
+      try {
+        final directory = await getExternalStorageDirectory();
+        if (directory != null) {
+          final file = File('${directory.path}/$fileName');
+          await file.writeAsBytes(bytes);
+          filePath = file.path;
+          
+          await _showDownloadNotification(fileName, filePath);
+          return filePath;
+        }
+      } catch (e) {
+        debugPrint('Error guardando en almacenamiento externo: $e');
+      }
+    } else if (Platform.isIOS) {
+      // Para iOS, usar el directorio de documentos de la app
+      // En iOS los archivos se guardan en el sandbox de la app
+      try {
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/$fileName');
         await file.writeAsBytes(bytes);
-        return file.path;
+        filePath = file.path;
+        
+        // En iOS, mostrar notificación también
+        await _showDownloadNotification(fileName, filePath);
+        
+        return filePath;
+      } catch (e) {
+        debugPrint('Error guardando en iOS: $e');
       }
     }
     
-    // Si no se puede acceder a Downloads, usar documentos de la app
+    // Fallback: usar documentos de la app
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$fileName');
     await file.writeAsBytes(bytes);
-    return file.path;
+    filePath = file.path;
+    
+    await _showDownloadNotification(fileName, filePath);
+    return filePath;
+  }
+  
+  /// Plugin de notificaciones (singleton)
+  static FlutterLocalNotificationsPlugin? _notificationsPlugin;
+  static bool _isInitialized = false;
+  
+  /// Inicializa el plugin de notificaciones
+  static Future<void> _initNotifications() async {
+    if (_isInitialized) return;
+    
+    try {
+      _notificationsPlugin = FlutterLocalNotificationsPlugin();
+      
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+      
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
+      
+      await _notificationsPlugin!.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          if (response.payload != null) {
+            openFile(response.payload!);
+          }
+        },
+      );
+      
+      // Solicitar permisos en Android 13+
+      if (Platform.isAndroid) {
+        final androidImplementation = _notificationsPlugin!
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        if (androidImplementation != null) {
+          await androidImplementation.requestNotificationsPermission();
+        }
+      }
+      
+      // Solicitar permisos en iOS
+      if (Platform.isIOS) {
+        final iosImplementation = _notificationsPlugin!
+            .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+        if (iosImplementation != null) {
+          await iosImplementation.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        }
+      }
+      
+      _isInitialized = true;
+    } catch (e) {
+      debugPrint('Error inicializando notificaciones: $e');
+    }
+  }
+  
+  /// Muestra una notificación cuando se completa la descarga
+  static Future<void> _showDownloadNotification(String fileName, String filePath) async {
+    try {
+      // Inicializar si es necesario
+      if (!_isInitialized) {
+        await _initNotifications();
+      }
+      
+      if (_notificationsPlugin == null) return;
+      
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        'downloads_channel',
+        'Descargas',
+        channelDescription: 'Notificaciones de archivos descargados',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+      );
+      
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+      
+      const NotificationDetails platformDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+      
+      await _notificationsPlugin!.show(
+        DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        'Descarga completada',
+        'Toca para abrir: $fileName',
+        platformDetails,
+        payload: filePath,
+      );
+    } catch (e) {
+      debugPrint('Error mostrando notificación: $e');
+    }
+  }
+  
+  /// Abre un archivo usando la app por defecto del sistema
+  static Future<void> openFile(String filePath) async {
+    try {
+      final result = await OpenFile.open(filePath);
+      if (result.type != ResultType.done) {
+        debugPrint('Error abriendo archivo: ${result.message}');
+      }
+    } catch (e) {
+      debugPrint('Error abriendo archivo: $e');
+    }
   }
 }
 
