@@ -1103,6 +1103,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              onTap: () => Navigator.pushNamed(context, '/cults'),
                            ),
                           _buildPermissionControlledTile(
+                            permissionKey: 'manage_cults',
+                            icon: Icons.assignment_outlined,
+                            title: AppLocalizations.of(context)!.manageSchedules,
+                            subtitle: AppLocalizations.of(context)!.viewAllSentInvitations,
+                            onTap: () => Navigator.pushNamed(context, '/manage-work-invites'),
+                          ),
+                          _buildPermissionControlledTile(
                             permissionKey: 'create_ministry',
                              icon: Icons.add_business_outlined, 
                              title: AppLocalizations.of(context)!.createMinistry,

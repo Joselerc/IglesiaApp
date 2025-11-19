@@ -67,6 +67,8 @@
     "administerChurchSectionsVideos": "Administre as seções e vídeos da igreja",
     "administerCults": "Administrar Cultos",
     "manageCultsMinistriesSongs": "Gerenciar cultos, ministérios e canções",
+    "manageSchedules": "Gerenciar Escalas",
+    "viewAllSentInvitations": "Veja todos os convites enviados e seu status",
     "createMinistry": "Criar Ministério",
     "createConnect": "Criar Connect",
     "counselingRequests": "Solicitações de Aconselhamento",
@@ -216,6 +218,14 @@
     "youHaveNoUnreadNotificationsOfType": "Você não tem notificações não lidas deste tipo",
     "notificationDeleted": "Notificação excluída",
     "errorLoadingEvents": "Erro ao carregar eventos",
+    "errorLoadingInvitations": "Erro ao carregar os convites",
+    "noInvitationsSent": "Você ainda não enviou convites",
+    "invitationsWillAppearHere": "Os convites que você enviar aparecerão aqui",
+    "noInvitationsWithThisFilter": "Não há convites com este filtro",
+    "sent": "Enviado",
+    "newestFirst": "Mais recente primeiro",
+    "oldestFirst": "Mais antigo primeiro",
+    "userNotAuthenticated": "Usuário não autenticado",
     "@errorLoadingEvents": {
         "placeholders": {
             "error": {
@@ -4119,5 +4129,20 @@
   "excelDownloadedSuccessfully": "Excel baixado com sucesso",
   "openFile": "Abrir",
   "generatingPDF": "Gerando PDF...",
-  "generatingExcel": "Gerando Excel..."
+  "generatingExcel": "Gerando Excel...",
+  "searchByTitle": "Pesquisar por título...",
+  "dateLabel": "Data",
+  "completeBadge": "COMPLETO",
+  "acceptedPlural": "Aceitas",
+  "positionAlreadyFilled": "Posição já preenchida",
+  "sentColon": "Enviado:",
+  "noResultsFor": "Não foram encontrados resultados para {filters}",
+  "@noResultsFor": {
+    "placeholders": {
+      "filters": {
+        "type": "String"
+      }
+    }
+  },
+  "tryOtherTermsOrDate": "Tente outros termos ou data"
 }

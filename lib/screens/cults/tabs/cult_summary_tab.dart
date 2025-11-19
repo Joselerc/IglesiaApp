@@ -81,64 +81,52 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
   
   Widget _buildControls() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 2),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: Column(
         children: [
-          // Botón de descarga
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _showDownloadOptions,
-              icon: const Icon(Icons.download, size: 20),
-              label: Text(AppLocalizations.of(context)!.downloadSummary),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Toggle Vista Compacta/Detallada
+          // Fila compacta: Descarga + Vista
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.summaryView,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
+              // Icono de descarga sutil
+              IconButton(
+                onPressed: _showDownloadOptions,
+                icon: const Icon(Icons.download_rounded, size: 20),
+                tooltip: AppLocalizations.of(context)!.downloadSummary,
+                style: IconButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
+              const Spacer(),
+              // Label Vista
+              Text(
+                'Vista:',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Toggle compacto con mejor contraste
               SegmentedButton<bool>(
+                showSelectedIcon: false,
                 segments: [
                   ButtonSegment(
                     value: true,
-                    label: Text(AppLocalizations.of(context)!.compact, style: const TextStyle(fontSize: 12)),
-                    icon: const Icon(Icons.view_compact, size: 16),
+                    icon: const Icon(Icons.view_headline_rounded, size: 16),
+                    tooltip: AppLocalizations.of(context)!.compact,
                   ),
                   ButtonSegment(
                     value: false,
-                    label: Text(AppLocalizations.of(context)!.detailed, style: const TextStyle(fontSize: 12)),
-                    icon: const Icon(Icons.view_list, size: 16),
+                    icon: const Icon(Icons.view_list_rounded, size: 16),
+                    tooltip: AppLocalizations.of(context)!.detailed,
                   ),
                 ],
                 selected: {_isCompactView},
@@ -148,12 +136,15 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
                   });
                 },
                 style: ButtonStyle(
+                  padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 8)),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
                     (Set<MaterialState> states) {
                       if (states.contains(MaterialState.selected)) {
-                        return AppColors.primary;
+                        return Theme.of(context).colorScheme.primary;
                       }
-                      return Colors.grey[200]!;
+                      return Theme.of(context).colorScheme.surfaceVariant;
                     },
                   ),
                   foregroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -161,7 +152,7 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
                       if (states.contains(MaterialState.selected)) {
                         return Colors.white;
                       }
-                      return Colors.grey[700]!;
+                      return Theme.of(context).colorScheme.onSurfaceVariant;
                     },
                   ),
                 ),
@@ -169,22 +160,22 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
             ],
           ),
           
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           
-          // Filtros
+          // Filtros tipo chips modernos
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterChip('all', AppLocalizations.of(context)!.all, Icons.select_all),
-                const SizedBox(width: 8),
-                _buildFilterChip('pending', AppLocalizations.of(context)!.pending, Icons.schedule),
-                const SizedBox(width: 8),
-                _buildFilterChip('accepted', AppLocalizations.of(context)!.accepted, Icons.check_circle),
-                const SizedBox(width: 8),
-                _buildFilterChip('rejected', AppLocalizations.of(context)!.rejected, Icons.cancel),
-                const SizedBox(width: 8),
-                _buildFilterChip('vacant', AppLocalizations.of(context)!.filterVacant, Icons.person_off),
+                _buildFilterChip('all', AppLocalizations.of(context)!.all, Icons.grid_view_rounded),
+                const SizedBox(width: 6),
+                _buildFilterChip('pending', AppLocalizations.of(context)!.pending, Icons.schedule_rounded),
+                const SizedBox(width: 6),
+                _buildFilterChip('accepted', AppLocalizations.of(context)!.accepted, Icons.check_circle_rounded),
+                const SizedBox(width: 6),
+                _buildFilterChip('rejected', AppLocalizations.of(context)!.rejected, Icons.cancel_rounded),
+                const SizedBox(width: 6),
+                _buildFilterChip('vacant', AppLocalizations.of(context)!.filterVacant, Icons.person_off_rounded),
               ],
             ),
           ),
@@ -195,74 +186,97 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
   
   Widget _buildFilterChip(String value, String label, IconData icon) {
     final isSelected = _selectedFilter == value;
-    return FilterChip(
-      selected: isSelected,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: isSelected ? Colors.white : Colors.grey[700]),
-          const SizedBox(width: 4),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-      onSelected: (bool selected) {
+    return GestureDetector(
+      onTap: () {
         setState(() {
           _selectedFilter = value;
         });
       },
-      selectedColor: AppColors.primary,
-      backgroundColor: Colors.grey[200],
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.grey[700],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected 
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected 
+                ? Theme.of(context).colorScheme.onPrimaryContainer
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: isSelected 
+                  ? Theme.of(context).colorScheme.onPrimaryContainer
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
   }
   
   Widget _buildTimeSlotSection(TimeSlot timeSlot) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          width: 0.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cabecera de la franja horaria
+          // Cabecera minimalista
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+              color: Theme.of(context).colorScheme.surface,
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                  width: 0.5,
+                ),
               ),
             ),
             child: Row(
               children: [
-                Icon(Icons.access_time, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
+                Icon(
+                  Icons.access_time_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         timeSlot.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
                         '${DateFormat('HH:mm').format(timeSlot.startTime)} - ${DateFormat('HH:mm').format(timeSlot.endTime)}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 13,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -302,6 +316,14 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
               
               for (var doc in rolesSnapshot.data!.docs) {
                 final data = doc.data() as Map<String, dynamic>;
+                final roleName = data['role'] ?? '';
+                final capacity = data['capacity'] ?? 1;
+                
+                // Filtrar roles vacíos o con capacidad 0
+                if (roleName.isEmpty || capacity == 0) {
+                  continue;
+                }
+                
                 final ministryName = data['ministryName'] ?? AppLocalizations.of(context)!.noMinistry;
                 
                 if (!rolesByMinistry.containsKey(ministryName)) {
@@ -310,8 +332,8 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
                 
                 rolesByMinistry[ministryName]!.add({
                   'id': doc.id,
-                  'role': data['role'],
-                  'capacity': data['capacity'] ?? 1,
+                  'role': roleName,
+                  'capacity': capacity,
                   'current': data['current'] ?? 0,
                   'ministryId': data['ministryId'],
                 });
@@ -339,31 +361,39 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
     String timeSlotId,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
+          top: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
+            width: 0.5,
+          ),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nombre del ministerio
-          Row(
-            children: [
-              Icon(Icons.groups, color: AppColors.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                ministryName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+          // Nombre minimalista
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.groups_2_rounded,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 16,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  ministryName,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
-          
-          const SizedBox(height: 12),
           
           // Lista de roles
           ...roles.map((roleData) => _buildRoleItem(roleData, timeSlotId)),
@@ -433,28 +463,66 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
   }
   
   Widget _buildCompactRoleView(String role, int capacity, List<QueryDocumentSnapshot> assignments) {
+    // No mostrar si el rol está vacío o la capacidad es 0
+    if (role.isEmpty || capacity == 0) {
+      return const SizedBox.shrink();
+    }
+    
     final int filled = assignments.where((doc) {
       final data = doc.data() as Map<String, dynamic>;
       final status = data['status'] ?? 'pending';
       return status == 'accepted';
     }).length;
     
+    final bool isComplete = filled >= capacity;
+    
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
+          Container(
+            width: 3,
+            height: 28,
+            decoration: BoxDecoration(
+              color: isComplete 
+                ? Theme.of(context).colorScheme.tertiary
+                : Theme.of(context).colorScheme.error,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               role,
-              style: const TextStyle(fontSize: 14),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 13,
+              ),
             ),
           ),
-          Text(
-            '$filled/$capacity ${AppLocalizations.of(context)!.filled}',
-            style: TextStyle(
-              fontSize: 13,
-              color: filled >= capacity ? Colors.green : Colors.orange,
-              fontWeight: FontWeight.w500,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              color: isComplete 
+                ? const Color(0xFFE8F5E9)
+                : const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isComplete 
+                  ? const Color(0xFF4CAF50)
+                  : const Color(0xFFE53935),
+                width: 1.5,
+              ),
+            ),
+            child: Text(
+              '$filled/$capacity',
+              style: TextStyle(
+                color: isComplete 
+                  ? const Color(0xFF2E7D32)
+                  : const Color(0xFFD32F2F),
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+                letterSpacing: 0.2,
+              ),
             ),
           ),
         ],
@@ -463,56 +531,73 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
   }
   
   Widget _buildDetailedRoleView(String role, int capacity, List<QueryDocumentSnapshot> assignments) {
+    // No mostrar si el rol está vacío o la capacidad es 0
+    if (role.isEmpty || capacity == 0) {
+      return const SizedBox.shrink();
+    }
+    
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.4),
+          width: 0.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nombre del rol con capacidad
+          // Nombre del rol - más sutil
           Row(
             children: [
-              Icon(Icons.person, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   role,
-                  style: const TextStyle(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ),
               Text(
                 '${assignments.where((d) => (d.data() as Map)['status'] == 'accepted').length}/$capacity',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
                 ),
               ),
             ],
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           
-          // Lista de personas asignadas + vacantes
+          // Lista de personas
           ...List.generate(capacity, (index) {
             if (index < assignments.length) {
               return _buildPersonAssignment(assignments[index]);
             } else {
-              // Mostrar vacante para posiciones no ocupadas
               return Padding(
-                padding: const EdgeInsets.only(left: 24, top: 4),
+                padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
                 child: Row(
                   children: [
+                    Icon(
+                      Icons.radio_button_unchecked,
+                      size: 12,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.unassigned,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600], fontStyle: FontStyle.italic),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                          fontStyle: FontStyle.italic,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                     _buildStatusChip(AppLocalizations.of(context)!.vacantStatus, 'vacant'),
@@ -531,7 +616,6 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
     final userId = data['userId'];
     final status = data['status'] ?? 'pending';
     
-    // Obtener ID del usuario
     String userIdStr = '';
     if (userId is DocumentReference) {
       userIdStr = userId.id;
@@ -550,13 +634,24 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
             : AppLocalizations.of(context)!.loading;
         
         return Padding(
-          padding: const EdgeInsets.only(left: 24, top: 4),
+          padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
           child: Row(
             children: [
+              Icon(
+                status == 'accepted' ? Icons.check_circle : Icons.radio_button_unchecked,
+                size: 12,
+                color: status == 'accepted' 
+                  ? Theme.of(context).colorScheme.tertiary
+                  : Theme.of(context).colorScheme.outlineVariant,
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   userName,
-                  style: const TextStyle(fontSize: 13),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
                 ),
               ),
               _buildStatusChip(status, status),
@@ -568,54 +663,34 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
   }
   
   Widget _buildStatusChip(String label, String status) {
-    Color color;
-    IconData icon;
+    Color textColor;
     String displayText;
     
     switch (status) {
       case 'accepted':
-        color = Colors.green;
-        icon = Icons.check_circle;
+        textColor = Theme.of(context).colorScheme.tertiary;
         displayText = AppLocalizations.of(context)!.accepted;
         break;
       case 'pending':
-        color = Colors.orange;
-        icon = Icons.schedule;
+        textColor = Theme.of(context).colorScheme.primary.withOpacity(0.7);
         displayText = AppLocalizations.of(context)!.pending;
         break;
       case 'rejected':
-        color = Colors.red;
-        icon = Icons.cancel;
+        textColor = Theme.of(context).colorScheme.error;
         displayText = AppLocalizations.of(context)!.rejected;
         break;
       case 'vacant':
       default:
-        color = Colors.grey;
-        icon = Icons.person_off;
+        textColor = Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6);
         displayText = label;
     }
     
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color, width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(
-            displayText,
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+    return Text(
+      displayText,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: textColor,
+        fontWeight: FontWeight.w600,
+        fontSize: 10,
       ),
     );
   }
@@ -960,4 +1035,7 @@ class _CultSummaryTabState extends State<CultSummaryTab> {
     };
   }
 }
+
+
+
 

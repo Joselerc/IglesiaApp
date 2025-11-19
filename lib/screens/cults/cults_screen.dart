@@ -693,15 +693,17 @@ class _CultsScreenState extends State<CultsScreen> {
                         child: Text(AppLocalizations.of(context)!.cancel, style: const TextStyle(fontWeight: FontWeight.w500)),
                       ),
                       ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                           if (_nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterCultName)),
                   );
                             return;
                           }
-                          _createCult();
-                          Navigator.pop(context);
+                          await _createCult();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,

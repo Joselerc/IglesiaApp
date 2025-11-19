@@ -67,6 +67,8 @@
     "administerChurchSectionsVideos": "Administra las secciones y videos de la iglesia",
     "administerCults": "Administrar Cultos",
     "manageCultsMinistriesSongs": "Gestionar cultos, ministerios y canciones",
+    "manageSchedules": "Administrar Escalas",
+    "viewAllSentInvitations": "Ver todas las invitaciones enviadas y su estado",
     "createMinistry": "Crear Ministerio",
     "createConnect": "Crear Conexión",
     "counselingRequests": "Solicitudes de Asesoramiento",
@@ -216,6 +218,14 @@
     "youHaveNoUnreadNotificationsOfType": "No tienes notificaciones no leídas de este tipo",
     "notificationDeleted": "Notificación eliminada",
     "errorLoadingEvents": "Error al cargar los eventos",
+    "errorLoadingInvitations": "Error al cargar las invitaciones",
+    "noInvitationsSent": "No has enviado invitaciones aún",
+    "invitationsWillAppearHere": "Las invitaciones que envíes aparecerán aquí",
+    "noInvitationsWithThisFilter": "No hay invitaciones con este filtro",
+    "sent": "Enviado",
+    "newestFirst": "Más reciente primero",
+    "oldestFirst": "Más antiguo primero",
+    "userNotAuthenticated": "Usuario no autenticado",
     "@errorLoadingEvents": {
         "placeholders": {
             "error": {
@@ -4194,5 +4204,20 @@
   "excelDownloadedSuccessfully": "Excel descargado exitosamente",
   "openFile": "Abrir",
   "generatingPDF": "Generando PDF...",
-  "generatingExcel": "Generando Excel..."
+  "generatingExcel": "Generando Excel...",
+  "searchByTitle": "Buscar por título...",
+  "dateLabel": "Fecha",
+  "completeBadge": "COMPLETO",
+  "acceptedPlural": "Aceptadas",
+  "positionAlreadyFilled": "Puesto ya cubierto",
+  "sentColon": "Enviada:",
+  "noResultsFor": "No se encontraron resultados para {filters}",
+  "@noResultsFor": {
+    "placeholders": {
+      "filters": {
+        "type": "String"
+      }
+    }
+  },
+  "tryOtherTermsOrDate": "Intenta con otros términos o fecha"
 }

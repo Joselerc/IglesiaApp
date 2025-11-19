@@ -458,6 +458,18 @@ abstract class AppLocalizations {
   /// **'Gestionar cultos, ministerios y canciones'**
   String get manageCultsMinistriesSongs;
 
+  /// No description provided for @manageSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrar Escalas'**
+  String get manageSchedules;
+
+  /// No description provided for @viewAllSentInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todas las invitaciones enviadas y su estado'**
+  String get viewAllSentInvitations;
+
   /// No description provided for @createMinistry.
   ///
   /// In es, this message translates to:
@@ -973,6 +985,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al cargar eventos'**
   String errorLoadingEvents(String error);
+
+  /// No description provided for @errorLoadingInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar las invitaciones'**
+  String get errorLoadingInvitations;
+
+  /// No description provided for @noInvitationsSent.
+  ///
+  /// In es, this message translates to:
+  /// **'No has enviado invitaciones aún'**
+  String get noInvitationsSent;
+
+  /// No description provided for @invitationsWillAppearHere.
+  ///
+  /// In es, this message translates to:
+  /// **'Las invitaciones que envíes aparecerán aquí'**
+  String get invitationsWillAppearHere;
+
+  /// No description provided for @noInvitationsWithThisFilter.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay invitaciones con este filtro'**
+  String get noInvitationsWithThisFilter;
+
+  /// No description provided for @sent.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviado'**
+  String get sent;
+
+  /// No description provided for @newestFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Más reciente primero'**
+  String get newestFirst;
+
+  /// No description provided for @oldestFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Más antiguos primero'**
+  String get oldestFirst;
+
+  /// No description provided for @userNotAuthenticated.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario no autenticado'**
+  String get userNotAuthenticated;
 
   /// No description provided for @calendars.
   ///
@@ -3325,12 +3385,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Campo actualizado con éxito'**
   String get fieldUpdatedSuccessfully;
-
-  /// No description provided for @userNotAuthenticated.
-  ///
-  /// In es, this message translates to:
-  /// **'Usuario no autenticado'**
-  String get userNotAuthenticated;
 
   /// No description provided for @noProfileFieldsDefined.
   ///
@@ -11468,12 +11522,6 @@ abstract class AppLocalizations {
   /// **'Más recientes primero'**
   String get mostRecentFirst;
 
-  /// No description provided for @oldestFirst.
-  ///
-  /// In es, this message translates to:
-  /// **'Más antiguos primero'**
-  String get oldestFirst;
-
   /// No description provided for @sentOn.
   ///
   /// In es, this message translates to:
@@ -14167,6 +14215,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Generando Excel...'**
   String get generatingExcel;
+
+  /// No description provided for @searchByTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por título...'**
+  String get searchByTitle;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get dateLabel;
+
+  /// No description provided for @completeBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'COMPLETO'**
+  String get completeBadge;
+
+  /// No description provided for @acceptedPlural.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptadas'**
+  String get acceptedPlural;
+
+  /// No description provided for @positionAlreadyFilled.
+  ///
+  /// In es, this message translates to:
+  /// **'Puesto ya cubierto'**
+  String get positionAlreadyFilled;
+
+  /// No description provided for @sentColon.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviada:'**
+  String get sentColon;
+
+  /// No description provided for @noResultsFor.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron resultados para {filters}'**
+  String noResultsFor(String filters);
+
+  /// No description provided for @tryOtherTermsOrDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Intenta con otros términos o fecha'**
+  String get tryOtherTermsOrDate;
 }
 
 class _AppLocalizationsDelegate

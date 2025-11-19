@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../../models/work_invite.dart';
 import '../../services/work_schedule_service.dart';
@@ -21,11 +22,23 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
   final WorkScheduleService _workScheduleService = WorkScheduleService();
   bool _isLoading = false;
   String? _senderName;
+  String? _senderPhoto;
+  bool _isRecipient = false;
   
   @override
   void initState() {
     super.initState();
+    _checkIfRecipient();
     _loadSenderInfo();
+  }
+  
+  void _checkIfRecipient() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      setState(() {
+        _isRecipient = currentUser.uid == widget.invite.userId;
+      });
+    }
   }
   
   Future<void> _loadSenderInfo() async {
@@ -35,9 +48,12 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
           .doc(widget.invite.sentBy)
           .get();
       
-      if (senderDoc.exists) {
+      if (senderDoc.exists && mounted) {
+        final data = senderDoc.data() as Map<String, dynamic>;
         setState(() {
-          _senderName = (senderDoc.data() as Map<String, dynamic>)['name'] ?? AppLocalizations.of(context)!.user;
+          _senderName = data['displayName'] ?? 
+                        '${data['name'] ?? ''} ${data['surname'] ?? ''}'.trim();
+          _senderPhoto = data['photoUrl'];
         });
       }
     } catch (e) {
@@ -51,14 +67,31 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     });
     
     try {
-      await _workScheduleService.respondToInvite(widget.invite.id, status);
+      await _workScheduleService.updateAssignmentStatus(widget.invite.id, status);
       
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(status == 'accepted' ? AppLocalizations.of(context)!.invitationAccepted : AppLocalizations.of(context)!.invitationRejected),
-            backgroundColor: status == 'accepted' ? Colors.green : Colors.orange,
+            content: Row(
+              children: [
+                Icon(
+                  status == 'accepted' ? Icons.check_circle : Icons.info,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    status == 'accepted' 
+                      ? AppLocalizations.of(context)!.invitationAccepted 
+                      : AppLocalizations.of(context)!.invitationRejected
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: status == 'accepted' ? Colors.green.shade600 : Colors.orange.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }
@@ -86,22 +119,15 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     final timeFormat = DateFormat('HH:mm');
     
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.invitationDetails),
-        actions: [
-          if (widget.invite.status == 'pending')
-            IconButton(
-              icon: const Icon(Icons.done),
-              tooltip: AppLocalizations.of(context)!.accept,
-              onPressed: () => _respondToInvite('accepted'),
-            ),
-          if (widget.invite.status == 'pending')
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: AppLocalizations.of(context)!.reject,
-              onPressed: () => _respondToInvite('rejected'),
-            ),
-        ],
+        title: Text(
+          AppLocalizations.of(context)!.invitationDetails,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 2,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -109,284 +135,183 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Información de la invitación
+                  // Header con estado
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _getStatusColor(widget.invite.status).withOpacity(0.1),
+                          _getStatusColor(widget.invite.status).withOpacity(0.05),
+                        ],
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(widget.invite.status).withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _getStatusIcon(widget.invite.status),
+                            size: 48,
+                            color: _getStatusColor(widget.invite.status),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _getStatusLabel(widget.invite.status),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: _getStatusColor(widget.invite.status),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppLocalizations.of(context)!.workInvitation,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Contenido
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Estado de la invitación - versión compacta y responsive
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        // Culto info
+                        _buildSection(
+                          title: widget.invite.entityName,
+                          icon: Icons.church_rounded,
+                          iconColor: Colors.blue,
                           children: [
-                            Flexible(
-                              child: Text(
-                                AppLocalizations.of(context)!.workInvitation,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
+                            _buildInfoRow(
+                              icon: Icons.calendar_today_rounded,
+                              label: dateFormat.format(widget.invite.date),
                             ),
-                            const SizedBox(width: 8),
-                            _buildStatusChip(widget.invite.status),
+                            const SizedBox(height: 12),
+                            _buildInfoRow(
+                              icon: Icons.access_time_rounded,
+                              label: '${timeFormat.format(widget.invite.startTime)} - ${timeFormat.format(widget.invite.endTime)}',
+                            ),
                           ],
-                        ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Información básica
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.invite.entityName,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                
-                                // Fecha y hora
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        dateFormat.format(widget.invite.date),
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.access_time, size: 16, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '${timeFormat.format(widget.invite.startTime)} - ${timeFormat.format(widget.invite.endTime)}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                         
                         const SizedBox(height: 16),
                         
                         // Detalles del trabajo
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.jobDetails,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                
-                                // Ministerio
-                                Row(
-                                  children: [
-                                    const Icon(Icons.work, size: 16, color: Colors.purple),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)!.ministries,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Text(
-                                            widget.invite.ministryName,
-                                            style: const TextStyle(fontSize: 16),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                
-                                const SizedBox(height: 16),
-                                
-                                // Rol
-                                Row(
-                                  children: [
-                                    const Icon(Icons.person, size: 16, color: Colors.purple),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)!.roleToPerform,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Text(
-                                            widget.invite.role,
-                                            style: const TextStyle(fontSize: 16),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                        _buildSection(
+                          title: AppLocalizations.of(context)!.jobDetails,
+                          icon: Icons.work_rounded,
+                          iconColor: Colors.purple,
+                          children: [
+                            _buildDetailRow(
+                              label: AppLocalizations.of(context)!.ministries,
+                              value: widget.invite.ministryName,
+                              icon: Icons.people_rounded,
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            _buildDetailRow(
+                              label: AppLocalizations.of(context)!.roleToPerform,
+                              value: widget.invite.role,
+                              icon: Icons.person_rounded,
+                            ),
+                          ],
                         ),
                         
                         const SizedBox(height: 16),
                         
                         // Información de la invitación
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        _buildSection(
+                          title: AppLocalizations.of(context)!.invitationInfo,
+                          icon: Icons.info_rounded,
+                          iconColor: Colors.orange,
+                          children: [
+                            // Enviado por
+                            Row(
                               children: [
-                                Text(
-                                  AppLocalizations.of(context)!.invitationInfo,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: Colors.grey.shade200,
+                                  backgroundImage: _senderPhoto != null && _senderPhoto!.isNotEmpty
+                                      ? NetworkImage(_senderPhoto!)
+                                      : null,
+                                  child: _senderPhoto == null || _senderPhoto!.isEmpty
+                                      ? Icon(Icons.person, color: Colors.grey.shade600)
+                                      : null,
                                 ),
-                                const SizedBox(height: 16),
-                                
-                                // Enviado por
-                                Row(
-                                  children: [
-                                    const Icon(Icons.person_outline, size: 16, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.sentBy,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        Text(
-                                          _senderName ?? AppLocalizations.of(context)!.loading,
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                
-                                const SizedBox(height: 16),
-                                
-                                // Fecha de envío
-                                Row(
-                                  children: [
-                                    const Icon(Icons.access_time_outlined, size: 16, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.sentDate,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        Text(
-                                          DateFormat('dd/MM/yyyy, HH:mm').format(widget.invite.createdAt),
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                
-                                if (widget.invite.respondedAt != null) ...[
-                                  const SizedBox(height: 16),
-                                  
-                                  // Fecha de respuesta
-                                  Row(
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.check_circle_outline, size: 16, color: Colors.blue),
-                                      const SizedBox(width: 8),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)!.responseDate,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Text(
-                                            DateFormat('dd/MM/yyyy, HH:mm').format(widget.invite.respondedAt!),
-                                            style: const TextStyle(fontSize: 16),
-                                          ),
-                                        ],
+                                      Text(
+                                        AppLocalizations.of(context)!.sentBy,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _senderName ?? AppLocalizations.of(context)!.loading,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            const Divider(height: 1),
+                            const SizedBox(height: 16),
+                            _buildDetailRow(
+                              label: AppLocalizations.of(context)!.sentDate,
+                              value: DateFormat('dd/MM/yyyy, HH:mm').format(widget.invite.createdAt),
+                              icon: Icons.send_rounded,
+                            ),
+                            if (widget.invite.respondedAt != null) ...[
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                label: AppLocalizations.of(context)!.responseDate,
+                                value: DateFormat('dd/MM/yyyy, HH:mm').format(widget.invite.respondedAt!),
+                                icon: Icons.check_circle_rounded,
+                              ),
+                            ],
+                          ],
                         ),
+                        
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-      bottomNavigationBar: widget.invite.status == 'pending'
+      bottomNavigationBar: _isRecipient && widget.invite.status == 'pending'
           ? Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: Offset(0, -3),
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
                   ),
                 ],
               ),
@@ -394,26 +319,35 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      child: OutlinedButton.icon(
                         onPressed: _isLoading ? null : () => _respondToInvite('rejected'),
+                        icon: const Icon(Icons.close_rounded),
+                        label: Text(AppLocalizations.of(context)!.reject),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          foregroundColor: Colors.red.shade600,
+                          side: BorderSide(color: Colors.red.shade600, width: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: Text(AppLocalizations.of(context)!.reject),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: _isLoading ? null : () => _respondToInvite('accepted'),
+                        icon: const Icon(Icons.check_rounded),
+                        label: Text(AppLocalizations.of(context)!.accept),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.green.shade600,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: Text(AppLocalizations.of(context)!.accept),
                       ),
                     ),
                   ],
@@ -424,45 +358,146 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
     );
   }
   
-  Widget _buildStatusChip(String status) {
-    Color color;
-    String label;
-    
-    switch (status) {
-      case 'accepted':
-        color = Colors.green;
-        label = AppLocalizations.of(context)!.acceptedStatus;
-        break;
-      case 'rejected':
-        color = Colors.red;
-        label = AppLocalizations.of(context)!.rejectedStatus;
-        break;
-      case 'seen':
-        color = Colors.orange;
-        label = AppLocalizations.of(context)!.seenStatus;
-        break;
-      case 'pending':
-      default:
-        color = Colors.amber;
-        label = AppLocalizations.of(context)!.pendingStatus;
-        break;
-    }
-    
+  Widget _buildSection({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required List<Widget> children,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color, width: 1),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color == Colors.amber ? Colors.black : color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 20, color: iconColor),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
       ),
     );
   }
-} 
+  
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.grey.shade600),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDetailRow({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: Colors.grey.shade600),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'accepted':
+        return Colors.green.shade600;
+      case 'rejected':
+        return Colors.red.shade600;
+      case 'pending':
+        return Colors.orange.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+  
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'accepted':
+        return Icons.check_circle_rounded;
+      case 'rejected':
+        return Icons.cancel_rounded;
+      case 'pending':
+        return Icons.schedule_rounded;
+      default:
+        return Icons.help_outline_rounded;
+    }
+  }
+  
+  String _getStatusLabel(String status) {
+    switch (status) {
+      case 'accepted':
+        return AppLocalizations.of(context)!.accepted;
+      case 'rejected':
+        return AppLocalizations.of(context)!.rejected;
+      case 'pending':
+        return AppLocalizations.of(context)!.pending;
+      default:
+        return status;
+    }
+  }
+
+}

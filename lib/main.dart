@@ -52,6 +52,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/videos/videos_screen.dart';
 import 'screens/videos/manage_sections_screen.dart';
 import 'screens/work_invites/work_services_screen.dart';
+import 'screens/work_invites/manage_work_invites_screen.dart';
 import 'screens/admin/user_info_screen.dart';
 import 'screens/design_reference_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -228,6 +229,7 @@ class MyApp extends StatelessWidget {
           '/admin/culto-stats': (context) => const CultoStatsScreen(),
           '/cults': (context) => const ServicesScreen(),
           '/services': (context) => const ServicesScreen(),
+          '/manage-work-invites': (context) => const ManageWorkInvitesScreen(),
           '/prayers/public': (context) => const PublicPrayerScreen(),
           '/prayers/private': (context) => const PrivatePrayerScreen(),
           '/prayers/pastor-private-requests': (context) =>

@@ -204,6 +204,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Gestionar cultos, ministerios y canciones';
 
   @override
+  String get manageSchedules => 'Administrar Escalas';
+
+  @override
+  String get viewAllSentInvitations =>
+      'Ver todas las invitaciones enviadas y su estado';
+
+  @override
   String get createMinistry => 'Crear Ministerios';
 
   @override
@@ -500,6 +507,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String errorLoadingEvents(String error) {
     return 'Error al cargar eventos';
   }
+
+  @override
+  String get errorLoadingInvitations => 'Error al cargar las invitaciones';
+
+  @override
+  String get noInvitationsSent => 'No has enviado invitaciones aún';
+
+  @override
+  String get invitationsWillAppearHere =>
+      'Las invitaciones que envíes aparecerán aquí';
+
+  @override
+  String get noInvitationsWithThisFilter =>
+      'No hay invitaciones con este filtro';
+
+  @override
+  String get sent => 'Enviado';
+
+  @override
+  String get newestFirst => 'Más reciente primero';
+
+  @override
+  String get oldestFirst => 'Más antiguos primero';
+
+  @override
+  String get userNotAuthenticated => 'Usuario no autenticado';
 
   @override
   String get calendars => 'Calendarios';
@@ -1863,9 +1896,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get fieldUpdatedSuccessfully => 'Campo actualizado con éxito';
-
-  @override
-  String get userNotAuthenticated => 'Usuario no autenticado';
 
   @override
   String get noProfileFieldsDefined => 'No hay campos de perfil definidos';
@@ -6432,9 +6462,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mostRecentFirst => 'Más recientes primero';
 
   @override
-  String get oldestFirst => 'Más antiguos primero';
-
-  @override
   String sentOn(String date) {
     return 'Enviada el $date';
   }
@@ -7953,4 +7980,30 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get generatingExcel => 'Generando Excel...';
+
+  @override
+  String get searchByTitle => 'Buscar por título...';
+
+  @override
+  String get dateLabel => 'Fecha';
+
+  @override
+  String get completeBadge => 'COMPLETO';
+
+  @override
+  String get acceptedPlural => 'Aceptadas';
+
+  @override
+  String get positionAlreadyFilled => 'Puesto ya cubierto';
+
+  @override
+  String get sentColon => 'Enviada:';
+
+  @override
+  String noResultsFor(String filters) {
+    return 'No se encontraron resultados para $filters';
+  }
+
+  @override
+  String get tryOtherTermsOrDate => 'Intenta con otros términos o fecha';
 }
