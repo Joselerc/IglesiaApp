@@ -73,6 +73,8 @@ class AppNotification {
   final String? actionRoute; // Ruta a la que navegar al tocar la notificación
   final String? entityId; // ID de la entidad relacionada (evento, ministerio, etc.)
   final String? entityType; // Tipo de entidad (evento, ministerio, etc.)
+  final String? ministryId; // ID del ministerio relacionado (para filtrado fácil)
+  final String? groupId; // ID del grupo relacionado (para filtrado fácil)
 
   AppNotification({
     required this.id,
@@ -88,6 +90,8 @@ class AppNotification {
     this.actionRoute,
     this.entityId,
     this.entityType,
+    this.ministryId,
+    this.groupId,
   });
 
   factory AppNotification.fromFirestore(DocumentSnapshot doc) {
@@ -110,6 +114,8 @@ class AppNotification {
       actionRoute: data['actionRoute'],
       entityId: data['entityId'],
       entityType: data['entityType'],
+      ministryId: data['ministryId'],
+      groupId: data['groupId'],
     );
   }
 
@@ -127,6 +133,8 @@ class AppNotification {
       'actionRoute': actionRoute,
       'entityId': entityId,
       'entityType': entityType,
+      'ministryId': ministryId,
+      'groupId': groupId,
     };
   }
 
@@ -144,6 +152,8 @@ class AppNotification {
     String? actionRoute,
     String? entityId,
     String? entityType,
+    String? ministryId,
+    String? groupId,
   }) {
     return AppNotification(
       id: id ?? this.id,
@@ -159,6 +169,8 @@ class AppNotification {
       actionRoute: actionRoute ?? this.actionRoute,
       entityId: entityId ?? this.entityId,
       entityType: entityType ?? this.entityType,
+      ministryId: ministryId ?? this.ministryId,
+      groupId: groupId ?? this.groupId,
     );
   }
   

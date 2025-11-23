@@ -573,13 +573,13 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       final batch = FirebaseFirestore.instance.batch();
       bool hasUpdates = false;
 
-      // 1. Notificaciones generales de ministerio y eventos
+      // 1. Notificaciones generales de ministerio y eventos (EXCLUYENDO CHAT)
       final generalNotifs = await FirebaseFirestore.instance
           .collection('notifications')
           .where('userId', isEqualTo: userId)
           .where('entityId', isEqualTo: widget.ministry.id)
           .where('isRead', isEqualTo: false)
-          .where('entityType', whereIn: ['ministry', 'ministry_event', 'ministry_chat']) // Incluir ministry_chat por si acaso
+          .where('entityType', whereIn: ['ministry', 'ministry_event']) // Eliminado 'ministry_chat' para que persista en el tab
           .get();
 
       for (var doc in generalNotifs.docs) {
@@ -649,8 +649,8 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
            }
         }
         
-        // Verificar tipos específicos relacionados con ministerios
-        if (belongsToMinistry && (type == 'ministry_post' || type == 'ministry_chat' || type == 'ministry_event' || type == 'ministry')) {
+        // Verificar tipos específicos relacionados con ministerios (EXCLUYENDO CHAT)
+        if (belongsToMinistry && (type == 'ministry_post' || type == 'ministry_event' || type == 'ministry')) {
           batch.update(doc.reference, {'isRead': true});
           hasUpdates = true;
         }
@@ -1256,7 +1256,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                     return Badge(
                       label: Text('$chatCount'),
                       backgroundColor: Colors.red,
-                      child: Icon(icon),
+                      child: Icon(icon, color: AppColors.primary),
                     );
                   }
                   return Icon(icon);

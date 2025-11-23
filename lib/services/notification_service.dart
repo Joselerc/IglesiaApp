@@ -178,6 +178,8 @@ class NotificationService {
     String? actionRoute,
     String? entityId,
     String? entityType,
+    String? ministryId,
+    String? groupId,
   }) async {
     try {
       final notification = AppNotification(
@@ -194,6 +196,8 @@ class NotificationService {
         actionRoute: actionRoute,
         entityId: entityId,
         entityType: entityType,
+        ministryId: ministryId,
+        groupId: groupId,
       );
       
       // Guardar en Firestore
@@ -349,6 +353,7 @@ class NotificationService {
         userId: userId,
         entityId: ministryId,
         entityType: 'ministry',
+        ministryId: ministryId,
         actionRoute: '/ministries/$ministryId',
       );
     }
@@ -367,6 +372,7 @@ class NotificationService {
       userId: userId,
       entityId: ministryId,
       entityType: 'ministry',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
     );
   }
@@ -384,6 +390,7 @@ class NotificationService {
       userId: userId,
       entityId: ministryId,
       entityType: 'ministry',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
     );
   }
@@ -405,6 +412,7 @@ class NotificationService {
         senderId: requestUserId,
         entityId: ministryId,
         entityType: 'ministry',
+        ministryId: ministryId,
         actionRoute: '/ministries/$ministryId', // Redirigir al detalle, los admins verán las solicitudes
         data: {'requestUserId': requestUserId},
       );
@@ -427,6 +435,7 @@ class NotificationService {
       senderId: adminId,
       entityId: ministryId,
       entityType: 'ministry',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
     );
   }
@@ -447,6 +456,7 @@ class NotificationService {
         userId: memberId,
         entityId: eventId,
         entityType: 'ministry_event',
+        ministryId: ministryId,
         actionRoute: '/ministries/$ministryId/events/$eventId',
         data: {'ministryId': ministryId},
       );
@@ -483,6 +493,7 @@ class NotificationService {
       type: NotificationType.ministryNewPost,
       entityId: postId,
       entityType: 'ministry_post',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
       data: {'ministryId': ministryId},
     );
@@ -504,6 +515,7 @@ class NotificationService {
         userId: workerId,
         entityId: scheduleId,
         entityType: 'work_schedule',
+        ministryId: ministryId,
         actionRoute: '/ministries/$ministryId', // Redirigir al ministerio para ver horarios
         data: {'ministryId': ministryId},
       );
@@ -528,6 +540,7 @@ class NotificationService {
       senderId: workerId,
       entityId: scheduleId,
       entityType: 'work_schedule',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
       data: {'ministryId': ministryId, 'workerId': workerId},
     );
@@ -551,6 +564,7 @@ class NotificationService {
       senderId: workerId,
       entityId: scheduleId,
       entityType: 'work_schedule',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
       data: {'ministryId': ministryId, 'workerId': workerId},
     );
@@ -573,6 +587,7 @@ class NotificationService {
       userId: adminId,
       entityId: scheduleId,
       entityType: 'work_schedule',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
       data: {'ministryId': ministryId, 'slotId': slotId},
     );
@@ -595,6 +610,7 @@ class NotificationService {
       userId: adminId,
       entityId: scheduleId,
       entityType: 'work_schedule',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
       data: {'ministryId': ministryId, 'slotId': slotId},
     );
@@ -619,6 +635,7 @@ class NotificationService {
       userId: userId,
       entityId: eventId,
       entityType: 'ministry_event',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId/events/$eventId',
       data: {'ministryId': ministryId},
     );
@@ -651,6 +668,7 @@ class NotificationService {
       type: NotificationType.ministryNewChat,
       entityId: ministryId,
       entityType: 'ministry_chat',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId', // Redirigir al ministerio
       data: {'chatId': chatId},
     );
@@ -672,6 +690,7 @@ class NotificationService {
       senderId: adminId,
       entityId: ministryId,
       entityType: 'ministry',
+      ministryId: ministryId,
       actionRoute: '/ministries/$ministryId',
     );
   }
@@ -693,6 +712,7 @@ class NotificationService {
         userId: userId,
         entityId: groupId,
         entityType: 'group',
+        groupId: groupId,
         actionRoute: '/groups/$groupId',
       );
     }
@@ -711,6 +731,7 @@ class NotificationService {
       userId: userId,
       entityId: groupId,
       entityType: 'group',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
     );
   }
@@ -728,6 +749,7 @@ class NotificationService {
       userId: userId,
       entityId: groupId,
       entityType: 'group',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
     );
   }
@@ -749,6 +771,7 @@ class NotificationService {
         senderId: requestUserId,
         entityId: groupId,
         entityType: 'group',
+        groupId: groupId,
         actionRoute: '/groups/$groupId',
         data: {'requestUserId': requestUserId},
       );
@@ -771,6 +794,7 @@ class NotificationService {
       senderId: adminId,
       entityId: groupId,
       entityType: 'group',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
     );
   }
@@ -791,6 +815,7 @@ class NotificationService {
         userId: memberId,
         entityId: eventId,
         entityType: 'group_event',
+        groupId: groupId,
         actionRoute: '/groups/$groupId/events/$eventId',
         data: {'groupId': groupId},
       );
@@ -822,6 +847,7 @@ class NotificationService {
       type: NotificationType.groupNewPost,
       entityId: postId,
       entityType: 'group_post',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
       data: {'groupId': groupId},
     );
@@ -846,6 +872,7 @@ class NotificationService {
       userId: userId,
       entityId: eventId,
       entityType: 'group_event',
+      groupId: groupId,
       actionRoute: '/groups/$groupId/events/$eventId',
       data: {'groupId': groupId},
     );
@@ -873,6 +900,7 @@ class NotificationService {
       type: NotificationType.groupNewChat,
       entityId: groupId,
       entityType: 'group_chat',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
       data: {'chatId': chatId},
     );
@@ -894,6 +922,7 @@ class NotificationService {
       senderId: adminId,
       entityId: groupId,
       entityType: 'group',
+      groupId: groupId,
       actionRoute: '/groups/$groupId',
     );
   }
@@ -1119,6 +1148,8 @@ class NotificationService {
     String? imageUrl,
     String? actionRoute,
     NotificationType type = NotificationType.generic, // Agregar parámetro type
+    String? ministryId,
+    String? groupId,
   }) async {
     final currentUserId = _auth.currentUser?.uid ?? '';
     print('🔔 NotificationService - Enviando a: $userId');
@@ -1141,6 +1172,8 @@ class NotificationService {
         entityType: entityType,
         imageUrl: imageUrl,
         actionRoute: actionRoute,
+        ministryId: ministryId,
+        groupId: groupId,
       );
       
       // 2. Enviar push notification real via FCM
@@ -1171,6 +1204,8 @@ class NotificationService {
     NotificationType type = NotificationType.generic,
     String? entityId,
     String? entityType,
+    String? ministryId,
+    String? groupId,
   }) async {
     try {
       print('🔍 [DEBUG] sendBulkNotifications - Procesando ${userIds.length} usuarios');
@@ -1202,6 +1237,8 @@ class NotificationService {
             actionRoute: actionRoute,
             entityId: entityId,
             entityType: entityType,
+            ministryId: ministryId,
+            groupId: groupId,
           );
           
           final docRef = _notificationsRef.doc();
