@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import '../services/image_service.dart';
 import '../l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../services/notification_service.dart';
 
 enum AspectRatioOption {
   square, // 1:1
@@ -69,6 +71,7 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
   }
 
   Future<void> _createPost() async {
+    print('🔍 [DEBUG] _createPost Grupo iniciado');
     // Validar que el post no esté vacío
     final content = _contentController.text.trim();
     if (content.isEmpty && _selectedImages.isEmpty) {
@@ -77,6 +80,9 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       );
       return;
     }
+
+    // Capturar servicio antes de async
+    final notificationService = Provider.of<NotificationService>(context, listen: false);
 
     setState(() {
       _isLoading = true;
@@ -96,6 +102,7 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       // Lista para almacenar URLs de imágenes
       final List<String> imageUrls = [];
 
+      print('🔍 [DEBUG] Procesando imágenes grupo');
       // Subir imágenes si hay alguna seleccionada
       if (_selectedImages.isNotEmpty) {
         for (var imageFile in _selectedImages) {
@@ -125,8 +132,9 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
         }
       }
 
+      print('🔍 [DEBUG] Guardando post grupo en Firestore');
       // Crear documento de post
-      await FirebaseFirestore.instance.collection('group_posts').add({
+      final postRef = await FirebaseFirestore.instance.collection('group_posts').add({
         'contentText': content,
         'createdAt': FieldValue.serverTimestamp(),
         'authorId': userRef,
@@ -138,6 +146,71 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
         'shares': [],
         'commentCount': 0,
       });
+      print('🔍 [DEBUG] Post grupo creado ID: ${postRef.id}');
+
+      // Enviar notificación (Logica añadida)
+      try {
+        print('🔍 [DEBUG] Grupo - Iniciando notificación para ${widget.groupId}');
+        final groupDoc = await FirebaseFirestore.instance.collection('groups').doc(widget.groupId).get();
+        
+        if (groupDoc.exists) {
+            final data = groupDoc.data() as Map<String, dynamic>;
+            final groupName = data['name'] ?? 'Grupo';
+            
+            // Parsear miembros correctamente (pueden ser Strings o DocumentReferences)
+            List<String> memberIds = [];
+            if (data['members'] != null) {
+              final membersList = data['members'] as List;
+              for (var member in membersList) {
+                if (member is DocumentReference) {
+                  memberIds.add(member.id);
+                } else if (member is String) {
+                   if (member.startsWith('/users/')) {
+                     memberIds.add(member.split('/').last);
+                   } else {
+                     memberIds.add(member);
+                   }
+                }
+              }
+            }
+            
+            // También añadir admins a la lista de notificación si no están en miembros
+             if (data['groupAdmin'] != null) {
+              final adminsList = data['groupAdmin'] as List;
+              for (var admin in adminsList) {
+                String? adminId;
+                if (admin is DocumentReference) {
+                  adminId = admin.id;
+                } else if (admin is String) {
+                   if (admin.startsWith('/users/')) {
+                     adminId = admin.split('/').last;
+                   } else {
+                     adminId = admin;
+                   }
+                }
+                
+                if (adminId != null && !memberIds.contains(adminId)) {
+                  memberIds.add(adminId);
+                }
+              }
+            }
+            
+            print('🔍 [DEBUG] Grupo - Enviando a ${memberIds.length} miembros');
+
+            await notificationService.sendGroupNewPostNotification(
+                groupId: widget.groupId,
+                groupName: groupName,
+                postId: postRef.id,
+                postTitle: content.isNotEmpty 
+                    ? (content.length > 50 ? '${content.substring(0, 50)}...' : content)
+                    : 'Nueva publicación',
+                memberIds: memberIds,
+            );
+            print('🔍 [DEBUG] Grupo - Notificación enviada al servicio');
+        }
+      } catch (e) {
+        print('🔍 [DEBUG] Error notificando grupo: $e');
+      }
 
       // Cerrar bottom sheet
       if (context.mounted) {
@@ -147,15 +220,18 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
         );
       }
     } catch (e) {
+      print('🔍 [DEBUG] CRITICAL ERROR en _createPost Grupo: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.errorCreatingPost}: $e')),
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

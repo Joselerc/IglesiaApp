@@ -353,7 +353,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get logOut => 'Fechar Sessão';
+  String get logOut => 'Sair';
 
   @override
   String errorLoggingOut(String error) {
@@ -1052,7 +1052,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get confirmDeleteAnnouncement =>
-      'Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.';
+      'Tem certeza que deseja excluir este anúncio?';
 
   @override
   String get deletingAnnouncement => 'Excluindo anúncio...';
@@ -2356,7 +2356,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get changeImage => 'Trocar Imagem';
 
   @override
-  String get selectImage => 'Selecionar Imagem';
+  String get selectImage => 'Selecionar imagem';
 
   @override
   String get pageContentLabel => 'Conteúdo da Página';
@@ -3146,7 +3146,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get location => 'Localização';
 
   @override
-  String get selectLocation => 'Selecionar localização';
+  String get selectLocation => 'Selecionar Localização';
 
   @override
   String get addNewLocation => 'Adicionar nova localização';
@@ -4509,7 +4509,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Você não tem permissão para visualizar estatísticas de grupos';
 
   @override
-  String get filterByDate => 'Filtrar por Data';
+  String get filterByDate => 'Filtrar por data';
 
   @override
   String get initialDate => 'Data inicial';
@@ -6040,22 +6040,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notifTypeNewAnnouncement => 'Novo anúncio';
 
   @override
-  String get notifTypeNewCultAnnouncement => 'Novo anúncio de culto';
+  String get notifTypeNewCultAnnouncement => 'Novo culto agendado';
 
   @override
-  String get notifTypeNewMinistry => 'Novo ministério';
+  String get notifTypeNewMinistry => 'Novo ministério disponível';
 
   @override
-  String get notifTypeMinistryJoinRequestAccepted =>
-      'Solicitação de ministério aceita';
+  String get notifTypeMinistryJoinRequestAccepted => 'Solicitação aceita';
 
   @override
-  String get notifTypeMinistryJoinRequestRejected =>
-      'Solicitação de ministério rejeitada';
+  String get notifTypeMinistryJoinRequestRejected => 'Solicitação rejeitada';
 
   @override
-  String get notifTypeMinistryJoinRequest =>
-      'Solicitação para entrar no ministério';
+  String get notifTypeMinistryJoinRequest => 'Solicitação de participação';
 
   @override
   String get notifTypeMinistryManuallyAdded => 'Adicionado ao ministério';
@@ -6064,39 +6061,34 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notifTypeMinistryNewEvent => 'Novo evento do ministério';
 
   @override
-  String get notifTypeMinistryNewPost => 'Nova publicação no ministério';
+  String get notifTypeMinistryNewPost => 'Nova publicação';
 
   @override
-  String get notifTypeMinistryNewWorkSchedule => 'Nova escala de trabalho';
+  String get notifTypeMinistryNewWorkSchedule => 'Novo convite de trabalho';
 
   @override
-  String get notifTypeMinistryWorkScheduleAccepted =>
-      'Escala de trabalho aceita';
+  String get notifTypeMinistryWorkScheduleAccepted => 'Escala aceita';
 
   @override
-  String get notifTypeMinistryWorkScheduleRejected =>
-      'Escala de trabalho rejeitada';
+  String get notifTypeMinistryWorkScheduleRejected => 'Escala rejeitada';
 
   @override
-  String get notifTypeMinistryWorkSlotFilled => 'Vaga de trabalho preenchida';
+  String get notifTypeMinistryWorkSlotFilled => 'Vaga preenchida';
 
   @override
-  String get notifTypeMinistryWorkSlotAvailable =>
-      'Vaga de trabalho disponível';
+  String get notifTypeMinistryWorkSlotAvailable => 'Vaga disponível';
 
   @override
-  String get notifTypeMinistryEventReminder =>
-      'Lembrete de evento do ministério';
+  String get notifTypeMinistryEventReminder => 'Lembrete de evento';
 
   @override
-  String get notifTypeMinistryNewChat => 'Nova mensagem no ministério';
+  String get notifTypeMinistryNewChat => 'Nova mensagem';
 
   @override
-  String get notifTypeMinistryPromotedToAdmin =>
-      'Promovido a admin do ministério';
+  String get notifTypeMinistryPromotedToAdmin => 'Promovido a administrador';
 
   @override
-  String get notifTypeNewGroup => 'Novo grupo';
+  String get notifTypeNewGroup => 'Novo grupo disponível';
 
   @override
   String get notifTypeGroupJoinRequestAccepted => 'Solicitação de grupo aceita';
@@ -6106,7 +6098,8 @@ class AppLocalizationsPt extends AppLocalizations {
       'Solicitação de grupo rejeitada';
 
   @override
-  String get notifTypeGroupJoinRequest => 'Solicitação para entrar no grupo';
+  String get notifTypeGroupJoinRequest =>
+      'Solicitação de participação no grupo';
 
   @override
   String get notifTypeGroupManuallyAdded => 'Adicionado ao grupo';
@@ -6121,16 +6114,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notifTypeGroupEventReminder => 'Lembrete de evento do grupo';
 
   @override
-  String get notifTypeGroupNewChat => 'Nova mensagem no grupo';
+  String get notifTypeGroupNewChat => 'Nova mensagem do grupo';
 
   @override
   String get notifTypeGroupPromotedToAdmin => 'Promovido a admin do grupo';
 
   @override
-  String get notifTypeNewPrivatePrayer => 'Novo pedido de oração particular';
+  String get notifTypeNewPrivatePrayer => 'Novo pedido de oração';
 
   @override
-  String get notifTypePrivatePrayerPrayed => 'Oração particular completada';
+  String get notifTypePrivatePrayerPrayed => 'Oraram por você';
 
   @override
   String get notifTypePublicPrayerAccepted => 'Oração pública aceita';
@@ -6142,16 +6135,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notifTypeEventReminder => 'Lembrete de evento';
 
   @override
-  String get notifTypeNewCounselingRequest => 'Novo pedido de aconselhamento';
+  String get notifTypeNewCounselingRequest => 'Solicitação de aconselhamento';
 
   @override
-  String get notifTypeCounselingAccepted => 'Agendamento confirmado';
+  String get notifTypeCounselingAccepted => 'Aconselhamento confirmado';
 
   @override
-  String get notifTypeCounselingRejected => 'Agendamento rejeitado';
+  String get notifTypeCounselingRejected => 'Aconselhamento rejeitado';
 
   @override
-  String get notifTypeCounselingCancelled => 'Agendamento cancelado';
+  String get notifTypeCounselingCancelled => 'Aconselhamento cancelado';
 
   @override
   String get notifTypeNewVideo => 'Novo vídeo';
@@ -6783,39 +6776,39 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createService => 'Criar Serviço';
 
   @override
-  String get createCultAnnouncement => 'Criar Anúncio do Culto';
+  String get createCultAnnouncement => 'Criar Anúncio de Culto';
 
   @override
-  String get pleaseEnterTitle2 => 'Por favor, insira um título';
+  String get pleaseEnterTitle2 => 'Por favor insira um título';
 
   @override
   String get cultInformation => 'Informações sobre o culto...';
 
   @override
-  String get pleaseEnterDescription2 => 'Por favor, insira uma descrição';
+  String get pleaseEnterDescription2 => 'Por favor insira uma descrição';
 
   @override
-  String get linkedEventOptional => 'Evento Vinculado (Opcional)';
+  String get linkedEventOptional => 'Evento vinculado (Opcional)';
 
   @override
   String get selectEvent => 'Selecionar Evento';
 
   @override
-  String get eventLinkedToAnnouncement => 'Evento vinculado a este anúncio';
+  String get eventLinkedToAnnouncement =>
+      'Este evento estará vinculado ao anúncio';
 
   @override
   String get announcementStartDate => 'Data de início do anúncio';
 
   @override
-  String get willBeAdaptedTo16x9 =>
-      'Será adaptada automaticamente para o formato 16:9';
+  String get willBeAdaptedTo16x9 => 'Será adaptada para o formato 16:9';
 
   @override
   String get processingImage => 'Processando imagem...';
 
   @override
   String get pleaseSelectOrEnterLocation =>
-      'Por favor seleciona ou insira uma localização';
+      'Por favor selecione ou informe uma localização';
 
   @override
   String get selectingEvent => 'Selecionar Evento';
@@ -7965,7 +7958,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get generatingExcel => 'Gerando Excel...';
 
   @override
-  String get searchByTitle => 'Pesquisar por título...';
+  String get searchByTitle => 'Buscar por título...';
 
   @override
   String get dateLabel => 'Data';
@@ -7989,4 +7982,74 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tryOtherTermsOrDate => 'Tente outros termos ou data';
+
+  @override
+  String get settings => 'Configurações';
+
+  @override
+  String get security => 'Segurança';
+
+  @override
+  String get helpAndSupport => 'Ajuda e Suporte';
+
+  @override
+  String get ministryNotFound => 'Ministério não encontrado';
+
+  @override
+  String get groupNotFound => 'Grupo não encontrado';
+
+  @override
+  String get announcementNotFound => 'Anúncio não encontrado';
+
+  @override
+  String get clickToSeeMore => 'Toque para ver mais detalhes';
+
+  @override
+  String get markedAsRead => 'Marcada como lida';
+
+  @override
+  String get clearFilters => 'Limpar filtros';
+
+  @override
+  String get newAnnouncement => 'Novo Anúncio';
+
+  @override
+  String get manageLocations => 'Gerenciar Localizações';
+
+  @override
+  String get manageLocationsDescription =>
+      'Adicionar, editar ou remover locais da igreja';
+
+  @override
+  String get newLocation => 'Nova Localização';
+
+  @override
+  String get editLocation => 'Editar Localização';
+
+  @override
+  String get deleteLocationConfirmation =>
+      'Tem certeza que deseja excluir esta localização?';
+
+  @override
+  String get locationDeletedSuccessfully => 'Localização excluída com sucesso';
+
+  @override
+  String get noLocationsFound => 'Nenhuma localização encontrada';
+
+  @override
+  String get locationCreatedSuccessfully => 'Localização criada com sucesso';
+
+  @override
+  String get locationUpdatedSuccessfully =>
+      'Localização atualizada com sucesso';
+
+  @override
+  String requestAcceptedMessage(String ministryName) {
+    return 'Sua solicitação para entrar no ministério $ministryName foi aceita';
+  }
+
+  @override
+  String requestRejectedMessage(String ministryName) {
+    return 'Sua solicitação para entrar no ministério $ministryName foi rejeitada';
+  }
 }

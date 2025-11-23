@@ -39,6 +39,8 @@ import 'firebase_options.dart';
 import 'screens/ministries/ministries_list_screen.dart';
 import 'screens/groups/groups_list_screen.dart';
 import 'screens/ministries/ministry_event_detail_screen.dart';
+import 'screens/ministries/ministry_details_screen.dart';
+import 'screens/groups/group_details_screen.dart';
 import 'screens/groups/group_event_detail_screen.dart';
 import 'screens/events/event_detail_screen.dart';
 import 'screens/cults/cult_detail_screen.dart';
@@ -47,11 +49,15 @@ import 'models/ministry_event.dart';
 import 'models/group_event.dart';
 import 'models/event_model.dart';
 import 'models/cult.dart';
+import 'models/ministry.dart';
+import 'models/group.dart';
+import 'models/work_invite.dart';
 import 'models/announcement_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/videos/videos_screen.dart';
 import 'screens/videos/manage_sections_screen.dart';
 import 'screens/work_invites/work_services_screen.dart';
+import 'screens/work_invites/work_invite_detail_screen.dart';
 import 'screens/work_invites/manage_work_invites_screen.dart';
 import 'screens/admin/user_info_screen.dart';
 import 'screens/design_reference_screen.dart';
@@ -69,7 +75,8 @@ import 'screens/admin/course_progress_stats_screen.dart';
 import 'screens/admin/course_completion_stats_screen.dart';
 import 'screens/admin/course_milestone_stats_screen.dart';
 import 'screens/admin/course_detail_stats_screen.dart';
-import 'l10n/app_localizations.dart'; // Importación generada automáticamente
+import 'l10n/app_localizations.dart';
+import 'screens/admin/admin_announcements_screen.dart';
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
@@ -127,7 +134,6 @@ void main() async {
 
   // Inicializar los datos de localización para formateo de fechas
   await initializeDateFormatting('pt_BR', null);
-  // Intl.defaultLocale = 'pt_BR'; // ELIMINAR: será gestionado por el sistema de localización
 
   // Configurar las localizaciones de timeago
   timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages());
@@ -209,6 +215,7 @@ class MyApp extends StatelessWidget {
           '/profile_screen': (context) => const ProfileScreen(),
           '/admin/profile-fields': (context) =>
               const ProfileFieldsAdminScreen(),
+          '/admin/announcements': (context) => const AdminAnnouncementsScreen(),
           '/profile/additional-info': (context) => AdditionalInfoScreen(
                 fromBanner: (ModalRoute.of(context)?.settings.arguments
                         as Map<String, dynamic>?)?['fromBanner'] as bool? ??
@@ -275,7 +282,11 @@ class MyApp extends StatelessWidget {
           final uri = Uri.parse(settings.name!);
           final pathSegments = uri.pathSegments;
 
-          // Ruta para eventos de ministerios
+          // -------------------
+          // MINISTERIOS
+          // -------------------
+
+          // Detalle de evento de ministerio: /ministries/:ministryId/events/:eventId
           if (pathSegments.length == 4 &&
               pathSegments[0] == 'ministries' &&
               pathSegments[2] == 'events') {
@@ -312,7 +323,41 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Ruta para eventos de grupos
+          // Detalle de Ministerio: /ministries/:id
+          if (pathSegments.length == 2 && pathSegments[0] == 'ministries') {
+            final ministryId = pathSegments[1];
+            return MaterialPageRoute(
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('ministries')
+                    .doc(ministryId)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(title: Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(child: Text('Ministerio no encontrado')), // TODO: Usar AppLocalizations.of(context)!.ministryNotFound cuando se regenere
+                    );
+                  }
+
+                  final ministry = Ministry.fromFirestore(snapshot.data!);
+                  return MinistryDetailsScreen(ministry: ministry);
+                },
+              ),
+            );
+          }
+
+          // -------------------
+          // GRUPOS
+          // -------------------
+
+          // Detalle de evento de grupo: /groups/:groupId/events/:eventId
           if (pathSegments.length == 4 &&
               pathSegments[0] == 'groups' &&
               pathSegments[2] == 'events') {
@@ -349,7 +394,41 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Ruta para eventos generales
+          // Detalle de Grupo: /groups/:id
+          if (pathSegments.length == 2 && pathSegments[0] == 'groups') {
+            final groupId = pathSegments[1];
+            return MaterialPageRoute(
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('groups')
+                    .doc(groupId)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(title: Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(child: Text('Grupo no encontrado')), // TODO: Usar AppLocalizations.of(context)!.groupNotFound cuando se regenere
+                    );
+                  }
+
+                  final group = Group.fromFirestore(snapshot.data!);
+                  return GroupDetailsScreen(group: group);
+                },
+              ),
+            );
+          }
+
+          // -------------------
+          // EVENTOS GENERALES
+          // -------------------
+
+          // Detalle de evento: /events/:id
           if (pathSegments.length == 2 && pathSegments[0] == 'events') {
             final eventId = pathSegments[1];
 
@@ -377,7 +456,6 @@ class MyApp extends StatelessWidget {
                     );
                   }
 
-                  // Usar la pantalla de detalle real para eventos generales
                   final event = EventModel.fromFirestore(snapshot.data!);
                   return EventDetailScreen(event: event);
                 },
@@ -385,13 +463,44 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Ruta para cultos
+          // -------------------
+          // ANUNCIOS
+          // -------------------
+          
+          // Detalle de anuncio: /announcements/:id
+          if (pathSegments.length == 2 && pathSegments[0] == 'announcements') {
+            final announcementId = pathSegments[1];
+            return MaterialPageRoute(
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('announcements').doc(announcementId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+                  }
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(title: Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(child: Text('Anuncio no encontrado')), // TODO: Usar AppLocalizations.of(context)!.announcementNotFound cuando se regenere
+                    );
+                  }
+                  final announcement = AnnouncementModel.fromFirestore(snapshot.data!);
+                  return AnnouncementDetailScreen(announcement: announcement);
+                },
+              ),
+            );
+          }
+
+          // -------------------
+          // CULTOS
+          // -------------------
+
+          // Detalle de culto: /cults/:id
           if (pathSegments.length == 2 && pathSegments[0] == 'cults') {
             final cultId = pathSegments[1];
 
             return MaterialPageRoute(
               builder: (context) => FutureBuilder<QuerySnapshot>(
-                // Buscar el anuncio relacionado con este culto
+                // Buscar el anuncio relacionado con este culto primero
                 future: FirebaseFirestore.instance
                     .collection('announcements')
                     .where('type', isEqualTo: 'cult')
@@ -441,6 +550,33 @@ class MyApp extends StatelessWidget {
                       return CultDetailScreen(cult: cult);
                     },
                   );
+                },
+              ),
+            );
+          }
+
+          // -------------------
+          // INVITACIONES DE TRABAJO
+          // -------------------
+
+          // Detalle de invitación de trabajo: /work-invites/:id
+          if (pathSegments.length == 2 && pathSegments[0] == 'work-invites') {
+            final inviteId = pathSegments[1];
+            return MaterialPageRoute(
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('work_invites').doc(inviteId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+                  }
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(title: Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(child: Text('Invitación no encontrada')),
+                    );
+                  }
+                  final invite = WorkInvite.fromFirestore(snapshot.data!);
+                  return WorkInviteDetailScreen(invite: invite);
                 },
               ),
             );

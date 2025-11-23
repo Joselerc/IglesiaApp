@@ -41,7 +41,7 @@ class MinistryPost {
       ministryId: data['ministryId'] as DocumentReference,
       title: data['title'] as String?,
       contentText: data['contentText'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       imageUrls: List<String>.from(data['imageUrls'] ?? []),
       likes: List<DocumentReference>.from(data['likes'] ?? []),
       savedBy: List<DocumentReference>.from(data['savedBy'] ?? []),

@@ -34,7 +34,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
     super.dispose();
   }
 
-  // Aplicar filtro por tipo de notificación
   bool _filterNotification(AppNotification notification) {
     if (_selectedFilter == null) {
       return true;
@@ -60,41 +59,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           ],
         ),
         actions: [
-          // Marcar todas como leídas
           IconButton(
             icon: const Icon(Icons.mark_email_read),
             tooltip: AppLocalizations.of(context)!.markAllAsRead,
             onPressed: () async {
-              setState(() {
-                _isLoading = true;
-              });
+              setState(() => _isLoading = true);
               try {
                 await notificationService.markAllAsRead();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context)!.allNotificationsMarkedAsRead),
-                    ),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.allNotificationsMarkedAsRead)),
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context)!.error(e.toString())),
-                    ),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.error(e.toString()))),
                   );
                 }
               } finally {
-                if (mounted) {
-                  setState(() {
-                    _isLoading = false;
-                  });
-                }
+                if (mounted) setState(() => _isLoading = false);
               }
             },
           ),
-          // Menú de opciones
           PopupMenuButton<String>(
             tooltip: AppLocalizations.of(context)!.moreOptions,
             onSelected: (value) async {
@@ -119,32 +106,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 );
                 
                 if (confirm == true) {
-                  setState(() {
-                    _isLoading = true;
-                  });
+                  setState(() => _isLoading = true);
                   try {
                     await notificationService.deleteAllNotifications();
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(AppLocalizations.of(context)!.allNotificationsDeleted),
-                        ),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.allNotificationsDeleted)),
                       );
                     }
                   } catch (e) {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(AppLocalizations.of(context)!.error(e.toString())),
-                        ),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.error(e.toString()))),
                       );
                     }
                   } finally {
-                    if (mounted) {
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    }
+                    if (mounted) setState(() => _isLoading = false);
                   }
                 }
               }
@@ -163,247 +140,273 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           TabBarView(
             controller: _tabController,
             children: [
-              // Todas las notificaciones
-              StreamBuilder<List<AppNotification>>(
-                stream: notificationService.getUserNotifications(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())),
-                    );
-                  }
-                  
-                  final notifications = snapshot.data ?? [];
-                  final filteredNotifications = notifications.where(_filterNotification).toList();
-                  
-                  if (filteredNotifications.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.notifications_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _selectedFilter == null
-                                ? AppLocalizations.of(context)!.youHaveNoNotifications
-                                : AppLocalizations.of(context)!.youHaveNoNotificationsOfType,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          if (_selectedFilter != null) ...[
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedFilter = null;
-                                });
-                              },
-                              child: Text(AppLocalizations.of(context)!.removeFilter),
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  }
-                  
-                  return _buildNotificationsList(filteredNotifications);
-                },
-              ),
-              
-              // Notificaciones no leídas
-              StreamBuilder<List<AppNotification>>(
-                stream: notificationService.getUnreadNotifications(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())),
-                    );
-                  }
-                  
-                  final notifications = snapshot.data ?? [];
-                  final filteredNotifications = notifications.where(_filterNotification).toList();
-                  
-                  if (filteredNotifications.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.mark_email_read,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _selectedFilter == null
-                                ? AppLocalizations.of(context)!.youHaveNoUnreadNotifications
-                                : AppLocalizations.of(context)!.youHaveNoUnreadNotificationsOfType,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          if (_selectedFilter != null) ...[
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedFilter = null;
-                                });
-                              },
-                              child: Text(AppLocalizations.of(context)!.removeFilter),
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  }
-                  
-                  return _buildNotificationsList(filteredNotifications);
-                },
-              ),
+              _buildNotificationListStream(notificationService.getUserNotifications()),
+              _buildNotificationListStream(notificationService.getUnreadNotifications()),
             ],
           ),
-          
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationsList(List<AppNotification> notifications) {
-    final notificationService = Provider.of<NotificationService>(context, listen: false);
-    
-    return ListView.builder(
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final notification = notifications[index];
-        
-        // Si es una notificación de escala, mostrar widget expandible
-        if (notification.type == NotificationType.ministryNewWorkSchedule) {
-          return _WorkScheduleNotificationCard(
-            notification: notification,
-            notificationService: notificationService,
-          );
+  Widget _buildNotificationListStream(Stream<List<AppNotification>> stream) {
+    return StreamBuilder<List<AppNotification>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
         }
         
-        // Notificación normal
-        return Dismissible(
-          key: Key(notification.id),
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            child: const Icon(
-              Icons.delete,
-              color: Colors.white,
-            ),
-          ),
-          direction: DismissDirection.endToStart,
-          onDismissed: (direction) async {
-            try {
-              await notificationService.deleteNotification(notification.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context)!.notificationDeleted),
-                ),
+        if (snapshot.hasError) {
+          return Center(child: Text(AppLocalizations.of(context)!.error(snapshot.error.toString())));
+        }
+        
+        final notifications = snapshot.data ?? [];
+        final filteredNotifications = notifications.where(_filterNotification).toList();
+        
+        if (filteredNotifications.isEmpty) {
+          return _buildEmptyState();
+        }
+        
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
+          itemCount: filteredNotifications.length,
+          itemBuilder: (context, index) {
+            final notification = filteredNotifications[index];
+            
+            if (notification.type == NotificationType.ministryNewWorkSchedule) {
+              return _WorkScheduleNotificationCard(
+                notification: notification,
+                notificationService: Provider.of<NotificationService>(context, listen: false),
               );
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context)!.error(e.toString())),
+            }
+            
+            return _NotificationCard(
+              notification: notification,
+              notificationService: Provider.of<NotificationService>(context, listen: false),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _tabController.index == 0 ? Icons.notifications_off : Icons.mark_email_read,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _selectedFilter == null
+                ? (_tabController.index == 0 
+                    ? AppLocalizations.of(context)!.youHaveNoNotifications 
+                    : AppLocalizations.of(context)!.youHaveNoUnreadNotifications)
+                : (_tabController.index == 0 
+                    ? AppLocalizations.of(context)!.youHaveNoNotificationsOfType 
+                    : AppLocalizations.of(context)!.youHaveNoUnreadNotificationsOfType),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+          if (_selectedFilter != null) ...[
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _selectedFilter = null;
+                });
+              },
+              child: Text(AppLocalizations.of(context)!.removeFilter),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationCard extends StatelessWidget {
+  final AppNotification notification;
+  final NotificationService notificationService;
+
+  const _NotificationCard({
+    required this.notification,
+    required this.notificationService,
+  });
+
+  String _getTranslatedTitle(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (notification.type) {
+      case NotificationType.newAnnouncement: return loc.notifTypeNewAnnouncement;
+      case NotificationType.newCultAnnouncement: return loc.notifTypeNewCultAnnouncement;
+      case NotificationType.newMinistry: return loc.notifTypeNewMinistry;
+      case NotificationType.ministryJoinRequestAccepted: return loc.notifTypeMinistryJoinRequestAccepted;
+      case NotificationType.ministryJoinRequestRejected: return loc.notifTypeMinistryJoinRequestRejected;
+      case NotificationType.ministryJoinRequest: return loc.notifTypeMinistryJoinRequest;
+      case NotificationType.ministryManuallyAdded: return loc.notifTypeMinistryManuallyAdded;
+      case NotificationType.ministryNewEvent: return loc.notifTypeMinistryNewEvent;
+      case NotificationType.ministryNewPost: return loc.notifTypeMinistryNewPost;
+      case NotificationType.ministryNewWorkSchedule: return loc.notifTypeMinistryNewWorkSchedule;
+      case NotificationType.ministryWorkScheduleAccepted: return loc.notifTypeMinistryWorkScheduleAccepted;
+      case NotificationType.ministryWorkScheduleRejected: return loc.notifTypeMinistryWorkScheduleRejected;
+      case NotificationType.ministryWorkSlotFilled: return loc.notifTypeMinistryWorkSlotFilled;
+      case NotificationType.ministryWorkSlotAvailable: return loc.notifTypeMinistryWorkSlotAvailable;
+      case NotificationType.ministryEventReminder: return loc.notifTypeMinistryEventReminder;
+      case NotificationType.ministryNewChat: return loc.notifTypeMinistryNewChat;
+      case NotificationType.ministryPromotedToAdmin: return loc.notifTypeMinistryPromotedToAdmin;
+      case NotificationType.newGroup: return loc.notifTypeNewGroup;
+      case NotificationType.groupJoinRequestAccepted: return loc.notifTypeGroupJoinRequestAccepted;
+      case NotificationType.groupJoinRequestRejected: return loc.notifTypeGroupJoinRequestRejected;
+      case NotificationType.groupJoinRequest: return loc.notifTypeGroupJoinRequest;
+      case NotificationType.groupManuallyAdded: return loc.notifTypeGroupManuallyAdded;
+      case NotificationType.groupNewEvent: return loc.notifTypeGroupNewEvent;
+      case NotificationType.groupNewPost: return loc.notifTypeGroupNewPost;
+      case NotificationType.groupEventReminder: return loc.notifTypeGroupEventReminder;
+      case NotificationType.groupNewChat: return loc.notifTypeGroupNewChat;
+      case NotificationType.groupPromotedToAdmin: return loc.notifTypeGroupPromotedToAdmin;
+      case NotificationType.newPrivatePrayer: return loc.notifTypeNewPrivatePrayer;
+      case NotificationType.privatePrayerPrayed: return loc.notifTypePrivatePrayerPrayed;
+      case NotificationType.publicPrayerAccepted: return loc.notifTypePublicPrayerAccepted;
+      case NotificationType.newEvent: return loc.notifTypeNewEvent;
+      case NotificationType.eventReminder: return loc.notifTypeEventReminder;
+      case NotificationType.newCounselingRequest: return loc.notifTypeNewCounselingRequest;
+      case NotificationType.counselingAccepted: return loc.notifTypeCounselingAccepted;
+      case NotificationType.counselingRejected: return loc.notifTypeCounselingRejected;
+      case NotificationType.counselingCancelled: return loc.notifTypeCounselingCancelled;
+      case NotificationType.newVideo: return loc.notifTypeNewVideo;
+      case NotificationType.message: return loc.notifTypeMessage;
+      default: return notification.title;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: Key(notification.id),
+      background: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.red.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete_outline, color: Colors.red),
+      ),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) {
+        notificationService.deleteNotification(notification.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.notificationDeleted)),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        elevation: notification.isRead ? 0 : 2,
+        color: notification.isRead ? Colors.white : Colors.blue.shade50,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: notification.isRead ? BorderSide(color: Colors.grey.shade200) : BorderSide.none,
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            if (!notification.isRead) {
+              notificationService.markAsRead(notification.id);
+            }
+            if (notification.actionRoute != null) {
+              Navigator.pushNamed(context, notification.actionRoute!);
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationDetailScreen(notification: notification),
                 ),
               );
             }
           },
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: notification.getColor().withOpacity(0.2),
-              child: Icon(
-                notification.getIcon(),
-                color: notification.getColor(),
-                size: 20,
-              ),
-            ),
-            title: Text(
-              notification.title,
-              style: TextStyle(
-                fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-              ),
-            ),
-            subtitle: Column(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  notification.message,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  DateFormat('dd/MM/yyyy HH:mm').format(notification.createdAt),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
+                CircleAvatar(
+                  backgroundColor: notification.isRead 
+                    ? Colors.grey.shade100 
+                    : notification.getColor().withOpacity(0.1),
+                  child: Icon(
+                    notification.getIcon(),
+                    color: notification.isRead ? Colors.grey : notification.getColor(),
+                    size: 20,
                   ),
                 ),
-              ],
-            ),
-            isThreeLine: true,
-            trailing: notification.isRead
-                ? null
-                : Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      shape: BoxShape.circle,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _getTranslatedTitle(context),
+                              style: TextStyle(
+                                fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            DateFormat('dd/MM').format(notification.createdAt),
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        notification.message,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!notification.isRead)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, top: 8),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-            onTap: () async {
-              // Si no está leída, marcarla como leída
-              if (!notification.isRead) {
-                await notificationService.markAsRead(notification.id);
-              }
-              
-              // Navegar a la página de detalles
-              if (context.mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NotificationDetailScreen(notification: notification),
-                  ),
-                );
-              }
-            },
+              ],
+            ),
           ),
-      );
-    },
-  );
-}
+        ),
+      ),
+    );
+  }
 }
 
-// Widget expandible para notificaciones de trabajo
 class _WorkScheduleNotificationCard extends StatefulWidget {
   final AppNotification notification;
   final NotificationService notificationService;
@@ -450,13 +453,12 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
         setState(() => _isLoading = false);
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   String _translateNotificationText(String text) {
+    // Compatibilidad con textos antiguos o hardcodeados
     if (text == 'NEW_SERVICE_INVITATION') {
       return AppLocalizations.of(context)!.newServiceInvitation;
     }
@@ -464,54 +466,51 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
       final role = text.substring('INVITED_TO_SERVE_AS:'.length);
       return AppLocalizations.of(context)!.invitedToServeAs(role);
     }
+    
+    // Nueva lógica basada en tipo (prioridad)
+    final loc = AppLocalizations.of(context)!;
+    if (widget.notification.type == NotificationType.ministryNewWorkSchedule) {
+      return loc.notifTypeMinistryNewWorkSchedule;
+    }
+    
     return text;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return _buildSkeleton();
-    }
-
-    if (_workInvite == null) {
-      return _buildFallbackNotification();
-    }
+    if (_isLoading) return _buildSkeleton();
+    if (_workInvite == null) return _buildFallback();
 
     final isPending = _workInvite!.status == 'pending';
 
     return Dismissible(
       key: Key(widget.notification.id),
       background: Container(
-        color: Colors.red,
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.red.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: const Icon(Icons.delete_outline, color: Colors.red),
       ),
       direction: DismissDirection.endToStart,
-      onDismissed: (direction) async {
-        try {
-          await widget.notificationService.deleteNotification(widget.notification.id);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(AppLocalizations.of(context)!.notificationDeleted)),
-            );
-          }
-        } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(AppLocalizations.of(context)!.error(e.toString()))),
-            );
-          }
-        }
+      onDismissed: (_) {
+        widget.notificationService.deleteNotification(widget.notification.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.notificationDeleted)),
+        );
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        elevation: widget.notification.isRead ? 1 : 3,
+        elevation: widget.notification.isRead ? 0 : 2,
+        color: widget.notification.isRead ? Colors.white : Colors.blue.shade50,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: isPending 
-            ? BorderSide(color: AppColors.primary.withOpacity(0.3), width: 2) 
-            : BorderSide.none,
+            ? BorderSide(color: AppColors.primary.withOpacity(0.5), width: 1.5) 
+            : (widget.notification.isRead ? BorderSide(color: Colors.grey.shade200) : BorderSide.none),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -522,19 +521,19 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
             }
           },
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Encabezado compacto (siempre visible)
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.primary.withOpacity(0.1),
                       radius: 20,
                       child: Icon(Icons.calendar_today, color: AppColors.primary, size: 20),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,112 +541,44 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
                           Text(
                             _translateNotificationText(widget.notification.title),
                             style: TextStyle(
-                              fontWeight: widget.notification.isRead ? FontWeight.w600 : FontWeight.bold,
+                              fontWeight: widget.notification.isRead ? FontWeight.w500 : FontWeight.bold,
                               fontSize: 15,
+                              color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 4),
                           Text(
                             '${_workInvite!.role} • ${DateFormat('dd/MM/yyyy').format(_workInvite!.date)}',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                           ),
                         ],
                       ),
                     ),
-                    Icon(
-                      _isExpanded ? Icons.expand_less : Icons.expand_more,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    if (!widget.notification.isRead)
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                  ],
-                ),
-                
-                // Contenido expandible
-                if (_isExpanded) ...[
-                  const Divider(height: 16),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildInfoColumn(
-                          Icons.church,
-                          _workInvite!.entityType == 'cult' ? 'Culto' : 'Evento',
-                          _workInvite!.entityName,
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildInfoColumn(
-                          Icons.work_outline,
-                          AppLocalizations.of(context)!.ministry,
-                          _workInvite!.ministryName,
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 8),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildInfoColumn(
-                          Icons.event,
-                          AppLocalizations.of(context)!.date,
-                          DateFormat('dd/MM/yyyy').format(_workInvite!.date),
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildInfoColumn(
-                          Icons.access_time,
-                          AppLocalizations.of(context)!.time,
-                          '${DateFormat('HH:mm').format(_workInvite!.startTime)} - ${DateFormat('HH:mm').format(_workInvite!.endTime)}',
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  // Botones de acción si está pendiente
-                  if (isPending) ...[
-                    const SizedBox(height: 16),
-                    Row(
+                    Column(
                       children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: _rejectSchedule,
-                            icon: const Icon(Icons.close, size: 18),
-                            label: Text(AppLocalizations.of(context)!.reject),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: BorderSide(color: Colors.red.shade300),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                        Icon(
+                          _isExpanded ? Icons.expand_less : Icons.expand_more,
+                          color: Colors.grey,
+                        ),
+                        if (!widget.notification.isRead) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _acceptSchedule,
-                            icon: const Icon(Icons.check, size: 18),
-                            label: Text(AppLocalizations.of(context)!.accept),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
-                        ),
+                        ],
                       ],
                     ),
                   ],
+                ),
+                
+                if (_isExpanded) ...[
+                  const Divider(height: 24),
+                  _buildExpandedContent(),
                 ],
               ],
             ),
@@ -657,11 +588,92 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
     );
   }
 
+  Widget _buildExpandedContent() {
+    final isPending = _workInvite!.status == 'pending';
+    
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildInfoColumn(
+                Icons.church,
+                _workInvite!.entityType == 'cult' ? 'Culto' : 'Evento', // Idealmente traducir esto también
+                _workInvite!.entityName,
+              ),
+            ),
+            Expanded(
+              child: _buildInfoColumn(
+                Icons.work_outline,
+                AppLocalizations.of(context)!.ministry,
+                _workInvite!.ministryName,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildInfoColumn(
+                Icons.event,
+                AppLocalizations.of(context)!.date,
+                DateFormat('dd/MM/yyyy').format(_workInvite!.date),
+              ),
+            ),
+            Expanded(
+              child: _buildInfoColumn(
+                Icons.access_time,
+                AppLocalizations.of(context)!.time,
+                '${DateFormat('HH:mm').format(_workInvite!.startTime)} - ${DateFormat('HH:mm').format(_workInvite!.endTime)}',
+              ),
+            ),
+          ],
+        ),
+        if (isPending) ...[
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _rejectSchedule,
+                  icon: const Icon(Icons.close, size: 18),
+                  label: Text(AppLocalizations.of(context)!.reject),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: BorderSide(color: Colors.red.shade200),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _acceptSchedule,
+                  icon: const Icon(Icons.check, size: 18),
+                  label: Text(AppLocalizations.of(context)!.accept),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildInfoColumn(IconData icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade600),
+        Icon(icon, size: 16, color: Colors.grey.shade500),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -675,11 +687,13 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 value,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
@@ -692,45 +706,20 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
   Widget _buildSkeleton() {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.primary.withOpacity(0.3), width: 1),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 12),
+            Container(width: 40, height: 40, decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle)),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(width: double.infinity, height: 16, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 8),
-                  Container(
-                    width: 150,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                  Container(width: 150, height: 12, decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(4))),
                 ],
               ),
             ),
@@ -739,50 +728,25 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
       ),
     );
   }
-
-  Widget _buildFallbackNotification() {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: widget.notification.getColor().withOpacity(0.2),
-        child: Icon(
-          widget.notification.getIcon(),
-          color: widget.notification.getColor(),
-          size: 20,
-        ),
-      ),
-      title: Text(_translateNotificationText(widget.notification.title)),
-      subtitle: Text(_translateNotificationText(widget.notification.message)),
-      onTap: () async {
-        if (!widget.notification.isRead) {
-          await widget.notificationService.markAsRead(widget.notification.id);
-        }
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NotificationDetailScreen(notification: widget.notification),
-            ),
-          );
-        }
-      },
+  
+  // Fallback simple si falla la carga de detalles de la invitación
+  Widget _buildFallback() {
+    return _NotificationCard(
+      notification: widget.notification,
+      notificationService: widget.notificationService,
     );
   }
 
   Future<void> _acceptSchedule() async {
+    // ... (Lógica existente sin cambios, solo asegurando que llame al servicio correctamente)
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.confirmAcceptSchedule),
         content: Text(AppLocalizations.of(context)!.confirmAcceptScheduleMessage),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.accept),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.accept)),
         ],
       ),
     );
@@ -791,25 +755,12 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
 
     try {
       await _workScheduleService.updateAssignmentStatus(_workInvite!.id, 'accepted');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.scheduleAcceptedSuccessfully),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Recargar el work invite
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.scheduleAcceptedSuccessfully), backgroundColor: Colors.green));
         await _loadWorkInvite();
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.errorAcceptingSchedule}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${AppLocalizations.of(context)!.errorAcceptingSchedule}: $e'), backgroundColor: Colors.red));
     }
   }
 
@@ -820,16 +771,10 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
         title: Text(AppLocalizations.of(context)!.confirmRejectSchedule),
         content: Text(AppLocalizations.of(context)!.confirmRejectScheduleMessage),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             child: Text(AppLocalizations.of(context)!.reject),
           ),
         ],
@@ -840,25 +785,12 @@ class _WorkScheduleNotificationCardState extends State<_WorkScheduleNotification
 
     try {
       await _workScheduleService.updateAssignmentStatus(_workInvite!.id, 'rejected');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.scheduleRejectedSuccessfully),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        // Recargar el work invite
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.scheduleRejectedSuccessfully), backgroundColor: Colors.orange));
         await _loadWorkInvite();
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.errorRejectingSchedule}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${AppLocalizations.of(context)!.errorRejectingSchedule}: $e'), backgroundColor: Colors.red));
     }
   }
 }

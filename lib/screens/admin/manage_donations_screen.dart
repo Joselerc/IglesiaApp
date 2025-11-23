@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart'; // Para Clipboard
-import 'package:qr_flutter/qr_flutter.dart'; // Para QR Code (aunque no se usa aquí, el import general)
+import 'package:flutter/services.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
 import '../../services/permission_service.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -20,8 +18,8 @@ class ManageDonationsScreen extends StatefulWidget {
 class PixKeyEntry {
   String type;
   String key;
-  final TextEditingController keyController; // Controlador para este campo
-  final String id; // ID único para el widget (opcional, para keys)
+  final TextEditingController keyController;
+  final String id;
 
   PixKeyEntry({required this.type, required this.key, required this.keyController, required this.id});
 }
@@ -49,7 +47,6 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
 
-  // Referencia al documento (Nueva Colección)
   DocumentReference get _donationConfigDocRef =>
       _firestore.collection('donationsPage').doc('settings');
 
@@ -67,7 +64,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
     _descriptionController.dispose();
     _bankAccountsController.dispose();
     for (var entry in _pixKeyEntries) {
-      entry.keyController.dispose(); // Limpiar controladores de Pix
+      entry.keyController.dispose();
     }
     super.dispose();
   }
@@ -81,25 +78,22 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
         _sectionTitleController.text = data['sectionTitle'] ?? '';
         _descriptionController.text = data['description'] ?? '';
         _imageUrl = data['imageUrl'];
-        // Cargar cuentas bancarias (asumiendo lista de strings, tomamos el primero si existe)
-        _bankAccountsController.text = (data['bankAccounts'] as List<dynamic>? ?? []).join('\n\n'); // Unir con saltos de línea
+        _bankAccountsController.text = (data['bankAccounts'] as List<dynamic>? ?? []).join('\n\n');
 
-        // Cargar claves Pix
         final List<dynamic> pixData = data['pixKeys'] ?? [];
         _pixKeyEntries = pixData.map<PixKeyEntry>((pixMap) {
             final String type = pixMap['type'] ?? 'CNPJ';
             final String key = pixMap['key'] ?? '';
             return PixKeyEntry(
-              id: UniqueKey().toString(), // Generar ID único para el widget
-              type: _pixKeyTypes.contains(type) ? type : 'CNPJ', // Validar tipo
+              id: UniqueKey().toString(),
+              type: _pixKeyTypes.contains(type) ? type : 'CNPJ',
               key: key,
               keyController: TextEditingController(text: key),
             );
           }).toList();
       }
     } catch (e) {
-      print('❌ Error al cargar configuración de donaciones: $e');
-      // Manejar error
+      debugPrint('❌ Error al cargar configuración de donaciones: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoadingData = false);
@@ -111,7 +105,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
     setState(() {
       _pixKeyEntries.add(PixKeyEntry(
         id: UniqueKey().toString(),
-        type: 'CNPJ', // Tipo por defecto
+        type: 'CNPJ',
         key: '',
         keyController: TextEditingController(),
       ));
@@ -120,7 +114,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
 
   void _removePixKeyEntry(int index) {
     setState(() {
-      _pixKeyEntries[index].keyController.dispose(); // Liberar controlador
+      _pixKeyEntries[index].keyController.dispose();
       _pixKeyEntries.removeAt(index);
     });
   }
@@ -130,7 +124,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
      if (pickedFile != null) {
        setState(() {
          _imageFile = File(pickedFile.path);
-         _imageUrl = null; // Indicar que hay una nueva imagen local
+         _imageUrl = null;
        });
      }
   }
@@ -143,13 +137,12 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
        final snapshot = await uploadTask.whenComplete(() => {});
        return await snapshot.ref.getDownloadURL();
      } catch (e) {
-       print('❌ Error al subir imagen de donación: $e');
+       debugPrint('❌ Error al subir imagen de donación: $e');
        return null;
      }
    }
 
   Future<void> _saveConfig() async {
-    // --- Doble verificación de permiso --- 
     final bool hasPermission = await _permissionService.hasPermission('manage_donations_config');
     if (!hasPermission) {
       if (mounted) {
@@ -157,9 +150,8 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
            SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionToSaveSettings), backgroundColor: Colors.red),
          );
       }
-      return; // No continuar si no tiene permiso
+      return;
     }
-    // -------------------------------------
     
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -176,18 +168,17 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
       }
     }
 
-    // Guardar valores de los controladores en los entries
     for (var entry in _pixKeyEntries) {
         entry.key = entry.keyController.text.trim();
     }
 
     final List<Map<String, String>> pixKeysToSave = _pixKeyEntries
-        .where((entry) => entry.key.isNotEmpty) // Solo guardar claves no vacías
+        .where((entry) => entry.key.isNotEmpty)
         .map((entry) => {'type': entry.type, 'key': entry.key})
         .toList();
 
     final List<String> bankAccountsToSave = _bankAccountsController.text
-        .split(RegExp(r'\n\s*\n')) // Dividir por líneas en blanco
+        .split(RegExp(r'\n\s*\n'))
         .where((s) => s.trim().isNotEmpty)
         .map((s) => s.trim())
         .toList();
@@ -209,7 +200,6 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
         );
       }
     } catch (e) {
-      print('❌ Error al guardar configuración de donaciones: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.errorSaving(e.toString())), backgroundColor: Colors.red),
@@ -225,32 +215,40 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.manageDonationsTitle)),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: FittedBox( // Ajusta el texto para que quepa sin elipsis
+          fit: BoxFit.scaleDown,
+          child: Text(
+            AppLocalizations.of(context)!.manageDonationsTitle,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.primary,
+                AppColors.primary.withOpacity(0.7),
+              ],
+            ),
+          ),
+        ),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 2,
+      ),
       body: FutureBuilder<bool>(
         future: _permissionService.hasPermission('manage_donations_config'),
         builder: (context, permissionSnapshot) {
           if (permissionSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (permissionSnapshot.hasError) {
-            return Center(child: Text(AppLocalizations.of(context)!.errorCheckingPermission(permissionSnapshot.error.toString())));
-          }
-          if (!permissionSnapshot.hasData || permissionSnapshot.data == false) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                   mainAxisAlignment: MainAxisAlignment.center,
-                   children: [
-                      Icon(Icons.lock_outline, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(AppLocalizations.of(context)!.accessDenied, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
-                      SizedBox(height: 8),
-                      Text(AppLocalizations.of(context)!.noPermissionManageDonations, textAlign: TextAlign.center),
-                   ],
-                 ),
-              ),
-            );
+          if (permissionSnapshot.hasError || permissionSnapshot.data == false) {
+            return _buildAccessDenied();
           }
 
           return FutureBuilder<void>(
@@ -262,192 +260,376 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
               
               return Form(
                 key: _formKey,
-                child: ListView(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
-                  children: [
-                    Text(AppLocalizations.of(context)!.configureDonationsSection, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // --- Campos Gerais ---
-                    TextFormField(
-                       controller: _sectionTitleController,
-                       decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sectionTitleOptional, border: OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextFormField(
-                       controller: _descriptionController,
-                       decoration: InputDecoration(labelText: AppLocalizations.of(context)!.descriptionOptional, border: OutlineInputBorder()),
-                       maxLines: 3,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // --- Imagem ---
-                    Text(AppLocalizations.of(context)!.backgroundImageOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: AppSpacing.sm),
-                     GestureDetector(
-                       onTap: _pickImage,
-                       child: AspectRatio(
-                         aspectRatio: 16 / 9,
-                         child: Container(
-                           decoration: BoxDecoration(
-                             color: Colors.grey.shade200,
-                             borderRadius: BorderRadius.circular(8),
-                             border: Border.all(color: Colors.grey.shade300),
-                             image: _imageFile != null
-                                 ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
-                                 : (_imageUrl != null && _imageUrl!.isNotEmpty
-                                     ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
-                                     : null),
-                           ),
-                           child: (_imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty))
-                             ? Center(
-                                 child: Column(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Icon(Icons.add_photo_alternate_outlined, color: Colors.grey.shade600, size: 40),
-                                     const SizedBox(height: 8),
-                                     Text(
-                                       AppLocalizations.of(context)!.tapToAddImage,
-                                       textAlign: TextAlign.center,
-                                       style: TextStyle(color: Colors.grey.shade600),
-                                     ),
-                                   ],
-                                 ),
-                               )
-                             : Align(
-                               alignment: Alignment.topRight,
-                               child: IconButton(
-                                 icon: const Icon(Icons.delete_outline, color: Colors.white, shadows: [Shadow(blurRadius: 2, color: Colors.black54)]), 
-                                 onPressed: () => setState(() { _imageFile = null; _imageUrl = null; }),
-                                 tooltip: AppLocalizations.of(context)!.removeImage,
-                               ),
-                             ),
-                         ),
-                       ),
-                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    const Divider(),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // --- Contas Bancárias ---
-                     Text(AppLocalizations.of(context)!.bankAccountsOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                     const SizedBox(height: AppSpacing.sm),
-                     TextFormField(
-                       controller: _bankAccountsController,
-                       decoration: InputDecoration(
-                         labelText: AppLocalizations.of(context)!.bankingInformation,
-                         hintText: AppLocalizations.of(context)!.bankAccountsHint,
-                         border: OutlineInputBorder(),
-                       ),
-                       maxLines: 5,
-                     ),
-                     const SizedBox(height: AppSpacing.lg),
-                     const Divider(),
-                     const SizedBox(height: AppSpacing.lg),
-
-                     // --- Chaves Pix ---
-                      Text(AppLocalizations.of(context)!.pixKeysOptional, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: AppSpacing.sm),
-                      if (_pixKeyEntries.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(AppLocalizations.of(context)!.noPixKeysAdded, style: TextStyle(color: Colors.grey)),
-                        ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _pixKeyEntries.length,
-                        itemBuilder: (context, index) {
-                          final entry = _pixKeyEntries[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Dropdown Tipo (Ahora Flexible)
-                                Flexible(
-                                  flex: 2, // Darle una proporción (ajustable)
-                                  child: DropdownButtonFormField<String>(
-                                    value: entry.type,
-                                    items: _pixKeyTypes.map((String type) {
-                                      return DropdownMenuItem<String>(
-                                        value: type,
-                                        child: Text(type, overflow: TextOverflow.ellipsis),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        setState(() => entry.type = value);
-                                      }
-                                    },
-                                    // Quitar el SizedBox fijo y usar Flexible
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(), 
-                                      // Ajustar padding si es necesario para la apariencia
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15)
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                // Input Chave (Mantiene Expanded)
-                                Expanded(
-                                  flex: 3, // Darle una proporción mayor (ajustable)
-                                  child: TextFormField(
-                                    controller: entry.keyController,
-                                    decoration: InputDecoration(
-                                      labelText: AppLocalizations.of(context)!.pixKey,
-                                      border: const OutlineInputBorder(),
-                                      suffixIcon: IconButton(
-                                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                                        onPressed: () => _removePixKeyEntry(index),
-                                        tooltip: AppLocalizations.of(context)!.removeKey,
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
-                                        return AppLocalizations.of(context)!.keyRequired;
-                                      }
-                                      // TODO: Añadir validaciones específicas por tipo?
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      TextButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: Text(AppLocalizations.of(context)!.addPixKey),
-                        onPressed: _addPixKeyEntry,
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      const Divider(),
-                      const SizedBox(height: AppSpacing.lg),
-
-                     // Botón Guardar
-                     _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton.icon(
-                          icon: const Icon(Icons.save, color: Colors.white),
-                          label: Text(AppLocalizations.of(context)!.saveSettings, style: TextStyle(color: Colors.white, fontSize: 16)),
-                          onPressed: _saveConfig,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Sección 1: Información General
+                      _buildSectionCard(
+                        title: AppLocalizations.of(context)!.configureDonationsSection,
+                        icon: Icons.info_outline_rounded,
+                        children: [
+                          _buildTextField(
+                            controller: _sectionTitleController,
+                            label: AppLocalizations.of(context)!.sectionTitleOptional,
+                            icon: Icons.title,
                           ),
-                        ),
-                      const SizedBox(height: AppSpacing.lg), // Espacio extra al final
-                  ],
+                          const SizedBox(height: 16),
+                          _buildTextField(
+                            controller: _descriptionController,
+                            label: AppLocalizations.of(context)!.descriptionOptional,
+                            icon: Icons.description_outlined,
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 16),
+
+                      // Sección 2: Imagen de Fondo
+                      _buildSectionCard(
+                        title: AppLocalizations.of(context)!.backgroundImageOptional,
+                        icon: Icons.image_outlined,
+                        children: [
+                          _buildImagePicker(),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Sección 3: Cuentas Bancarias
+                      _buildSectionCard(
+                        title: AppLocalizations.of(context)!.bankAccountsOptional,
+                        icon: Icons.account_balance_outlined,
+                        children: [
+                          _buildTextField(
+                            controller: _bankAccountsController,
+                            label: AppLocalizations.of(context)!.bankingInformation,
+                            hint: AppLocalizations.of(context)!.bankAccountsHint,
+                            icon: Icons.format_list_bulleted,
+                            maxLines: 5,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Sección 4: Claves Pix
+                      _buildSectionCard(
+                        title: AppLocalizations.of(context)!.pixKeysOptional,
+                        icon: Icons.pix_outlined,
+                        children: [
+                          if (_pixKeyEntries.isEmpty)
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              alignment: Alignment.center,
+                              child: Column(
+                                children: [
+                                  Icon(Icons.pix, size: 48, color: Colors.grey[300]),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!.noPixKeysAdded,
+                                    style: TextStyle(color: Colors.grey.shade500),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ..._pixKeyEntries.asMap().entries.map((entry) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildPixEntry(entry.value, entry.key),
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: _addPixKeyEntry,
+                              icon: const Icon(Icons.add_circle_outline),
+                              label: Text(AppLocalizations.of(context)!.addPixKey),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 80), // Espacio para el FAB
+                    ],
+                  ),
                 ),
               );
             }
           );
         },
       ),
+      floatingActionButton: _isLoading
+          ? const CircularProgressIndicator()
+          : FloatingActionButton.extended(
+              onPressed: _saveConfig,
+              backgroundColor: AppColors.primary,
+              icon: const Icon(Icons.save, color: Colors.white),
+              label: Text(AppLocalizations.of(context)!.save, style: const TextStyle(color: Colors.white)), // Usando 'save' para texto corto
+              elevation: 4,
+            ),
     );
   }
-} 
+
+  Widget _buildAccessDenied() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.lock_outline, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.of(context)!.accessDenied,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            AppLocalizations.of(context)!.noPermissionManageDonations,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({required String title, required IconData icon, required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: AppColors.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded( // Expanded para asegurar que el título ocupe el espacio disponible
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                    // Eliminados maxLines y overflow para permitir que el texto fluya
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: children,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? hint,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        alignLabelWithHint: maxLines > 1,
+        prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.grey[500], size: 20) : null,
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+      ),
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return InkWell(
+      onTap: _pickImage,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey.shade300,
+            style: _imageFile == null && _imageUrl == null ? BorderStyle.none : BorderStyle.solid,
+            width: 1,
+          ),
+          image: _imageFile != null
+              ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
+              : (_imageUrl != null && _imageUrl!.isNotEmpty
+                  ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
+                  : null),
+        ),
+        child: (_imageFile == null && (_imageUrl == null || _imageUrl!.isEmpty))
+            ? DottedBorderPlaceholder()
+            : Stack(
+                children: [
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+                        onPressed: () => setState(() { _imageFile = null; _imageUrl = null; }),
+                        tooltip: AppLocalizations.of(context)!.removeImage,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildPixEntry(PixKeyEntry entry, int index) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Row(
+        children: [
+          // Tipo
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: entry.type,
+                style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500),
+                items: _pixKeyTypes.map((String type) {
+                  return DropdownMenuItem<String>(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) setState(() => entry.type = value);
+                },
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Input Key
+          Expanded(
+            child: TextFormField(
+              controller: entry.keyController,
+              style: const TextStyle(fontSize: 14),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.pixKey,
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return AppLocalizations.of(context)!.keyRequired;
+                }
+                return null;
+              },
+            ),
+          ),
+          // Delete
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.grey[400], size: 20),
+            onPressed: () => _removePixKeyEntry(index),
+            tooltip: AppLocalizations.of(context)!.removeKey,
+            splashRadius: 20,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Widget auxiliar para el borde punteado
+class DottedBorderPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade300, width: 1.5), 
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.add_photo_alternate_outlined, color: AppColors.primary.withOpacity(0.5), size: 48),
+          const SizedBox(height: 12),
+          Text(
+            AppLocalizations.of(context)!.tapToAddImage,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+}

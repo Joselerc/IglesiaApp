@@ -7,6 +7,8 @@ import '../../services/ministry_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../../services/notification_service.dart';
 
 class ManageRequestsScreen extends StatefulWidget {
   final Ministry ministry;
@@ -133,6 +135,20 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
     try {
       // Aceptar solicitud en el ministerio
       await _ministryService.acceptJoinRequest(userId, widget.ministry.id);
+
+      // Enviar notificación al usuario
+      if (mounted) {
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendMinistryJoinRequestAcceptedNotification(
+            userId: userId,
+            ministryId: widget.ministry.id,
+            ministryName: widget.ministry.name,
+          );
+        } catch (e) {
+          print('Error enviando notificación de aceptación: $e');
+        }
+      }
       
       if (mounted) {
         setState(() {
@@ -173,6 +189,20 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       // Rechazar solicitud en el ministerio
       await _ministryService.rejectJoinRequest(userId, widget.ministry.id);
       
+      // Enviar notificación al usuario
+      if (mounted) {
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendMinistryJoinRequestRejectedNotification(
+            userId: userId,
+            ministryId: widget.ministry.id,
+            ministryName: widget.ministry.name,
+          );
+        } catch (e) {
+          print('Error enviando notificación de rechazo: $e');
+        }
+      }
+
       // Actualizar la lista localmente
       if (mounted) {
         setState(() {

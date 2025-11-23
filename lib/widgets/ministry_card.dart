@@ -36,22 +36,54 @@ class MinistryCard extends StatelessWidget {
             Row(
               children: [
                 // Avatar
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.warmSand,
-                    shape: BoxShape.circle,
-                    image: ministry.imageUrl.isNotEmpty
-                        ? DecorationImage(
-                            image: NetworkImage(ministry.imageUrl),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: ministry.imageUrl.isEmpty
-                      ? Icon(Icons.groups_rounded, color: AppColors.primary, size: 28)
-                      : null,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.warmSand,
+                        shape: BoxShape.circle,
+                        image: ministry.imageUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(ministry.imageUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: ministry.imageUrl.isEmpty
+                          ? Icon(Icons.groups_rounded, color: AppColors.primary, size: 28)
+                          : null,
+                    ),
+                    // Badge para administradores con solicitudes pendientes
+                    if (isAdmin && ministry.pendingRequests.isNotEmpty)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            '${ministry.pendingRequests.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 
                 const SizedBox(width: 12),

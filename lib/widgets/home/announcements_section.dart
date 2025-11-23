@@ -38,11 +38,8 @@ class AnnouncementsSection extends StatelessWidget {
             stream: FirebaseFirestore.instance
                 .collection('announcements')
                 .where('isActive', isEqualTo: true)
-                .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(
-                  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-                ))
-                .orderBy('date', descending: true)
-                .limit(5)
+                .orderBy('date', descending: false) // Ordenar por fecha ascendente para mostrar los que van a caducar pronto
+                .limit(20) // Límite generoso para filtrar en memoria
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -61,14 +58,44 @@ class AnnouncementsSection extends StatelessWidget {
               final today = DateTime(now.year, now.month, now.day);
 
               final filteredAnnouncements = announcements.where((announcement) {
-                if (announcement.startDate == null) return true;
-                final startDate = DateTime(
-                  announcement.startDate!.year,
-                  announcement.startDate!.month,
-                  announcement.startDate!.day
+                // Si no tiene fecha, mostrar siempre (hasta que sea eliminado manualmente)
+                // Nota: Asumimos que si `date` viene de Firestore podría ser una fecha lejana o nula si así se guarda.
+                // Pero según el modelo actual, `date` es required. Si queremos que sea opcional, 
+                // el modelo debería permitirlo. Si el modelo obliga a `date`, entonces la lógica de "sin fecha"
+                // depende de cómo se guarde (ej: año 2100).
+                
+                // Lógica de expiración:
+                // El anuncio se muestra SI la fecha de expiración es HOY o FUTURA.
+                // O si no tiene fecha de inicio definida (startDate), o si ya pasó la fecha de inicio.
+                
+                // 1. Verificar inicio (startDate) - Para programar a futuro
+                if (announcement.startDate != null) {
+                  final startDate = DateTime(
+                    announcement.startDate!.year,
+                    announcement.startDate!.month,
+                    announcement.startDate!.day
+                  );
+                  if (startDate.isAfter(today)) return false; // Aún no empieza
+                }
+
+                // 2. Verificar expiración (date)
+                // Convertir a fecha sin hora para comparar solo días
+                final expirationDate = DateTime(
+                  announcement.date.year,
+                  announcement.date.month,
+                  announcement.date.day
                 );
-                return startDate.compareTo(today) <= 0;
+                
+                // Si la fecha de expiración es ANTERIOR a hoy, ya expiró.
+                // (date < today) -> Expirado
+                if (expirationDate.isBefore(today)) return false;
+
+                return true;
               }).toList();
+              
+              // Reordenar: Primero los más nuevos (creados recientemente) o los que van a caducar más tarde?
+              // Generalmente queremos ver lo más nuevo primero.
+              filteredAnnouncements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
               if (filteredAnnouncements.isEmpty) {
                 return Padding(
@@ -110,4 +137,4 @@ class AnnouncementsSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

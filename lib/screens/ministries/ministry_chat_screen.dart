@@ -10,6 +10,8 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:provider/provider.dart'; // Importar provider
+import '../../services/notification_service.dart'; // Importar NotificationService
 import '../../models/ministry.dart';
 import '../../screens/shared/image_viewer_screen.dart';
 import '../../screens/ministries/ministry_details_screen.dart';
@@ -189,7 +191,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
         final downloadUrl = await snapshot.ref.getDownloadURL();
         
         // Enviar mensaje con archivo adjunto
-        await FirebaseFirestore.instance
+        final docRef = await FirebaseFirestore.instance
             .collection('ministry_chat_messages')
             .add({
               'content': messageController.text.trim(), // Incluir texto opcional
@@ -205,6 +207,31 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
               'fileType': 'image',
               'isDeleted': false,
             });
+
+        // Enviar notificación
+        if (mounted) {
+          final currentUser = FirebaseAuth.instance.currentUser;
+          if (currentUser != null) {
+            final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+            final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+            
+            String messageContent = '📷 Imagen';
+            if (messageController.text.isNotEmpty) {
+              messageContent = '$messageContent: ${messageController.text.trim()}';
+            }
+            
+            final notificationService = Provider.of<NotificationService>(context, listen: false);
+            await notificationService.sendMinistryNewChatNotification(
+              ministryId: widget.ministry.id,
+              ministryName: widget.ministry.name,
+              chatId: docRef.id,
+              senderName: senderName,
+              message: messageContent,
+              memberIds: widget.ministry.memberIds,
+              senderId: currentUser.uid,
+            );
+          }
+        }
       } catch (e) {
         print('Error uploading file: $e');
         if (mounted) {
@@ -243,7 +270,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
       // Enviar mensaje con archivo adjunto
-      await FirebaseFirestore.instance
+      final docRef = await FirebaseFirestore.instance
           .collection('ministry_chat_messages')
           .add({
             'content': '', 
@@ -259,6 +286,29 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
             'fileType': fileType,
             'isDeleted': false,
           });
+      
+      // Enviar notificación
+      if (mounted) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+          final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+          
+          String messageContent = '📎 Archivo: $fileName';
+          if (fileType == 'image') messageContent = '📷 Imagen';
+          
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendMinistryNewChatNotification(
+            ministryId: widget.ministry.id,
+            ministryName: widget.ministry.name,
+            chatId: docRef.id,
+            senderName: senderName,
+            message: messageContent,
+            memberIds: widget.ministry.memberIds,
+            senderId: currentUser.uid,
+          );
+        }
+      }
       
     } catch (e) {
       print('Error uploading file: $e');
@@ -525,7 +575,8 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
       _messageController.clear();
 
       try {
-        await FirebaseFirestore.instance.collection('ministry_chat_messages').add({
+        // Enviar mensaje a Firestore
+        final docRef = await FirebaseFirestore.instance.collection('ministry_chat_messages').add({
           'content': message,
           'authorId': FirebaseFirestore.instance
               .collection('users')
@@ -536,6 +587,28 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
           'createdAt': FieldValue.serverTimestamp(),
           'isDeleted': false,
         });
+
+        // Enviar notificación
+        if (mounted) {
+          final currentUser = FirebaseAuth.instance.currentUser;
+          if (currentUser != null) {
+            // Obtener nombre del usuario para la notificación
+            // Idealmente esto debería estar en un provider o estado global para no consultarlo cada vez
+            final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+            final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+
+            final notificationService = Provider.of<NotificationService>(context, listen: false);
+            await notificationService.sendMinistryNewChatNotification(
+              ministryId: widget.ministry.id,
+              ministryName: widget.ministry.name,
+              chatId: docRef.id,
+              senderName: senderName,
+              message: message,
+              memberIds: widget.ministry.memberIds,
+              senderId: currentUser.uid,
+            );
+          }
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1138,7 +1211,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
             final downloadUrl = await snapshot.ref.getDownloadURL();
             
             // Enviar mensaje con audio adjunto
-            await FirebaseFirestore.instance
+            final docRef = await FirebaseFirestore.instance
                 .collection('ministry_chat_messages')
                 .add({
                   'content': '', 
@@ -1155,6 +1228,26 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
                   'fileDuration': finalDuration.inSeconds, // Guardar duración
                   'isDeleted': false,
                 });
+            
+            // Enviar notificación
+            if (mounted) {
+              final currentUser = FirebaseAuth.instance.currentUser;
+              if (currentUser != null) {
+                final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+                final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+                
+                final notificationService = Provider.of<NotificationService>(context, listen: false);
+                await notificationService.sendMinistryNewChatNotification(
+                  ministryId: widget.ministry.id,
+                  ministryName: widget.ministry.name,
+                  chatId: docRef.id,
+                  senderName: senderName,
+                  message: '🎤 Mensaje de voz (${_formatDuration(finalDuration)})',
+                  memberIds: widget.ministry.memberIds,
+                  senderId: currentUser.uid,
+                );
+              }
+            }
           } catch (e) {
             print('Error al subir audio: $e');
             if (mounted) {

@@ -34,7 +34,7 @@ class GroupPost {
     return GroupPost(
       id: doc.id,
       contentText: data['contentText'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       authorId: data['authorId'],
       groupId: data['groupId'],
       imageUrls: List<String>.from(data['imageUrls'] ?? []),

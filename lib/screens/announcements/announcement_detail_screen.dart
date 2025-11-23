@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 import '../events/event_detail_screen.dart';
 import './edit_announcement_screen.dart';
 import 'package:flutter/services.dart';
-import '../../l10n/app_localizations.dart'; // Importación para internacionalización
-import 'package:flutter/foundation.dart'; // Para debugPrint
+import '../../l10n/app_localizations.dart';
+import '../../theme/app_colors.dart';
 
 class AnnouncementDetailScreen extends StatefulWidget {
   final AnnouncementModel announcement;
@@ -50,7 +50,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       if (userDoc.exists && mounted) {
         final userData = userDoc.data() as Map<String, dynamic>;
         setState(() {
-          _isPastor = userData['role'] == 'pastor';
+          _isPastor = userData['role'] == 'pastor' || userData['isSuperUser'] == true; // Also check superuser
         });
       }
     }
@@ -59,11 +59,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
   Future<void> _loadEventDetails() async {
     if (widget.announcement.eventId == null) return;
     
-    if (mounted) {
-      setState(() {
-        _isLoadingEvent = true;
-      });
-    }
+    if (mounted) setState(() => _isLoadingEvent = true);
     
     try {
       final eventDoc = await FirebaseFirestore.instance
@@ -81,13 +77,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
           });
         }
       } else {
-          if (mounted) {
-              setState(() {
-                  _eventTitle = AppLocalizations.of(context)!.eventNotFound;
-                  _eventData = null;
-                  _isLoadingEvent = false;
-              });
-          }
+        if (mounted) {
+          setState(() {
+            _eventTitle = AppLocalizations.of(context)!.eventNotFound;
+            _eventData = null;
+            _isLoadingEvent = false;
+          });
+        }
       }
     } catch (e) {
       debugPrint(AppLocalizations.of(context)!.errorLoadingEventDetails(e.toString()));
@@ -102,19 +98,15 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
   
   void _navigateToEvent() async {
     if (widget.announcement.eventId == null || _eventData == null) {
-         if (mounted) {
-             ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(content: Text(AppLocalizations.of(context)!.eventNotFoundOrInvalid)),
-             );
-         }
-         return;
-     }
-    
-    if (mounted) {
-      setState(() {
-        _isLoadingEvent = true;
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.eventNotFoundOrInvalid)),
+        );
+      }
+      return;
     }
+    
+    if (mounted) setState(() => _isLoadingEvent = true);
     
     try {
       final event = EventModelFromSnapshot.fromFirestoreSnapshot(
@@ -138,11 +130,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingEvent = false;
-        });
-      }
+      if (mounted) setState(() => _isLoadingEvent = false);
     }
   }
   
@@ -157,31 +145,12 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       ),
     ).then((didSaveChanges) {
       if (didSaveChanges == true) {
-          _reloadAnnouncementData();
-        if (widget.announcement.eventId != null) {
+          // TODO: Reload data logic if needed, usually better to use StreamBuilder at parent
+          if (widget.announcement.eventId != null) {
             _loadEventDetails();
           }
       }
     });
-  }
-
-  Future<void> _reloadAnnouncementData() async {
-      try {
-          final doc = await FirebaseFirestore.instance
-              .collection('announcements')
-              .doc(widget.announcement.id)
-              .get();
-          if (doc.exists && mounted) {
-              debugPrint(AppLocalizations.of(context)!.announcementReloaded);
-          }
-      } catch (e) {
-          debugPrint(AppLocalizations.of(context)!.errorReloadingAnnouncement(e.toString()));
-           if (mounted) {
-               ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text(AppLocalizations.of(context)!.errorReloadingAnnouncement(e.toString()))),
-               );
-           }
-      }
   }
 
   Future<void> _deleteAnnouncement() async {
@@ -192,6 +161,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.confirmDeletion),
         content: Text(AppLocalizations.of(context)!.confirmDeleteAnnouncement),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -207,9 +177,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _isDeleting = true;
-      });
+      setState(() => _isDeleting = true);
 
       try {
         if (widget.announcement.imageUrl.isNotEmpty) {
@@ -243,9 +211,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
               backgroundColor: Colors.red,
             ),
           );
-          setState(() {
-            _isDeleting = false;
-          });
+          setState(() => _isDeleting = false);
         }
       }
     }
@@ -256,436 +222,338 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     final bool isCultAnnouncement = widget.announcement.type == 'cult';
     
     return Scaffold(
-      extendBodyBehindAppBar: false,
+      backgroundColor: Colors.grey[50], // Google-style background
+      extendBodyBehindAppBar: true, // Para que la imagen llegue arriba
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 2,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          isCultAnnouncement ? AppLocalizations.of(context)!.cultAnnouncement : AppLocalizations.of(context)!.announcement,
-          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         actions: [
           if (_isPastor)
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: _isDeleting ? null : _editAnnouncement,
-              tooltip: AppLocalizations.of(context)!.editAnnouncement,
-            ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          isCultAnnouncement 
-              ? _buildCultAnnouncementDetail(context)
-              : _buildRegularAnnouncementDetail(context),
-          if (_isDeleting)
             Container(
-              color: Colors.black.withOpacity(0.5),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: Colors.white),
-                    SizedBox(height: 16),
-                    Text(AppLocalizations.of(context)!.deletingAnnouncement, style: const TextStyle(color: Colors.white, fontSize: 16)),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageHeader(BuildContext context) {
-      return Stack(
-        children: [
-          SizedBox(
-            height: 250,
-            width: double.infinity,
-            child: Image.network(
-              widget.announcement.imageUrl,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                      height: 250,
-                      color: Colors.grey[200],
-                      child: Center(
-                          child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                  : null,
-                          ),
-                      ),
-                  );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                final iconData = widget.announcement.type == 'cult' ? Icons.church : Icons.image_not_supported;
-                return Container(
-                  height: 250,
-                  color: Colors.grey[300],
-                  child: Icon(iconData, size: 100, color: Colors.grey[500]),
-                );
-              },
-            ),
-          ),
-          
-          Positioned.fill(
-            child: Container(
+              margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.1),
-                    Colors.black.withOpacity(0.7),
-                  ],
-                  stops: const [0.3, 1.0],
-                ),
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: _isDeleting ? null : _editAnnouncement,
+                tooltip: AppLocalizations.of(context)!.editAnnouncement,
               ),
             ),
-          ),
-          
-          Positioned(
-            bottom: 20,
-            left: 16,
-            right: 16,
-            child: Text(
-              widget.announcement.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                shadows: [
-                  Shadow(
-                    blurRadius: 5.0,
-                    color: Colors.black87,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
           if (_isPastor)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Material(
-                color: Colors.black.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: _isDeleting ? null : _deleteAnnouncement,
-                  borderRadius: BorderRadius.circular(20),
-                  onTapDown: (_) => HapticFeedback.lightImpact(), 
-                  child: Tooltip(
-                    message: AppLocalizations.of(context)!.deleteAnnouncement,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: Colors.white.withOpacity(_isDeleting ? 0.5 : 1.0),
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+               decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                onPressed: _isDeleting ? null : _deleteAnnouncement,
+                tooltip: AppLocalizations.of(context)!.deleteAnnouncement,
               ),
             ),
-          
-          if (widget.announcement.type == 'cult')
-             Positioned(
-                top: 16,
-                left: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                         BoxShadow(
-                             color: Colors.black.withOpacity(0.2),
-                             blurRadius: 3,
-                             offset: const Offset(0, 1),
-                         )
-                     ]
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.church, color: Colors.white, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        AppLocalizations.of(context)!.cult(''),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-        ],
-      );
-  }
-
-  Widget _buildRegularAnnouncementDetail(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildImageHeader(context),
-          
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.announcement.description,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.5,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!)
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoRow(
-                          Icons.calendar_today_outlined,
-                          AppLocalizations.of(context)!.publishedOn(DateFormat('dd/MM/yyyy').format(widget.announcement.createdAt))
-                      ),
-                      
-                      if (widget.announcement.location != null && widget.announcement.location!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                         _buildInfoRow(
-                             Icons.location_on_outlined,
-                             widget.announcement.location!
-                         ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCultAnnouncementDetail(BuildContext context) {
-    final hasEventLink = widget.announcement.eventId != null;
-    
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-           _buildImageHeader(context),
-          
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.announcement.description,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.5,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!)
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoRow(
-                          Icons.calendar_today_outlined,
-                          AppLocalizations.of(context)!.cultDate(DateFormat('dd/MM/yyyy HH:mm').format(widget.announcement.date))
-                      ),
-                      
-                      if (widget.announcement.location != null && widget.announcement.location!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                         _buildInfoRow(
-                             Icons.location_on_outlined,
-                             widget.announcement.location!
-                         ),
-                      ],
-                    ],
-                  ),
-                ),
-                
-                if (hasEventLink) ...[
-                  const SizedBox(height: 24),
+      body: _isDeleting 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeroImage(context, isCultAnnouncement),
                   
-                  Row(
-                    children: [
-                      Icon(Icons.link, size: 20, color: Colors.grey[700]),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.linkedEvent,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
+                  Transform.translate(
+                    offset: const Offset(0, -20),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.grey, // Placeholder bg
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
                         ),
                       ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 12),
-                  
-                  Card(
-                    elevation: 1,
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                       side: BorderSide(color: Colors.grey[200]!)
-                    ),
-                    child: InkWell(
-                      onTap: _isLoadingEvent ? null : _navigateToEvent,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: _isLoadingEvent
-                            ? const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              )
-                            : Row(
-                                children: [
-                                  Icon(
-                                    Icons.event_available,
-                                    size: 32,
-                                    color: Theme.of(context).primaryColor,
+                      child: Container(
+                         decoration: const BoxDecoration(
+                          color: Colors.white, // Actual bg
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            topRight: Radius.circular(24),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Etiquetas / Chips
+                            Row(
+                              children: [
+                                if (isCultAnnouncement)
+                                  _buildChip(
+                                    label: AppLocalizations.of(context)!.cult(''),
+                                    icon: Icons.church,
+                                    color: Colors.blue,
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _eventTitle ?? AppLocalizations.of(context)!.loading,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        ..._buildEventDetailsWidgets(context),
-                                      ],
-                                    ),
+                                if (widget.announcement.isActive)
+                                  _buildChip(
+                                    label: 'Ativo',
+                                    color: Colors.green,
+                                    isSmall: true,
                                   ),
-                                   if (_eventTitle != null && _eventTitle != AppLocalizations.of(context)!.eventNotFound && _eventTitle != AppLocalizations.of(context)!.errorLoadingEvent)
-                                      const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            
+                            // Título
+                            Text(
+                              widget.announcement.title,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
                               ),
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Información Principal (Fecha y Ubicación)
+                            _buildInfoSection(context),
+                            
+                            const SizedBox(height: 24),
+                            const Divider(height: 1),
+                            const SizedBox(height: 24),
+                            
+                            // Descripción
+                            Text(
+                              AppLocalizations.of(context)!.description,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              widget.announcement.description,
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.6,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            
+                            // Evento vinculado
+                            if (widget.announcement.eventId != null) ...[
+                              const SizedBox(height: 32),
+                              _buildLinkedEventCard(context),
+                            ]
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ] else if (widget.announcement.eventId == null && widget.announcement.type == 'cult') ...[
-                   const SizedBox(height: 16),
-                   Container(
-                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                       decoration: BoxDecoration(
-                           color: Colors.orange.shade50,
-                           borderRadius: BorderRadius.circular(8),
-                           border: Border.all(color: Colors.orange.shade200),
-                       ),
-                       child: Row(
-                           children: [
-                               Icon(Icons.link_off, size: 18, color: Colors.orange.shade800),
-                               const SizedBox(width: 8),
-                               Expanded(
-                                   child: Text(
-                                       AppLocalizations.of(context)!.noEventLinkedToThisCult,
-                                       style: TextStyle(fontSize: 13, color: Colors.orange.shade800),
-                                   ),
-                               ),
-                           ],
-                       ),
-                   ),
                 ],
-              ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildHeroImage(BuildContext context, bool isCult) {
+    return Stack(
+      children: [
+        SizedBox(
+          height: 350,
+          width: double.infinity,
+          child: Image.network(
+            widget.announcement.imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            },
+            errorBuilder: (_, __, ___) => Container(
+              color: Colors.grey[300],
+              child: Icon(isCult ? Icons.church : Icons.image_not_supported, size: 80, color: Colors.grey[500]),
             ),
           ),
-           const SizedBox(height: 20),
+        ),
+        // Gradiente para legibilidad de botones superiores
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 100,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.6),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChip({required String label, IconData? icon, required Color color, bool isSmall = false}) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 12, vertical: isSmall ? 4 : 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: isSmall ? 14 : 16, color: color),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: isSmall ? 12 : 13,
+            ),
+          ),
         ],
       ),
     );
   }
-
-  List<Widget> _buildEventDetailsWidgets(BuildContext context) {
-    if (_eventTitle != null && _eventTitle != AppLocalizations.of(context)!.eventNotFound && _eventTitle != AppLocalizations.of(context)!.errorLoadingEvent) {
-      return [
-        const SizedBox(height: 4),
-        Text(
-            AppLocalizations.of(context)!.tapToSeeDetails,
-            style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 13,
-            ),
-        ),
-      ];
-    } else if (_eventTitle == AppLocalizations.of(context)!.eventNotFound || _eventTitle == AppLocalizations.of(context)!.errorLoadingEvent) {
-      return [
-        const SizedBox(height: 4),
-        Text(
-            _eventTitle!,
-            style: TextStyle(
-                color: Colors.red[700],
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-            ),
-        ),
-      ];
-    }
-    return [];
+  
+  Widget _buildInfoSection(BuildContext context) {
+    final date = widget.announcement.type == 'cult' ? widget.announcement.date : widget.announcement.createdAt;
+    final String dateLabel = widget.announcement.type == 'cult' 
+        ? AppLocalizations.of(context)!.cultDate(DateFormat('dd/MM/yyyy HH:mm').format(date))
+        : AppLocalizations.of(context)!.publishedOn(DateFormat('dd/MM/yyyy').format(date));
+        
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(Icons.calendar_today_rounded, dateLabel),
+          if (widget.announcement.location != null && widget.announcement.location!.isNotEmpty) ...[
+            const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(height: 1)),
+            _buildInfoRow(Icons.location_on_rounded, widget.announcement.location!),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.grey[600]),
-        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Icon(icon, size: 20, color: AppColors.primary),
+        ),
+        const SizedBox(width: 16),
         Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildLinkedEventCard(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.link, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(
+              AppLocalizations.of(context)!.linkedEvent,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+          ),
+          color: AppColors.primary.withOpacity(0.05),
+          child: InkWell(
+            onTap: _isLoadingEvent ? null : _navigateToEvent,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: _isLoadingEvent
+                  ? const Center(child: CircularProgressIndicator())
+                  : Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.event, color: AppColors.primary),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _eventTitle ?? AppLocalizations.of(context)!.loading,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                AppLocalizations.of(context)!.tapToSeeDetails,
+                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary.withOpacity(0.5)),
+                      ],
+                    ),
             ),
           ),
         ),

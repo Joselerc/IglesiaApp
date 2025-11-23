@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import '../services/image_service.dart';
 import '../l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../services/notification_service.dart';
 
 enum AspectRatioOption {
   square, // 1:1
@@ -69,6 +71,7 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
   }
 
   Future<void> _createPost() async {
+    print('🔍 [DEBUG] _createPost Ministerio iniciado');
     // Validar contenido (no vacío después de quitar espacios)
     final content = _contentController.text.trim();
     if (content.isEmpty && _selectedImages.isEmpty) {
@@ -77,6 +80,9 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
       );
       return;
     }
+
+    // Capturar el servicio de notificaciones antes de cualquier operación asíncrona
+    final notificationService = Provider.of<NotificationService>(context, listen: false);
 
     setState(() {
       _isLoading = true;
@@ -100,6 +106,7 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
       // Lista para almacenar URLs de imágenes
       final List<String> imageUrls = [];
 
+      print('🔍 [DEBUG] Procesando imágenes ministerio');
       // Subir imágenes si hay alguna seleccionada
       if (_selectedImages.isNotEmpty) {
         for (var imageFile in _selectedImages) {
@@ -129,8 +136,9 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
         }
       }
 
+      print('🔍 [DEBUG] Guardando post ministerio en Firestore');
       // Crear documento de post
-      await FirebaseFirestore.instance.collection('ministry_posts').add({
+      final postRef = await FirebaseFirestore.instance.collection('ministry_posts').add({
         'ministryId': ministryRef,
         'authorId': userRef,
         'contentText': content,
@@ -143,6 +151,70 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
         'comments': [],
         'commentCount': 0,
       });
+      print('🔍 [DEBUG] Post ministerio creado ID: ${postRef.id}');
+
+      // Enviar notificación (Lógica añadida)
+      try {
+            print('🔍 [DEBUG] Ministerio - Iniciando notificación para ${widget.ministryId}');
+        final ministryDoc = await FirebaseFirestore.instance.collection('ministries').doc(widget.ministryId).get();
+        
+        if (ministryDoc.exists) {
+            final data = ministryDoc.data() as Map<String, dynamic>;
+            final ministryName = data['name'] ?? 'Ministerio';
+            
+            // Parsear miembros correctamente (pueden ser Strings o DocumentReferences)
+            List<String> memberIds = [];
+            if (data['members'] != null) {
+              final membersList = data['members'] as List;
+              for (var member in membersList) {
+                if (member is DocumentReference) {
+                  memberIds.add(member.id);
+                } else if (member is String) {
+                   if (member.startsWith('/users/')) {
+                     memberIds.add(member.split('/').last);
+                   } else {
+                     memberIds.add(member);
+                   }
+                }
+              }
+            }
+            // También añadir admins a la lista de notificación si no están en miembros
+             if (data['ministrieAdmin'] != null) {
+              final adminsList = data['ministrieAdmin'] as List;
+              for (var admin in adminsList) {
+                String? adminId;
+                if (admin is DocumentReference) {
+                  adminId = admin.id;
+                } else if (admin is String) {
+                   if (admin.startsWith('/users/')) {
+                     adminId = admin.split('/').last;
+                   } else {
+                     adminId = admin;
+                   }
+                }
+                
+                if (adminId != null && !memberIds.contains(adminId)) {
+                  memberIds.add(adminId);
+                }
+              }
+            }
+            
+            print('🔍 [DEBUG] Ministerio - Enviando a ${memberIds.length} miembros');
+
+            await notificationService.sendMinistryNewPostNotification(
+                ministryId: widget.ministryId,
+                ministryName: ministryName,
+                postId: postRef.id,
+                postTitle: content.isNotEmpty 
+                    ? (content.length > 50 ? '${content.substring(0, 50)}...' : content)
+                    : 'Nueva publicación',
+                memberIds: memberIds,
+            );
+            print('🔍 [DEBUG] Ministerio - Notificación enviada al servicio');
+        }
+      } catch (e) {
+        print('🔍 [DEBUG] Error notificando ministerio: $e');
+      }
 
       // Cerrar bottom sheet
       if (context.mounted) {
@@ -152,15 +224,18 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
         );
       }
     } catch (e) {
+      print('🔍 [DEBUG] CRITICAL ERROR en _createPost Ministerio: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.errorCreatingPost}: $e')),
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

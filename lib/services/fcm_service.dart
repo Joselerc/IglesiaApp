@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'event_service.dart';
 
 class FCMService {
   static final FCMService _instance = FCMService._internal();
@@ -255,9 +256,12 @@ class FCMService {
 
   /// Navegar a ruta específica
   void _navigateToRoute(String route) {
-    // TODO: Implementar navegación usando el NavigatorKey global
     debugPrint('🧭 FCM_SERVICE - Navegando a: $route');
-    // Navigator.pushNamed(navigatorKey.currentContext!, route);
+    if (EventService.navigatorKey.currentState != null) {
+      EventService.navigatorKey.currentState!.pushNamed(route);
+    } else {
+      debugPrint('❌ FCM_SERVICE - NavigatorKey no tiene estado o es nulo');
+    }
   }
 
   /// Configurar refresh de token

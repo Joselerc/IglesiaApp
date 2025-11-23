@@ -1955,7 +1955,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeleteAnnouncement.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres eliminar este anuncio? Esta acción no se puede deshacer.'**
+  /// **'¿Estás seguro de que deseas eliminar este anuncio?'**
   String get confirmDeleteAnnouncement;
 
   /// No description provided for @deletingAnnouncement.
@@ -1973,7 +1973,7 @@ abstract class AppLocalizations {
   /// No description provided for @announcementDeletedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'Anuncio eliminado correctamente'**
+  /// **'Anuncio eliminado exitosamente'**
   String get announcementDeletedSuccessfully;
 
   /// No description provided for @errorDeletingAnnouncement.
@@ -4211,7 +4211,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectImage.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar Imagen'**
+  /// **'Seleccionar imagen'**
   String get selectImage;
 
   /// No description provided for @pageContentLabel.
@@ -4685,7 +4685,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAnnouncements.
   ///
   /// In es, this message translates to:
-  /// **'Gestionar Anuncios'**
+  /// **'Gestión de Anuncios'**
   String get manageAnnouncements;
 
   /// No description provided for @active.
@@ -5573,7 +5573,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectLocation.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar localización'**
+  /// **'Seleccionar Localización'**
   String get selectLocation;
 
   /// No description provided for @addNewLocation.
@@ -8123,7 +8123,7 @@ abstract class AppLocalizations {
   /// No description provided for @filterByDate.
   ///
   /// In es, this message translates to:
-  /// **'Filtrar por Fecha'**
+  /// **'Filtrar por fecha'**
   String get filterByDate;
 
   /// No description provided for @initialDate.
@@ -10823,103 +10823,103 @@ abstract class AppLocalizations {
   /// No description provided for @notifTypeNewCultAnnouncement.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo anuncio de culto'**
+  /// **'Nuevo culto programado'**
   String get notifTypeNewCultAnnouncement;
 
   /// No description provided for @notifTypeNewMinistry.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo ministerio'**
+  /// **'Nuevo ministerio disponible'**
   String get notifTypeNewMinistry;
 
   /// No description provided for @notifTypeMinistryJoinRequestAccepted.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud de ministerio aceptada'**
+  /// **'Solicitud aceptada'**
   String get notifTypeMinistryJoinRequestAccepted;
 
   /// No description provided for @notifTypeMinistryJoinRequestRejected.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud de ministerio rechazada'**
+  /// **'Solicitud rechazada'**
   String get notifTypeMinistryJoinRequestRejected;
 
   /// No description provided for @notifTypeMinistryJoinRequest.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud para entrar al ministerio'**
+  /// **'Solicitud de unión'**
   String get notifTypeMinistryJoinRequest;
 
   /// No description provided for @notifTypeMinistryManuallyAdded.
   ///
   /// In es, this message translates to:
-  /// **'Agregado al ministerio'**
+  /// **'Añadido a ministerio'**
   String get notifTypeMinistryManuallyAdded;
 
   /// No description provided for @notifTypeMinistryNewEvent.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo evento del ministerio'**
+  /// **'Nuevo evento de ministerio'**
   String get notifTypeMinistryNewEvent;
 
   /// No description provided for @notifTypeMinistryNewPost.
   ///
   /// In es, this message translates to:
-  /// **'Nueva publicación en el ministerio'**
+  /// **'Nueva publicación'**
   String get notifTypeMinistryNewPost;
 
   /// No description provided for @notifTypeMinistryNewWorkSchedule.
   ///
   /// In es, this message translates to:
-  /// **'Nueva escala de trabajo'**
+  /// **'Nueva invitación de trabajo'**
   String get notifTypeMinistryNewWorkSchedule;
 
   /// No description provided for @notifTypeMinistryWorkScheduleAccepted.
   ///
   /// In es, this message translates to:
-  /// **'Escala de trabajo aceptada'**
+  /// **'Horario aceptado'**
   String get notifTypeMinistryWorkScheduleAccepted;
 
   /// No description provided for @notifTypeMinistryWorkScheduleRejected.
   ///
   /// In es, this message translates to:
-  /// **'Escala de trabajo rechazada'**
+  /// **'Horario rechazado'**
   String get notifTypeMinistryWorkScheduleRejected;
 
   /// No description provided for @notifTypeMinistryWorkSlotFilled.
   ///
   /// In es, this message translates to:
-  /// **'Vacante de trabajo ocupada'**
+  /// **'Turno cubierto'**
   String get notifTypeMinistryWorkSlotFilled;
 
   /// No description provided for @notifTypeMinistryWorkSlotAvailable.
   ///
   /// In es, this message translates to:
-  /// **'Vacante de trabajo disponible'**
+  /// **'Turno disponible'**
   String get notifTypeMinistryWorkSlotAvailable;
 
   /// No description provided for @notifTypeMinistryEventReminder.
   ///
   /// In es, this message translates to:
-  /// **'Recordatorio de evento del ministerio'**
+  /// **'Recordatorio de evento'**
   String get notifTypeMinistryEventReminder;
 
   /// No description provided for @notifTypeMinistryNewChat.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo mensaje en el ministerio'**
+  /// **'Nuevo mensaje'**
   String get notifTypeMinistryNewChat;
 
   /// No description provided for @notifTypeMinistryPromotedToAdmin.
   ///
   /// In es, this message translates to:
-  /// **'Promovido a admin del ministerio'**
+  /// **'Promovido a administrador'**
   String get notifTypeMinistryPromotedToAdmin;
 
   /// No description provided for @notifTypeNewGroup.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo grupo'**
+  /// **'Nuevo grupo disponible'**
   String get notifTypeNewGroup;
 
   /// No description provided for @notifTypeGroupJoinRequestAccepted.
@@ -10937,55 +10937,55 @@ abstract class AppLocalizations {
   /// No description provided for @notifTypeGroupJoinRequest.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud para entrar al grupo'**
+  /// **'Solicitud de unión a grupo'**
   String get notifTypeGroupJoinRequest;
 
   /// No description provided for @notifTypeGroupManuallyAdded.
   ///
   /// In es, this message translates to:
-  /// **'Agregado al grupo'**
+  /// **'Añadido a grupo'**
   String get notifTypeGroupManuallyAdded;
 
   /// No description provided for @notifTypeGroupNewEvent.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo evento del grupo'**
+  /// **'Nuevo evento de grupo'**
   String get notifTypeGroupNewEvent;
 
   /// No description provided for @notifTypeGroupNewPost.
   ///
   /// In es, this message translates to:
-  /// **'Nueva publicación en el grupo'**
+  /// **'Nueva publicación en grupo'**
   String get notifTypeGroupNewPost;
 
   /// No description provided for @notifTypeGroupEventReminder.
   ///
   /// In es, this message translates to:
-  /// **'Recordatorio de evento del grupo'**
+  /// **'Recordatorio de evento de grupo'**
   String get notifTypeGroupEventReminder;
 
   /// No description provided for @notifTypeGroupNewChat.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo mensaje en el grupo'**
+  /// **'Nuevo mensaje de grupo'**
   String get notifTypeGroupNewChat;
 
   /// No description provided for @notifTypeGroupPromotedToAdmin.
   ///
   /// In es, this message translates to:
-  /// **'Promovido a admin del grupo'**
+  /// **'Promovido a admin de grupo'**
   String get notifTypeGroupPromotedToAdmin;
 
   /// No description provided for @notifTypeNewPrivatePrayer.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo pedido de oración particular'**
+  /// **'Nueva solicitud de oración'**
   String get notifTypeNewPrivatePrayer;
 
   /// No description provided for @notifTypePrivatePrayerPrayed.
   ///
   /// In es, this message translates to:
-  /// **'Oración particular completada'**
+  /// **'Han orado por ti'**
   String get notifTypePrivatePrayerPrayed;
 
   /// No description provided for @notifTypePublicPrayerAccepted.
@@ -11009,31 +11009,31 @@ abstract class AppLocalizations {
   /// No description provided for @notifTypeNewCounselingRequest.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo pedido de consejería'**
+  /// **'Solicitud de consejería'**
   String get notifTypeNewCounselingRequest;
 
   /// No description provided for @notifTypeCounselingAccepted.
   ///
   /// In es, this message translates to:
-  /// **'Agendamiento confirmado'**
+  /// **'Consejería confirmada'**
   String get notifTypeCounselingAccepted;
 
   /// No description provided for @notifTypeCounselingRejected.
   ///
   /// In es, this message translates to:
-  /// **'Agendamiento rechazado'**
+  /// **'Consejería rechazada'**
   String get notifTypeCounselingRejected;
 
   /// No description provided for @notifTypeCounselingCancelled.
   ///
   /// In es, this message translates to:
-  /// **'Agendamiento cancelado'**
+  /// **'Consejería cancelada'**
   String get notifTypeCounselingCancelled;
 
   /// No description provided for @notifTypeNewVideo.
   ///
   /// In es, this message translates to:
-  /// **'Nuevo vídeo'**
+  /// **'Nuevo video'**
   String get notifTypeNewVideo;
 
   /// No description provided for @notifTypeMessage.
@@ -12137,13 +12137,13 @@ abstract class AppLocalizations {
   /// No description provided for @createCultAnnouncement.
   ///
   /// In es, this message translates to:
-  /// **'Crear Anuncio del Culto'**
+  /// **'Crear Anuncio de Culto'**
   String get createCultAnnouncement;
 
   /// No description provided for @pleaseEnterTitle2.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, ingresa un título'**
+  /// **'Por favor ingrese un título'**
   String get pleaseEnterTitle2;
 
   /// No description provided for @cultInformation.
@@ -12155,13 +12155,13 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterDescription2.
   ///
   /// In es, this message translates to:
-  /// **'Por favor, ingresa una descripción'**
+  /// **'Por favor ingrese una descripción'**
   String get pleaseEnterDescription2;
 
   /// No description provided for @linkedEventOptional.
   ///
   /// In es, this message translates to:
-  /// **'Evento Vinculado (Opcional)'**
+  /// **'Evento vinculado (Opcional)'**
   String get linkedEventOptional;
 
   /// No description provided for @selectEvent.
@@ -12173,7 +12173,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventLinkedToAnnouncement.
   ///
   /// In es, this message translates to:
-  /// **'Evento vinculado a este anuncio'**
+  /// **'Este evento estará vinculado al anuncio'**
   String get eventLinkedToAnnouncement;
 
   /// No description provided for @announcementStartDate.
@@ -12185,7 +12185,7 @@ abstract class AppLocalizations {
   /// No description provided for @willBeAdaptedTo16x9.
   ///
   /// In es, this message translates to:
-  /// **'Será adaptada automáticamente al formato 16:9'**
+  /// **'Será adaptada a formato 16:9'**
   String get willBeAdaptedTo16x9;
 
   /// No description provided for @processingImage.
@@ -12197,7 +12197,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseSelectOrEnterLocation.
   ///
   /// In es, this message translates to:
-  /// **'Por favor selecciona o ingresa una localización'**
+  /// **'Por favor selecciona o introduce una localización'**
   String get pleaseSelectOrEnterLocation;
 
   /// No description provided for @selectingEvent.
@@ -14263,6 +14263,132 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Intenta con otros términos o fecha'**
   String get tryOtherTermsOrDate;
+
+  /// No description provided for @settings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get settings;
+
+  /// No description provided for @security.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguridad'**
+  String get security;
+
+  /// No description provided for @helpAndSupport.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuda y Soporte'**
+  String get helpAndSupport;
+
+  /// No description provided for @ministryNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ministerio no encontrado'**
+  String get ministryNotFound;
+
+  /// No description provided for @groupNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo no encontrado'**
+  String get groupNotFound;
+
+  /// No description provided for @announcementNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Anuncio no encontrado'**
+  String get announcementNotFound;
+
+  /// No description provided for @clickToSeeMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para ver más detalles'**
+  String get clickToSeeMore;
+
+  /// No description provided for @markedAsRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcada como leída'**
+  String get markedAsRead;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar filtros'**
+  String get clearFilters;
+
+  /// No description provided for @newAnnouncement.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo Anuncio'**
+  String get newAnnouncement;
+
+  /// No description provided for @manageLocations.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar Localizaciones'**
+  String get manageLocations;
+
+  /// No description provided for @manageLocationsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir, editar o eliminar sedes de la iglesia'**
+  String get manageLocationsDescription;
+
+  /// No description provided for @newLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva Localización'**
+  String get newLocation;
+
+  /// No description provided for @editLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Localización'**
+  String get editLocation;
+
+  /// No description provided for @deleteLocationConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas eliminar esta localización?'**
+  String get deleteLocationConfirmation;
+
+  /// No description provided for @locationDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización eliminada exitosamente'**
+  String get locationDeletedSuccessfully;
+
+  /// No description provided for @noLocationsFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron localizaciones'**
+  String get noLocationsFound;
+
+  /// No description provided for @locationCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización creada exitosamente'**
+  String get locationCreatedSuccessfully;
+
+  /// No description provided for @locationUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Localización actualizada exitosamente'**
+  String get locationUpdatedSuccessfully;
+
+  /// No description provided for @requestAcceptedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu solicitud para unirte al ministerio {ministryName} ha sido aceptada'**
+  String requestAcceptedMessage(String ministryName);
+
+  /// No description provided for @requestRejectedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu solicitud para unirte al ministerio {ministryName} ha sido rechazada'**
+  String requestRejectedMessage(String ministryName);
 }
 
 class _AppLocalizationsDelegate

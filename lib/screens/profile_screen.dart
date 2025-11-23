@@ -26,6 +26,7 @@ import '../theme/app_text_styles.dart';
 import 'admin/profile_fields_admin_screen.dart';
 import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
 import 'admin/manage_donations_screen.dart'; // <-- Import añadido
+import 'admin/manage_church_locations_screen.dart';
 // import 'admin/create_edit_role_screen.dart'; // No se usa directamente
 import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
 import 'package:iglesia_app/services/permission_service.dart'; // <-- Import PermissionService
@@ -1017,6 +1018,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageDonationsScreen())),
                           ),
                           _buildPermissionControlledTile(
+                            permissionKey: 'manage_church_locations', // Nueva clave de permiso
+                            icon: Icons.location_on_outlined, 
+                            title: AppLocalizations.of(context)!.manageLocations,
+                            subtitle: AppLocalizations.of(context)!.manageLocationsDescription,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageChurchLocationsScreen())),
+                          ),
+                          _buildPermissionControlledTile(
                             permissionKey: 'manage_livestream_config',
                             icon: Icons.live_tv_outlined,
                             title: AppLocalizations.of(context)!.manageLiveStreams,
@@ -1077,6 +1085,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              title: AppLocalizations.of(context)!.createAnnouncements,
                              subtitle: AppLocalizations.of(context)!.createEditChurchAnnouncements,
                              onTap: () => _showCreateAnnouncementModal(context),
+                           ),
+                          _buildPermissionControlledTile(
+                            permissionKey: 'manage_announcements',
+                             icon: Icons.list_alt, 
+                             title: AppLocalizations.of(context)!.manageAnnouncements,
+                             subtitle: AppLocalizations.of(context)!.clickToSeeMore,
+                             onTap: () => Navigator.pushNamed(context, '/admin/announcements'),
                            ),
                           _buildPermissionControlledTile(
                             permissionKey: 'create_events',

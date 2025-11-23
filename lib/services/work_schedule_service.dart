@@ -460,6 +460,7 @@ class WorkScheduleService {
             senderId: currentUser.uid,
             entityId: result['inviteId'] as String?, // ID del work_invite creado
             entityType: 'work_invite',
+            actionRoute: '/work-invites/${result['inviteId']}',
             data: {
               'ministryId': ministryIdStr,
               'ministryName': result['ministryName'] as String?,
@@ -480,6 +481,7 @@ class WorkScheduleService {
             senderId: currentUser.uid,
             entityId: null,
             entityType: 'work_assignment',
+            actionRoute: '/ministries/$ministryIdStr',
             data: {
               'ministryId': ministryIdStr,
               'role': role,

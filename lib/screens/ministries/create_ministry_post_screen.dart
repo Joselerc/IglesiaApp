@@ -5,6 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import '../../services/image_service.dart';
+import 'package:provider/provider.dart';
+import '../../services/notification_service.dart';
+import '../../models/ministry.dart'; // Importar modelo Ministry
 
 class CreateMinistryPostScreen extends StatefulWidget {
   final String ministryId;
@@ -55,6 +58,9 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
   }
 
   Future<void> _createPost() async {
+    print('🔍 [DEBUG] _createPost iniciado');
+    final notificationService = Provider.of<NotificationService>(context, listen: false);
+    
     if (_contentController.text.isEmpty && _selectedImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Agrega texto o imágenes para crear el post')),
@@ -69,8 +75,10 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
     try {
       final List<String> imageUrls = [];
       
+      print('🔍 [DEBUG] Procesando ${_selectedImages.length} imágenes');
       // Subir imágenes si hay alguna seleccionada
       for (var imageFile in _selectedImages) {
+        print('🔍 [DEBUG] Subiendo imagen...');
         final fileName = '${DateTime.now().millisecondsSinceEpoch}_${imageUrls.length}.jpg';
         final ref = FirebaseStorage.instance
             .ref()
@@ -88,11 +96,13 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
         
         await ref.putFile(imageFile, metadata);
         final url = await ref.getDownloadURL();
+        print('🔍 [DEBUG] Imagen subida: $url');
         imageUrls.add(url);
       }
 
+      print('🔍 [DEBUG] Guardando post en Firestore...');
       // Crear el post en Firestore
-      await FirebaseFirestore.instance.collection('ministry_posts').add({
+      final postRef = await FirebaseFirestore.instance.collection('ministry_posts').add({
         'contentText': _contentController.text,
         'imageUrls': imageUrls,
         'ministryId': FirebaseFirestore.instance
@@ -107,14 +117,53 @@ class _CreateMinistryPostScreenState extends State<CreateMinistryPostScreen> {
         'shares': [],
         'savedBy': [],
       });
+      print('🔍 [DEBUG] Post guardado con ID: ${postRef.id}');
+
+      // Enviar notificación a los miembros del ministerio
+      // No verificamos 'mounted' aquí para asegurar el envío incluso si el usuario sale
+      try {
+        // Obtener detalles del ministerio
+        final ministryDoc = await FirebaseFirestore.instance
+            .collection('ministries')
+            .doc(widget.ministryId)
+            .get();
+        
+        if (ministryDoc.exists) {
+          final ministry = Ministry.fromFirestore(ministryDoc);
+          
+          // DEBUG: Logs temporales
+          print('🔍 [DEBUG] CreateMinistryPostScreen - Preparando envío de notificación');
+          print('🔍 [DEBUG] Ministerio: ${ministry.name} (ID: ${widget.ministryId})');
+          print('🔍 [DEBUG] Cantidad de miembros: ${ministry.memberIds.length}');
+          print('🔍 [DEBUG] IDs de miembros: ${ministry.memberIds}');
+          
+          await notificationService.sendMinistryNewPostNotification(
+            ministryId: widget.ministryId,
+            ministryName: ministry.name,
+            postId: postRef.id,
+            postTitle: _contentController.text.isNotEmpty 
+                ? (_contentController.text.length > 50 
+                    ? '${_contentController.text.substring(0, 50)}...' 
+                    : _contentController.text)
+                : 'Nova imagem',
+            memberIds: ministry.memberIds,
+          );
+          print('🔍 [DEBUG] CreateMinistryPostScreen - Notificación enviada al servicio');
+        }
+      } catch (e) {
+        print('🔍 [DEBUG] Error al enviar notificación de post: $e');
+      }
 
       if (mounted) {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al crear el post: $e')),
-      );
+      print('🔍 [DEBUG] CRITICAL ERROR en _createPost: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al crear el post: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
