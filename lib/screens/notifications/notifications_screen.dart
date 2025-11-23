@@ -172,28 +172,96 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
         if (filteredNotifications.isEmpty) {
           return _buildEmptyState();
         }
+
+        // Agrupar notificaciones de chat
+        final groupedNotifications = _groupChatNotifications(filteredNotifications);
         
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8, bottom: 16),
-          itemCount: filteredNotifications.length,
+          itemCount: groupedNotifications.length,
           itemBuilder: (context, index) {
-            final notification = filteredNotifications[index];
+            final item = groupedNotifications[index];
             
-            if (notification.type == NotificationType.ministryNewWorkSchedule) {
-              return _WorkScheduleNotificationCard(
+            if (item is AppNotification) {
+              // Notificación individual
+              final notification = item;
+              if (notification.type == NotificationType.ministryNewWorkSchedule) {
+                return _WorkScheduleNotificationCard(
+                  notification: notification,
+                  notificationService: Provider.of<NotificationService>(context, listen: false),
+                );
+              }
+              
+              return _NotificationCard(
                 notification: notification,
                 notificationService: Provider.of<NotificationService>(context, listen: false),
               );
+            } else if (item is _ChatNotificationGroup) {
+              // Grupo de notificaciones de chat
+              return _ChatGroupCard(
+                group: item,
+                notificationService: Provider.of<NotificationService>(context, listen: false),
+              );
             }
-            
-            return _NotificationCard(
-              notification: notification,
-              notificationService: Provider.of<NotificationService>(context, listen: false),
-            );
+            return const SizedBox.shrink();
           },
         );
       },
     );
+  }
+
+  // Nueva lógica de agrupación
+  List<dynamic> _groupChatNotifications(List<AppNotification> notifications) {
+    final List<dynamic> result = [];
+    final Map<String, _ChatNotificationGroup> groups = {};
+    
+    for (var notification in notifications) {
+      // Identificar si es una notificación de chat (Ministerio o Grupo)
+      if (notification.type == NotificationType.ministryNewChat || 
+          notification.type == NotificationType.groupNewChat) {
+        
+        // Usar entityId como clave de agrupación (ID del ministerio o grupo)
+        final key = notification.entityId ?? 'unknown';
+        
+        if (!groups.containsKey(key)) {
+          groups[key] = _ChatNotificationGroup(
+            entityId: key,
+            type: notification.type,
+            notifications: [],
+            title: notification.title, // "Nuevo mensaje en [Nombre]"
+          );
+        }
+        groups[key]!.notifications.add(notification);
+      } else {
+        // Si no es chat, añadir directamente a la lista principal
+        result.add(notification);
+      }
+    }
+    
+    // Insertar los grupos al principio o donde corresponda (por ahora al principio para destacar)
+    // O mejor, mantener el orden cronológico basado en el mensaje más reciente del grupo.
+    
+    // Convertir mapa a lista
+    final groupList = groups.values.toList();
+    
+    // Añadir grupos a la lista de resultados
+    result.addAll(groupList);
+    
+    // Ordenar todo por fecha (para grupos, usar la fecha del mensaje más reciente)
+    result.sort((a, b) {
+      DateTime dateA;
+      DateTime dateB;
+      
+      if (a is AppNotification) dateA = a.createdAt;
+      else dateA = (a as _ChatNotificationGroup).notifications.first.createdAt; // Asumiendo que vienen ordenadas del stream
+      
+      if (b is AppNotification) dateB = b.createdAt;
+      else dateB = (b as _ChatNotificationGroup).notifications.first.createdAt;
+      
+      return dateB.compareTo(dateA); // Descendente
+    });
+    
+    return result;
   }
 
   Widget _buildEmptyState() {
@@ -229,6 +297,180 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+// Clase auxiliar para agrupar notificaciones
+class _ChatNotificationGroup {
+  final String entityId;
+  final NotificationType type;
+  final String title;
+  final List<AppNotification> notifications;
+
+  _ChatNotificationGroup({
+    required this.entityId,
+    required this.type,
+    required this.title,
+    required this.notifications,
+  });
+  
+  // Obtener el último mensaje (asumiendo orden descendente en la lista original)
+  AppNotification get latestNotification => notifications.first;
+  
+  int get count => notifications.length;
+  
+  int get unreadCount => notifications.where((n) => !n.isRead).length;
+}
+
+// Tarjeta para grupo de chats
+class _ChatGroupCard extends StatelessWidget {
+  final _ChatNotificationGroup group;
+  final NotificationService notificationService;
+
+  const _ChatGroupCard({
+    required this.group,
+    required this.notificationService,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final latest = group.latestNotification;
+    // Extraer el nombre del ministerio/grupo del título "Nuevo mensaje en [Nombre]"
+    // O usar el título tal cual si no se puede parsear fácilmente.
+    // El formato en NotificationService es 'Nuevo mensaje en $name'
+    String title = group.title; 
+    
+    // Limpiar el cuerpo del mensaje (quitar "Juan: " si es necesario para mostrar solo el último)
+    String subtitle = '${group.count} mensajes nuevos';
+    if (group.count == 1) {
+      subtitle = latest.message;
+    } else {
+      subtitle = '${group.count} mensajes • Último: ${latest.message}';
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      elevation: group.unreadCount > 0 ? 2 : 0,
+      color: group.unreadCount > 0 ? Colors.blue.shade50 : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: group.unreadCount == 0 ? BorderSide(color: Colors.grey.shade200) : BorderSide.none,
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          // Marcar todas como leídas
+          for (var n in group.notifications) {
+            if (!n.isRead) {
+              notificationService.markAsRead(n.id);
+            }
+          }
+          // Navegar al chat
+          if (latest.actionRoute != null) {
+            Navigator.pushNamed(context, latest.actionRoute!);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Avatar grupal
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: Icon(
+                      group.type == NotificationType.ministryNewChat ? Icons.people : Icons.groups,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  if (group.unreadCount > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${group.unreadCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontWeight: group.unreadCount > 0 ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('HH:mm').format(latest.createdAt),
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: group.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
+                        fontWeight: group.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (group.unreadCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 8),
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

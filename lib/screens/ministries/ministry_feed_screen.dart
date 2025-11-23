@@ -23,7 +23,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../admin/admin_events_list_screen.dart';
 import '../../theme/app_colors.dart';
-import '../../services/permission_service.dart'; // Importar servicio de permisos
+// import '../../services/permission_service.dart'; // Importar servicio de permisos
 import '../../l10n/app_localizations.dart';
 
 
@@ -46,11 +46,11 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   File? imageFile;
-  final PermissionService _permissionService = PermissionService(); // Instancia del servicio
+  // final PermissionService _permissionService = PermissionService(); // Instancia del servicio
   bool _canCreateEvents = false;
   bool _canManageRequests = false;
   bool _canCreatePosts = false;
-  int _pendingRequestsCount = 0;
+  // int _pendingRequestsCount = 0;
 
   void _showComments(BuildContext context, MinistryPost post) {
     showModalBottomSheet(
@@ -87,6 +87,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
     }
   }
 
+  /*
   void _showPostDetails(BuildContext context, MinistryPost post, String userName) {
     showModalBottomSheet(
       context: context,
@@ -205,6 +206,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       ),
     );
   }
+  */
 
   void _navigateToManageRequests() {
     Navigator.push(
@@ -226,8 +228,8 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
           .snapshots(),
       builder: (context, snapshot) {
         // Obtener el rol del usuario
-        final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-        final isAdmin = widget.ministry.isAdmin(userId);
+        // final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+        // final isAdmin = widget.ministry.isAdmin(userId);
         
         // Añadimos debug para ver si llegan datos
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -556,7 +558,111 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       // Verificar si el usuario es administrador del ministerio
       final isAdmin = widget.ministry.isAdmin(userId);
       debugPrint('👑 MINISTRY_FEED - Usuario es admin del ministerio: $isAdmin');
+      
+      // Marcar notificaciones como leídas
+      _markNotificationsAsRead();
     });
+  }
+
+  // Marcar notificaciones como leídas con lógica robusta
+  Future<void> _markNotificationsAsRead() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // 1. Notificaciones generales de ministerio y eventos
+      final generalNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('entityId', isEqualTo: widget.ministry.id)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', whereIn: ['ministry', 'ministry_event', 'ministry_chat']) // Incluir ministry_chat por si acaso
+          .get();
+
+      for (var doc in generalNotifs.docs) {
+        batch.update(doc.reference, {'isRead': true});
+        hasUpdates = true;
+      }
+
+      // 2. Notificaciones de posts y otras con lógica más flexible
+      final otherNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .get(); // Obtener todas las no leídas y filtrar en cliente para máxima seguridad
+
+      for (var doc in otherNotifs.docs) {
+        final data = doc.data();
+        // Ya procesamos las que coinciden exactamente arriba, evitar duplicados en batch
+        if (generalNotifs.docs.any((element) => element.id == doc.id)) continue;
+
+        bool belongsToMinistry = false;
+        
+        // Comprobaciones flexibles
+        if (data['ministryId'] == widget.ministry.id) {
+          belongsToMinistry = true;
+        } else if (data['entityId'] == widget.ministry.id) {
+          belongsToMinistry = true;
+        } else if (data['additionalData'] is Map) {
+           final additional = data['additionalData'] as Map;
+           if (additional['ministryId'] == widget.ministry.id) {
+             belongsToMinistry = true;
+           }
+        }
+
+        // Lógica de rescate para posts sin ministryId en la notificación
+        final type = data['entityType'] as String?;
+        if (!belongsToMinistry && type == 'ministry_post' && data['entityId'] != null) {
+           // Si es un post y no pudimos vincularlo, consultamos el post real
+           // Esto es más lento pero necesario para corregir notificaciones mal formadas
+           try {
+             final postId = data['entityId'] as String;
+             final postDoc = await FirebaseFirestore.instance.collection('ministry_posts').doc(postId).get();
+             if (postDoc.exists) {
+               final postData = postDoc.data();
+               dynamic postMinistryRef = postData?['ministryId'];
+               String? realMinistryId;
+               if (postMinistryRef is DocumentReference) {
+                 realMinistryId = postMinistryRef.id;
+               } else if (postMinistryRef is String) {
+                 realMinistryId = postMinistryRef;
+               }
+               
+               if (realMinistryId == widget.ministry.id) {
+                 belongsToMinistry = true;
+                 // Opcional: Reparar la notificación añadiendo el ministryId para el futuro (fuera del batch actual para simplificar)
+                 // doc.reference.update({'ministryId': widget.ministry.id}); 
+               }
+             } else {
+               // El post no existe (fue borrado). 
+               // Si estamos en esta pantalla, el usuario está intentando ver actividad.
+               // Podríamos asumir que es seguro marcarla como leída si es antigua, pero por seguridad la dejamos o la marcamos.
+               // Vamos a marcarla como leída para limpiar basura del sistema.
+               belongsToMinistry = true; 
+               debugPrint('⚠️ Marcando notificación huérfana de post eliminado: ${doc.id}');
+             }
+           } catch (e) {
+             debugPrint('Error verificando post huérfano: $e');
+           }
+        }
+        
+        // Verificar tipos específicos relacionados con ministerios
+        if (belongsToMinistry && (type == 'ministry_post' || type == 'ministry_chat' || type == 'ministry_event' || type == 'ministry')) {
+          batch.update(doc.reference, {'isRead': true});
+          hasUpdates = true;
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ MINISTRY_FEED - Notificaciones marcadas como leídas (Robust)');
+      }
+    } catch (e) {
+      debugPrint('❌ MINISTRY_FEED - Error al marcar notificaciones como leídas: $e');
+    }
   }
 
   // Método para cargar permisos
@@ -1125,8 +1231,64 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
               label: AppLocalizations.of(context)!.start,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.chat_bubble_outline),
-              activeIcon: const Icon(Icons.chat_bubble),
+              icon: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .where('isRead', isEqualTo: false)
+                    .where('entityType', isEqualTo: 'ministry_chat')
+                    // .where('ministryId', isEqualTo: widget.ministry.id) // Filtrado en cliente para mayor seguridad si el índice falla
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  int chatCount = 0;
+                  if (snapshot.hasData) {
+                    chatCount = snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return data['ministryId'] == widget.ministry.id || 
+                               data['entityId'] == widget.ministry.id ||
+                               (data['additionalData'] is Map && (data['additionalData'] as Map)['ministryId'] == widget.ministry.id);
+                    }).length;
+                  }
+                  
+                  final icon = chatCount > 0 ? Icons.chat_bubble : Icons.chat_bubble_outline;
+                  
+                  if (chatCount > 0) {
+                    return Badge(
+                      label: Text('$chatCount'),
+                      backgroundColor: Colors.red,
+                      child: Icon(icon),
+                    );
+                  }
+                  return Icon(icon);
+                },
+              ),
+              activeIcon: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .where('isRead', isEqualTo: false)
+                    .where('entityType', isEqualTo: 'ministry_chat')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                   int chatCount = 0;
+                  if (snapshot.hasData) {
+                    chatCount = snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return data['ministryId'] == widget.ministry.id || 
+                               data['entityId'] == widget.ministry.id ||
+                               (data['additionalData'] is Map && (data['additionalData'] as Map)['ministryId'] == widget.ministry.id);
+                    }).length;
+                  }
+                  if (chatCount > 0) {
+                    return Badge(
+                      label: Text('$chatCount'),
+                      backgroundColor: Colors.red,
+                      child: const Icon(Icons.chat_bubble),
+                    );
+                  }
+                  return const Icon(Icons.chat_bubble);
+                }
+              ),
               label: AppLocalizations.of(context)!.chat,
             ),
             BottomNavigationBarItem(
@@ -1161,6 +1323,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
     );
   }
 
+  /*
   Widget _buildInteractionButton({
     required IconData icon,
     required String label,
@@ -1191,6 +1354,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       ),
     );
   }
+  */
 
   // Función para verificar si dos fechas son el mismo día
   bool _isSameDay(DateTime date1, DateTime date2) {

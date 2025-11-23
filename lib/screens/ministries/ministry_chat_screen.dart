@@ -54,6 +54,53 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
     super.initState();
     _checkAdminStatus();
     _initAudio();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _markChatNotificationsAsRead();
+    });
+  }
+
+  Future<void> _markChatNotificationsAsRead() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // Buscar notificaciones de chat no leídas
+      final chatNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', isEqualTo: 'ministry_chat')
+          .get();
+
+      for (var doc in chatNotifs.docs) {
+        final data = doc.data();
+        bool belongsToMinistry = false;
+        
+        // Verificar si la notificación pertenece a este ministerio
+        if (data['ministryId'] == widget.ministry.id) {
+          belongsToMinistry = true;
+        } else if (data['entityId'] == widget.ministry.id) {
+           belongsToMinistry = true;
+        } else if (data['additionalData'] is Map && (data['additionalData'] as Map)['ministryId'] == widget.ministry.id) {
+           belongsToMinistry = true;
+        }
+        
+        if (belongsToMinistry) {
+          batch.update(doc.reference, {'isRead': true});
+          hasUpdates = true;
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ MINISTRY_CHAT - Notificaciones de chat marcadas como leídas');
+      }
+    } catch (e) {
+      debugPrint('❌ MINISTRY_CHAT - Error al marcar notificaciones como leídas: $e');
+    }
   }
 
   Future<void> _initAudio() async {

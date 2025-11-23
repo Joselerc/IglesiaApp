@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../../screens/groups/groups_list_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
 
 class GroupsSection extends StatelessWidget {
   final String displayTitle;
@@ -14,80 +16,212 @@ class GroupsSection extends StatelessWidget {
     this.displayTitle = 'Connect',
   });
 
+  // Obtener número de notificaciones de grupos (solicitudes pendientes para admins + notificaciones no leídas)
+  Stream<int> _getGroupNotificationsCount() {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return Stream.value(0);
+
+    final pendingRequestsStream = Stream.fromFuture(FirebaseFirestore.instance.collection('groups').get()).asyncMap((groupsQuery) async {
+      int pendingRequestsCount = 0;
+      
+      for (var doc in groupsQuery.docs) {
+        final data = doc.data();
+        
+        bool isAdmin = false;
+        if (data['groupAdmin'] != null) {
+             final admins = data['groupAdmin'] as List;
+             for (var admin in admins) {
+               if (admin is DocumentReference && admin.id == userId) isAdmin = true;
+               if (admin is String && admin.contains(userId)) isAdmin = true;
+             }
+        }
+
+        if (isAdmin && data['pendingRequests'] != null) {
+          final pendingRequests = data['pendingRequests'] as Map<String, dynamic>;
+          pendingRequestsCount += pendingRequests.length;
+        }
+      }
+      
+      return pendingRequestsCount;
+    });
+
+    final notificationsStream = FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .snapshots();
+
+    return CombineLatestStream.combine2(
+      pendingRequestsStream,
+      notificationsStream,
+      (int pendingCount, QuerySnapshot notificationsSnapshot) {
+        // Filtrar notificaciones relacionadas con grupos
+        final groupNotifications = notificationsSnapshot.docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final type = data['entityType'] as String?;
+          return type == 'group' || type == 'group_post' || type == 'group_chat' || type == 'group_event';
+        }).length;
+        
+        return pendingCount + groupNotifications;
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            displayTitle,
-            style: AppTextStyles.headline3.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
+    return StreamBuilder<int>(
+      stream: _getGroupNotificationsCount(),
+      builder: (context, snapshot) {
+        final groupNotifications = snapshot.data ?? 0;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                displayTitle,
+                style: AppTextStyles.headline3.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: AppCard(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const GroupsListScreen(),
-                ),
-              );
-            },
-            child: Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.warmSand,
-                    shape: BoxShape.circle,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Icon(
-                    Icons.group_outlined,
-                    size: 32,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.connect,
-                        style: AppTextStyles.subtitle1.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: AppCard(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const GroupsListScreen(),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.warmSand,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            Icons.group_outlined,
+                            size: 32,
+                            color: AppColors.primary,
+                          ),
                         ),
+                        // Badge de notificaciones para grupos
+                        if (groupNotifications > 0)
+                          Positioned(
+                            top: -4,
+                            right: -4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$groupNotifications',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.connect,
+                                style: AppTextStyles.subtitle1.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (groupNotifications > 0) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    // Usar lógica similar a MinistriesSection para texto localizado
+                                    // '$groupNotifications ${groupNotifications == 1 ? 'nova' : 'novas'}',
+                                    // Usamos AppLocalizations si es posible
+                                    (){
+                                      // Lógica para determinar el texto
+                                      final String newItemWord = AppLocalizations.of(context)!.newItem; // "Nuevo" / "Novo"
+                                      String suffix = groupNotifications == 1 ? '' : 's';
+                                      if (newItemWord.endsWith('o')) suffix = groupNotifications == 1 ? '' : 's';
+                                      if (newItemWord.endsWith('a')) suffix = groupNotifications == 1 ? '' : 's';
+                                      
+                                      final locale = Localizations.localeOf(context).languageCode;
+                                      if (locale == 'es') {
+                                        return '$groupNotifications ${groupNotifications == 1 ? "nueva" : "nuevas"}';
+                                      } else if (locale == 'pt') {
+                                        return '$groupNotifications ${groupNotifications == 1 ? "nova" : "novas"}';
+                                      } else {
+                                        return '$groupNotifications ${newItemWord.toLowerCase()}$suffix';
+                                      }
+                                    }(),
+                                    style: TextStyle(
+                                      color: Colors.red.shade800,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            AppLocalizations.of(context)!.connectWithChurchGroups,
+                            style: AppTextStyles.bodyText2.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        AppLocalizations.of(context)!.connectWithChurchGroups,
-                        style: AppTextStyles.bodyText2.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      }
     );
   }
 } 

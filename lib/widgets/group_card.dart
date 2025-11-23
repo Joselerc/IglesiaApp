@@ -3,6 +3,7 @@ import '../models/group.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../screens/shared/entity_info_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importar Firestore
 
 class GroupCard extends StatelessWidget {
   final Group group;
@@ -31,23 +32,76 @@ class GroupCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Avatar
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.warmSand,
-                shape: BoxShape.circle,
-                image: group.imageUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(group.imageUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: group.imageUrl.isEmpty
-                  ? Icon(Icons.group_rounded, color: AppColors.secondary, size: 28)
-                  : null,
+            // Avatar con Badge
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.warmSand,
+                    shape: BoxShape.circle,
+                    image: group.imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(group.imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: group.imageUrl.isEmpty
+                      ? Icon(Icons.group_rounded, color: AppColors.secondary, size: 28)
+                      : null,
+                ),
+                // Badge de notificaciones (StreamBuilder)
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('notifications')
+                      .where('userId', isEqualTo: userId)
+                      .where('entityId', isEqualTo: group.id)
+                      .where('isRead', isEqualTo: false)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    int notificationCount = 0;
+                    if (snapshot.hasData) {
+                      notificationCount = snapshot.data!.docs.length;
+                    }
+                    
+                    // Sumar solicitudes pendientes si es admin
+                    if (isAdmin) {
+                      notificationCount += group.pendingRequests.length;
+                    }
+
+                    if (notificationCount == 0) return const SizedBox.shrink();
+
+                    return Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
+                        child: Text(
+                          '$notificationCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             
             const SizedBox(width: 12),

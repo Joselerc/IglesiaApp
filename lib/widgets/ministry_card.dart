@@ -3,6 +3,7 @@ import '../models/ministry.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../screens/shared/entity_info_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importar Firestore
 
 class MinistryCard extends StatelessWidget {
   final Ministry ministry;
@@ -35,7 +36,7 @@ class MinistryCard extends StatelessWidget {
             // Encabezado con avatar y nombre
             Row(
               children: [
-                // Avatar
+                // Avatar con Badge
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -56,33 +57,54 @@ class MinistryCard extends StatelessWidget {
                           ? Icon(Icons.groups_rounded, color: AppColors.primary, size: 28)
                           : null,
                     ),
-                    // Badge para administradores con solicitudes pendientes
-                    if (isAdmin && ministry.pendingRequests.isNotEmpty)
-                      Positioned(
-                        top: -4,
-                        right: -4,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 20,
-                            minHeight: 20,
-                          ),
-                          child: Text(
-                            '${ministry.pendingRequests.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                    // Badge de notificaciones (StreamBuilder)
+                    StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('notifications')
+                          .where('userId', isEqualTo: userId)
+                          .where('entityId', isEqualTo: ministry.id)
+                          .where('isRead', isEqualTo: false)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        int notificationCount = 0;
+                        if (snapshot.hasData) {
+                          notificationCount = snapshot.data!.docs.length;
+                        }
+                        
+                        // Sumar solicitudes pendientes si es admin
+                        if (isAdmin) {
+                          notificationCount += ministry.pendingRequests.length;
+                        }
+
+                        if (notificationCount == 0) return const SizedBox.shrink();
+
+                        return Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Text(
+                              '$notificationCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
+                    ),
                   ],
                 ),
                 

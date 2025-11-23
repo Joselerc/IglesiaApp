@@ -37,6 +37,93 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
     super.initState();
     // Verificar el permiso específico
     _checkCreatePermission();
+    // Intentar marcar como leídas las notificaciones "huerfanas" o mal formadas al entrar a la lista
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cleanOrphanNotifications();
+    });
+  }
+  
+  Future<void> _cleanOrphanNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      // Buscar notificaciones de ministerios que no se hayan limpiado
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // 1. Notificaciones genéricas de "Nuevos ministerios"
+      final genericNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', whereIn: ['ministry', 'newMinistries']) 
+          .get();
+
+      for (var doc in genericNotifs.docs) {
+        batch.update(doc.reference, {'isRead': true});
+        hasUpdates = true;
+      }
+
+      // 2. Notificaciones de posts huérfanas (sin ministryId o mal formadas)
+      // Esto busca CUALQUIER notificación de tipo ministry_post no leída y verifica si se puede limpiar
+      // Como estamos en la lista general, no sabemos a qué ministerio pertenecen, pero podemos
+      // verificar si el post existe. Si no existe, es basura y se borra.
+      // Si existe, la dejamos (el usuario debe entrar al ministerio para borrarla y leerla).
+      // PERO: Si el usuario ya está aquí, tal vez quiera "marcar todo como leído"? No, eso no es estándar.
+      // Lo que haremos es reparar las notificaciones que no tengan ministryId para que el badge del Home funcione bien.
+      
+      final postNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', isEqualTo: 'ministry_post')
+          .get();
+
+      for (var doc in postNotifs.docs) {
+        final data = doc.data();
+        // Si no tiene ministryId, intentamos recuperarlo del post original
+        if (data['ministryId'] == null && data['entityId'] != null) {
+           try {
+             final postId = data['entityId'] as String;
+             final postDoc = await FirebaseFirestore.instance.collection('ministry_posts').doc(postId).get();
+             
+             if (postDoc.exists) {
+               final postData = postDoc.data();
+               dynamic ministryRef = postData?['ministryId'];
+               String? ministryId;
+               
+               if (ministryRef is DocumentReference) {
+                 ministryId = ministryRef.id;
+               } else if (ministryRef is String) {
+                 ministryId = ministryRef;
+               }
+               
+               if (ministryId != null) {
+                 // REPARACIÓN: Añadir el ministryId a la notificación para que el filtro del Home funcione
+                 batch.update(doc.reference, {'ministryId': ministryId});
+                 hasUpdates = true;
+                 debugPrint('🔧 Reparando notificación ${doc.id}: asignando ministryId=$ministryId');
+               }
+             } else {
+               // Si el post no existe, la notificación es basura -> borrar
+               batch.update(doc.reference, {'isRead': true});
+               hasUpdates = true;
+               debugPrint('🗑️ Borrando notificación huérfana de post inexistente: ${doc.id}');
+             }
+           } catch (e) {
+             debugPrint('Error verificando post para notificación ${doc.id}: $e');
+           }
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ MINISTRIES_LIST - Limpieza y reparación de notificaciones realizada');
+      }
+    } catch (e) {
+      debugPrint('❌ MINISTRIES_LIST - Error en limpieza de notificaciones: $e');
+    }
   }
   
   Future<void> _checkCreatePermission() async {

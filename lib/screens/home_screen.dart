@@ -46,8 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<DocumentSnapshot>? _userStreamSubscription;
 
   // Pre-carga de verificaciones para secciones customPageList
-  Map<String, bool> _customPageListVisibility = {};
-  bool _isPreloadingCustomPages = true;
+  // Map<String, bool> _customPageListVisibility = {};
+  // bool _isPreloadingCustomPages = true;
 
   @override
   void initState() {
@@ -295,6 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /*
   Future<void> _preloadCustomPageSections() async {
     try {
       debugPrint('🔄 HOME_SCREEN - Pre-cargando secciones customPageList...');
@@ -341,6 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -853,6 +855,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Método para verificar si alguna página existe en la lista de pageIds
+  /*
   Future<bool> _checkIfAnyPageExists(List<dynamic> pageIds) async {
     try {
       // Convertir pageIds a strings si son DocumentReferences
@@ -885,6 +888,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return false;
     }
   }
+  */
 
   Widget _buildUserAvatar(Map<String, dynamic> userData) {
     final photoUrl = userData['photoUrl'] as String?;
