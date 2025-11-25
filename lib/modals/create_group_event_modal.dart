@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Added import
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
 import '../models/group.dart';
 import '../services/event_service.dart';
 import '../services/image_service.dart';
+import '../services/notification_service.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
-import '../theme/app_spacing.dart';
 import '../l10n/app_localizations.dart';
+import '../../models/church_location.dart';
+import '../../screens/admin/manage_church_locations_screen.dart';
 
 class CreateGroupEventModal extends StatefulWidget {
   final Group group;
@@ -31,11 +34,13 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   DateTime _selectedStartDate = DateTime.now().add(const Duration(days: 1));
-  TimeOfDay _selectedStartTime = TimeOfDay.now();
+  TimeOfDay _selectedStartTime = const TimeOfDay(hour: 19, minute: 0);
   DateTime _selectedEndDate = DateTime.now().add(const Duration(days: 1));
-  TimeOfDay _selectedEndTime = TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 1);
+  TimeOfDay _selectedEndTime = const TimeOfDay(hour: 21, minute: 0);
   File? _selectedImage;
   bool _isLoading = false;
+  bool _isAttending = true; // Opción de asistencia por defecto
+  String? _selectedAddress; // Dirección completa seleccionada
   final EventService _eventService = EventService();
 
   @override
@@ -53,38 +58,27 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       
       if (image == null) return;
 
-      // Leer los bytes del archivo directamente del XFile
       final bytes = await image.readAsBytes();
-      
-      // Crear un archivo temporal con los bytes leídos
       final tempDir = await getTemporaryDirectory();
       final String fileName = 'temp_${DateTime.now().millisecondsSinceEpoch}${path.extension(image.path)}';
       final String tempPath = path.join(tempDir.path, fileName);
       
-      // Escribir los bytes al archivo temporal
       File tempFile = File(tempPath);
       await tempFile.writeAsBytes(bytes);
       
-      // Verificar que el archivo temporal se creó correctamente
-      if (!await tempFile.exists()) {
-        throw Exception('No se pudo crear el archivo temporal');
-      }
-
-      // Comprimir la imagen usando ImageService
       final compressedImage = await ImageService().compressImage(
         tempFile,
         quality: 85,
       );
       
       setState(() {
-        // Usar la imagen comprimida si está disponible, sino usar el temporal
         _selectedImage = compressedImage ?? tempFile;
       });
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al seleccionar la imagen. Por favor, intenta con otra.'),
+          const SnackBar(
+            content: Text('Error al seleccionar la imagen'),
             backgroundColor: Colors.red,
           ),
         );
@@ -92,20 +86,23 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
     }
   }
 
-  Future<void> _selectDate() async {
+  Future<void> _selectDate({required bool isStart}) async {
+    final initialDate = isStart ? _selectedStartDate : _selectedEndDate;
+    final firstDate = isStart ? DateTime.now() : _selectedStartDate;
+    
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _selectedStartDate,
-      firstDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary: AppColors.primary,
-              onPrimary: AppColors.textOnDark,
+              onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: AppColors.textPrimary,
+              onSurface: Colors.black,
             ),
           ),
           child: child!,
@@ -113,29 +110,34 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       },
     );
     
-    if (pickedDate != null && pickedDate != _selectedStartDate) {
+    if (pickedDate != null) {
       setState(() {
-        _selectedStartDate = pickedDate;
-        // Se a data de término for anterior à data de início, atualizá-la
-        if (_selectedEndDate.isBefore(_selectedStartDate)) {
-          _selectedEndDate = _selectedStartDate;
+        if (isStart) {
+          _selectedStartDate = pickedDate;
+          if (_selectedEndDate.isBefore(_selectedStartDate)) {
+            _selectedEndDate = _selectedStartDate;
+          }
+        } else {
+          _selectedEndDate = pickedDate;
         }
       });
     }
   }
   
-  Future<void> _selectTime() async {
+  Future<void> _selectTime({required bool isStart}) async {
+    final initialTime = isStart ? _selectedStartTime : _selectedEndTime;
+    
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: _selectedStartTime,
+      initialTime: initialTime,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary: AppColors.primary,
-              onPrimary: AppColors.textOnDark,
+              onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: AppColors.textPrimary,
+              onSurface: Colors.black,
             ),
           ),
           child: child!,
@@ -143,76 +145,128 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       },
     );
     
-    if (pickedTime != null && pickedTime != _selectedStartTime) {
+    if (pickedTime != null) {
       setState(() {
-        _selectedStartTime = pickedTime;
+        if (isStart) {
+          _selectedStartTime = pickedTime;
+        } else {
+          _selectedEndTime = pickedTime;
+        }
       });
     }
   }
 
-  Future<void> _selectEndDate() async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _showLocationPicker() {
+    showModalBottomSheet(
       context: context,
-      initialDate: _selectedEndDate,
-      firstDate: _selectedStartDate,
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primary,
-              onPrimary: AppColors.textOnDark,
-              surface: Colors.white,
-              onSurface: AppColors.textPrimary,
-            ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
           ),
-          child: child!,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.selectLocation, // Asegúrate de tener esta key o usa un string hardcoded por ahora
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ManageChurchLocationsScreen()),
+                        );
+                      },
+                      child: Text(AppLocalizations.of(context)!.createOrEdit),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('churchLocations').orderBy('name').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.location_off_outlined, size: 48, color: Colors.grey),
+                              const SizedBox(height: 10),
+                              Text(
+                                AppLocalizations.of(context)!.noLocationsFound,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    final locations = snapshot.data!.docs.map((doc) => ChurchLocation.fromFirestore(doc)).toList();
+
+                    return ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: locations.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final location = locations[index];
+                        return ListTile(
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            child: Icon(Icons.church, color: Colors.white, size: 20),
+                            radius: 18,
+                          ),
+                          title: Text(location.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text(location.fullAddress, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          onTap: () {
+                            setState(() {
+                              _locationController.text = location.name;
+                              _selectedAddress = location.fullAddress;
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
-    
-    if (pickedDate != null && pickedDate != _selectedEndDate) {
-      setState(() {
-        _selectedEndDate = pickedDate;
-      });
-    }
-  }
-  
-  Future<void> _selectEndTime() async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: _selectedEndTime,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primary,
-              onPrimary: AppColors.textOnDark,
-              surface: Colors.white,
-              onSurface: AppColors.textPrimary,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    
-    if (pickedTime != null && pickedTime != _selectedEndTime) {
-      setState(() {
-        _selectedEndTime = pickedTime;
-      });
-    }
   }
 
   Future<void> _createEvent() async {
     if (!_formKey.currentState!.validate()) return;
     
+    // Capturar servicio antes de async
+    final notificationService = Provider.of<NotificationService>(context, listen: false);
+
     setState(() {
       _isLoading = true;
     });
     
     try {
-      // Combinar data e hora de início
       final eventStartDateTime = DateTime(
         _selectedStartDate.year,
         _selectedStartDate.month,
@@ -221,7 +275,6 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
         _selectedStartTime.minute,
       );
       
-      // Combinar data e hora de término
       final eventEndDateTime = DateTime(
         _selectedEndDate.year,
         _selectedEndDate.month,
@@ -230,24 +283,48 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
         _selectedEndTime.minute,
       );
       
-      // Validar que a data de término seja posterior à data de início
       if (eventEndDateTime.isBefore(eventStartDateTime)) {
         throw Exception(AppLocalizations.of(context)!.endDateMustBeAfterStartDate);
       }
       
-      // Criar evento usando o serviço
-      await _eventService.createGroupEvent(
+      // Crear evento
+      final eventId = await _eventService.createGroupEvent(
         groupId: widget.group.id,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         date: eventStartDateTime,
         endDate: eventEndDateTime,
         location: _locationController.text.trim(),
+        address: _selectedAddress,
         imageFile: _selectedImage,
         creatorId: FirebaseAuth.instance.currentUser!.uid,
       );
-      
-      if (context.mounted) {
+
+      // Marcar asistencia si está seleccionado
+      if (_isAttending) {
+        await _eventService.markAttendance(
+          eventId: eventId,
+          userId: FirebaseAuth.instance.currentUser!.uid,
+          eventType: 'group',
+          attending: true,
+        );
+      }
+
+      // Enviar notificación (sin check de mounted)
+      try {
+        await notificationService.sendGroupNewEventNotification(
+          groupId: widget.group.id,
+          groupName: widget.group.name,
+          eventId: eventId,
+          eventTitle: _titleController.text.trim(),
+          memberIds: widget.group.memberIds,
+        );
+      } catch (e) {
+        print('Error enviando notificación de evento grupo: $e');
+      }
+        
+      // Navegar atrás y mostrar éxito
+      if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -257,7 +334,7 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.errorCreatingEvent}: $e'),
@@ -276,7 +353,12 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
 
   @override
   Widget build(BuildContext context) {
+    // Diseño tipo Google Forms / Calendar
     return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
@@ -286,269 +368,232 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Cabeçalho
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.md, 
-              vertical: AppSpacing.sm
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: Icon(Icons.close, color: AppColors.textPrimary),
+                  icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
                 ),
-                Text(
-                  AppLocalizations.of(context)!.createGroupEvent,
-                  style: AppTextStyles.subtitle1,
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.createGroupEvent,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 _isLoading
-                    ? SizedBox(
-                        width: 24, 
-                        height: 24, 
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                        ),
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : IconButton(
-                        icon: Icon(Icons.check, color: AppColors.primary),
+                    : TextButton(
                         onPressed: _createEvent,
+                        child: Text(
+                          AppLocalizations.of(context)!.save,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
               ],
             ),
           ),
+          const Divider(height: 1),
           
-          // Conteúdo rolável
+          // Formulario
           Flexible(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título do evento
+                    // Título
                     TextFormField(
                       controller: _titleController,
+                      style: const TextStyle(fontSize: 22),
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.eventTitle,
-                        hintText: AppLocalizations.of(context)!.exWeeklyMeeting,
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.event),
+                        hintText: AppLocalizations.of(context)!.eventTitle,
+                        border: InputBorder.none,
+                        prefixIcon: const Icon(Icons.title, color: Colors.grey),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppLocalizations.of(context)!.pleaseEnterTitle;
-                        }
-                        return null;
-                      },
+                      validator: (value) => value?.trim().isEmpty == true 
+                          ? AppLocalizations.of(context)!.pleaseEnterTitle 
+                          : null,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Fechas y Horas
+                    _buildDateTimeRow(
+                      icon: Icons.access_time,
+                      label: AppLocalizations.of(context)!.start,
+                      date: _selectedStartDate,
+                      time: _selectedStartTime,
+                      onDateTap: () => _selectDate(isStart: true),
+                      onTimeTap: () => _selectTime(isStart: true),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDateTimeRow(
+                      icon: Icons.access_time_filled, // Icono diferente para diferenciar visualmente si se desea
+                      label: AppLocalizations.of(context)!.end,
+                      date: _selectedEndDate,
+                      time: _selectedEndTime,
+                      onDateTap: () => _selectDate(isStart: false),
+                      onTimeTap: () => _selectTime(isStart: false),
                     ),
                     
-                    SizedBox(height: AppSpacing.md),
-                    
-                    // Descrição
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.description,
-                        hintText: AppLocalizations.of(context)!.eventDetails,
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppLocalizations.of(context)!.pleaseEnterDescription;
-                        }
-                        return null;
-                      },
-                    ),
-                    
-                    SizedBox(height: AppSpacing.md),
-                    
-                    // Data e hora
+                    const SizedBox(height: 24),
+
+                    // Ubicación
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          AppLocalizations.of(context)!.startDateAndTime,
-                          style: AppTextStyles.subtitle2,
+                        TextFormField(
+                          controller: _locationController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.location,
+                            prefixIcon: const Icon(Icons.location_on_outlined),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.arrow_drop_down_circle_outlined, color: AppColors.primary),
+                              onPressed: _showLocationPicker,
+                              tooltip: AppLocalizations.of(context)!.selectLocation,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            // Si el usuario edita el texto, limpiamos la dirección guardada
+                            // para tratarlo como una ubicación manual
+                            if (_selectedAddress != null) {
+                              setState(() {
+                                _selectedAddress = null;
+                              });
+                            }
+                          },
+                          validator: (value) => value?.trim().isEmpty == true 
+                              ? AppLocalizations.of(context)!.pleaseEnterLocation 
+                              : null,
                         ),
-                        SizedBox(height: AppSpacing.md),
-                        Row(
-                          children: [
-                            // Seletor de data de início
-                            Expanded(
-                              child: InkWell(
-                                onTap: _selectDate,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.date,
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
-                                  ),
+                        if (_selectedAddress != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, left: 4),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+                                const SizedBox(width: 8),
+                                Expanded(
                                   child: Text(
-                                    DateFormat('dd/MM/yyyy').format(_selectedStartDate),
-                                    style: AppTextStyles.bodyText1,
+                                    _selectedAddress!,
+                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, top: 4),
+                          child: InkWell(
+                            onTap: _showLocationPicker,
+                            child: Text(
+                              AppLocalizations.of(context)!.useSavedLocation,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            
-                            SizedBox(width: AppSpacing.md),
-                            
-                            // Seletor de hora de início
-                            Expanded(
-                              child: InkWell(
-                                onTap: _selectTime,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.time,
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
-                                  ),
-                                  child: Text(
-                                    _selectedStartTime.format(context),
-                                    style: AppTextStyles.bodyText1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: AppSpacing.lg),
-                        
-                        Text(
-                          AppLocalizations.of(context)!.endDateAndTime,
-                          style: AppTextStyles.subtitle2,
-                        ),
-                        SizedBox(height: AppSpacing.md),
-                        Row(
-                          children: [
-                            // Seletor de data de término
-                            Expanded(
-                              child: InkWell(
-                                onTap: _selectEndDate,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.date,
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.calendar_today, color: AppColors.textSecondary),
-                                  ),
-                                  child: Text(
-                                    DateFormat('dd/MM/yyyy').format(_selectedEndDate),
-                                    style: AppTextStyles.bodyText1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            SizedBox(width: AppSpacing.md),
-                            
-                            // Seletor de hora de término
-                            Expanded(
-                              child: InkWell(
-                                onTap: _selectEndTime,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.time,
-                                    border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.access_time, color: AppColors.textSecondary),
-                                  ),
-                                  child: Text(
-                                    _selectedEndTime.format(context),
-                                    style: AppTextStyles.bodyText1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                     
-                    SizedBox(height: AppSpacing.md),
-                    
-                    // Localização
+                    const SizedBox(height: 24),
+
+                    // Descripción
                     TextFormField(
-                      controller: _locationController,
+                      controller: _descriptionController,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.location,
-                        hintText: AppLocalizations.of(context)!.exMainHall,
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppLocalizations.of(context)!.pleaseEnterLocation;
-                        }
-                        return null;
-                      },
-                    ),
-                    
-                    SizedBox(height: AppSpacing.lg),
-                    
-                    // Imagem do evento
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!.imageOptional,
-                              style: AppTextStyles.subtitle2,
-                            ),
-                            Text(
-                              AppLocalizations.of(context)!.recommended16x9,
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
+                        labelText: AppLocalizations.of(context)!.description,
+                        alignLabelWithHint: true,
+                        prefixIcon: const Icon(Icons.notes),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        SizedBox(height: AppSpacing.md),
-                        if (_selectedImage != null) ...[
-                          // Si hay una imagen seleccionada, mostrarla y permitir tocar para cambiarla
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              height: 180,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(AppSpacing.sm),
-                                image: DecorationImage(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      maxLines: 4,
+                      validator: (value) => value?.trim().isEmpty == true 
+                          ? AppLocalizations.of(context)!.pleaseEnterDescription 
+                          : null,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Imagen
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                          image: _selectedImage != null
+                              ? DecorationImage(
                                   image: FileImage(_selectedImage!),
                                   fit: BoxFit.cover,
-                                ),
-                              ),
-                              child: Stack(
-                                alignment: Alignment.bottomRight,
+                                )
+                              : null,
+                        ),
+                        child: _selectedImage == null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  // Botón para eliminar la imagen
-                                  Padding(
-                                    padding: EdgeInsets.all(AppSpacing.sm),
+                                  Icon(Icons.add_photo_alternate_outlined, 
+                                      size: 40, color: Colors.grey[600]),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(context)!.addImage,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Stack(
+                                children: [
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
                                     child: CircleAvatar(
-                                      backgroundColor: AppColors.error,
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.black54,
                                       radius: 16,
                                       child: IconButton(
-                                        icon: Icon(Icons.close, size: 16),
+                                        icon: const Icon(Icons.close, size: 16, color: Colors.white),
                                         onPressed: () {
                                           setState(() {
                                             _selectedImage = null;
@@ -559,109 +604,83 @@ class _CreateGroupEventModalState extends State<CreateGroupEventModal> {
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ] else ...[
-                          // Si no hay imagen, mostrar un placeholder clicable
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              height: 160,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: AppColors.background,
-                                borderRadius: BorderRadius.circular(AppSpacing.sm),
-                                border: Border.all(
-                                  color: AppColors.mutedGray.withOpacity(0.3),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image_outlined,
-                                    size: 48,
-                                    color: AppColors.mutedGray,
-                                  ),
-                                  SizedBox(height: AppSpacing.xs),
-                                  Text(
-                                    AppLocalizations.of(context)!.addImageIn16x9,
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                  SizedBox(height: AppSpacing.xs),
-                                  Text(
-                                    AppLocalizations.of(context)!.eventCoverImage,
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
+                    const SizedBox(height: 24),
+
+                    // Opción de asistencia
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        AppLocalizations.of(context)!.iWillAttend,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      value: _isAttending,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _isAttending = value ?? true;
+                        });
+                      },
+                      activeColor: AppColors.primary,
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                    
+                    const SizedBox(height: 40), // Espacio extra al final
                   ],
                 ),
               ),
-            ),
-          ),
-          
-          // Botão de criar
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.only(
-              left: AppSpacing.md,
-              right: AppSpacing.md,
-              top: AppSpacing.md,
-              bottom: AppSpacing.md + MediaQuery.of(context).padding.bottom,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  offset: Offset(0, -1),
-                  blurRadius: 3,
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _createEvent,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: Color(0xFFE64A19),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                minimumSize: Size(double.infinity, 45),
-              ),
-              child: _isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(
-                    AppLocalizations.of(context)!.createEvent,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
             ),
           ),
         ],
       ),
     );
   }
-} 
+
+  Widget _buildDateTimeRow({
+    required IconData icon,
+    required String label,
+    required DateTime date,
+    required TimeOfDay time,
+    required VoidCallback onDateTap,
+    required VoidCallback onTimeTap,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(icon, color: Colors.grey[600], size: 20),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: onDateTap,
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    child: Text(
+                      DateFormat('EEE, d MMM yyyy').format(date),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: onTimeTap,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  child: Text(
+                    time.format(context),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

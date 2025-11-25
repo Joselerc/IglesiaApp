@@ -17,10 +17,9 @@ import 'manage_group_requests_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../admin/event_attendance_screen.dart';
 import '../admin/admin_events_list_screen.dart';
 import '../../theme/app_colors.dart';
-import '../../services/permission_service.dart'; // Importar servicio de permisos
+// import '../../services/permission_service.dart'; // Importar servicio de permisos
 import '../../l10n/app_localizations.dart';
 
 class GroupFeedScreen extends StatefulWidget {
@@ -42,7 +41,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   File? imageFile;
-  final PermissionService _permissionService = PermissionService(); // Instancia del servicio
+  // final PermissionService _permissionService = PermissionService(); // Instancia del servicio
   bool _canCreateEvents = false;
   bool _canManageRequests = false;
   bool _canCreatePosts = false;
@@ -56,6 +55,135 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
         maxHeight: MediaQuery.of(context).size.height * 0.75,
       ),
       builder: (context) => GroupCommentsModal(post: post),
+    );
+  }
+
+  void _showPostDetailModal(BuildContext context, GroupPost post) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            // Header con botón de cerrar
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // FutureBuilder para obtener datos del usuario
+                    FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(post.authorId.id)
+                          .get(),
+                      builder: (context, userSnapshot) {
+                        String userName = 'Usuario';
+                        String userPhotoUrl = '';
+                        
+                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+                          userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
+                          userPhotoUrl = userData['photoUrl'] ?? '';
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: userPhotoUrl.isNotEmpty 
+                                    ? NetworkImage(userPhotoUrl) 
+                                    : null,
+                                child: userPhotoUrl.isEmpty
+                                    ? const Icon(Icons.person, size: 24, color: Colors.grey)
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                userName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    ),
+                    
+                    // Imagen
+                    if (post.imageUrls.isNotEmpty)
+                      _buildPostImage(post.imageUrls.first, post.aspectRatio),
+                    
+                    // Contenido
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            post.contentText,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _formatDate(post.createdAt),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Botón para ver comentarios
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Cerrar detalle
+                          _showComments(context, post); // Abrir comentarios
+                        },
+                        icon: const Icon(Icons.comment),
+                        label: Text('Ver ${post.commentCount} comentarios'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 45),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -76,6 +204,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
     }
   }
 
+/*
   Future<void> _handleSave(GroupPost post) async {
     final userRef = FirebaseFirestore.instance
         .collection('users')
@@ -92,6 +221,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       });
     }
   }
+*/
 
   void _navigateToManageRequests() {
     Navigator.push(
@@ -115,7 +245,125 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       debugPrint('🚀 GROUP_FEED - Inicializando pantalla para usuario: $userId');
       final isAdmin = widget.group.isAdmin(userId);
       debugPrint('👑 GROUP_FEED - Usuario es admin del grupo: $isAdmin');
+      
+      // Marcar notificaciones como leídas
+      _markNotificationsAsRead();
+
+      // Check for highlighted post (redirection)
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        final highlightedPostId = args['highlightedPostId'] as String?;
+        if (highlightedPostId != null) {
+          debugPrint('🔗 GROUP_FEED - Redirigiendo al post: $highlightedPostId');
+          // Fetch and show post
+          FirebaseFirestore.instance
+              .collection('group_posts')
+              .doc(highlightedPostId)
+              .get()
+              .then((doc) {
+            if (doc.exists && mounted) {
+              final post = GroupPost.fromFirestore(doc);
+              _showPostDetailModal(context, post);
+            }
+          });
+        }
+      }
     });
+  }
+
+  // Marcar notificaciones como leídas con lógica robusta
+  Future<void> _markNotificationsAsRead() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // 1. Notificaciones generales de grupo y eventos (EXCLUYENDO CHAT)
+      final generalNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('entityId', isEqualTo: widget.group.id)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', whereIn: ['group', 'group_event']) // Eliminado 'group_chat' para que persista en el tab
+          .get();
+
+      for (var doc in generalNotifs.docs) {
+        batch.update(doc.reference, {'isRead': true});
+        hasUpdates = true;
+      }
+
+      // 2. Notificaciones de posts y otras con lógica más flexible
+      final otherNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .get(); // Obtener todas las no leídas y filtrar en cliente para máxima seguridad
+
+      for (var doc in otherNotifs.docs) {
+        final data = doc.data();
+        // Ya procesamos las que coinciden exactamente arriba, evitar duplicados en batch
+        if (generalNotifs.docs.any((element) => element.id == doc.id)) continue;
+
+        bool belongsToGroup = false;
+        
+        // Comprobaciones flexibles
+        if (data['groupId'] == widget.group.id) {
+          belongsToGroup = true;
+        } else if (data['entityId'] == widget.group.id) {
+          belongsToGroup = true;
+        } else if (data['additionalData'] is Map) {
+           final additional = data['additionalData'] as Map;
+           if (additional['groupId'] == widget.group.id) {
+             belongsToGroup = true;
+           }
+        }
+
+        // Lógica de rescate para posts sin groupId en la notificación
+        final type = data['entityType'] as String?;
+        if (!belongsToGroup && type == 'group_post' && data['entityId'] != null) {
+           // Si es un post y no pudimos vincularlo, consultamos el post real
+           try {
+             final postId = data['entityId'] as String;
+             final postDoc = await FirebaseFirestore.instance.collection('group_posts').doc(postId).get();
+             if (postDoc.exists) {
+               final postData = postDoc.data();
+               dynamic postGroupRef = postData?['groupId'];
+               String? realGroupId;
+               if (postGroupRef is DocumentReference) {
+                 realGroupId = postGroupRef.id;
+               } else if (postGroupRef is String) {
+                 realGroupId = postGroupRef;
+               }
+               
+               if (realGroupId == widget.group.id) {
+                 belongsToGroup = true;
+               }
+             } else {
+               // El post no existe (fue borrado). 
+               belongsToGroup = true; 
+               debugPrint('⚠️ Marcando notificación huérfana de post grupo eliminado: ${doc.id}');
+             }
+           } catch (e) {
+             debugPrint('Error verificando post grupo huérfano: $e');
+           }
+        }
+        
+        // Verificar tipos específicos relacionados con grupos (EXCLUYENDO CHAT)
+        if (belongsToGroup && (type == 'group_post' || type == 'group_event' || type == 'group')) {
+          batch.update(doc.reference, {'isRead': true});
+          hasUpdates = true;
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ GROUP_FEED - Notificaciones marcadas como leídas (Robust)');
+      }
+    } catch (e) {
+      debugPrint('❌ GROUP_FEED - Error al marcar notificaciones como leídas: $e');
+    }
   }
 
   // Método para cargar permisos
@@ -682,8 +930,63 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
               label: AppLocalizations.of(context)!.start,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.chat_bubble_outline),
-              activeIcon: const Icon(Icons.chat_bubble),
+              icon: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .where('isRead', isEqualTo: false)
+                    .where('entityType', isEqualTo: 'group_chat')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  int chatCount = 0;
+                  if (snapshot.hasData) {
+                    chatCount = snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return data['groupId'] == widget.group.id || 
+                               data['entityId'] == widget.group.id ||
+                               (data['additionalData'] is Map && (data['additionalData'] as Map)['groupId'] == widget.group.id);
+                    }).length;
+                  }
+                  
+                  final icon = chatCount > 0 ? Icons.chat_bubble : Icons.chat_bubble_outline;
+                  
+                  if (chatCount > 0) {
+                    return Badge(
+                      label: Text('$chatCount'),
+                      backgroundColor: Colors.red,
+                      child: Icon(icon, color: AppColors.primary),
+                    );
+                  }
+                  return Icon(icon);
+                },
+              ),
+              activeIcon: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                    .where('isRead', isEqualTo: false)
+                    .where('entityType', isEqualTo: 'group_chat')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                   int chatCount = 0;
+                  if (snapshot.hasData) {
+                    chatCount = snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return data['groupId'] == widget.group.id || 
+                               data['entityId'] == widget.group.id ||
+                               (data['additionalData'] is Map && (data['additionalData'] as Map)['groupId'] == widget.group.id);
+                    }).length;
+                  }
+                  if (chatCount > 0) {
+                    return Badge(
+                      label: Text('$chatCount'),
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.chat_bubble, color: AppColors.primary),
+                    );
+                  }
+                  return const Icon(Icons.chat_bubble);
+                }
+              ),
               label: AppLocalizations.of(context)!.chat,
             ),
             BottomNavigationBarItem(
@@ -1046,6 +1349,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
     );
   }
   
+  /*
   Widget _buildInteractionButton({
     required IconData icon,
     required String label,
@@ -1076,6 +1380,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       ),
     );
   }
+  */
 
   // Función para verificar si dos fechas son el mismo día
   bool _isSameDay(DateTime date1, DateTime date2) {

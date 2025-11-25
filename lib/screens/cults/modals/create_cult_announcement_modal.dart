@@ -99,10 +99,10 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
         final processedImageFile = await _processImage(File(image.path));
         
         if (mounted) {
-          setState(() {
-            _processedImage = processedImageFile;
-            _isProcessingImage = false;
-          });
+        setState(() {
+          _processedImage = processedImageFile;
+          _isProcessingImage = false;
+        });
         }
       }
     } catch (e) {
@@ -211,13 +211,13 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                         title: Text(loc.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(loc.fullAddress, maxLines: 2, overflow: TextOverflow.ellipsis),
                         onTap: () {
-                          setState(() {
+          setState(() {
                             _locationName = loc.name;
                             _locationAddress = loc.fullAddress;
                             _locationId = loc.id;
-                          });
+          });
                           Navigator.pop(context);
-                        },
+        },
                       );
                     },
                   );
@@ -265,82 +265,82 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext modalContext) {
-        return Container(
+            return Container(
           height: MediaQuery.of(context).size.height * 0.7,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.selectingEvent,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.selectingEvent,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(modalContext).pop(),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.selectEventToLink,
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.selectEventToLink,
                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('events')
-                      .where('isActive', isEqualTo: true)
-                      .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
-                      .orderBy('startDate')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('events')
+                          .where('isActive', isEqualTo: true)
+                          .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
+                          .orderBy('startDate')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return Center(child: Text(AppLocalizations.of(context)!.noEventsAvailable));
-                    }
-                    
-                    return ListView.separated(
-                      itemCount: snapshot.data!.docs.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final event = snapshot.data!.docs[index];
-                        final eventData = event.data() as Map<String, dynamic>;
-                        final eventDate = (eventData['startDate'] as Timestamp).toDate();
-                        final String eventTitle = eventData['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle;
+                        }
                         
-                        return ListTile(
+                        return ListView.separated(
+                          itemCount: snapshot.data!.docs.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final event = snapshot.data!.docs[index];
+                            final eventData = event.data() as Map<String, dynamic>;
+                            final eventDate = (eventData['startDate'] as Timestamp).toDate();
+                            final String eventTitle = eventData['title'] ?? AppLocalizations.of(context)!.eventWithoutTitle;
+                            
+                            return ListTile(
                           contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                           leading: CircleAvatar(
                             backgroundColor: AppColors.primary.withOpacity(0.1),
                             child: const Icon(Icons.event, color: AppColors.primary),
-                          ),
+                              ),
                           title: Text(eventTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(DateFormat('dd/MM/yyyy').format(eventDate)),
-                          onTap: () {
-                            setState(() {
-                              _selectedEventId = event.id;
-                              _selectedEventTitle = eventTitle;
-                            });
-                            Navigator.of(modalContext).pop();
+                              onTap: () {
+                                setState(() {
+                                  _selectedEventId = event.id;
+                                  _selectedEventTitle = eventTitle;
+                                });
+                                Navigator.of(modalContext).pop();
+                              },
+                            );
                           },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
-      },
-    );
   }
   
   Future<void> _createAnnouncement() async {
@@ -422,25 +422,25 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
     
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+          decoration: const BoxDecoration(
+            color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+          ),
       padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding + 24),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.9,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                   Text(
+                  Text(
                     AppLocalizations.of(context)!.createCultAnnouncement,
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
@@ -448,27 +448,27 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                 ],
               ),
               const SizedBox(height: 24),
-              
+                  
               _buildTextField(
-                controller: _titleController,
+                    controller: _titleController,
                 label: AppLocalizations.of(context)!.announcementTitle,
                 icon: Icons.title,
                 validator: (v) => v?.isEmpty ?? true ? AppLocalizations.of(context)!.pleaseEnterTitle2 : null,
-              ),
-              const SizedBox(height: 16),
-              
+                  ),
+                  const SizedBox(height: 16),
+                  
               _buildTextField(
-                controller: _descriptionController,
+                    controller: _descriptionController,
                 label: AppLocalizations.of(context)!.description,
                 icon: Icons.description_outlined,
                 maxLines: 4,
                 validator: (v) => v?.isEmpty ?? true ? AppLocalizations.of(context)!.pleaseEnterDescription2 : null,
-              ),
-              const SizedBox(height: 16),
-              
+                  ),
+                  const SizedBox(height: 16),
+                  
               // Selector de ubicación
-              InkWell(
-                onTap: _showLocationSelector,
+                  InkWell(
+                    onTap: _showLocationSelector,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -483,36 +483,36 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                  Text(
                               _locationName ?? AppLocalizations.of(context)!.selectLocation,
                               style: TextStyle(
                                 fontWeight: _locationName != null ? FontWeight.bold : FontWeight.normal,
                                 color: _locationName != null ? Colors.black87 : Colors.grey[600],
                                 fontSize: 16,
-                              ),
-                            ),
+                                    ),
+                                  ),
                             if (_locationAddress != null)
-                              Text(
+                                Text(
                                 _locationAddress!,
                                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
+                                ),
+                              ],
                         ),
                       ),
                       const Icon(Icons.arrow_drop_down),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
               // Selector de Evento
-               InkWell(
-                onTap: _selectEvent,
+                  InkWell(
+                    onTap: _selectEvent,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -527,16 +527,16 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                             Text(
                               _selectedEventTitle ?? AppLocalizations.of(context)!.linkedEventOptional,
                               style: TextStyle(
                                 fontWeight: _selectedEventTitle != null ? FontWeight.bold : FontWeight.normal,
                                 color: _selectedEventTitle != null ? Colors.black87 : Colors.grey[600],
                                 fontSize: 16,
-                              ),
-                            ),
+                                      ),
+                                    ),
                             if (_selectedEventTitle != null)
                                 Text(
                                   AppLocalizations.of(context)!.tapToChange,
@@ -547,25 +547,25 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                       ),
                       if (_selectedEventTitle != null)
                         InkWell(
-                          onTap: () {
-                             setState(() {
-                               _selectedEventId = null;
-                               _selectedEventTitle = null;
-                             });
-                          },
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedEventId = null;
+                                            _selectedEventTitle = null;
+                                          });
+                                        },
                           child: Icon(Icons.clear, size: 20, color: Colors.grey[600])
                         )
                       else
                         const Icon(Icons.arrow_drop_down),
-                    ],
+                              ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
               // Selector de fecha de inicio
-              InkWell(
-                onTap: _selectStartDate,
+                  InkWell(
+                    onTap: _selectStartDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -573,65 +573,65 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: Row(
+                      ),
+                      child: Row(
                     children: [
                       Icon(Icons.calendar_today_outlined, color: Colors.grey[600]),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                             Text(
+                        children: [
+                          Text(
                               AppLocalizations.of(context)!.announcementStartDate,
                               style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                            ),
-                            Text(
+                          ),
+                          Text(
                               DateFormat('dd/MM/yyyy').format(_startDate),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ],
                         ),
-                      ),
+                          ),
                       const Icon(Icons.arrow_drop_down),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              
+                  const SizedBox(height: 16),
+                  
               // Selector de Imagen
-              GestureDetector(
-                onTap: _isProcessingImage ? null : _pickImage,
-                child: Container(
+                  GestureDetector(
+                    onTap: _isProcessingImage ? null : _pickImage,
+                    child: Container(
                   height: 180,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: _isProcessingImage
+                      ),
+                      child: _isProcessingImage
                       ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [CircularProgressIndicator(), SizedBox(height: 8), Text("Procesando...")]))
-                      : _processedImage != null
-                          ? ClipRRect(
+                          : _processedImage != null
+                              ? ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.file(_processedImage!, fit: BoxFit.cover),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
                                 Icon(Icons.add_photo_alternate_outlined, size: 48, color: Colors.grey[400]),
-                                const SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                 Text(AppLocalizations.of(context)!.selectImage, style: TextStyle(color: Colors.grey[600])),
                                 Text("Formato 16:9", style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-                              ],
-                            ),
-                ),
-              ),
-              
-              if (_errorMessage != null)
-                Padding(
+                                  ],
+                                ),
+                    ),
+                  ),
+                  
+                  if (_errorMessage != null)
+                    Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: Container(
                     padding: const EdgeInsets.all(12),
@@ -645,27 +645,27 @@ class _CreateCultAnnouncementModalState extends State<CreateCultAnnouncementModa
                         const SizedBox(width: 12),
                         Expanded(child: Text(_errorMessage!, style: const TextStyle(color: Colors.red))),
                       ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                
+                  
               const SizedBox(height: 32),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (_isLoading || _isProcessingImage) ? null : _createAnnouncement,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                  
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (_isLoading || _isProcessingImage) ? null : _createAnnouncement,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
-                  ),
-                  child: _isLoading 
+                      ),
+                      child: _isLoading
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Text(AppLocalizations.of(context)!.createAnnouncement, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
               ),
+            ),
             ],
           ),
         ),

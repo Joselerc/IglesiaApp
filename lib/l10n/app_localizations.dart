@@ -5573,7 +5573,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectLocation.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar Localización'**
+  /// **'Seleccionar ubicación'**
   String get selectLocation;
 
   /// No description provided for @addNewLocation.
@@ -10055,7 +10055,7 @@ abstract class AppLocalizations {
   /// No description provided for @useSavedLocation.
   ///
   /// In es, this message translates to:
-  /// **'Usar localización guardada'**
+  /// **'Usar ubicación guardada'**
   String get useSavedLocation;
 
   /// No description provided for @selectSavedLocation.
@@ -12812,12 +12812,6 @@ abstract class AppLocalizations {
   /// **'Agregar descripción del ministerio...'**
   String get addMinistryDescription;
 
-  /// No description provided for @createdBy.
-  ///
-  /// In es, this message translates to:
-  /// **'Creado por {name} · {date}'**
-  String createdBy(String name, String date);
-
   /// No description provided for @filesLinksAndDocuments.
   ///
   /// In es, this message translates to:
@@ -13147,6 +13141,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al procesar la adición de usuarios'**
   String get errorProcessingUserAddition;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Creado por {name} · {date}'**
+  String createdBy(String name, String date);
 
   /// No description provided for @filesLinksDocuments.
   ///
@@ -14327,7 +14327,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageLocations.
   ///
   /// In es, this message translates to:
-  /// **'Gestionar Localizaciones'**
+  /// **'Gestionar localizaciones'**
   String get manageLocations;
 
   /// No description provided for @manageLocationsDescription.
@@ -14363,7 +14363,7 @@ abstract class AppLocalizations {
   /// No description provided for @noLocationsFound.
   ///
   /// In es, this message translates to:
-  /// **'No se encontraron localizaciones'**
+  /// **'No se encontraron ubicaciones'**
   String get noLocationsFound;
 
   /// No description provided for @locationCreatedSuccessfully.
@@ -14389,6 +14389,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tu solicitud para unirte al ministerio {ministryName} ha sido rechazada'**
   String requestRejectedMessage(String ministryName);
+
+  /// No description provided for @youAreGoing.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistiré'**
+  String get youAreGoing;
+
+  /// No description provided for @iWillAttend.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistiré al evento'**
+  String get iWillAttend;
+
+  /// No description provided for @organizedBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Organizado por'**
+  String get organizedBy;
+
+  /// No description provided for @createOrEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear/Editar'**
+  String get createOrEdit;
 }
 
 class _AppLocalizationsDelegate

@@ -616,14 +616,27 @@ class _NotificationCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        notification.message,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
-                        ),
+                      // Renderizar mensaje con soporte para negritas (**)
+                      RichText(
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
+                            fontFamily: DefaultTextStyle.of(context).style.fontFamily,
+                          ),
+                          children: notification.message.split('**').asMap().entries.map((entry) {
+                            // Las partes impares (1, 3, 5...) están entre ** y deben ir en negrita
+                            final isBold = entry.key % 2 != 0;
+                            return TextSpan(
+                              text: entry.value,
+                              style: TextStyle(
+                                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ],
                   ),

@@ -34,6 +34,85 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     super.initState();
     // Verificamos el permiso del usuario al iniciar
     _checkCreatePermission();
+    // Intentar marcar como leídas las notificaciones "huerfanas" o mal formadas al entrar a la lista
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cleanOrphanNotifications();
+    });
+  }
+  
+  Future<void> _cleanOrphanNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // 1. Notificaciones genéricas de "Nuevos grupos"
+      final genericNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', whereIn: ['group', 'newGroup']) 
+          .get();
+
+      for (var doc in genericNotifs.docs) {
+        batch.update(doc.reference, {'isRead': true});
+        hasUpdates = true;
+      }
+
+      // 2. Notificaciones de posts huérfanas (sin groupId o mal formadas)
+      final postNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', isEqualTo: 'group_post')
+          .get();
+
+      for (var doc in postNotifs.docs) {
+        final data = doc.data();
+        // Si no tiene groupId, intentamos recuperarlo del post original
+        if (data['groupId'] == null && data['entityId'] != null) {
+           try {
+             final postId = data['entityId'] as String;
+             final postDoc = await FirebaseFirestore.instance.collection('group_posts').doc(postId).get();
+             
+             if (postDoc.exists) {
+               final postData = postDoc.data();
+               dynamic groupRef = postData?['groupId'];
+               String? groupId;
+               
+               if (groupRef is DocumentReference) {
+                 groupId = groupRef.id;
+               } else if (groupRef is String) {
+                 groupId = groupRef;
+               }
+               
+               if (groupId != null) {
+                 // REPARACIÓN: Añadir el groupId a la notificación
+                 batch.update(doc.reference, {'groupId': groupId});
+                 hasUpdates = true;
+                 debugPrint('🔧 Reparando notificación grupo ${doc.id}: asignando groupId=$groupId');
+               }
+             } else {
+               // Si el post no existe, la notificación es basura -> borrar
+               batch.update(doc.reference, {'isRead': true});
+               hasUpdates = true;
+               debugPrint('🗑️ Borrando notificación huérfana de post de grupo inexistente: ${doc.id}');
+             }
+           } catch (e) {
+             debugPrint('Error verificando post grupo para notificación ${doc.id}: $e');
+           }
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ GROUPS_LIST - Limpieza y reparación de notificaciones realizada');
+      }
+    } catch (e) {
+      debugPrint('❌ GROUPS_LIST - Error en limpieza de notificaciones: $e');
+    }
   }
   
   Future<void> _checkCreatePermission() async {

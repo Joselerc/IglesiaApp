@@ -24,6 +24,7 @@ class EventService {
     required DateTime date,
     required DateTime endDate,
     required String location,
+    String? address,
     File? imageFile,
     required String creatorId,
   }) async {
@@ -67,6 +68,7 @@ class EventService {
         'date': Timestamp.fromDate(date),
         'endDate': Timestamp.fromDate(endDate),
         'location': location,
+        'address': address, // Save full address
         'imageUrl': imageUrl,
         'groupId': _firestore.collection('groups').doc(groupId),
         'creatorId': _firestore.collection('users').doc(creatorId),
@@ -90,6 +92,7 @@ class EventService {
     required DateTime date,
     required DateTime endDate,
     required String location,
+    String? address,
     File? imageFile,
     required String creatorId,
   }) async {
@@ -133,6 +136,7 @@ class EventService {
         'date': Timestamp.fromDate(date),
         'endDate': Timestamp.fromDate(endDate),
         'location': location,
+        'address': address, // Save full address
         'imageUrl': imageUrl,
         'ministryId': _firestore.collection('ministries').doc(ministryId),
         'creatorId': _firestore.collection('users').doc(creatorId),
@@ -176,7 +180,7 @@ class EventService {
       String entityId;
       
       final eventDoc = await _firestore.collection(collection).doc(eventId).get();
-      final eventData = eventDoc.data() as Map<String, dynamic>?;
+      final eventData = eventDoc.data();
       
       if (eventData == null) {
         throw Exception('Evento no encontrado');

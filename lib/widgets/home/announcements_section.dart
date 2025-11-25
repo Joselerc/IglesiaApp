@@ -70,11 +70,11 @@ class AnnouncementsSection extends StatelessWidget {
                 
                 // 1. Verificar inicio (startDate) - Para programar a futuro
                 if (announcement.startDate != null) {
-                  final startDate = DateTime(
-                    announcement.startDate!.year,
-                    announcement.startDate!.month,
-                    announcement.startDate!.day
-                  );
+                final startDate = DateTime(
+                  announcement.startDate!.year,
+                  announcement.startDate!.month,
+                  announcement.startDate!.day
+                );
                   if (startDate.isAfter(today)) return false; // Aún no empieza
                 }
 
@@ -137,4 +137,4 @@ class AnnouncementsSection extends StatelessWidget {
       ],
     );
   }
-}
+} 

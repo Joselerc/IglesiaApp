@@ -242,6 +242,8 @@ class FCMService {
   void _onNotificationTapped(NotificationResponse response) {
     debugPrint('🔔 FCM_SERVICE - Notificación local tocada: ${response.payload}');
     if (response.payload != null) {
+      // Intenta parsear los argumentos si es posible, o pasarlos de alguna manera
+      // Por simplicidad, aqui solo pasamos la ruta, pero idealmente payload debería ser un JSON
       _navigateToRoute(response.payload!);
     }
   }
@@ -250,15 +252,15 @@ class FCMService {
   void _handleNotificationNavigation(Map<String, dynamic> data) {
     final actionRoute = data['actionRoute'] as String?;
     if (actionRoute != null) {
-      _navigateToRoute(actionRoute);
+      _navigateToRoute(actionRoute, arguments: data);
     }
   }
 
   /// Navegar a ruta específica
-  void _navigateToRoute(String route) {
-    debugPrint('🧭 FCM_SERVICE - Navegando a: $route');
+  void _navigateToRoute(String route, {Object? arguments}) {
+    debugPrint('🧭 FCM_SERVICE - Navegando a: $route con args: $arguments');
     if (EventService.navigatorKey.currentState != null) {
-      EventService.navigatorKey.currentState!.pushNamed(route);
+      EventService.navigatorKey.currentState!.pushNamed(route, arguments: arguments);
     } else {
       debugPrint('❌ FCM_SERVICE - NavigatorKey no tiene estado o es nulo');
     }

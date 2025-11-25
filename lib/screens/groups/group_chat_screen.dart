@@ -10,6 +10,8 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:provider/provider.dart';
+import '../../services/notification_service.dart';
 import '../../models/group.dart';
 import '../../screens/shared/image_viewer_screen.dart';
 import '../../screens/groups/group_details_screen.dart';
@@ -52,6 +54,53 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     super.initState();
     _checkAdminStatus();
     _initAudio();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _markChatNotificationsAsRead();
+    });
+  }
+
+  Future<void> _markChatNotificationsAsRead() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+      bool hasUpdates = false;
+
+      // Buscar notificaciones de chat no leídas
+      final chatNotifs = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .where('entityType', isEqualTo: 'group_chat')
+          .get();
+
+      for (var doc in chatNotifs.docs) {
+        final data = doc.data();
+        bool belongsToGroup = false;
+        
+        // Verificar si la notificación pertenece a este grupo
+        if (data['groupId'] == widget.group.id) {
+          belongsToGroup = true;
+        } else if (data['entityId'] == widget.group.id) {
+           belongsToGroup = true;
+        } else if (data['additionalData'] is Map && (data['additionalData'] as Map)['groupId'] == widget.group.id) {
+           belongsToGroup = true;
+        }
+        
+        if (belongsToGroup) {
+          batch.update(doc.reference, {'isRead': true});
+          hasUpdates = true;
+        }
+      }
+
+      if (hasUpdates) {
+        await batch.commit();
+        debugPrint('✅ GROUP_CHAT - Notificaciones de chat marcadas como leídas');
+      }
+    } catch (e) {
+      debugPrint('❌ GROUP_CHAT - Error al marcar notificaciones como leídas: $e');
+    }
   }
 
   Future<void> _initAudio() async {
@@ -189,22 +238,47 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         final downloadUrl = await snapshot.ref.getDownloadURL();
         
         // Enviar mensaje con archivo adjunto
-        await FirebaseFirestore.instance
-            .collection('group_chat_messages')
-            .add({
-              'content': messageController.text.trim(), // Incluir texto opcional
-              'authorId': FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(FirebaseAuth.instance.currentUser?.uid),
-              'groupId': FirebaseFirestore.instance
-                  .collection('groups')
-                  .doc(widget.group.id),
-              'createdAt': FieldValue.serverTimestamp(),
-              'fileUrl': downloadUrl,
-              'fileName': fileName,
-              'fileType': 'image',
-              'isDeleted': false,
-            });
+      final docRef = await FirebaseFirestore.instance
+          .collection('group_chat_messages')
+          .add({
+            'content': messageController.text.trim(), // Incluir texto opcional
+            'authorId': FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser?.uid),
+            'groupId': FirebaseFirestore.instance
+                .collection('groups')
+                .doc(widget.group.id),
+            'createdAt': FieldValue.serverTimestamp(),
+            'fileUrl': downloadUrl,
+            'fileName': fileName,
+            'fileType': 'image',
+            'isDeleted': false,
+          });
+
+      // Enviar notificación
+      if (mounted) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+          final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+          
+          String messageContent = '📷 Imagen';
+          if (messageController.text.isNotEmpty) {
+            messageContent = '$messageContent: ${messageController.text.trim()}';
+          }
+          
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendGroupNewChatNotification(
+            groupId: widget.group.id,
+            groupName: widget.group.name,
+            chatId: docRef.id,
+            senderName: senderName,
+            message: messageContent,
+            memberIds: widget.group.memberIds,
+            senderId: currentUser.uid,
+          );
+        }
+      }
       } catch (e) {
         print('Error uploading file: $e');
         if (mounted) {
@@ -243,7 +317,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
       // Enviar mensaje con archivo adjunto
-      await FirebaseFirestore.instance
+      final docRef = await FirebaseFirestore.instance
           .collection('group_chat_messages')
           .add({
             'content': '', 
@@ -259,6 +333,29 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             'fileType': fileType,
             'isDeleted': false,
           });
+      
+      // Enviar notificación
+      if (mounted) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+          final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+          
+          String messageContent = '📎 Archivo: $fileName';
+          if (fileType == 'image') messageContent = '📷 Imagen';
+          
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendGroupNewChatNotification(
+            groupId: widget.group.id,
+            groupName: widget.group.name,
+            chatId: docRef.id,
+            senderName: senderName,
+            message: messageContent,
+            memberIds: widget.group.memberIds,
+            senderId: currentUser.uid,
+          );
+        }
+      }
       
     } catch (e) {
       print('Error uploading file: $e');
@@ -338,7 +435,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     switch (fileType) {
       case 'image':
         return GestureDetector(
-          onTap: isValidUrl ? () => _openImageViewer(fileUrl, fileName ?? 'image.jpg') : null,
+          onTap: isValidUrl ? () => _openImageViewer(fileUrl, fileName) : null,
           child: Container(
             width: 200,
             height: 200,
@@ -566,7 +663,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       _messageController.clear();
 
       try {
-        await FirebaseFirestore.instance.collection('group_chat_messages').add({
+        // Enviar mensaje a Firestore
+        final docRef = await FirebaseFirestore.instance.collection('group_chat_messages').add({
           'content': message,
             'authorId': FirebaseFirestore.instance
                 .collection('users')
@@ -577,6 +675,26 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             'createdAt': FieldValue.serverTimestamp(),
             'isDeleted': false,
           });
+
+        // Enviar notificación
+        if (mounted) {
+          final currentUser = FirebaseAuth.instance.currentUser;
+          if (currentUser != null) {
+            final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+            final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+
+            final notificationService = Provider.of<NotificationService>(context, listen: false);
+            await notificationService.sendGroupNewChatNotification(
+              groupId: widget.group.id,
+              groupName: widget.group.name,
+              chatId: docRef.id,
+              senderName: senderName,
+            message: message,
+            memberIds: widget.group.memberIds,
+            senderId: currentUser.uid,
+            );
+          }
+        }
     } catch (e) {
         if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1179,7 +1297,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             final downloadUrl = await snapshot.ref.getDownloadURL();
             
             // Enviar mensaje con audio adjunto
-            await FirebaseFirestore.instance
+            final docRef = await FirebaseFirestore.instance
                 .collection('group_chat_messages')
                 .add({
                   'content': '', 
@@ -1196,6 +1314,26 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   'fileDuration': finalDuration.inSeconds, // Guardar duración
                   'isDeleted': false,
                 });
+
+            // Enviar notificación
+            if (mounted) {
+              final currentUser = FirebaseAuth.instance.currentUser;
+              if (currentUser != null) {
+                final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+                final senderName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+                
+                final notificationService = Provider.of<NotificationService>(context, listen: false);
+                await notificationService.sendGroupNewChatNotification(
+                  groupId: widget.group.id,
+                  groupName: widget.group.name,
+                  chatId: docRef.id,
+                  senderName: senderName,
+            message: '🎤 Mensaje de voz (${_formatDuration(finalDuration)})',
+            memberIds: widget.group.memberIds,
+            senderId: currentUser.uid,
+                );
+              }
+            }
           } catch (e) {
             print('Error al subir audio: $e');
             if (mounted) {

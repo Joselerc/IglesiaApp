@@ -296,8 +296,8 @@ class NotificationService {
       
       if (userIds.isEmpty) return;
 
-      final message = 'Nuevo anuncio: $announcementTitle';
-      
+    final message = 'Nuevo anuncio: $announcementTitle';
+    
       await sendBulkNotifications(
         userIds: userIds,
         title: title,
@@ -448,19 +448,26 @@ class NotificationService {
     required String eventTitle,
     required List<String> memberIds,
   }) async {
-    for (final memberId in memberIds) {
-      await createNotification(
-        title: 'Nuevo evento del ministerio',
-        message: 'Se ha creado un nuevo evento para el ministerio $ministryName: $eventTitle',
+    print('🔍 [DEBUG] sendMinistryNewEventNotification - Iniciando envío');
+    final currentUserId = _auth.currentUser?.uid;
+    
+    final validMemberIds = memberIds
+        .where((id) => id.isNotEmpty && id != currentUserId)
+        .toList();
+        
+    if (validMemberIds.isEmpty) return;
+
+    await sendBulkNotifications(
+      userIds: validMemberIds,
+      title: 'Nuevo evento de $ministryName',
+      body: 'Se ha creado un nuevo evento: **$eventTitle**',
         type: NotificationType.ministryNewEvent,
-        userId: memberId,
         entityId: eventId,
         entityType: 'ministry_event',
-        ministryId: ministryId,
+      ministryId: ministryId,
         actionRoute: '/ministries/$ministryId/events/$eventId',
-        data: {'ministryId': ministryId},
+      data: {'ministryId': ministryId, 'eventId': eventId},
       );
-    }
   }
   
   // Enviar notificación a todos los miembros de un ministerio cuando se crea un nuevo post
@@ -488,15 +495,15 @@ class NotificationService {
     // Usar sendBulkNotifications para asegurar que se envíen push notifications y se guarden en BD de manera eficiente
     await sendBulkNotifications(
       userIds: validMemberIds,
-      title: 'Nueva publicación en el ministerio',
+        title: 'Nueva publicación en el ministerio',
       body: 'Se ha publicado un nuevo post en el ministerio $ministryName: $postTitle',
-      type: NotificationType.ministryNewPost,
-      entityId: postId,
-      entityType: 'ministry_post',
+        type: NotificationType.ministryNewPost,
+        entityId: postId,
+        entityType: 'ministry_post',
       ministryId: ministryId,
-      actionRoute: '/ministries/$ministryId',
-      data: {'ministryId': ministryId},
-    );
+        actionRoute: '/ministries/$ministryId/posts/$postId',
+      data: {'ministryId': ministryId, 'postId': postId, 'highlightedPostId': postId},
+      );
   }
   
   // Enviar notificación cuando se crea un nuevo horario de trabajo
@@ -653,7 +660,7 @@ class NotificationService {
   }) async {
     print('🔍 [DEBUG] sendMinistryNewChatNotification - Iniciando envío chat');
     
-    // No enviar notificación al remitente
+      // No enviar notificación al remitente
     final recipients = memberIds.where((id) => id != senderId && id.isNotEmpty).toList();
     
     if (recipients.isEmpty) {
@@ -663,15 +670,15 @@ class NotificationService {
 
     await sendBulkNotifications(
       userIds: recipients,
-      title: 'Nuevo mensaje en $ministryName',
+        title: 'Nuevo mensaje en $ministryName',
       body: '$senderName: $message',
-      type: NotificationType.ministryNewChat,
-      entityId: ministryId,
-      entityType: 'ministry_chat',
+        type: NotificationType.ministryNewChat,
+        entityId: ministryId,
+        entityType: 'ministry_chat',
       ministryId: ministryId,
       actionRoute: '/ministries/$ministryId', // Redirigir al ministerio
-      data: {'chatId': chatId},
-    );
+        data: {'chatId': chatId},
+      );
   }
   
   // Enviar notificación cuando un usuario es promovido a administrador de ministerio
@@ -807,19 +814,26 @@ class NotificationService {
     required String eventTitle,
     required List<String> memberIds,
   }) async {
-    for (final memberId in memberIds) {
-      await createNotification(
-        title: 'Nuevo evento del grupo',
-        message: 'Se ha creado un nuevo evento para el grupo $groupName: $eventTitle',
+    print('🔍 [DEBUG] sendGroupNewEventNotification - Iniciando envío');
+    final currentUserId = _auth.currentUser?.uid;
+    
+    final validMemberIds = memberIds
+        .where((id) => id.isNotEmpty && id != currentUserId)
+        .toList();
+        
+    if (validMemberIds.isEmpty) return;
+
+    await sendBulkNotifications(
+      userIds: validMemberIds,
+      title: 'Nuevo evento de $groupName',
+      body: 'Se ha creado un nuevo evento: **$eventTitle**',
         type: NotificationType.groupNewEvent,
-        userId: memberId,
         entityId: eventId,
         entityType: 'group_event',
-        groupId: groupId,
+      groupId: groupId,
         actionRoute: '/groups/$groupId/events/$eventId',
-        data: {'groupId': groupId},
+      data: {'groupId': groupId, 'eventId': eventId},
       );
-    }
   }
   
   // Enviar notificación a todos los miembros de un grupo cuando se crea un nuevo post
@@ -842,15 +856,15 @@ class NotificationService {
 
     await sendBulkNotifications(
       userIds: validMemberIds,
-      title: 'Nueva publicación en el grupo',
+        title: 'Nueva publicación en el grupo',
       body: 'Se ha publicado un nuevo post en el grupo $groupName: $postTitle',
-      type: NotificationType.groupNewPost,
-      entityId: postId,
-      entityType: 'group_post',
+        type: NotificationType.groupNewPost,
+        entityId: postId,
+        entityType: 'group_post',
       groupId: groupId,
-      actionRoute: '/groups/$groupId',
-      data: {'groupId': groupId},
-    );
+        actionRoute: '/groups/$groupId/posts/$postId',
+      data: {'groupId': groupId, 'postId': postId, 'highlightedPostId': postId},
+      );
   }
   
   // Enviar recordatorio de evento de grupo
@@ -892,18 +906,18 @@ class NotificationService {
     
     final recipients = memberIds.where((id) => id != senderId && id.isNotEmpty).toList();
     if (recipients.isEmpty) return;
-
+      
     await sendBulkNotifications(
       userIds: recipients,
-      title: 'Nuevo mensaje en $groupName',
+        title: 'Nuevo mensaje en $groupName',
       body: '$senderName: $message',
-      type: NotificationType.groupNewChat,
-      entityId: groupId,
-      entityType: 'group_chat',
+        type: NotificationType.groupNewChat,
+        entityId: groupId,
+        entityType: 'group_chat',
       groupId: groupId,
       actionRoute: '/groups/$groupId',
-      data: {'chatId': chatId},
-    );
+        data: {'chatId': chatId},
+      );
   }
   
   // Enviar notificación cuando un usuario es promovido a administrador de grupo
@@ -1216,44 +1230,48 @@ class NotificationService {
       
       const int batchSize = 400; // Margen de seguridad
       for (var i = 0; i < userIds.length; i += batchSize) {
-        final batch = _firestore.batch();
+      final batch = _firestore.batch();
         final end = (i + batchSize < userIds.length) ? i + batchSize : userIds.length;
         final currentBatchIds = userIds.sublist(i, end);
         
         print('🔍 [DEBUG] Creando lote de notificaciones en Firestore (${currentBatchIds.length} docs)');
         
         for (final userId in currentBatchIds) {
-          final notification = AppNotification(
-            id: '',
-            title: title,
-            message: body,
-            createdAt: DateTime.now(),
-            type: type,
-            userId: userId,
-            senderId: _auth.currentUser?.uid ?? '',
-            isRead: false,
-            data: data,
-            imageUrl: imageUrl,
-            actionRoute: actionRoute,
+        final notification = AppNotification(
+          id: '',
+          title: title,
+          message: body,
+          createdAt: DateTime.now(),
+          type: type,
+          userId: userId,
+          senderId: _auth.currentUser?.uid ?? '',
+          isRead: false,
+          data: data,
+          imageUrl: imageUrl,
+          actionRoute: actionRoute,
             entityId: entityId,
             entityType: entityType,
             ministryId: ministryId,
             groupId: groupId,
-          );
-          
-          final docRef = _notificationsRef.doc();
-          batch.set(docRef, notification.toFirestore());
-        }
-        await batch.commit();
+        );
+        
+        final docRef = _notificationsRef.doc();
+        batch.set(docRef, notification.toFirestore());
+      }
+      await batch.commit();
         print('🔍 [DEBUG] Lote guardado en Firestore correctamente');
       }
       
       // 2. Enviar push notifications reales
       print('🔍 [DEBUG] Iniciando envío de PUSH notifications...');
+      
+      // Limpiar formato markdown (negritas) para el envío Push, ya que no se renderizan bien en nativo
+      final cleanBody = body.replaceAll('**', '');
+      
       await _sendPushNotification(
         userIds: userIds,
         title: title,
-        body: body,
+        body: cleanBody,
         data: data,
         imageUrl: imageUrl,
         actionRoute: actionRoute,
@@ -1279,6 +1297,7 @@ class NotificationService {
       print('🔍 [DEBUG] _sendPushNotification - Enviando a ${userIds.length} dispositivos');
       
       // Solo enviar push notifications en producción o si está habilitado
+      /*
       if (kDebugMode && !const bool.fromEnvironment('ENABLE_PUSH_IN_DEBUG', defaultValue: false)) {
         print('🔔 NotificationService - Push notifications deshabilitadas en debug (Por defecto)');
         // NOTA: Para probar, comentar el return o correr con --dart-define=ENABLE_PUSH_IN_DEBUG=true
@@ -1287,6 +1306,7 @@ class NotificationService {
         print('⚠️ [DEBUG] AVISO: Si no recibes la PUSH es porque estamos en DEBUG sin flag habilitado.');
         // return; // COMENTADO TEMPORALMENTE PARA INTENTAR EL ENVÍO Y VER LOGS DE CLOUD FUNCTION
       }
+      */
       
       final dio = Dio();
       
@@ -1355,4 +1375,4 @@ class NotificationService {
       print('❌ NotificationService - Error desuscribiéndose del topic $topic: $e');
     }
   }
-}
+} 

@@ -3602,7 +3602,6 @@
   "addMinistryDescription": "Adicionar descrição do ministério...",
   "noDescription": "Sem descrição",
   "edit": "Editar",
-  "createdBy": "Criado por",
   "filesLinksAndDocuments": "Arquivos, links e documentos",
   "noSharedFiles": "Não há arquivos compartilhados",
   "searchMember": "Buscar membro",
@@ -4248,5 +4247,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "youAreGoing": "Eu vou",
+  "iWillAttend": "Eu vou participar",
+  "organizedBy": "Organizado por",
+  "createOrEdit": "Criar/Editar"
 }

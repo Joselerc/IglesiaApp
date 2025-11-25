@@ -7150,11 +7150,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addMinistryDescription => 'Adicionar descrição do ministério...';
 
   @override
-  String createdBy(String name, String date) {
-    return 'Criado por $name · $date';
-  }
-
-  @override
   String get filesLinksAndDocuments => 'Arquivos, links e documentos';
 
   @override
@@ -7344,6 +7339,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get errorProcessingUserAddition =>
       'Erro ao processar a adição de usuários';
+
+  @override
+  String createdBy(String name, String date) {
+    return 'Criado por $name · $date';
+  }
 
   @override
   String get filesLinksDocuments => 'Arquivos, links e documentos';
@@ -8052,4 +8052,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String requestRejectedMessage(String ministryName) {
     return 'Sua solicitação para entrar no ministério $ministryName foi rejeitada';
   }
+
+  @override
+  String get youAreGoing => 'Eu vou';
+
+  @override
+  String get iWillAttend => 'Eu vou participar';
+
+  @override
+  String get organizedBy => 'Organizado por';
+
+  @override
+  String get createOrEdit => 'Criar/Editar';
 }

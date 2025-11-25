@@ -39,8 +39,8 @@ import 'firebase_options.dart';
 import 'screens/ministries/ministries_list_screen.dart';
 import 'screens/groups/groups_list_screen.dart';
 import 'screens/ministries/ministry_event_detail_screen.dart';
-import 'screens/ministries/ministry_details_screen.dart';
-import 'screens/groups/group_details_screen.dart';
+import 'screens/ministries/ministry_feed_screen.dart';
+import 'screens/groups/group_feed_screen.dart';
 import 'screens/groups/group_event_detail_screen.dart';
 import 'screens/events/event_detail_screen.dart';
 import 'screens/cults/cult_detail_screen.dart';
@@ -323,7 +323,48 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Detalle de Ministerio: /ministries/:id
+          // Post de ministerio: /ministries/:ministryId/posts/:postId
+          if (pathSegments.length == 4 &&
+              pathSegments[0] == 'ministries' &&
+              pathSegments[2] == 'posts') {
+            final ministryId = pathSegments[1];
+            final postId = pathSegments[3];
+
+            return MaterialPageRoute(
+              settings: RouteSettings(
+                name: settings.name, 
+                arguments: {'highlightedPostId': postId}
+              ),
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('ministries')
+                    .doc(ministryId)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(
+                          title:
+                              Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(
+                          child: Text('Ministerio no encontrado')),
+                    );
+                  }
+
+                  final ministry = Ministry.fromFirestore(snapshot.data!);
+                  return MinistryFeedScreen(ministry: ministry);
+                },
+              ),
+            );
+          }
+
+          // Detalle de Ministerio (Feed): /ministries/:id
           if (pathSegments.length == 2 && pathSegments[0] == 'ministries') {
             final ministryId = pathSegments[1];
             return MaterialPageRoute(
@@ -347,7 +388,7 @@ class MyApp extends StatelessWidget {
                   }
 
                   final ministry = Ministry.fromFirestore(snapshot.data!);
-                  return MinistryDetailsScreen(ministry: ministry);
+                  return MinistryFeedScreen(ministry: ministry);
                 },
               ),
             );
@@ -356,6 +397,47 @@ class MyApp extends StatelessWidget {
           // -------------------
           // GRUPOS
           // -------------------
+
+          // Post de grupo: /groups/:groupId/posts/:postId
+          if (pathSegments.length == 4 &&
+              pathSegments[0] == 'groups' &&
+              pathSegments[2] == 'posts') {
+            final groupId = pathSegments[1];
+            final postId = pathSegments[3];
+
+            return MaterialPageRoute(
+              settings: RouteSettings(
+                name: settings.name, 
+                arguments: {'highlightedPostId': postId}
+              ),
+              builder: (context) => FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('groups')
+                    .doc(groupId)
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(
+                          title:
+                              Text(AppLocalizations.of(context)!.errorTitle)),
+                      body: Center(
+                          child: Text('Grupo no encontrado')),
+                    );
+                  }
+
+                  final group = Group.fromFirestore(snapshot.data!);
+                  return GroupFeedScreen(group: group);
+                },
+              ),
+            );
+          }
 
           // Detalle de evento de grupo: /groups/:groupId/events/:eventId
           if (pathSegments.length == 4 &&
@@ -394,7 +476,7 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // Detalle de Grupo: /groups/:id
+          // Detalle de Grupo (Feed): /groups/:id
           if (pathSegments.length == 2 && pathSegments[0] == 'groups') {
             final groupId = pathSegments[1];
             return MaterialPageRoute(
@@ -418,7 +500,7 @@ class MyApp extends StatelessWidget {
                   }
 
                   final group = Group.fromFirestore(snapshot.data!);
-                  return GroupDetailsScreen(group: group);
+                  return GroupFeedScreen(group: group);
                 },
               ),
             );

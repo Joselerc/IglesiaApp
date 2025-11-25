@@ -3601,7 +3601,6 @@
   "addMinistryDescription": "Agregar descripción del ministerio...",
   "noDescription": "Sin descripción",
   "edit": "Editar",
-  "createdBy": "Creado por",
   "filesLinksAndDocuments": "Archivos, enlaces y documentos",
   "noSharedFiles": "No hay archivos compartidos",
   "searchMember": "Buscar miembro",
@@ -4323,5 +4322,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "youAreGoing": "Asistiré",
+  "manageLocations": "Gestionar localizaciones",
+  "useSavedLocation": "Usar ubicación guardada",
+  "selectLocation": "Seleccionar ubicación",
+  "noLocationsFound": "No se encontraron ubicaciones",
+  "iWillAttend": "Asistiré al evento",
+  "organizedBy": "Organizado por",
+  "createOrEdit": "Crear/Editar"
 }

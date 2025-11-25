@@ -7,6 +7,7 @@ class MinistryEvent {
   final DateTime date;
   final DateTime? endDate;
   final String location;
+  final String? address; // Campo para la dirección completa
   final String imageUrl;
   final DocumentReference ministryId;
   final DocumentReference createdBy;
@@ -21,6 +22,7 @@ class MinistryEvent {
     required this.date,
     this.endDate,
     required this.location,
+    this.address,
     required this.imageUrl,
     required this.ministryId,
     required this.createdBy,
@@ -39,6 +41,7 @@ class MinistryEvent {
     final date = (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
     final endDate = (data['endDate'] as Timestamp?)?.toDate();
     final location = data['location'] ?? '';
+    final address = data['address']; // Leer dirección completa
     final imageUrl = data['imageUrl'] ?? '';
     final isActive = data['isActive'] ?? true;
     
@@ -59,6 +62,12 @@ class MinistryEvent {
     DocumentReference createdByRef;
     if (data['createdBy'] is DocumentReference) {
       createdByRef = data['createdBy'];
+    } else if (data['creatorId'] is DocumentReference) {
+      createdByRef = data['creatorId'];
+    } else if (data['createdBy'] is String && (data['createdBy'] as String).isNotEmpty) {
+      createdByRef = FirebaseFirestore.instance.collection('users').doc(data['createdBy']);
+    } else if (data['creatorId'] is String && (data['creatorId'] as String).isNotEmpty) {
+      createdByRef = FirebaseFirestore.instance.collection('users').doc(data['creatorId']);
     } else {
       createdByRef = FirebaseFirestore.instance.collection('users').doc('placeholder');
     }
@@ -84,6 +93,7 @@ class MinistryEvent {
       date: date,
       endDate: endDate,
       location: location,
+      address: address,
       imageUrl: imageUrl,
       ministryId: ministryIdRef,
       createdBy: createdByRef,
@@ -100,6 +110,7 @@ class MinistryEvent {
       'date': Timestamp.fromDate(date),
       'endDate': endDate != null ? Timestamp.fromDate(endDate!) : null,
       'location': location,
+      'address': address,
       'imageUrl': imageUrl,
       'ministryId': ministryId,
       'createdBy': createdBy,

@@ -7,7 +7,6 @@ import '../../services/auth_service.dart';
 import '../../services/event_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../theme/app_spacing.dart';
 import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -197,6 +196,33 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
     }
   }
   
+  Widget _buildDetailRow(IconData icon, String text, {Color? color, bool isBold = false, VoidCallback? onTap}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20, color: Colors.grey[600]),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                text,
+                style: AppTextStyles.bodyText1.copyWith(
+                  color: color ?? AppColors.textPrimary,
+                  fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Método para marcar/desmarcar asistencia
   Future<void> _toggleAttendance(BuildContext context, bool attending) async {
     if (_isLoading) return;
@@ -213,236 +239,192 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
         attending: attending,
       );
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(attending 
-              ? AppLocalizations.of(context)!.youConfirmedAttendance
-              : AppLocalizations.of(context)!.youCancelledAttendance),
-          backgroundColor: attending ? Colors.green : Colors.amber,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(attending 
+                ? AppLocalizations.of(context)!.youConfirmedAttendance
+                : AppLocalizations.of(context)!.youCancelledAttendance),
+            backgroundColor: attending ? Colors.green : Colors.amber,
+          ),
+        );
+      }
       
       // Actualizar estado local
-      setState(() {});
+      if (mounted) setState(() {});
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.errorUpdatingAttendance(e.toString())),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorUpdatingAttendance(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    final dateFormat = DateFormat('EEEE, d MMMM • HH:mm', 'es');
+    // Formateador para la fecha de fin si es el mismo día
+    final timeFormat = DateFormat('HH:mm');
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {});
         },
         child: CustomScrollView(
           slivers: [
-            // AppBar con imagen de fondo
+            // AppBar (sin cambios mayores, solo ajustes de color si es necesario)
             SliverAppBar(
               expandedHeight: 200,
               pinned: true,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black, // Flecha negra cuando colapsa
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Imagen del evento
                     widget.event.imageUrl.isNotEmpty
                         ? Image.network(
                             widget.event.imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: AppColors.background,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.error_outline,
-                                    size: 40,
-                                    color: AppColors.mutedGray,
-                                  ),
-                                ),
-                              );
-                            },
+                            errorBuilder: (_, __, ___) => Container(color: AppColors.mutedGray),
                           )
-                        : Container(
-                            color: AppColors.mutedGray,
-                            child: const Icon(
-                              Icons.event,
-                              size: 80,
-                              color: Colors.white30,
-                            ),
-                          ),
-                    // Gradiente para mejorar legibilidad del título
+                        : Container(color: AppColors.primary.withOpacity(0.1)),
+                    // Gradiente sutil abajo
                     const DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.center,
-                          colors: [
-                            Colors.black54,
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Botón de eliminación - ahora lo mostraremos siempre y verificaremos permisos al clickear
-                    Positioned(
-                      bottom: 15,
-                      right: 15,
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                          tooltip: AppLocalizations.of(context)!.deleteEvent,
-                          padding: EdgeInsets.zero,
-                          splashColor: Colors.red.withOpacity(0.3),
-                          onPressed: () => _deleteEvent(context),
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Colors.black12],
+                          stops: [0.7, 1.0],
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // Removemos el botón de acción anterior ya que ahora tenemos uno más visible
-              actions: [],
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () => _deleteEvent(context),
+                  tooltip: AppLocalizations.of(context)!.deleteEvent,
+                ),
+              ],
             ),
             
-            // Contenido del evento
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nombre del grupo
-                    Text(
-                      _groupName,
-                      style: AppTextStyles.subtitle2.copyWith(
-                        color: AppColors.secondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: AppSpacing.xs),
-                    
-                    // Título del evento
+                    // Título (Google Calendar style: Grande)
                     Text(
                       widget.event.title,
-                      style: AppTextStyles.headline3,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w400, // Google style is usually cleaner/thinner
+                        color: Colors.black87,
+                      ),
                     ),
                     
-                    const SizedBox(height: AppSpacing.sm),
-                    
-                    // Fecha y hora
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
+                    const SizedBox(height: 24),
+
+                    // Fecha y Hora
+                    _buildDetailRow(
+                      Icons.access_time,
+                      widget.event.endDate != null
+                          ? '${dateFormat.format(widget.event.date)} – ${timeFormat.format(widget.event.endDate!)}'
+                          : dateFormat.format(widget.event.date),
+                    ),
+
+                    // Nombre del Grupo
+                    if (_groupName.isNotEmpty)
+                      _buildDetailRow(
+                        Icons.group_outlined,
+                        _groupName, 
+                        color: AppColors.primary,
+                        isBold: true,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.warmSand,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+
+                    // Organizado por
+                    FutureBuilder<DocumentSnapshot>(
+                      future: widget.event.createdBy.get(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const SizedBox.shrink();
+                        final userData = snapshot.data!.data() as Map<String, dynamic>?;
+                        
+                        // Lógica para obtener nombre completo
+                        String creatorName = 'Usuario';
+                        if (userData != null) {
+                          if (userData['displayName'] != null && userData['displayName'].toString().isNotEmpty) {
+                            creatorName = userData['displayName'];
+                          } else if (userData['name'] != null && userData['surname'] != null) {
+                            creatorName = '${userData['name']} ${userData['surname']}';
+                          } else if (userData['name'] != null) {
+                            creatorName = userData['name'];
+                          }
+                        }
+                        
+                        return _buildDetailRow(
+                          Icons.person_outline,
+                          '${AppLocalizations.of(context)!.organizedBy} $creatorName',
+                          color: Colors.grey[700],
+                        );
+                      },
+                    ),
+
+                    // Ubicación
+                    if (widget.event.location.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: AppColors.primary,
+                          _buildDetailRow(
+                            Icons.location_on_outlined,
+                            widget.event.location,
+                            isBold: true, // Nombre en negrita
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            "${AppLocalizations.of(context)!.from}: ${dateFormat.format(widget.event.date)}",
-                            style: AppTextStyles.bodyText2.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Fecha de fin (si existe)
-                    if (widget.event.endDate != null)
-                      Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.warmSand,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.event_available,
-                              size: 16,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              "${AppLocalizations.of(context)!.until}: ${dateFormat.format(widget.event.endDate!)}",
-                              style: AppTextStyles.bodyText2.copyWith(
-                                fontWeight: FontWeight.w500,
+                          if (widget.event.address != null && widget.event.address!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 36, bottom: 16), // Indentación para alinear
+                              child: Text(
+                                widget.event.address!,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
-                    
-                    const SizedBox(height: AppSpacing.lg),
-                    
-                    // Botones de acción
+
+                    const SizedBox(height: 8),
+                    const Divider(height: 32),
+
+                    // Descripción
+                    if (widget.event.description.isNotEmpty) ...[
+                      _buildDetailRow(
+                        Icons.subject,
+                        widget.event.description,
+                      ),
+                      const Divider(height: 32),
+                    ],
+
+                    // Botones de Acción (Asistir / Recordatorio)
                     Row(
                       children: [
-                        // Botón de recordatorio como IconButton
-                        Container(
-                          decoration: BoxDecoration(
-                            color: _hasReminder ? AppColors.success : AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            onPressed: _hasReminder ? null : _addReminder,
-                            icon: Icon(
-                              _hasReminder ? Icons.check_circle : Icons.notifications_active,
-                              color: AppColors.textOnDark,
-                              size: 28,
-                            ),
-                            tooltip: _hasReminder ? AppLocalizations.of(context)!.reminderAdded : AppLocalizations.of(context)!.addReminder,
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
                         Expanded(
                           child: FutureBuilder<bool>(
                             future: EventService().isUserAttending(
@@ -451,247 +433,130 @@ class _GroupEventDetailScreenState extends State<GroupEventDetailScreen> {
                             ),
                             builder: (context, snapshot) {
                               final isAttending = snapshot.data ?? false;
-                              return ElevatedButton.icon(
-                                onPressed: _isJoining ? null : () => _toggleAttendance(context, !isAttending),
-                                icon: Icon(
-                                  isAttending ? Icons.person_remove : Icons.person_add,
-                                  color: AppColors.textOnDark,
-                                ),
-                                label: Text(
-                                  isAttending ? AppLocalizations.of(context)!.decline : AppLocalizations.of(context)!.participate,
-                                  style: AppTextStyles.button.copyWith(
-                                    color: AppColors.textOnDark,
+                              
+                              if (!isAttending) {
+                                // Estado: NO Asiste -> Botón llamativo para participar
+                                return ElevatedButton.icon(
+                                  onPressed: _isLoading ? null : () => _toggleAttendance(context, true),
+                                  icon: const Icon(Icons.person_add, color: Colors.white),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.participate,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isAttending ? AppColors.error : AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                                  elevation: 1.5,
-                                ),
-                              );
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // Estado: YA Asiste -> Botón discreto para cancelar
+                                return OutlinedButton.icon(
+                                  onPressed: _isLoading ? null : () => _toggleAttendance(context, false),
+                                  icon: const Icon(Icons.check_circle, color: AppColors.success),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.youAreGoing,
+                                    style: const TextStyle(
+                                      color: AppColors.success,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    side: const BorderSide(color: AppColors.success),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                           ),
                         ),
+                        const SizedBox(width: 16),
+                        IconButton.filledTonal(
+                          onPressed: _hasReminder ? null : _addReminder,
+                          icon: Icon(
+                            _hasReminder ? Icons.notifications_active : Icons.notifications_none,
+                            color: _hasReminder ? AppColors.primary : Colors.black87,
+                          ),
+                          tooltip: AppLocalizations.of(context)!.addReminder,
+                        ),
                       ],
                     ),
-                    
-                    const SizedBox(height: AppSpacing.lg),
-                    
-                    // Descripción
+
+                    const SizedBox(height: 32),
+
+                    // Sección Participantes
                     Text(
-                      AppLocalizations.of(context)!.description,
-                      style: AppTextStyles.subtitle1,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        widget.event.description,
-                        style: AppTextStyles.bodyText1,
+                      AppLocalizations.of(context)!.participants,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
                       ),
                     ),
+                    const SizedBox(height: 16),
                     
-                    const SizedBox(height: AppSpacing.lg),
-                    
-                    // Encabezado principal de Participantes
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(8),
-                          topRight: Radius.circular(8),
-                        ),
-                      ),
-                      child: Row(
-                      children: [
-                        const Icon(
-                          Icons.people,
-                            size: 24,
-                            color: Colors.white,
-                        ),
-                          const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context)!.participants,
-                            style: AppTextStyles.subtitle1.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Contenedor para la lista de participantes
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Subsección de Asistentes
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.xs,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.people,
-                                  size: 22,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(width: 8),
-                                FutureBuilder<int>(
-                                  future: FirebaseFirestore.instance
-                                      .collection('event_attendees')
-                                      .where('eventId', isEqualTo: widget.event.id)
-                                      .where('eventType', isEqualTo: 'group')
-                                      .where('attending', isEqualTo: true)
-                                      .get()
-                                      .then((snapshot) => snapshot.docs.length),
-                                  builder: (context, snapshot) {
-                                    final count = snapshot.data ?? 0;
-                                    return Text(
-                                      AppLocalizations.of(context)!.attendees(count),
-                                      style: AppTextStyles.subtitle2.copyWith(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          
-                          // Lista personalizada de asistentes
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: FutureBuilder<QuerySnapshot>(
-                              future: FirebaseFirestore.instance
-                                  .collection('event_attendees')
-                                  .where('eventId', isEqualTo: widget.event.id)
-                                  .where('eventType', isEqualTo: 'group')
-                                  .where('attending', isEqualTo: true)
-                                  .get(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  );
-                                }
-                                
-                                final attendees = snapshot.data?.docs ?? [];
-                                
-                                if (attendees.isEmpty) {
-                                  return Center(
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(height: 4),
-                                        const Icon(
-                                          Icons.person_outline,
-                                          size: 48,
-                                          color: AppColors.mutedGray,
-                                        ),
-                                        const SizedBox(height: AppSpacing.xs),
-                                        Text(
-                                          AppLocalizations.of(context)!.noOneConfirmedYet,
-                                          style: AppTextStyles.bodyText2.copyWith(
-                                            color: AppColors.mutedGray,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  padding: EdgeInsets.zero,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: attendees.length,
-                                  itemBuilder: (context, index) {
-                                    final attendee = attendees[index].data() as Map<String, dynamic>;
-                                    return FutureBuilder<DocumentSnapshot>(
-                                      future: FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc(attendee['userId'])
-                                          .get(),
-                                      builder: (context, userSnapshot) {
-                                        if (!userSnapshot.hasData) {
-                                          return const SizedBox.shrink();
-                                        }
-                                        
-                                        final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
-                                        if (userData == null) return const SizedBox.shrink();
-                                        
-                                        final name = userData['name'] ?? userData['displayName'] ?? 'Usuário';
-                                        final email = userData['email'] ?? '';
-                                        final photoUrl = userData['photoUrl'] ?? '';
-                                        
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundImage: photoUrl.isNotEmpty
-                                                ? NetworkImage(photoUrl)
-                                                : null,
-                                            child: photoUrl.isEmpty
-                                                ? Icon(Icons.person, color: Colors.white)
-                                                : null,
-                                            backgroundColor: AppColors.primary.withOpacity(0.2),
-                                          ),
-                                          title: Text(
-                                            name,
-                                            style: AppTextStyles.subtitle2,
-                                          ),
-                                          subtitle: Text(
-                                            email,
-                                            style: AppTextStyles.bodyText2,
-                                          ),
-                                          dense: true,
-                                        );
-                                      },
-                                    );
-                                  },
+                    // Lista de participantes simplificada (Avatares + Nombres)
+                    FutureBuilder<QuerySnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('event_attendees')
+                          .where('eventId', isEqualTo: widget.event.id)
+                          .where('eventType', isEqualTo: 'group')
+                          .where('attending', isEqualTo: true)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const SizedBox.shrink();
+                        final attendees = snapshot.data!.docs;
+                        
+                        if (attendees.isEmpty) {
+                          return Text(
+                            AppLocalizations.of(context)!.noOneConfirmedYet,
+                            style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                          );
+                        }
+
+                        return Column(
+                          children: attendees.map((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            return FutureBuilder<DocumentSnapshot>(
+                              future: FirebaseFirestore.instance.collection('users').doc(data['userId']).get(),
+                              builder: (context, userSnap) {
+                                if (!userSnap.hasData) return const SizedBox.shrink();
+                                final user = userSnap.data!.data() as Map<String, dynamic>;
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: CircleAvatar(
+                                    backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
+                                        ? NetworkImage(user['photoUrl'])
+                                        : null,
+                                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                                    child: user['photoUrl'] == null || user['photoUrl'].isEmpty
+                                        ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                                        : null,
+                                    radius: 16,
+                                  ),
+                                  title: Text(
+                                    user['name'] ?? 'Usuario',
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  dense: true,
                                 );
                               },
-                            ),
-                          ),
-                        ],
-                      ),
+                            );
+                          }).toList(),
+                        );
+                      },
                     ),
-                    
-                    // Espacio para el área segura inferior
-                    SizedBox(height: MediaQuery.of(context).padding.bottom + AppSpacing.md),
                   ],
                 ),
               ),

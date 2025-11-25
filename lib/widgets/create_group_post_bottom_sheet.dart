@@ -228,9 +228,9 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = false;
+      });
       }
     }
   }

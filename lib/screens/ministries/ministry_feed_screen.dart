@@ -87,8 +87,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
     }
   }
 
-  /*
-  void _showPostDetails(BuildContext context, MinistryPost post, String userName) {
+  void _showPostDetailModal(BuildContext context, MinistryPost post) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -96,24 +95,19 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Column(
           children: [
             // Header con botón de cerrar
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -121,83 +115,98 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                 ],
               ),
             ),
-            // Imagen
-            if (post.imageUrls.isNotEmpty)
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  post.imageUrls.first,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            // Contenido
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (post.title != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            post.title!,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                controller: scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // FutureBuilder para obtener datos del usuario
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(post.authorId.id)
+                          .snapshots(),
+                      builder: (context, userSnapshot) {
+                        String userName = 'Usuario';
+                        String userPhotoUrl = '';
+                        
+                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+                          userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
+                          userPhotoUrl = userData['photoUrl'] ?? '';
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: userPhotoUrl.isNotEmpty 
+                                    ? NetworkImage(userPhotoUrl) 
+                                    : null,
+                                child: userPhotoUrl.isEmpty
+                                    ? const Icon(Icons.person, size: 24, color: Colors.grey)
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                userName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      if (post.date != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                        );
+                      }
+                    ),
+                    
+                    // Imagen
+                    if (post.imageUrls.isNotEmpty)
+                      _buildPostImage(post.imageUrls.first, post.aspectRatio),
+                    
+                    // Contenido
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            post.contentText,
+                            style: const TextStyle(fontSize: 16),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            post.date!.toString().split(' ')[0],
+                          const SizedBox(height: 16),
+                          Text(
+                            _formatDate(post.createdAt),
                             style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.grey[600],
                               fontSize: 14,
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 16),
-                      Text(
-                        post.contentText,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 24),
-                      // Interacciones
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildInteractionButton(
-                            icon: post.likes.contains(FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(FirebaseAuth.instance.currentUser?.uid))
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            label: post.likes.length.toString(),
-                            onTap: () => _handleLike(post),
-                            isActive: post.likes.contains(FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(FirebaseAuth.instance.currentUser?.uid)),
-                          ),
-                          _buildInteractionButton(
-                            icon: Icons.comment_outlined,
-                            label: '0',  // Aquí deberías pasar el count real
-                            onTap: () => _showComments(context, post),
-                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    
+                    // Botón para ver comentarios
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Cerrar detalle
+                          _showComments(context, post); // Abrir comentarios
+                        },
+                        icon: const Icon(Icons.comment),
+                        label: Text('Ver ${post.commentCount} comentarios'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 45),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
                 ),
               ),
             ),
@@ -206,7 +215,6 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       ),
     );
   }
-  */
 
   void _navigateToManageRequests() {
     Navigator.push(
@@ -561,6 +569,26 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       
       // Marcar notificaciones como leídas
       _markNotificationsAsRead();
+
+      // Check for highlighted post (redirection)
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        final highlightedPostId = args['highlightedPostId'] as String?;
+        if (highlightedPostId != null) {
+          debugPrint('🔗 Redirigiendo al post: $highlightedPostId');
+          // Fetch and show post
+          FirebaseFirestore.instance
+              .collection('ministry_posts')
+              .doc(highlightedPostId)
+              .get()
+              .then((doc) {
+            if (doc.exists && mounted) {
+              final post = MinistryPost.fromFirestore(doc);
+              _showPostDetailModal(context, post);
+            }
+          });
+        }
+      }
     });
   }
 

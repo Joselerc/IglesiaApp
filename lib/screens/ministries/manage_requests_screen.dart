@@ -202,7 +202,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
           print('Error enviando notificación de rechazo: $e');
         }
       }
-
+      
       // Actualizar la lista localmente
       if (mounted) {
         setState(() {

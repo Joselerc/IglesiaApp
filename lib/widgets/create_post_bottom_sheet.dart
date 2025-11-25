@@ -232,9 +232,9 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = false;
+      });
       }
     }
   }

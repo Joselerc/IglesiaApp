@@ -77,13 +77,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
           });
         }
       } else {
-        if (mounted) {
-          setState(() {
-            _eventTitle = AppLocalizations.of(context)!.eventNotFound;
-            _eventData = null;
-            _isLoadingEvent = false;
-          });
-        }
+          if (mounted) {
+              setState(() {
+                  _eventTitle = AppLocalizations.of(context)!.eventNotFound;
+                  _eventData = null;
+                  _isLoadingEvent = false;
+              });
+          }
       }
     } catch (e) {
       debugPrint(AppLocalizations.of(context)!.errorLoadingEventDetails(e.toString()));
@@ -98,13 +98,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
   
   void _navigateToEvent() async {
     if (widget.announcement.eventId == null || _eventData == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.eventNotFoundOrInvalid)),
-        );
-      }
-      return;
-    }
+         if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(content: Text(AppLocalizations.of(context)!.eventNotFoundOrInvalid)),
+             );
+         }
+         return;
+     }
     
     if (mounted) setState(() => _isLoadingEvent = true);
     
@@ -146,7 +146,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     ).then((didSaveChanges) {
       if (didSaveChanges == true) {
           // TODO: Reload data logic if needed, usually better to use StreamBuilder at parent
-          if (widget.announcement.eventId != null) {
+        if (widget.announcement.eventId != null) {
             _loadEventDetails();
           }
       }
@@ -238,10 +238,10 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: _isDeleting ? null : _editAnnouncement,
-                tooltip: AppLocalizations.of(context)!.editAnnouncement,
-              ),
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: _isDeleting ? null : _editAnnouncement,
+              tooltip: AppLocalizations.of(context)!.editAnnouncement,
+            ),
             ),
           if (_isPastor)
             Container(
@@ -356,53 +356,53 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                   ),
                 ],
               ),
-            ),
+      ),
     );
   }
 
   Widget _buildHeroImage(BuildContext context, bool isCult) {
-    return Stack(
-      children: [
-        SizedBox(
+      return Stack(
+        children: [
+          SizedBox(
           height: 350,
-          width: double.infinity,
-          child: Image.network(
-            widget.announcement.imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: Colors.grey[200],
+            width: double.infinity,
+            child: Image.network(
+              widget.announcement.imageUrl,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                      color: Colors.grey[200],
                 child: const Center(child: CircularProgressIndicator()),
-              );
-            },
+                  );
+              },
             errorBuilder: (_, __, ___) => Container(
-              color: Colors.grey[300],
+                  color: Colors.grey[300],
               child: Icon(isCult ? Icons.church : Icons.image_not_supported, size: 80, color: Colors.grey[500]),
             ),
+            ),
           ),
-        ),
         // Gradiente para legibilidad de botones superiores
         Positioned(
           top: 0,
           left: 0,
           right: 0,
           height: 100,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
                   Colors.black.withOpacity(0.6),
                   Colors.transparent,
                 ],
               ),
-            ),
-          ),
-        ),
-      ],
-    );
+                  ),
+                ),
+              ),
+        ],
+      );
   }
 
   Widget _buildChip({required String label, IconData? icon, required Color color, bool isSmall = false}) {
@@ -421,7 +421,7 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
             Icon(icon, size: isSmall ? 14 : 16, color: color),
             const SizedBox(width: 6),
           ],
-          Text(
+                Text(
             label,
             style: TextStyle(
               color: color,
@@ -433,13 +433,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       ),
     );
   }
-  
+
   Widget _buildInfoSection(BuildContext context) {
     final date = widget.announcement.type == 'cult' ? widget.announcement.date : widget.announcement.createdAt;
     final String dateLabel = widget.announcement.type == 'cult' 
         ? AppLocalizations.of(context)!.cultDate(DateFormat('dd/MM/yyyy HH:mm').format(date))
         : AppLocalizations.of(context)!.publishedOn(DateFormat('dd/MM/yyyy').format(date));
-        
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -461,15 +461,15 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
+                  decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey[200]!),
-          ),
+                  ),
           child: Icon(icon, size: 20, color: AppColors.primary),
         ),
         const SizedBox(width: 16),
@@ -494,33 +494,33 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
+                  Row(
+                    children: [
             Icon(Icons.link, color: AppColors.primary),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context)!.linkedEvent,
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context)!.linkedEvent,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Card(
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
           elevation: 0,
-          shape: RoundedRectangleBorder(
+                    shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
-          ),
+                    ),
           color: AppColors.primary.withOpacity(0.05),
-          child: InkWell(
-            onTap: _isLoadingEvent ? null : _navigateToEvent,
+                    child: InkWell(
+                      onTap: _isLoadingEvent ? null : _navigateToEvent,
             borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: _isLoadingEvent
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _isLoadingEvent
                   ? const Center(child: CircularProgressIndicator())
-                  : Row(
-                      children: [
+                            : Row(
+                                children: [
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -528,29 +528,29 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(Icons.event, color: AppColors.primary),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _eventTitle ?? AppLocalizations.of(context)!.loading,
-                                style: const TextStyle(
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _eventTitle ?? AppLocalizations.of(context)!.loading,
+                                          style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                                            fontSize: 16,
+                                          ),
                                 maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                               const SizedBox(height: 4),
                               Text(
                                 AppLocalizations.of(context)!.tapToSeeDetails,
                                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
+                               ),
+                           ],
+                       ),
+                   ),
                         Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primary.withOpacity(0.5)),
                       ],
                     ),

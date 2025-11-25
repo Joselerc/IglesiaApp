@@ -8,6 +8,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
+class GroupNotificationsData {
+  final int pendingRequests;
+  final int notifications;
+
+  GroupNotificationsData({required this.pendingRequests, required this.notifications});
+  
+  int get total => pendingRequests + notifications;
+}
+
 class GroupsSection extends StatelessWidget {
   final String displayTitle;
   
@@ -17,9 +26,9 @@ class GroupsSection extends StatelessWidget {
   });
 
   // Obtener número de notificaciones de grupos (solicitudes pendientes para admins + notificaciones no leídas)
-  Stream<int> _getGroupNotificationsCount() {
+  Stream<GroupNotificationsData> _getGroupNotificationsCount() {
     final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return Stream.value(0);
+    if (userId == null) return Stream.value(GroupNotificationsData(pendingRequests: 0, notifications: 0));
 
     final pendingRequestsStream = Stream.fromFuture(FirebaseFirestore.instance.collection('groups').get()).asyncMap((groupsQuery) async {
       int pendingRequestsCount = 0;
@@ -62,17 +71,21 @@ class GroupsSection extends StatelessWidget {
           return type == 'group' || type == 'group_post' || type == 'group_chat' || type == 'group_event';
         }).length;
         
-        return pendingCount + groupNotifications;
+        return GroupNotificationsData(
+          pendingRequests: pendingCount, 
+          notifications: groupNotifications
+        );
       }
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
+    return StreamBuilder<GroupNotificationsData>(
       stream: _getGroupNotificationsCount(),
       builder: (context, snapshot) {
-        final groupNotifications = snapshot.data ?? 0;
+        final data = snapshot.data ?? GroupNotificationsData(pendingRequests: 0, notifications: 0);
+        final totalCount = data.total;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +131,7 @@ class GroupsSection extends StatelessWidget {
                           ),
                         ),
                         // Badge de notificaciones para grupos
-                        if (groupNotifications > 0)
+                        if (totalCount > 0)
                           Positioned(
                             top: -4,
                             right: -4,
@@ -135,7 +148,7 @@ class GroupsSection extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  '$groupNotifications',
+                                  '$totalCount',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 11,
@@ -162,7 +175,7 @@ class GroupsSection extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (groupNotifications > 0) ...[
+                              if (totalCount > 0) ...[
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -171,23 +184,25 @@ class GroupsSection extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    // Usar lógica similar a MinistriesSection para texto localizado
-                                    // '$groupNotifications ${groupNotifications == 1 ? 'nova' : 'novas'}',
-                                    // Usamos AppLocalizations si es posible
                                     (){
-                                      // Lógica para determinar el texto
-                                      final String newItemWord = AppLocalizations.of(context)!.newItem; // "Nuevo" / "Novo"
-                                      String suffix = groupNotifications == 1 ? '' : 's';
-                                      if (newItemWord.endsWith('o')) suffix = groupNotifications == 1 ? '' : 's';
-                                      if (newItemWord.endsWith('a')) suffix = groupNotifications == 1 ? '' : 's';
-                                      
-                                      final locale = Localizations.localeOf(context).languageCode;
-                                      if (locale == 'es') {
-                                        return '$groupNotifications ${groupNotifications == 1 ? "nueva" : "nuevas"}';
-                                      } else if (locale == 'pt') {
-                                        return '$groupNotifications ${groupNotifications == 1 ? "nova" : "novas"}';
+                                      if (data.pendingRequests > 0) {
+                                        final locale = Localizations.localeOf(context).languageCode;
+                                        if (locale == 'pt') {
+                                          return '${data.pendingRequests} ${data.pendingRequests == 1 ? "solicitação" : "solicitações"}';
+                                        } else {
+                                          return '${data.pendingRequests} ${data.pendingRequests == 1 ? "solicitud" : "solicitudes"}';
+                                        }
                                       } else {
-                                        return '$groupNotifications ${newItemWord.toLowerCase()}$suffix';
+                                        final String newItemWord = AppLocalizations.of(context)!.newItem; 
+                                        // Lógica simple para pluralizar basada en idioma
+                                        final locale = Localizations.localeOf(context).languageCode;
+                                        if (locale == 'es') {
+                                          return '${data.notifications} ${data.notifications == 1 ? "nueva" : "nuevas"}';
+                                        } else if (locale == 'pt') {
+                                          return '${data.notifications} ${data.notifications == 1 ? "nova" : "novas"}';
+                                        } else {
+                                          return '${data.notifications} new';
+                                        }
                                       }
                                     }(),
                                     style: TextStyle(

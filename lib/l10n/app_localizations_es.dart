@@ -3157,7 +3157,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get location => 'Localización';
 
   @override
-  String get selectLocation => 'Seleccionar Localización';
+  String get selectLocation => 'Seleccionar ubicación';
 
   @override
   String get addNewLocation => 'Añadir nueva ubicación';
@@ -5629,7 +5629,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mySavedLocations => 'Mis Localizaciones Guardadas';
 
   @override
-  String get useSavedLocation => 'Usar localización guardada';
+  String get useSavedLocation => 'Usar ubicación guardada';
 
   @override
   String get selectSavedLocation =>
@@ -7167,11 +7167,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addMinistryDescription => 'Agregar descripción del ministerio...';
 
   @override
-  String createdBy(String name, String date) {
-    return 'Creado por $name · $date';
-  }
-
-  @override
   String get filesLinksAndDocuments => 'Archivos, enlaces y documentos';
 
   @override
@@ -7361,6 +7356,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errorProcessingUserAddition =>
       'Error al procesar la adición de usuarios';
+
+  @override
+  String createdBy(String name, String date) {
+    return 'Creado por $name · $date';
+  }
 
   @override
   String get filesLinksDocuments => 'Archivos, enlaces y documentos';
@@ -8030,7 +8030,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get newAnnouncement => 'Nuevo Anuncio';
 
   @override
-  String get manageLocations => 'Gestionar Localizaciones';
+  String get manageLocations => 'Gestionar localizaciones';
 
   @override
   String get manageLocationsDescription =>
@@ -8051,7 +8051,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Localización eliminada exitosamente';
 
   @override
-  String get noLocationsFound => 'No se encontraron localizaciones';
+  String get noLocationsFound => 'No se encontraron ubicaciones';
 
   @override
   String get locationCreatedSuccessfully => 'Localización creada exitosamente';
@@ -8069,4 +8069,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String requestRejectedMessage(String ministryName) {
     return 'Tu solicitud para unirte al ministerio $ministryName ha sido rechazada';
   }
+
+  @override
+  String get youAreGoing => 'Asistiré';
+
+  @override
+  String get iWillAttend => 'Asistiré al evento';
+
+  @override
+  String get organizedBy => 'Organizado por';
+
+  @override
+  String get createOrEdit => 'Crear/Editar';
 }
