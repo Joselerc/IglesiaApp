@@ -411,6 +411,24 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
+  Widget _buildAvatar(String authorName, String? photoUrl, Color userColor) {
+    final initials = (authorName.isNotEmpty ? authorName[0] : 'U').toUpperCase();
+    return CircleAvatar(
+      radius: 16,
+      backgroundColor: photoUrl == null ? userColor.withValues(alpha: 0.18) : Colors.transparent,
+      backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+      child: photoUrl == null
+          ? Text(
+              initials,
+              style: TextStyle(
+                color: userColor,
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          : const Icon(Icons.person, color: Colors.transparent),
+    );
+  }
+
   Widget _buildFilePreview(String fileUrl, String fileType, String fileName, [String? messageId]) {
     // Detectar si es un archivo de audio basado en la extensión
     final isAudioFile = fileName.toLowerCase().endsWith('.aac') || 
@@ -437,14 +455,21 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         return GestureDetector(
           onTap: isValidUrl ? () => _openImageViewer(fileUrl, fileName) : null,
           child: Container(
-            width: 200,
-            height: 200,
+            width: 230,
+            height: 230,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300, width: 1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(11),
               child: isValidUrl 
                 ? Image.network(
                     fileUrl,
@@ -500,7 +525,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+            color: Colors.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.red.shade300),
             ),
@@ -530,7 +555,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.blue.shade300),
             ),
@@ -757,8 +782,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         if (!snapshot.hasData) {
                           return Text(
                             _isAdmin ? "Administrador" : "Membro",
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                           style: TextStyle(
+                             color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                           );
@@ -794,7 +819,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                       return Text(
                           memberText,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 12,
                           ),
                           maxLines: 1,
@@ -822,10 +847,13 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
+          const Positioned.fill(child: _ChatPatternBackground()),
+          Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('group_chat_messages')
                   .where('groupId', isEqualTo: FirebaseFirestore.instance
@@ -925,25 +953,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                 // Avatar y nombre (solo en el primer mensaje de la secuencia)
                                 if (isFirstInSequence)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 4),
-                      child: Row(
+                                    padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 6),
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                        children: [
-                                        // Avatar con inicial o foto
-                                        CircleAvatar(
-                                          radius: 12,
-                                          backgroundColor: userColor.withOpacity(0.2),
-                                          backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                                          child: photoUrl == null ? Text(
-                                            authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: userColor,
-                                            ),
-                                          ) : null,
-                          ),
-                          const SizedBox(width: 8),
+                                      children: [
+                                        _buildAvatar(authorName, photoUrl, userColor),
+                                        const SizedBox(width: 8),
                                         Text(
                                           authorName,
                                           style: TextStyle(
@@ -959,113 +974,124 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                 // El mensaje en sí - GestureDetector para longPress en todo el mensaje
                                 GestureDetector(
                                   onLongPress: isCurrentUser && !isDeleted ? () => _showDeleteDialog(messageId) : null,
-                                  child: Card(
-                                    // Usar el mismo color para todos los mensajes
-                                    color: Colors.white, // Color uniforme para todos los mensajes
+                                  child: Container(
                                     margin: EdgeInsets.only(
                                       left: 15,
                                       right: 15,
                                       top: isFirstInSequence ? 2 : 1,
-                                      bottom: 1,
+                                      bottom: 4,
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: IntrinsicWidth( // Esto hace que el card se ajuste al contenido
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                            // Contenido del mensaje con la hora a la derecha
-                                            if (isDeleted)
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min, // Para que se ajuste al contenido
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    'Esse mensagem foi deletada',
-                                                    style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(left: 8),
-                                                    child: Text(
-                                                      timeString,
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 10,
-                                                      ),
-                                  ),
-                                ),
-                              ],
-                                              )
-                                            else if (fileUrl != null && fileType == 'image')
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  if (content.isNotEmpty)
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(bottom: 4.0),
-                                                      child: Text(content),
-                                                    ),
-                                                  _buildFilePreview(fileUrl, 'image', fileName ?? 'image.jpg', messageId),
-                                                  Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(top: 4),
-                                                      child: Text(
-                                                        timeString,
-                                                        style: TextStyle(
-                                                          color: Colors.grey[600],
-                                                          fontSize: 10,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            else if (fileUrl != null && fileType == 'audio')
-                                              _buildAudioPreview(fileUrl, fileName ?? 'audio.aac', messageId, timeString)
-                                            else if (fileUrl != null)
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  _buildFilePreview(fileUrl, fileType ?? 'document', fileName ?? 'archivo', messageId),
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(top: 4),
-                                                    child: Text(
-                                                      timeString,
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 10,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            else if (content.isNotEmpty)
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min, // Para que se ajuste al contenido
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Expanded(child: Text(content)),
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(left: 8),
-                                                    child: Text(
-                                                      timeString,
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 10,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                          ],
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: isCurrentUser ? const Color(0xFFE7F0FF) : Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(16),
+                                        topRight: const Radius.circular(16),
+                                        bottomLeft: Radius.circular(isCurrentUser ? 16 : 6),
+                                        bottomRight: Radius.circular(isCurrentUser ? 6 : 16),
+                                      ),
+                                      border: Border.all(
+                                        color: isCurrentUser ? const Color(0xFFD0E2FF) : Colors.grey.shade200,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.05),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
                                         ),
+                                      ],
+                                    ),
+                                    child: IntrinsicWidth( // Ajuste al contenido
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          if (isDeleted)
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  'Esse mensagem foi deletada',
+                                                  style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8),
+                                                  child: Text(
+                                                    timeString,
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          else if (fileUrl != null && fileType == 'image')
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                if (content.isNotEmpty)
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(bottom: 6.0),
+                                                    child: Text(content),
+                                                  ),
+                                                _buildFilePreview(fileUrl, 'image', fileName ?? 'image.jpg', messageId),
+                                                Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(top: 6),
+                                                    child: Text(
+                                                      timeString,
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 10,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          else if (fileUrl != null && fileType == 'audio')
+                                            _buildAudioPreview(fileUrl, fileName ?? 'audio.aac', messageId, timeString)
+                                          else if (fileUrl != null)
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                _buildFilePreview(fileUrl, fileType ?? 'document', fileName ?? 'archivo', messageId),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 6),
+                                                  child: Text(
+                                                    timeString,
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          else if (content.isNotEmpty)
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                Flexible(child: Text(content)),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8),
+                                                  child: Text(
+                                                    timeString,
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 10,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -1079,118 +1105,120 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   },
                 );
               },
-            ),
-          ),
-          if (_isUploading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: LinearProgressIndicator(),
-            ),
-          if (_isRecording)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: Colors.red.withOpacity(0.1),
-            child: Row(
-              children: [
-                  const Icon(Icons.mic, color: Colors.red),
-                  const SizedBox(width: 8),
-                Expanded(
-                    child: Text(
-                      'Gravando: ${_formatDuration(_recordingDuration)}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.stop, color: Colors.red),
-                    onPressed: _stopRecording,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: _cancelRecording,
-                  ),
-                ],
+                ),
               ),
-            ),
-          Container(
-            padding: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 10.0,
-              bottom: 10.0 + MediaQuery.of(context).padding.bottom, // Respetar área segura inferior
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: const Offset(0, -1),
-                  blurRadius: 3,
+              if (_isUploading)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: LinearProgressIndicator(),
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                if (_isAdmin && !_isRecording)
-                  IconButton(
-                    icon: const Icon(Icons.attach_file, color: Colors.grey),
-                    onPressed: _pickAndUploadFile,
-                  ),
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.writeMessage,
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
-                      ),
-                    ),
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: null,
-                    enabled: !_isRecording,
-                    style: const TextStyle(fontSize: 16),
-                    onChanged: (text) {
-                      // Forzar actualización de UI cuando cambia el texto
-                      setState(() {});
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
+              if (_isRecording)
                 Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      _isRecording 
-                          ? Icons.send 
-                          : (_messageController.text.isNotEmpty 
-                              ? Icons.send 
-                              : Icons.mic),
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      if (_isRecording) {
-                        _stopRecording();
-                      } else if (_messageController.text.isNotEmpty) {
-                        _sendMessage();
-                      } else {
-                        _startRecording();
-                      }
-                    },
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  color: Colors.red.withValues(alpha: 0.1),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.mic, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Gravando: ${_formatDuration(_recordingDuration)}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.stop, color: Colors.red),
+                        onPressed: _stopRecording,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: _cancelRecording,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              Container(
+                padding: EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
+                  top: 10.0,
+                  bottom: 10.0 + MediaQuery.of(context).padding.bottom, // Respetar área segura inferior
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                      offset: const Offset(0, -1),
+                      blurRadius: 3,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    if (_isAdmin && !_isRecording)
+                      IconButton(
+                        icon: const Icon(Icons.attach_file, color: Colors.grey),
+                        onPressed: _pickAndUploadFile,
+                      ),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.writeMessage,
+                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
+                          ),
+                        ),
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: null,
+                        enabled: !_isRecording,
+                        style: const TextStyle(fontSize: 16),
+                        onChanged: (text) {
+                          // Forzar actualización de UI cuando cambia el texto
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          _isRecording 
+                              ? Icons.send 
+                              : (_messageController.text.isNotEmpty 
+                                  ? Icons.send 
+                                  : Icons.mic),
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          if (_isRecording) {
+                            _stopRecording();
+                          } else if (_messageController.text.isNotEmpty) {
+                            _sendMessage();
+                          } else {
+                            _startRecording();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1497,7 +1525,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         durationText,
                         style: TextStyle(
                           fontSize: 12,
-                          color: textColor.withOpacity(0.8),
+                        color: textColor.withValues(alpha: 0.8),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1516,7 +1544,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                       timeString,
                       style: TextStyle(
                         fontSize: 11,
-                        color: textColor.withOpacity(0.9),
+                       color: textColor.withValues(alpha: 0.9),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -1631,4 +1659,35 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       return [];
     }
   }
+}
+
+// Fondo con patrón suave de puntos
+class _ChatPatternBackground extends StatelessWidget {
+  const _ChatPatternBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _DotsPatternPainter(),
+    );
+  }
+}
+
+class _DotsPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = const Color(0xFFE8EDF5);
+    const double spacing = 24;
+    const double radius = 1.6;
+
+    for (double y = 0; y < size.height; y += spacing) {
+      final offsetX = (y ~/ spacing).isEven ? 0.0 : spacing / 2;
+      for (double x = offsetX; x < size.width; x += spacing) {
+        canvas.drawCircle(Offset(x, y), radius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
