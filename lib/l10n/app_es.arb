@@ -2116,6 +2116,42 @@
   "errorLoadingMembers": "Error al cargar miembros: {error}",
   "noMembersInGroup": "No hay miembros en este grupo",
   "attendancePercentage": "% Asistencia",
+  "taggedNotificationTitle": "Te han etiquetado",
+  "taggedNotificationFallbackMessage": "Nueva publicación",
+  "taggedNotificationBody": "Te han etiquetado en una publicación en {name}",
+  "@taggedNotificationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taggedNotificationCannotOpen": "No se pudo abrir la publicación.",
+  "taggedNotificationNotFound": "Publicación no encontrada",
+  "taggedNotificationOpenError": "Error al abrir publicación: {error}",
+  "@taggedNotificationOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "taggedNotificationPublicationTitle": "Publicación",
+  "notifTypeTaggedPost": "Te han etiquetado",
+  "tagPeople": "Etiquetar personas",
+  "taggedCount": "{count} seleccionado(s)",
+  "@taggedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLocation": "Añadir ubicación",
+  "onlyMembersOfMinistry": "Solo miembros de este ministerio",
+  "onlyMembersOfGroup": "Solo miembros de este grupo",
+  "searchUsers": "Buscar usuarios...",
+  "searchLocationHint": "Buscar ubicación...",
   "eventsLabel": "Eventos",
   "user": "Usuario",
   "admin": "Admin",
@@ -4330,5 +4366,23 @@
   "noLocationsFound": "No se encontraron ubicaciones",
   "iWillAttend": "Asistiré al evento",
   "organizedBy": "Organizado por",
-  "createOrEdit": "Crear/Editar"
+  "createOrEdit": "Crear/Editar",
+  "noCommentsYet": "Aún no hay comentarios",
+  "beFirstToComment": "¡Sé el primero en comentar!",
+  "addCommentHint": "Añadir un comentario...",
+  "deletePost": "Eliminar publicación",
+  "deletePostConfirmation": "¿Estás seguro de que quieres eliminar esta publicación?",
+  "shareWithGroup": "Compartir con el grupo",
+  "groupNoPostsYet": "Aún no hay publicaciones en el grupo",
+  "postCreatedSuccessfully": "Publicación creada con éxito",
+  "errorCreatingPost": "Error al crear la publicación",
+  "whatDoYouWantToShare": "¿Qué quieres compartir?",
+  "selectedImages": "Imágenes seleccionadas",
+  "imageAspectRatio": "Relación de aspecto",
+  "square": "Cuadrado",
+  "vertical": "Vertical",
+  "horizontal": "Horizontal",
+  "addImages": "Añadir imágenes",
+  "addMoreImages": "Añadir más imágenes",
+  "upcomingEvents": "Próximos eventos"
 }

@@ -2253,7 +2253,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Os comentários estão desativados para esta lição';
 
   @override
-  String get noCommentsYet => 'Nenhum comentário ainda';
+  String get noCommentsYet => 'Ainda não há comentários';
 
   @override
   String get beTheFirstToComment => 'Seja o primeiro a comentar!';
@@ -4536,6 +4536,55 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get attendancePercentage => '% Presença';
+
+  @override
+  String get taggedNotificationTitle => 'Você foi marcado';
+
+  @override
+  String get taggedNotificationFallbackMessage => 'Nova publicação';
+
+  @override
+  String taggedNotificationBody(String name) {
+    return 'Você foi marcado em uma publicação em $name';
+  }
+
+  @override
+  String get taggedNotificationCannotOpen =>
+      'Não foi possível abrir a publicação.';
+
+  @override
+  String get taggedNotificationNotFound => 'Publicação não encontrada';
+
+  @override
+  String taggedNotificationOpenError(String error) {
+    return 'Erro ao abrir publicação: $error';
+  }
+
+  @override
+  String get taggedNotificationPublicationTitle => 'Publicação';
+
+  @override
+  String get notifTypeTaggedPost => 'Você foi marcado';
+
+  @override
+  String get tagPeople => 'Marcar pessoas';
+
+  @override
+  String taggedCount(int count) {
+    return '$count selecionado(s)';
+  }
+
+  @override
+  String get addLocation => 'Adicionar localização';
+
+  @override
+  String get onlyMembersOfMinistry => 'Apenas membros deste ministério';
+
+  @override
+  String get onlyMembersOfGroup => 'Apenas membros deste grupo';
+
+  @override
+  String get searchLocationHint => 'Buscar localização...';
 
   @override
   String get eventsLabel => 'Eventos';
@@ -7019,11 +7068,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Este ministério ainda não tem publicações. Que tal compartilhar algo inspirador para a comunidade?';
 
   @override
-  String get groupNoPostsYet =>
-      'Este grupo ainda não tem publicações. Inicie a conversa compartilhando algo interessante com os outros membros.';
+  String get groupNoPostsYet => 'Ainda não há publicações no grupo';
 
   @override
-  String get shareWithGroup => 'Compartilhe algo com seu grupo!';
+  String get shareWithGroup => 'Compartilhar com o grupo';
 
   @override
   String get createPost => 'Criar publicação';
@@ -7363,13 +7411,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get whatDoYouWantToShare => 'O que você quer compartilhar?';
 
   @override
-  String get selectedImages => 'Imagens selecionadas:';
+  String get selectedImages => 'Imagens selecionadas';
 
   @override
-  String get imageAspectRatio => 'Proporção da imagem:';
+  String get imageAspectRatio => 'Proporção da imagem';
 
   @override
-  String get square => 'Quadrada';
+  String get square => 'Quadrado';
 
   @override
   String get vertical => 'Vertical';
@@ -7392,7 +7440,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por favor, adicione conteúdo à sua publicação';
 
   @override
-  String get postCreatedSuccessfully => 'Publicação criada com sucesso!';
+  String get postCreatedSuccessfully => 'Publicação criada com sucesso';
 
   @override
   String get errorCreatingPost => 'Erro ao criar publicação';
@@ -8064,4 +8112,20 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get createOrEdit => 'Criar/Editar';
+
+  @override
+  String get beFirstToComment => 'Seja o primeiro a comentar!';
+
+  @override
+  String get addCommentHint => 'Adicionar um comentário...';
+
+  @override
+  String get deletePost => 'Excluir publicação';
+
+  @override
+  String get deletePostConfirmation =>
+      'Tem certeza que deseja excluir esta publicação?';
+
+  @override
+  String get upcomingEvents => 'Próximos eventos';
 }

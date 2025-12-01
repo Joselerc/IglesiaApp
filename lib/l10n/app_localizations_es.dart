@@ -2262,7 +2262,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los comentarios están desactivados para esta lección';
 
   @override
-  String get noCommentsYet => 'Ningún comentario aún';
+  String get noCommentsYet => 'Aún no hay comentarios';
 
   @override
   String get beTheFirstToComment => '¡Sé el primero en comentar!';
@@ -4551,6 +4551,54 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get attendancePercentage => '% Asistencia';
+
+  @override
+  String get taggedNotificationTitle => 'Te han etiquetado';
+
+  @override
+  String get taggedNotificationFallbackMessage => 'Nueva publicación';
+
+  @override
+  String taggedNotificationBody(String name) {
+    return 'Te han etiquetado en una publicación en $name';
+  }
+
+  @override
+  String get taggedNotificationCannotOpen => 'No se pudo abrir la publicación.';
+
+  @override
+  String get taggedNotificationNotFound => 'Publicación no encontrada';
+
+  @override
+  String taggedNotificationOpenError(String error) {
+    return 'Error al abrir publicación: $error';
+  }
+
+  @override
+  String get taggedNotificationPublicationTitle => 'Publicación';
+
+  @override
+  String get notifTypeTaggedPost => 'Te han etiquetado';
+
+  @override
+  String get tagPeople => 'Etiquetar personas';
+
+  @override
+  String taggedCount(int count) {
+    return '$count seleccionado(s)';
+  }
+
+  @override
+  String get addLocation => 'Añadir ubicación';
+
+  @override
+  String get onlyMembersOfMinistry => 'Solo miembros de este ministerio';
+
+  @override
+  String get onlyMembersOfGroup => 'Solo miembros de este grupo';
+
+  @override
+  String get searchLocationHint => 'Buscar ubicación...';
 
   @override
   String get eventsLabel => 'Eventos';
@@ -7036,11 +7084,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este ministerio aún no tiene publicaciones. ¿Qué tal compartir algo inspirador para la comunidad?';
 
   @override
-  String get groupNoPostsYet =>
-      'Este grupo aún no tiene publicaciones. Inicia la conversación compartiendo algo interesante con los otros miembros.';
+  String get groupNoPostsYet => 'Aún no hay publicaciones en el grupo';
 
   @override
-  String get shareWithGroup => '¡Comparte algo con tu grupo!';
+  String get shareWithGroup => 'Compartir con el grupo';
 
   @override
   String get createPost => 'Crear publicación';
@@ -7377,16 +7424,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get newPost => 'Nueva publicación';
 
   @override
-  String get whatDoYouWantToShare => '¿Qué quieres compartilhar?';
+  String get whatDoYouWantToShare => '¿Qué quieres compartir?';
 
   @override
-  String get selectedImages => 'Imágenes seleccionadas:';
+  String get selectedImages => 'Imágenes seleccionadas';
 
   @override
-  String get imageAspectRatio => 'Proporción de la imagen:';
+  String get imageAspectRatio => 'Relación de aspecto';
 
   @override
-  String get square => 'Cuadrada';
+  String get square => 'Cuadrado';
 
   @override
   String get vertical => 'Vertical';
@@ -7395,10 +7442,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get horizontal => 'Horizontal';
 
   @override
-  String get addImages => 'Agregar imágenes';
+  String get addImages => 'Añadir imágenes';
 
   @override
-  String get addMoreImages => 'Agregar más imágenes';
+  String get addMoreImages => 'Añadir más imágenes';
 
   @override
   String get pleaseAddContentOrImages =>
@@ -7408,10 +7455,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pleaseAddContent => 'Por favor, agrega contenido a tu publicación';
 
   @override
-  String get postCreatedSuccessfully => '¡Publicación creada con éxito!';
+  String get postCreatedSuccessfully => 'Publicación creada con éxito';
 
   @override
-  String get errorCreatingPost => 'Error al crear publicación';
+  String get errorCreatingPost => 'Error al crear la publicación';
 
   @override
   String get onlyAdminsCanSendFiles =>
@@ -8081,4 +8128,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get createOrEdit => 'Crear/Editar';
+
+  @override
+  String get beFirstToComment => '¡Sé el primero en comentar!';
+
+  @override
+  String get addCommentHint => 'Añadir un comentario...';
+
+  @override
+  String get deletePost => 'Eliminar publicación';
+
+  @override
+  String get deletePostConfirmation =>
+      '¿Estás seguro de que quieres eliminar esta publicación?';
+
+  @override
+  String get upcomingEvents => 'Próximos eventos';
 }

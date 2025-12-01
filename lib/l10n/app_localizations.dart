@@ -4025,7 +4025,7 @@ abstract class AppLocalizations {
   /// No description provided for @noCommentsYet.
   ///
   /// In es, this message translates to:
-  /// **'Ningún comentario aún'**
+  /// **'Aún no hay comentarios'**
   String get noCommentsYet;
 
   /// No description provided for @beTheFirstToComment.
@@ -8173,6 +8173,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'% Asistencia'**
   String get attendancePercentage;
+
+  /// No description provided for @taggedNotificationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Te han etiquetado'**
+  String get taggedNotificationTitle;
+
+  /// No description provided for @taggedNotificationFallbackMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva publicación'**
+  String get taggedNotificationFallbackMessage;
+
+  /// No description provided for @taggedNotificationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Te han etiquetado en una publicación en {name}'**
+  String taggedNotificationBody(String name);
+
+  /// No description provided for @taggedNotificationCannotOpen.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir la publicación.'**
+  String get taggedNotificationCannotOpen;
+
+  /// No description provided for @taggedNotificationNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicación no encontrada'**
+  String get taggedNotificationNotFound;
+
+  /// No description provided for @taggedNotificationOpenError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al abrir publicación: {error}'**
+  String taggedNotificationOpenError(String error);
+
+  /// No description provided for @taggedNotificationPublicationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicación'**
+  String get taggedNotificationPublicationTitle;
+
+  /// No description provided for @notifTypeTaggedPost.
+  ///
+  /// In es, this message translates to:
+  /// **'Te han etiquetado'**
+  String get notifTypeTaggedPost;
+
+  /// No description provided for @tagPeople.
+  ///
+  /// In es, this message translates to:
+  /// **'Etiquetar personas'**
+  String get tagPeople;
+
+  /// No description provided for @taggedCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} seleccionado(s)'**
+  String taggedCount(int count);
+
+  /// No description provided for @addLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir ubicación'**
+  String get addLocation;
+
+  /// No description provided for @onlyMembersOfMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo miembros de este ministerio'**
+  String get onlyMembersOfMinistry;
+
+  /// No description provided for @onlyMembersOfGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo miembros de este grupo'**
+  String get onlyMembersOfGroup;
+
+  /// No description provided for @searchLocationHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar ubicación...'**
+  String get searchLocationHint;
 
   /// No description provided for @eventsLabel.
   ///
@@ -12563,13 +12647,13 @@ abstract class AppLocalizations {
   /// No description provided for @groupNoPostsYet.
   ///
   /// In es, this message translates to:
-  /// **'Este grupo aún no tiene publicaciones. Inicia la conversación compartiendo algo interesante con los otros miembros.'**
+  /// **'Aún no hay publicaciones en el grupo'**
   String get groupNoPostsYet;
 
   /// No description provided for @shareWithGroup.
   ///
   /// In es, this message translates to:
-  /// **'¡Comparte algo con tu grupo!'**
+  /// **'Compartir con el grupo'**
   String get shareWithGroup;
 
   /// No description provided for @createPost.
@@ -13175,25 +13259,25 @@ abstract class AppLocalizations {
   /// No description provided for @whatDoYouWantToShare.
   ///
   /// In es, this message translates to:
-  /// **'¿Qué quieres compartilhar?'**
+  /// **'¿Qué quieres compartir?'**
   String get whatDoYouWantToShare;
 
   /// No description provided for @selectedImages.
   ///
   /// In es, this message translates to:
-  /// **'Imágenes seleccionadas:'**
+  /// **'Imágenes seleccionadas'**
   String get selectedImages;
 
   /// No description provided for @imageAspectRatio.
   ///
   /// In es, this message translates to:
-  /// **'Proporción de la imagen:'**
+  /// **'Relación de aspecto'**
   String get imageAspectRatio;
 
   /// No description provided for @square.
   ///
   /// In es, this message translates to:
-  /// **'Cuadrada'**
+  /// **'Cuadrado'**
   String get square;
 
   /// No description provided for @vertical.
@@ -13211,13 +13295,13 @@ abstract class AppLocalizations {
   /// No description provided for @addImages.
   ///
   /// In es, this message translates to:
-  /// **'Agregar imágenes'**
+  /// **'Añadir imágenes'**
   String get addImages;
 
   /// No description provided for @addMoreImages.
   ///
   /// In es, this message translates to:
-  /// **'Agregar más imágenes'**
+  /// **'Añadir más imágenes'**
   String get addMoreImages;
 
   /// No description provided for @pleaseAddContentOrImages.
@@ -13235,13 +13319,13 @@ abstract class AppLocalizations {
   /// No description provided for @postCreatedSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'¡Publicación creada con éxito!'**
+  /// **'Publicación creada con éxito'**
   String get postCreatedSuccessfully;
 
   /// No description provided for @errorCreatingPost.
   ///
   /// In es, this message translates to:
-  /// **'Error al crear publicación'**
+  /// **'Error al crear la publicación'**
   String get errorCreatingPost;
 
   /// No description provided for @onlyAdminsCanSendFiles.
@@ -14413,6 +14497,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Crear/Editar'**
   String get createOrEdit;
+
+  /// No description provided for @beFirstToComment.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Sé el primero en comentar!'**
+  String get beFirstToComment;
+
+  /// No description provided for @addCommentHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir un comentario...'**
+  String get addCommentHint;
+
+  /// No description provided for @deletePost.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar publicación'**
+  String get deletePost;
+
+  /// No description provided for @deletePostConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar esta publicación?'**
+  String get deletePostConfirmation;
+
+  /// No description provided for @upcomingEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximos eventos'**
+  String get upcomingEvents;
 }
 
 class _AppLocalizationsDelegate
