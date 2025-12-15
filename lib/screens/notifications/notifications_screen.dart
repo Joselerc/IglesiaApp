@@ -9,6 +9,7 @@ import '../../services/work_schedule_service.dart';
 import '../../theme/app_colors.dart';
 import 'notification_detail_screen.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -524,6 +525,7 @@ class _NotificationCard extends StatelessWidget {
       case NotificationType.counselingAccepted: return loc.notifTypeCounselingAccepted;
       case NotificationType.counselingRejected: return loc.notifTypeCounselingRejected;
       case NotificationType.counselingCancelled: return loc.notifTypeCounselingCancelled;
+      case NotificationType.taggedPost: return loc.notifTypeTaggedPost;
       case NotificationType.newVideo: return loc.notifTypeNewVideo;
       case NotificationType.message: return loc.notifTypeMessage;
       default: return notification.title;
@@ -565,6 +567,10 @@ class _NotificationCard extends StatelessWidget {
             if (!notification.isRead) {
               notificationService.markAsRead(notification.id);
             }
+            if (notification.type == NotificationType.taggedPost) {
+              _openTaggedPost(context);
+              return;
+            }
             if (notification.actionRoute != null) {
               Navigator.pushNamed(context, notification.actionRoute!);
             } else {
@@ -581,16 +587,26 @@ class _NotificationCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundColor: notification.isRead 
-                    ? Colors.grey.shade100 
-                    : notification.getColor().withOpacity(0.1),
-                  child: Icon(
-                    notification.getIcon(),
-                    color: notification.isRead ? Colors.grey : notification.getColor(),
-                    size: 20,
-                  ),
-                ),
+                notification.type == NotificationType.taggedPost && (notification.data['imageUrl'] != null)
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: notification.data['imageUrl'],
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundColor: notification.isRead 
+                          ? Colors.grey.shade100 
+                          : notification.getColor().withOpacity(0.1),
+                        child: Icon(
+                          notification.getIcon(),
+                          color: notification.isRead ? Colors.grey : notification.getColor(),
+                          size: 20,
+                        ),
+                      ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -616,28 +632,30 @@ class _NotificationCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      // Renderizar mensaje con soporte para negritas (**)
-                      RichText(
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
-                            fontFamily: DefaultTextStyle.of(context).style.fontFamily,
+                      if (notification.type == NotificationType.taggedPost)
+                        _TaggedPostContent(notification: notification)
+                      else
+                        // Renderizar mensaje con soporte para negritas (**)
+                        RichText(
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
+                              fontFamily: DefaultTextStyle.of(context).style.fontFamily,
+                            ),
+                            children: notification.message.split('**').asMap().entries.map((entry) {
+                              final isBold = entry.key % 2 != 0;
+                              return TextSpan(
+                                text: entry.value,
+                                style: TextStyle(
+                                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              );
+                            }).toList(),
                           ),
-                          children: notification.message.split('**').asMap().entries.map((entry) {
-                            // Las partes impares (1, 3, 5...) están entre ** y deben ir en negrita
-                            final isBold = entry.key % 2 != 0;
-                            return TextSpan(
-                              text: entry.value,
-                              style: TextStyle(
-                                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                              ),
-                            );
-                          }).toList(),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -657,6 +675,115 @@ class _NotificationCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _openTaggedPost(BuildContext context) async {
+    final loc = AppLocalizations.of(context)!;
+    final data = notification.data;
+    final postId = data['postId'] as String?;
+    final entityType = data['entityType'] as String?;
+    if (postId == null || entityType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.taggedNotificationCannotOpen)),
+      );
+      return;
+    }
+
+    final collection = entityType == 'group' ? 'group_posts' : 'ministry_posts';
+    try {
+      final doc = await FirebaseFirestore.instance.collection(collection).doc(postId).get();
+      if (!doc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.taggedNotificationNotFound)),
+        );
+        return;
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => _TaggedPostScreen(postSnapshot: doc, entityType: entityType),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.taggedNotificationOpenError('$e'))),
+      );
+    }
+  }
+}
+
+class _TaggedPostContent extends StatelessWidget {
+  final AppNotification notification;
+  const _TaggedPostContent({required this.notification});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final snippet = (notification.data['snippet'] as String?) ?? notification.message;
+    final entityName = (notification.data['entityName'] as String?)?.trim();
+    final entityLabel = notification.entityType == 'group_post' ? loc.group : loc.ministry;
+    final subtitle = entityName != null && entityName.isNotEmpty
+        ? '$entityLabel · $entityName'
+        : entityLabel;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          snippet,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 14,
+            color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TaggedPostScreen extends StatelessWidget {
+  final DocumentSnapshot postSnapshot;
+  final String entityType; // 'group' o 'ministry'
+
+  const _TaggedPostScreen({required this.postSnapshot, required this.entityType});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final data = postSnapshot.data() as Map<String, dynamic>;
+    final imageUrls = List<String>.from(data['imageUrls'] ?? []);
+    final text = data['contentText'] ?? '';
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(loc.taggedNotificationPublicationTitle),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          if (imageUrls.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: imageUrls.first,
+                fit: BoxFit.cover,
+              ),
+            ),
+          if (text.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16, height: 1.5),
+            ),
+          ],
+        ],
       ),
     );
   }

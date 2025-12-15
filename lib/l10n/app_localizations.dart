@@ -8021,7 +8021,7 @@ abstract class AppLocalizations {
   /// No description provided for @requestLabel.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud:'**
+  /// **'Solicitud'**
   String get requestLabel;
 
   /// No description provided for @yourResponse.
@@ -13115,7 +13115,7 @@ abstract class AppLocalizations {
   /// No description provided for @makeAdmin.
   ///
   /// In es, this message translates to:
-  /// **'Hacer administrador'**
+  /// **'Hacer admin'**
   String get makeAdmin;
 
   /// No description provided for @makeGroupAdmin.
@@ -14527,6 +14527,264 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Próximos eventos'**
   String get upcomingEvents;
+
+  /// No description provided for @familiesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias'**
+  String get familiesTitle;
+
+  /// No description provided for @familyInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones de familia'**
+  String get familyInvitations;
+
+  /// No description provided for @createFamily.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear familia'**
+  String get createFamily;
+
+  /// No description provided for @joinFamily.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirme a una familia'**
+  String get joinFamily;
+
+  /// No description provided for @noFamiliesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Aun no perteneces a ninguna familia'**
+  String get noFamiliesYet;
+
+  /// No description provided for @familyFallbackName.
+  ///
+  /// In es, this message translates to:
+  /// **'Familia'**
+  String get familyFallbackName;
+
+  /// No description provided for @familyMembersCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} miembros'**
+  String familyMembersCount(int count);
+
+  /// No description provided for @familyMembersSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} familias'**
+  String familyMembersSummary(int count);
+
+  /// No description provided for @familyNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre de la familia es obligatorio'**
+  String get familyNameRequired;
+
+  /// No description provided for @familyCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'Familia creada'**
+  String get familyCreated;
+
+  /// No description provided for @familyNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la familia'**
+  String get familyNameLabel;
+
+  /// No description provided for @familyNamePlaceholder.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. Familia Rodriguez'**
+  String get familyNamePlaceholder;
+
+  /// No description provided for @searchFamilies.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar familias...'**
+  String get searchFamilies;
+
+  /// No description provided for @noFamiliesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron familias'**
+  String get noFamiliesFound;
+
+  /// No description provided for @alreadyMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya eres miembro'**
+  String get alreadyMember;
+
+  /// No description provided for @requestPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud pendiente'**
+  String get requestPending;
+
+  /// No description provided for @selectFamilyRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tu rol'**
+  String get selectFamilyRole;
+
+  /// No description provided for @joinRequestSent.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud enviada'**
+  String get joinRequestSent;
+
+  /// No description provided for @requestJoinAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar Unirme'**
+  String get requestJoinAction;
+
+  /// No description provided for @invitationLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion'**
+  String get invitationLabel;
+
+  /// No description provided for @inviteAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion aceptada'**
+  String get inviteAccepted;
+
+  /// No description provided for @inviteRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion rechazada'**
+  String get inviteRejected;
+
+  /// No description provided for @inviteMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitar miembros'**
+  String get inviteMembers;
+
+  /// No description provided for @sendInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar invitaciones'**
+  String get sendInvitations;
+
+  /// No description provided for @changeRole.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar rol'**
+  String get changeRole;
+
+  /// No description provided for @removeAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar admin'**
+  String get removeAdmin;
+
+  /// No description provided for @pendingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes pendientes'**
+  String get pendingRequests;
+
+  /// No description provided for @sentInvitations.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitaciones enviadas'**
+  String get sentInvitations;
+
+  /// No description provided for @cancelInvitation.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar invitacion'**
+  String get cancelInvitation;
+
+  /// No description provided for @leaveFamily.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir de la familia'**
+  String get leaveFamily;
+
+  /// No description provided for @familyNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Familia no encontrada'**
+  String get familyNotFound;
+
+  /// No description provided for @familyDetailTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle de la familia'**
+  String get familyDetailTitle;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente'**
+  String get statusPending;
+
+  /// No description provided for @statusAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptada'**
+  String get statusAccepted;
+
+  /// No description provided for @statusRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazada'**
+  String get statusRejected;
+
+  /// No description provided for @familyRoleFather.
+  ///
+  /// In es, this message translates to:
+  /// **'Padre'**
+  String get familyRoleFather;
+
+  /// No description provided for @familyRoleMother.
+  ///
+  /// In es, this message translates to:
+  /// **'Madre'**
+  String get familyRoleMother;
+
+  /// No description provided for @familyRoleChild.
+  ///
+  /// In es, this message translates to:
+  /// **'Hijo'**
+  String get familyRoleChild;
+
+  /// No description provided for @familyRoleTutor.
+  ///
+  /// In es, this message translates to:
+  /// **'Tutor'**
+  String get familyRoleTutor;
+
+  /// No description provided for @familyRoleOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get familyRoleOther;
+
+  /// No description provided for @familyMembersLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros de la familia'**
+  String get familyMembersLabel;
+
+  /// No description provided for @adminLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Admin'**
+  String get adminLabel;
+
+  /// No description provided for @noInvitesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes invitaciones'**
+  String get noInvitesFound;
 }
 
 class _AppLocalizationsDelegate

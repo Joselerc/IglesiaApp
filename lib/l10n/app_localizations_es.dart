@@ -4468,7 +4468,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get responded => 'Respondido';
 
   @override
-  String get requestLabel => 'Solicitud:';
+  String get requestLabel => 'Solicitud';
 
   @override
   String get yourResponse => 'Tu respuesta:';
@@ -7333,7 +7333,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Error al actualizar configuración de notificaciones';
 
   @override
-  String get makeAdmin => 'Hacer administrador';
+  String get makeAdmin => 'Hacer admin';
 
   @override
   String get makeGroupAdmin => 'Hacer administrador del grupo';
@@ -8144,4 +8144,137 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get upcomingEvents => 'Próximos eventos';
+
+  @override
+  String get familiesTitle => 'Familias';
+
+  @override
+  String get familyInvitations => 'Invitaciones de familia';
+
+  @override
+  String get createFamily => 'Crear familia';
+
+  @override
+  String get joinFamily => 'Unirme a una familia';
+
+  @override
+  String get noFamiliesYet => 'Aun no perteneces a ninguna familia';
+
+  @override
+  String get familyFallbackName => 'Familia';
+
+  @override
+  String familyMembersCount(int count) {
+    return '$count miembros';
+  }
+
+  @override
+  String familyMembersSummary(int count) {
+    return '$count familias';
+  }
+
+  @override
+  String get familyNameRequired => 'El nombre de la familia es obligatorio';
+
+  @override
+  String get familyCreated => 'Familia creada';
+
+  @override
+  String get familyNameLabel => 'Nombre de la familia';
+
+  @override
+  String get familyNamePlaceholder => 'Ej. Familia Rodriguez';
+
+  @override
+  String get searchFamilies => 'Buscar familias...';
+
+  @override
+  String get noFamiliesFound => 'No se encontraron familias';
+
+  @override
+  String get alreadyMember => 'Ya eres miembro';
+
+  @override
+  String get requestPending => 'Solicitud pendiente';
+
+  @override
+  String get selectFamilyRole => 'Selecciona tu rol';
+
+  @override
+  String get joinRequestSent => 'Solicitud enviada';
+
+  @override
+  String get requestJoinAction => 'Solicitar Unirme';
+
+  @override
+  String get invitationLabel => 'Invitacion';
+
+  @override
+  String get inviteAccepted => 'Invitacion aceptada';
+
+  @override
+  String get inviteRejected => 'Invitacion rechazada';
+
+  @override
+  String get inviteMembers => 'Invitar miembros';
+
+  @override
+  String get sendInvitations => 'Enviar invitaciones';
+
+  @override
+  String get changeRole => 'Cambiar rol';
+
+  @override
+  String get removeAdmin => 'Quitar admin';
+
+  @override
+  String get pendingRequests => 'Solicitudes pendientes';
+
+  @override
+  String get sentInvitations => 'Invitaciones enviadas';
+
+  @override
+  String get cancelInvitation => 'Cancelar invitacion';
+
+  @override
+  String get leaveFamily => 'Salir de la familia';
+
+  @override
+  String get familyNotFound => 'Familia no encontrada';
+
+  @override
+  String get familyDetailTitle => 'Detalle de la familia';
+
+  @override
+  String get statusPending => 'Pendiente';
+
+  @override
+  String get statusAccepted => 'Aceptada';
+
+  @override
+  String get statusRejected => 'Rechazada';
+
+  @override
+  String get familyRoleFather => 'Padre';
+
+  @override
+  String get familyRoleMother => 'Madre';
+
+  @override
+  String get familyRoleChild => 'Hijo';
+
+  @override
+  String get familyRoleTutor => 'Tutor';
+
+  @override
+  String get familyRoleOther => 'Otro';
+
+  @override
+  String get familyMembersLabel => 'Miembros de la familia';
+
+  @override
+  String get adminLabel => 'Admin';
+
+  @override
+  String get noInvitesFound => 'No tienes invitaciones';
 }

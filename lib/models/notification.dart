@@ -50,6 +50,9 @@ enum NotificationType {
   counselingRejected,
   counselingCancelled,
   
+  // Etiquetas
+  taggedPost,
+  
   // Videos
   newVideo,
   
@@ -177,6 +180,8 @@ class AppNotification {
   // Método para obtener el icono según el tipo de notificación
   IconData getIcon() {
     switch (type) {
+      case NotificationType.taggedPost:
+        return Icons.alternate_email;
       // Anuncios
       case NotificationType.newAnnouncement:
       case NotificationType.newCultAnnouncement:
@@ -264,6 +269,8 @@ class AppNotification {
   // Devuelve el color asociado con el tipo de notificación
   Color getColor() {
     switch (type) {
+      case NotificationType.taggedPost:
+        return Colors.blueGrey;
       // Anuncios
       case NotificationType.newAnnouncement:
       case NotificationType.newCultAnnouncement:

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group_post.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_colors.dart';
 
 class GroupCommentsModal extends StatefulWidget {
   final GroupPost post;
@@ -56,7 +57,6 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
 
       commentController.clear();
 
-      // Actualizar el contador de comentarios en el post
       await FirebaseFirestore.instance
           .collection('group_posts')
           .doc(widget.post.id)
@@ -64,11 +64,11 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
         'commentCount': FieldValue.increment(1),
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!
-                .errorPublishingComment(e.toString()))),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -80,27 +80,21 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
 
   Future<void> _deleteComment(DocumentSnapshot comment) async {
     try {
-      // Verificar si el usuario actual es el autor del comentario
-      final authorId = (comment.data() as Map<String, dynamic>)['authorId']
-          as DocumentReference;
+      final authorId = (comment.data() as Map<String, dynamic>)['authorId'] as DocumentReference;
       final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
       if (authorId.id != currentUserId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(AppLocalizations.of(context)!.deleteOwnCommentsOnly)),
+          SnackBar(content: Text(AppLocalizations.of(context)!.deleteOwnCommentsOnly)),
         );
         return;
       }
 
-      // Mostrar diálogo de confirmación
       final shouldDelete = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(AppLocalizations.of(context)!.deleteComment),
-              content:
-                  Text(AppLocalizations.of(context)!.deleteCommentConfirmation),
+              content: Text(AppLocalizations.of(context)!.deleteCommentConfirmation),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
@@ -118,13 +112,11 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
 
       if (!shouldDelete) return;
 
-      // Eliminar el comentario
       await FirebaseFirestore.instance
           .collection('group_posts_comments')
           .doc(comment.id)
           .delete();
 
-      // Actualizar el contador de comentarios en el post
       await FirebaseFirestore.instance
           .collection('group_posts')
           .doc(widget.post.id)
@@ -140,9 +132,7 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .errorDeletingComment(e.toString()))),
+          SnackBar(content: Text('Error: $e')),
         );
       }
     }
@@ -150,7 +140,6 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener el padding seguro para la parte inferior
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
@@ -164,50 +153,31 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                ),
-              ],
+              border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('group_posts_comments')
-                      .where('groupPostId', isEqualTo: widget.post.id)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    int count =
-                        snapshot.hasData ? snapshot.data!.docs.length : 0;
-                    return Text(
-                      'Comentários ($count)',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
+            child: Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
+              ),
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              AppLocalizations.of(context)!.comments,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
 
-          // Lista de comentarios
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -216,16 +186,8 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                   .orderBy('createdAt', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting &&
-                    !snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(AppLocalizations.of(context)!
-                        .error(snapshot.error.toString())),
-                  );
                 }
 
                 final comments = snapshot.data?.docs ?? [];
@@ -235,134 +197,100 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.comment, size: 48, color: Colors.grey[300]),
+                        Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey[300]),
                         const SizedBox(height: 16),
                         Text(
-                          'Não há comentários ainda',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
+                          AppLocalizations.of(context)!.noCommentsYet,
+                          style: TextStyle(color: Colors.grey[600], fontSize: 16),
                         ),
-                        const SizedBox(height: 8),
                         Text(
-                          'Seja o primeiro a comentar!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
+                          AppLocalizations.of(context)!.beFirstToComment,
+                          style: TextStyle(color: Colors.grey[400], fontSize: 14),
                         ),
                       ],
                     ),
                   );
                 }
 
-                return ListView.separated(
+                return ListView.builder(
                   itemCount: comments.length,
-                  separatorBuilder: (context, index) =>
-                      Divider(height: 1, color: Colors.grey[200]),
+                  padding: const EdgeInsets.only(bottom: 16),
                   itemBuilder: (context, index) {
                     final commentDoc = comments[index];
                     final comment = commentDoc.data() as Map<String, dynamic>;
                     final timestamp = comment['createdAt'] as Timestamp?;
                     final userRef = comment['authorId'] as DocumentReference?;
-                    final isAuthor =
-                        userRef?.id == FirebaseAuth.instance.currentUser?.uid;
+                    final isAuthor = userRef?.id == FirebaseAuth.instance.currentUser?.uid;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Avatar del autor
                           FutureBuilder<DocumentSnapshot>(
                             future: userRef?.get(),
                             builder: (context, userSnapshot) {
                               String? photoUrl;
-                              if (userSnapshot.hasData &&
-                                  userSnapshot.data!.exists) {
-                                final userData = userSnapshot.data!.data()
-                                    as Map<String, dynamic>?;
-                                photoUrl = userData?['photoUrl'] as String?;
+                              if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                                final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
+                                photoUrl = userData?['photoUrl'];
                               }
-
                               return CircleAvatar(
-                                radius: 16,
-                                backgroundImage: photoUrl != null
-                                    ? NetworkImage(photoUrl)
-                                    : null,
-                                child: photoUrl == null
-                                    ? const Icon(Icons.person, size: 16)
-                                    : null,
+                                radius: 18,
+                                backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                                backgroundColor: Colors.grey[200],
+                                child: photoUrl == null ? const Icon(Icons.person, size: 20, color: Colors.grey) : null,
                               );
                             },
                           ),
-
                           const SizedBox(width: 12),
-
-                          // Contenido del comentario
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Autor y tiempo
                                 Row(
                                   children: [
                                     FutureBuilder<DocumentSnapshot>(
                                       future: userRef?.get(),
                                       builder: (context, userSnapshot) {
-                                        String username = 'Usuário';
-                                        if (userSnapshot.hasData &&
-                                            userSnapshot.data!.exists) {
-                                          final userData = userSnapshot.data!
-                                              .data() as Map<String, dynamic>?;
-                                          username =
-                                              userData?['name'] as String? ??
-                                                  'Usuário';
+                                        String username = 'Usuario';
+                                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                                          final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
+                                          username = userData?['name'] ?? userData?['displayName'] ?? 'Usuario';
                                         }
-
                                         return Text(
                                           username,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                         );
                                       },
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 6),
                                     if (timestamp != null)
                                       Text(
                                         _getTimeAgo(timestamp),
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 12,
-                                        ),
+                                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
                                       ),
                                   ],
                                 ),
-
-                                const SizedBox(height: 4),
-
-                                // Texto del comentario
+                                const SizedBox(height: 2),
                                 Text(
                                   comment['content'] as String? ?? '',
-                                  style: const TextStyle(fontSize: 14),
+                                  style: const TextStyle(fontSize: 14, height: 1.3),
                                 ),
+                                if (isAuthor)
+                                  GestureDetector(
+                                    onTap: () => _deleteComment(commentDoc),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        AppLocalizations.of(context)!.delete,
+                                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
-
-                          // Botón de eliminar (solo visible para el autor)
-                          if (isAuthor)
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  size: 18, color: Colors.red),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              onPressed: () => _deleteComment(commentDoc),
-                            ),
                         ],
                       ),
                     );
@@ -372,72 +300,50 @@ class _GroupCommentsModalState extends State<GroupCommentsModal> {
             ),
           ),
 
-          // Campo para añadir comentario
           Container(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 8,
-              bottom: 8 + bottomPadding, // Añadir el padding seguro
-            ),
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, -1),
-                ),
-              ],
+              border: Border(top: BorderSide(color: Colors.grey[100]!)),
             ),
             child: Row(
               children: [
-                // Avatar del usuario actual
                 CircleAvatar(
-                  radius: 16,
-                  backgroundImage:
-                      FirebaseAuth.instance.currentUser?.photoURL != null
-                          ? NetworkImage(
-                              FirebaseAuth.instance.currentUser!.photoURL!)
-                          : null,
+                  radius: 18,
+                  backgroundImage: FirebaseAuth.instance.currentUser?.photoURL != null
+                      ? NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!)
+                      : null,
+                  backgroundColor: Colors.grey[200],
                   child: FirebaseAuth.instance.currentUser?.photoURL == null
-                      ? const Icon(Icons.person, size: 16)
+                      ? const Icon(Icons.person, size: 20, color: Colors.grey)
                       : null,
                 ),
-
                 const SizedBox(width: 12),
-
-                // Campo de texto
                 Expanded(
-                  child: TextField(
-                    controller: commentController,
-                    decoration: InputDecoration(
-                      hintText: 'Adicionar um comentário...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    maxLines: 1,
-                    textCapitalization: TextCapitalization.sentences,
+                    child: TextField(
+                      controller: commentController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.addCommentHint,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        isDense: true,
+                      ),
+                      minLines: 1,
+                      maxLines: 4,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
-                // Botón de enviar
                 IconButton(
                   icon: _isSubmitting
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(Icons.send, color: Theme.of(context).primaryColor),
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(Icons.send_rounded, color: AppColors.primary),
                   onPressed: _isSubmitting ? null : _submitComment,
                 ),
               ],

@@ -9,13 +9,16 @@ class MembershipRequestService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String _requestsCollectionPath = 'membership_requests';
 
-  /// Registra una nueva solicitud para unirse a un ministerio o grupo
+  /// Registra una nueva solicitud para unirse a un ministerio, grupo o familia
   Future<void> logRequest({
     required String userId,
     required String entityId,
-    required String entityType, // 'ministry' o 'group'
+    required String entityType, // 'ministry', 'group' o 'family'
     required String entityName,
     String? message,
+    String requestType = 'join', // 'join' | 'invite'
+    String? desiredRole, // Para Familias
+    String? invitedBy, // Cuando la solicitud viene de un admin
   }) async {
     // Obtener información del usuario solicitante para guardarla
     final userDoc = await _firestore.collection('users').doc(userId).get();
@@ -29,6 +32,9 @@ class MembershipRequestService {
       'status': 'pending', // 'pending', 'accepted', 'rejected'
       'requestTimestamp': FieldValue.serverTimestamp(),
       'message': message,
+      'requestType': requestType,
+      if (desiredRole != null) 'desiredRole': desiredRole,
+      if (invitedBy != null) 'invitedBy': invitedBy,
       'userName': userData['name'] ?? userData['displayName'] ?? 'Usuario',
       'userEmail': userData['email'] ?? '',
       'userPhotoUrl': userData['photoUrl'] ?? '',

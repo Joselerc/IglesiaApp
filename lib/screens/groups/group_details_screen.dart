@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,10 +5,9 @@ import '../../models/group.dart';
 import '../../widgets/circular_image_picker.dart';
 import '../ministries/image_viewer_screen.dart';
 import '../../services/group_service.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_text_styles.dart';
 import '../../modals/edit_entity_info_modal.dart';
 import '../../l10n/app_localizations.dart';
+import '../shared/media_permissions_sheet.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final Group group;
@@ -29,6 +27,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _descriptionText = '';
+  Set<String> _mediaSenders = {};
+  bool _isSavingMediaSenders = false;
   
   @override
   void initState() {
@@ -45,60 +45,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   Future<void> _loadNotificationSettings() async {
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('user_settings')
-            .doc(currentUser.uid)
-            .collection('group_notifications')
-            .doc(widget.group.id)
-            .get();
-        
-        if (doc.exists) {
-          setState(() {
-            notificationsEnabled = doc.data()?['enabled'] ?? true;
-          });
-        }
-      } catch (e) {
-        print('Error al cargar configuración de notificaciones: $e');
-      }
-    }
-  }
+    if (currentUser == null) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('user_settings')
+          .doc(currentUser.uid)
+          .collection('group_notifications')
+          .doc(widget.group.id)
+          .get();
 
-  Future<void> _toggleNotifications(bool value) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      try {
-        await FirebaseFirestore.instance
-            .collection('user_settings')
-            .doc(currentUser.uid)
-            .collection('group_notifications')
-            .doc(widget.group.id)
-            .set({
-              'enabled': value,
-              'updatedAt': FieldValue.serverTimestamp(),
-            }, SetOptions(merge: true));
-        
+      if (doc.exists) {
         setState(() {
-          notificationsEnabled = value;
+          notificationsEnabled = doc.data()?['enabled'] ?? true;
         });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              value ? AppLocalizations.of(context)!.notificationsEnabled : AppLocalizations.of(context)!.notificationsDisabled,
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      } catch (e) {
-        print('Error al actualizar configuración de notificaciones: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorUpdatingNotificationSettings),
-          ),
-        );
       }
+    } catch (_) {
+      // Silenciar errores de carga de notificaciones.
     }
   }
 
@@ -171,6 +133,61 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       }
     }
   }
+
+  Future<void> _updateMediaSenders() async {
+    if (_isSavingMediaSenders) return;
+    setState(() => _isSavingMediaSenders = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(widget.group.id)
+          .set({'mediaSenders': _mediaSenders.toList()}, SetOptions(merge: true));
+    } finally {
+      if (mounted) setState(() => _isSavingMediaSenders = false);
+    }
+  }
+
+  Future<void> _openMediaPermissionsSheet(List<String> memberIds) async {
+    try {
+      final members = await _loadGroupMembers(memberIds);
+      if (!mounted) return;
+      final selected = await showModalBottomSheet<Set<String>>(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return MediaPermissionsSheet(
+            members: members,
+            initialSelected: _mediaSenders,
+            lockedIds: widget.group.adminIds.toSet(),
+            adminLabel: AppLocalizations.of(context)!.groupAdmin,
+            title: 'Permisos de envío de fotos y videos',
+            selectAllLabel: AppLocalizations.of(context)!.selectAll,
+            deselectAllLabel: AppLocalizations.of(context)!.deselectAll,
+            searchHint: AppLocalizations.of(context)!.searchUsers,
+            saveLabel: AppLocalizations.of(context)!.save,
+            emptyLabel: AppLocalizations.of(context)!.noMembersFound,
+            onSave: (value) => Navigator.of(context).pop(value),
+          );
+        },
+      );
+      if (selected != null) {
+        setState(() => _mediaSenders = selected);
+        await _updateMediaSenders();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingMembers)),
+        );
+      }
+    }
+  }
+
+  String _mediaPermissionsSummary(BuildContext context, int allowed, int total) {
+    return '$allowed / $total ${AppLocalizations.of(context)!.members}';
+  }
+
+  String _mediaPermissionsTitle(BuildContext context) => AppLocalizations.of(context)!.permissions;
 
   Future<void> _deleteGroup() async {
     if (!isAdmin) return;
@@ -483,11 +500,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final theme = Theme.of(context);
     
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.groupInformation),
-        backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: Text(
+          AppLocalizations.of(context)!.groupInformation,
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot>(
                   stream: FirebaseFirestore.instance
@@ -508,6 +530,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           final groupName = groupData['name'] as String? ?? 'Grupo sem nome';
           final groupDescriptionDelta = groupData['descriptionDelta'];
           _extractDescriptionText(groupDescriptionDelta);
+          final mediaSendersField = (groupData['mediaSenders'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              [];
+          if (_mediaSenders.isEmpty && mediaSendersField.isNotEmpty) {
+            _mediaSenders = mediaSendersField.toSet();
+          }
           
           final List<String> adminIds = _getAdminIds(groupData);
           final bool currentIsAdmin = adminIds.contains(FirebaseAuth.instance.currentUser?.uid ?? '');
@@ -519,45 +548,79 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  color: theme.primaryColor.withOpacity(0.1),
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Hero(
-                          tag: 'group_image_${widget.group.id}',
-                          child: CircularImagePicker(
-                            size: 110,
-                            documentId: widget.group.id,
-                            currentImageUrl: groupImageUrl,
-                            storagePath: 'group_images',
-                            collectionName: 'groups',
-                            fieldName: 'imageUrl',
-                            defaultIcon: const Icon(Icons.group, size: 50, color: Colors.white),
-                            isEditable: currentIsAdmin,
-                            showEditIconOutside: true,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Text(
-                            groupName,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Material(
+                    color: Colors.white,
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      child: Column(
+                        children: [
+                          Hero(
+                            tag: 'group_image_${widget.group.id}',
+                            child: CircularImagePicker(
+                              size: 110,
+                              documentId: widget.group.id,
+                              currentImageUrl: groupImageUrl,
+                              storagePath: 'group_images',
+                              collectionName: 'groups',
+                              fieldName: 'imageUrl',
+                              defaultIcon: const Icon(Icons.group, size: 50, color: Colors.white),
+                              isEditable: currentIsAdmin,
+                              showEditIconOutside: true,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${AppLocalizations.of(context)!.group} · ${memberIds.length} ${AppLocalizations.of(context)!.members}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[700],
+                          const SizedBox(height: 14),
+                          Text(
+                            groupName,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            '${AppLocalizations.of(context)!.group} · ${memberIds.length} ${AppLocalizations.of(context)!.members}',
+                            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+                          ),
+                          const SizedBox(height: 10),
+                          FutureBuilder<DocumentSnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(_getCreatorId(groupData['createdBy']))
+                                .get(),
+                            builder: (context, snapshot) {
+                              String creatorName = AppLocalizations.of(context)!.unknown;
+                              if (snapshot.hasData && snapshot.data!.exists) {
+                                final userData = snapshot.data!.data() as Map<String, dynamic>?;
+                                if (userData != null) {
+                                  creatorName = userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.unknown;
+                                }
+                              }
+
+                              final createdAt = groupData['createdAt'];
+                              final createdText = createdAt is Timestamp
+                                  ? _formatDate(createdAt)
+                                  : AppLocalizations.of(context)!.today;
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.createdBy(creatorName, createdText),
+                                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -582,80 +645,110 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         } : null,
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 3,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.grey[200]!),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (hasDescription)
-                                Text(_descriptionText, style: AppTextStyles.bodyText1)
-                              else if (currentIsAdmin)
-                                Text(
-                                  AppLocalizations.of(context)!.addDescription,
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontStyle: FontStyle.italic,
-                                  ),
+                              Text(
+                                AppLocalizations.of(context)!.description,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  letterSpacing: 0.1,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              if (currentIsAdmin && hasDescription) ...[
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Icon(Icons.edit, size: 16, color: theme.primaryColor),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      AppLocalizations.of(context)!.edit,
-                                      style: TextStyle(
-                                        color: theme.primaryColor,
-                                        fontSize: 12,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                hasDescription ? _descriptionText : AppLocalizations.of(context)!.addDescription,
+                                style: TextStyle(
+                                  color: hasDescription ? Colors.black87 : Colors.grey[500],
+                                  fontStyle: hasDescription ? FontStyle.normal : FontStyle.italic,
+                                  fontSize: 15,
+                                  height: 1.4,
+                                ),
+                              ),
+                              if (currentIsAdmin) ...[
+                                const SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.edit_outlined, size: 16, color: theme.primaryColor),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        AppLocalizations.of(context)!.edit,
+                                        style: TextStyle(fontSize: 12, color: theme.primaryColor),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      FutureBuilder<DocumentSnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(_getCreatorId(groupData['createdBy']))
-                            .get(),
-                        builder: (context, snapshot) {
-                          String creatorName = AppLocalizations.of(context)!.unknown;
-                          if (snapshot.hasData && snapshot.data!.exists) {
-                            final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                            if (userData != null) {
-                              creatorName = userData['name'] ?? userData['displayName'] ?? AppLocalizations.of(context)!.unknown;
-                            }
-                          }
-                          
-                          return Text(
-                            '${AppLocalizations.of(context)!.createdBy} $creatorName · ${_formatDate(groupData['createdAt'] as Timestamp)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ),
+                
+                if (currentIsAdmin) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.photo_library_outlined, size: 18, color: Colors.blueGrey),
+                            const SizedBox(width: 6),
+                            Text(
+                              _mediaPermissionsTitle(context),
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: _isSavingMediaSenders
+                                  ? null
+                                  : () => _openMediaPermissionsSheet(memberIds),
+                              child: Text(AppLocalizations.of(context)!.edit),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text(
+                              _mediaPermissionsSummary(context, _mediaSenders.length, memberIds.length),
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                            if (_isSavingMediaSenders) ...[
+                              const SizedBox(width: 8),
+                              const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 
                 const Divider(),
                 
@@ -895,7 +988,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: theme.primaryColor.withOpacity(0.1),
+                                  color: theme.primaryColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(

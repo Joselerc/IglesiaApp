@@ -13,6 +13,8 @@ class GroupPost {
   final DateTime? date;
   final String aspectRatio;
   final int commentCount;
+  final List<DocumentReference> taggedUsers;
+  final String? location;
 
   GroupPost({
     required this.id,
@@ -27,6 +29,8 @@ class GroupPost {
     this.date,
     this.aspectRatio = 'AspectRatioOption.square',
     this.commentCount = 0,
+    this.taggedUsers = const [],
+    this.location,
   });
 
   factory GroupPost.fromFirestore(DocumentSnapshot doc) {
@@ -44,6 +48,8 @@ class GroupPost {
       date: (data['date'] as Timestamp?)?.toDate(),
       aspectRatio: data['aspectRatio'] ?? 'AspectRatioOption.square',
       commentCount: (data['commentCount'] ?? 0) as int,
+      taggedUsers: List<DocumentReference>.from(data['taggedUsers'] ?? []),
+      location: data['location'] as String?,
     );
   }
 
@@ -60,6 +66,8 @@ class GroupPost {
       'date': date != null ? Timestamp.fromDate(date!) : null,
       'aspectRatio': aspectRatio,
       'commentCount': commentCount,
+      'taggedUsers': taggedUsers,
+      'location': location,
     };
   }
 } 

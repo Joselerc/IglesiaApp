@@ -116,6 +116,11 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         iconColor = Colors.green[700]!;
         backgroundColor = Colors.green[100]!;
         break;
+      case HomeScreenSectionType.families:
+        iconData = Icons.family_restroom_outlined;
+        iconColor = Colors.orange[700]!;
+        backgroundColor = Colors.orange[100]!;
+        break;
       case HomeScreenSectionType.counseling:
         iconData = Icons.support_agent;
         iconColor = Colors.cyan[700]!;
@@ -595,6 +600,8 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         return AppLocalizations.of(context)!.ministries;
       case HomeScreenSectionType.groups:
         return AppLocalizations.of(context)!.connect;
+      case HomeScreenSectionType.families:
+        return AppLocalizations.of(context)!.familiesTitle;
       case HomeScreenSectionType.privatePrayer:
         return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:
@@ -633,6 +640,8 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
         return AppLocalizations.of(context)!.ministries;
       case HomeScreenSectionType.groups:
         return AppLocalizations.of(context)!.groups;
+      case HomeScreenSectionType.families:
+        return AppLocalizations.of(context)!.familiesTitle;
       case HomeScreenSectionType.privatePrayer:
         return AppLocalizations.of(context)!.privatePrayer;
       case HomeScreenSectionType.publicPrayer:

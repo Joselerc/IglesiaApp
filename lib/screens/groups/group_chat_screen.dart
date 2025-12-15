@@ -22,9 +22,9 @@ class GroupChatScreen extends StatefulWidget {
   final Group group;
 
   const GroupChatScreen({
-    Key? key,
+    super.key,
     required this.group,
-  }) : super(key: key);
+  });
 
   @override
   State<GroupChatScreen> createState() => _GroupChatScreenState();
@@ -36,6 +36,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   bool _isUploading = false;
   bool _isRecording = false;
   final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  Set<String> _mediaSenders = {};
   
   // FlutterSound en lugar de Record
   final FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
@@ -53,6 +54,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   void initState() {
     super.initState();
     _checkAdminStatus();
+    _loadMediaPermissions();
     _initAudio();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markChatNotificationsAsRead();
@@ -126,10 +128,28 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
+  Future<void> _loadMediaPermissions() async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('groups').doc(widget.group.id).get();
+      final data = doc.data();
+      final List<dynamic> rawList = data?['mediaSenders'] as List<dynamic>? ?? [];
+      setState(() {
+        _mediaSenders = rawList.map((e) => e.toString()).toSet()..addAll(widget.group.adminIds);
+      });
+    } catch (_) {
+      // Silenciar fallos de carga; se usará la política por defecto (solo admins).
+    }
+  }
+
+  String _mediaDeniedMessage(BuildContext context) =>
+      AppLocalizations.of(context)!.noPermissionSendNotificationsSnack;
+
   Future<void> _pickAndUploadFile() async {
-    if (!_isAdmin) {
+    final userId = currentUserId;
+    final canSendMedia = _isAdmin || (userId != null && _mediaSenders.contains(userId));
+    if (!canSendMedia) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.onlyAdminsCanSendFiles)),
+        SnackBar(content: Text(_mediaDeniedMessage(context))),
       );
       return;
     }
@@ -994,8 +1014,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                         color: isCurrentUser ? const Color(0xFFD0E2FF) : Colors.grey.shade200,
                                       ),
                                       boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.05),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
@@ -1156,11 +1176,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 ),
                 child: Row(
                   children: [
-                    if (_isAdmin && !_isRecording)
-                      IconButton(
-                        icon: const Icon(Icons.attach_file, color: Colors.grey),
-                        onPressed: _pickAndUploadFile,
-                      ),
+                if ((_isAdmin || (currentUserId != null && _mediaSenders.contains(currentUserId))) && !_isRecording)
+                  IconButton(
+                    icon: const Icon(Icons.attach_file, color: Colors.grey),
+                    onPressed: _pickAndUploadFile,
+                  ),
                     Expanded(
                       child: TextField(
                         controller: _messageController,

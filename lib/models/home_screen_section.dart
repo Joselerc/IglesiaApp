@@ -13,6 +13,7 @@ enum HomeScreenSectionType {
   courses, // Nueva sección de Cursos Online
   ministries,
   groups,
+  families,
   privatePrayer,
   publicPrayer,
   workSchedules, // Nueva sección de Escalas de Trabajo
@@ -91,6 +92,7 @@ class HomeScreenSection {
       case 'courses': return HomeScreenSectionType.courses;
       case 'ministries': return HomeScreenSectionType.ministries;
       case 'groups': return HomeScreenSectionType.groups;
+      case 'families': return HomeScreenSectionType.families;
       case 'privatePrayer': return HomeScreenSectionType.privatePrayer;
       case 'publicPrayer': return HomeScreenSectionType.publicPrayer;
       case 'workSchedules': return HomeScreenSectionType.workSchedules;
@@ -113,6 +115,7 @@ class HomeScreenSection {
       case HomeScreenSectionType.courses: return 'courses';
       case HomeScreenSectionType.ministries: return 'ministries';
       case HomeScreenSectionType.groups: return 'groups';
+      case HomeScreenSectionType.families: return 'families';
       case HomeScreenSectionType.privatePrayer: return 'privatePrayer';
       case HomeScreenSectionType.publicPrayer: return 'publicPrayer';
       case HomeScreenSectionType.workSchedules: return 'workSchedules';

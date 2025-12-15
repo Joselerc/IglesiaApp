@@ -2117,6 +2117,42 @@
   "errorLoadingMembers": "Erro ao carregar membros: {error}",
   "noMembersInGroup": "Não há membros neste grupo",
   "attendancePercentage": "% Presença",
+  "taggedNotificationTitle": "Você foi marcado",
+  "taggedNotificationFallbackMessage": "Nova publicação",
+  "taggedNotificationBody": "Você foi marcado em uma publicação em {name}",
+  "@taggedNotificationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taggedNotificationCannotOpen": "Não foi possível abrir a publicação.",
+  "taggedNotificationNotFound": "Publicação não encontrada",
+  "taggedNotificationOpenError": "Erro ao abrir publicação: {error}",
+  "@taggedNotificationOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "taggedNotificationPublicationTitle": "Publicação",
+  "notifTypeTaggedPost": "Você foi marcado",
+  "tagPeople": "Marcar pessoas",
+  "taggedCount": "{count} selecionado(s)",
+  "@taggedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLocation": "Adicionar localização",
+  "onlyMembersOfMinistry": "Apenas membros deste ministério",
+  "onlyMembersOfGroup": "Apenas membros deste grupo",
+  "searchUsers": "Buscar usuários...",
+  "searchLocationHint": "Buscar localização...",
   "eventsLabel": "Eventos",
   "user": "Usuário",
   "admin": "Admin",
@@ -4251,5 +4287,84 @@
   "youAreGoing": "Eu vou",
   "iWillAttend": "Eu vou participar",
   "organizedBy": "Organizado por",
-  "createOrEdit": "Criar/Editar"
+  "createOrEdit": "Criar/Editar",
+  "noCommentsYet": "Ainda não há comentários",
+  "beFirstToComment": "Seja o primeiro a comentar!",
+  "addCommentHint": "Adicionar um comentário...",
+  "deletePost": "Excluir publicação",
+  "deletePostConfirmation": "Tem certeza que deseja excluir esta publicação?",
+  "shareWithGroup": "Compartilhar com o grupo",
+  "groupNoPostsYet": "Ainda não há publicações no grupo",
+  "postCreatedSuccessfully": "Publicação criada com sucesso",
+  "errorCreatingPost": "Erro ao criar publicação",
+  "whatDoYouWantToShare": "O que você quer compartilhar?",
+  "selectedImages": "Imagens selecionadas",
+  "imageAspectRatio": "Proporção da imagem",
+  "square": "Quadrado",
+  "vertical": "Vertical",
+  "horizontal": "Horizontal",
+  "addImages": "Adicionar imagens",
+  "addMoreImages": "Adicionar mais imagens",
+  "upcomingEvents": "Próximos eventos",
+
+
+  "familiesTitle": "Famílias",
+  "familyInvitations": "Convites de família",
+  "createFamily": "Criar família",
+  "joinFamily": "Entrar em uma família",
+  "noFamiliesYet": "Você ainda não participa de nenhuma família",
+  "familyFallbackName": "Família",
+  "familyMembersCount": "{count} membros",
+  "@familyMembersCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "familyMembersSummary": "{count} famílias",
+  "@familyMembersSummary": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "familyNameRequired": "O nome da família é obrigatório",
+  "familyCreated": "Família criada",
+  "familyNameLabel": "Nome da família",
+  "familyNamePlaceholder": "Ex. Família Rodrigues",
+  "searchFamilies": "Buscar famílias...",
+  "noFamiliesFound": "Nenhuma família encontrada",
+  "alreadyMember": "Já é membro",
+  "requestPending": "Solicitação pendente",
+  "selectFamilyRole": "Selecione seu papel",
+  "joinRequestSent": "Solicitação enviada",
+  "requestJoinAction": "Solicitar entrada",
+  "invitationLabel": "Convite",
+  "requestLabel": "Solicitação",
+  "inviteAccepted": "Convite aceito",
+  "inviteRejected": "Convite rejeitado",
+  "inviteMembers": "Convidar membros",
+  "sendInvitations": "Enviar convites",
+  "invitesSent": "Convites enviados",
+  "changeRole": "Alterar papel",
+  "makeAdmin": "Tornar admin",
+  "removeAdmin": "Remover admin",
+  "removeMember": "Remover membro",
+  "pendingRequests": "Solicitações pendentes",
+  "noPendingRequests": "Nenhuma solicitação pendente",
+  "sentInvitations": "Convites enviados",
+  "cancelInvitation": "Cancelar convite",
+  "unknownUser": "Usuário desconhecido",
+  "leaveFamily": "Sair da família",
+  "familyNotFound": "Família não encontrada",
+  "familyDetailTitle": "Detalhe da família",
+  "statusPending": "Pendente",
+  "statusAccepted": "Aceita",
+  "statusRejected": "Rejeitada",
+  "familyRoleFather": "Pai",
+  "familyRoleMother": "Mãe",
+  "familyRoleChild": "Filho",
+  "familyRoleTutor": "Tutor",
+  "familyRoleOther": "Outro",
+  "familyMembersLabel": "Membros da família",
+  "adminLabel": "Admin",
+  "noInvitesFound": "Você não tem convites"
 }

@@ -22,9 +22,9 @@ class MinistryChatScreen extends StatefulWidget {
   final Ministry ministry;
 
   const MinistryChatScreen({
-    Key? key,
+    super.key,
     required this.ministry,
-  }) : super(key: key);
+  });
 
   @override
   State<MinistryChatScreen> createState() => _MinistryChatScreenState();
@@ -44,6 +44,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
   Duration _recordingDuration = Duration.zero;
   DateTime? _recordingStartTime;
   Timer? _recordingTimer;
+  Set<String> _mediaSenders = {};
 
   // Mantenemos un mapa para controlar qué audio está reproduciéndose actualmente
   final Map<String, bool> _playingAudios = {};
@@ -53,6 +54,7 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
   void initState() {
     super.initState();
     _checkAdminStatus();
+    _loadMediaPermissions();
     _initAudio();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markChatNotificationsAsRead();
@@ -126,10 +128,28 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
     }
   }
 
+  Future<void> _loadMediaPermissions() async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('ministries').doc(widget.ministry.id).get();
+      final data = doc.data();
+      final List<dynamic> rawList = data?['mediaSenders'] as List<dynamic>? ?? [];
+      setState(() {
+        _mediaSenders = rawList.map((e) => e.toString()).toSet()..addAll(widget.ministry.adminIds);
+      });
+    } catch (_) {
+      // Silenciar fallos de carga; se usa la política por defecto (solo admins).
+    }
+  }
+
+  String _mediaDeniedMessage(BuildContext context) =>
+      AppLocalizations.of(context)!.noPermissionSendNotificationsSnack;
+
   Future<void> _pickAndUploadFile() async {
-    if (!_isAdmin) {
+    final userId = currentUserId;
+    final canSendMedia = _isAdmin || (userId != null && _mediaSenders.contains(userId));
+    if (!canSendMedia) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.onlyAdminsCanSendFiles)),
+        SnackBar(content: Text(_mediaDeniedMessage(context))),
       );
       return;
     }
@@ -1117,11 +1137,11 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
                 ),
                 child: Row(
                   children: [
-                    if (_isAdmin && !_isRecording)
-                      IconButton(
-                        icon: const Icon(Icons.attach_file, color: Colors.grey),
-                        onPressed: _pickAndUploadFile,
-                      ),
+                if ((_isAdmin || (currentUserId != null && _mediaSenders.contains(currentUserId))) && !_isRecording)
+                  IconButton(
+                    icon: const Icon(Icons.attach_file, color: Colors.grey),
+                    onPressed: _pickAndUploadFile,
+                  ),
                     Expanded(
                       child: TextField(
                         controller: _messageController,

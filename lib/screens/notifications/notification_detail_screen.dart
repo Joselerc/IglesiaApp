@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/work_invite.dart';
+import 'package:flutter/foundation.dart';
 
 class NotificationDetailScreen extends StatefulWidget {
   final AppNotification notification;
@@ -386,7 +387,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                       const SizedBox(height: 12),
                       _buildDetailRow(
                         Icons.person_outline,
-                        'Rol',
+                        AppLocalizations.of(context)!.roleToPerform,
                         _workInvite!.role,
                       ),
                       const SizedBox(height: 12),
@@ -501,6 +502,8 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
         return loc.notifTypeNewAnnouncement;
       case NotificationType.newCultAnnouncement:
         return loc.notifTypeNewCultAnnouncement;
+      case NotificationType.taggedPost:
+        return loc.notifTypeTaggedPost;
       
       // Ministérios
       case NotificationType.newMinistry:

@@ -6,10 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/group_event.dart';
 import 'group_event_detail_screen.dart';
 import '../../widgets/create_group_post_bottom_sheet.dart';
-import 'dart:io';
-import 'dart:async'; // Para Completer
+import '../../screens/create_post_screen.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../modals/group_comments_modal.dart';
-import '../../modals/create_group_event_modal.dart';
 import 'group_chat_screen.dart';
 import '../profile_screen.dart';
 import 'group_details_screen.dart';
@@ -19,7 +18,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../admin/admin_events_list_screen.dart';
 import '../../theme/app_colors.dart';
-// import '../../services/permission_service.dart'; // Importar servicio de permisos
 import '../../l10n/app_localizations.dart';
 
 class GroupFeedScreen extends StatefulWidget {
@@ -35,13 +33,6 @@ class GroupFeedScreen extends StatefulWidget {
 }
 
 class _GroupFeedScreenState extends State<GroupFeedScreen> {
-  final formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  DateTime? selectedDate;
-  TimeOfDay? selectedTime;
-  File? imageFile;
-  // final PermissionService _permissionService = PermissionService(); // Instancia del servicio
   bool _canCreateEvents = false;
   bool _canManageRequests = false;
   bool _canCreatePosts = false;
@@ -50,178 +41,16 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.pink[50],
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.75,
-      ),
-      builder: (context) => GroupCommentsModal(post: post),
-    );
-  }
-
-  void _showPostDetailModal(BuildContext context, GroupPost post) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => Column(
-          children: [
-            // Header con botón de cerrar
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // FutureBuilder para obtener datos del usuario
-                    FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(post.authorId.id)
-                          .get(),
-                      builder: (context, userSnapshot) {
-                        String userName = 'Usuario';
-                        String userPhotoUrl = '';
-                        
-                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
-                          userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
-                          userPhotoUrl = userData['photoUrl'] ?? '';
-                        }
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundImage: userPhotoUrl.isNotEmpty 
-                                    ? NetworkImage(userPhotoUrl) 
-                                    : null,
-                                child: userPhotoUrl.isEmpty
-                                    ? const Icon(Icons.person, size: 24, color: Colors.grey)
-                                    : null,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                userName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    ),
-                    
-                    // Imagen
-                    if (post.imageUrls.isNotEmpty)
-                      _buildPostImage(post.imageUrls.first, post.aspectRatio),
-                    
-                    // Contenido
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            post.contentText,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _formatDate(post.createdAt),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Botón para ver comentarios
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context); // Cerrar detalle
-                          _showComments(context, post); // Abrir comentarios
-                        },
-                        icon: const Icon(Icons.comment),
-                        label: Text('Ver ${post.commentCount} comentarios'),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 45),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
+      builder: (context) => GroupCommentsModal(post: post),
     );
   }
-
-  Future<void> _handleLike(GroupPost post) async {
-    final userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid);
-    final postRef = FirebaseFirestore.instance.collection('group_posts').doc(post.id);
-    
-    if (post.likes.contains(userRef)) {
-      await postRef.update({
-        'likes': FieldValue.arrayRemove([userRef])
-      });
-    } else {
-      await postRef.update({
-        'likes': FieldValue.arrayUnion([userRef])
-      });
-    }
-  }
-
-/*
-  Future<void> _handleSave(GroupPost post) async {
-    final userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid);
-    final postRef = FirebaseFirestore.instance.collection('group_posts').doc(post.id);
-    
-    if (post.savedBy.contains(userRef)) {
-      await postRef.update({
-        'savedBy': FieldValue.arrayRemove([userRef])
-      });
-    } else {
-      await postRef.update({
-        'savedBy': FieldValue.arrayUnion([userRef])
-      });
-    }
-  }
-*/
 
   void _navigateToManageRequests() {
     Navigator.push(
@@ -235,43 +64,12 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   @override
   void initState() {
     super.initState();
-    // Verificar permisos al iniciar la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Cargar permisos del usuario
       _loadPermissions();
-      
-      // Log para depuración
-      final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-      debugPrint('🚀 GROUP_FEED - Inicializando pantalla para usuario: $userId');
-      final isAdmin = widget.group.isAdmin(userId);
-      debugPrint('👑 GROUP_FEED - Usuario es admin del grupo: $isAdmin');
-      
-      // Marcar notificaciones como leídas
       _markNotificationsAsRead();
-
-      // Check for highlighted post (redirection)
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is Map<String, dynamic>) {
-        final highlightedPostId = args['highlightedPostId'] as String?;
-        if (highlightedPostId != null) {
-          debugPrint('🔗 GROUP_FEED - Redirigiendo al post: $highlightedPostId');
-          // Fetch and show post
-          FirebaseFirestore.instance
-              .collection('group_posts')
-              .doc(highlightedPostId)
-              .get()
-              .then((doc) {
-            if (doc.exists && mounted) {
-              final post = GroupPost.fromFirestore(doc);
-              _showPostDetailModal(context, post);
-            }
-          });
-        }
-      }
     });
   }
 
-  // Marcar notificaciones como leídas con lógica robusta
   Future<void> _markNotificationsAsRead() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
@@ -280,13 +78,12 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       final batch = FirebaseFirestore.instance.batch();
       bool hasUpdates = false;
 
-      // 1. Notificaciones generales de grupo y eventos (EXCLUYENDO CHAT)
       final generalNotifs = await FirebaseFirestore.instance
           .collection('notifications')
           .where('userId', isEqualTo: userId)
           .where('entityId', isEqualTo: widget.group.id)
           .where('isRead', isEqualTo: false)
-          .where('entityType', whereIn: ['group', 'group_event']) // Eliminado 'group_chat' para que persista en el tab
+          .where('entityType', whereIn: ['group', 'group_event'])
           .get();
 
       for (var doc in generalNotifs.docs) {
@@ -294,108 +91,246 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
         hasUpdates = true;
       }
 
-      // 2. Notificaciones de posts y otras con lógica más flexible
-      final otherNotifs = await FirebaseFirestore.instance
-          .collection('notifications')
-          .where('userId', isEqualTo: userId)
-          .where('isRead', isEqualTo: false)
-          .get(); // Obtener todas las no leídas y filtrar en cliente para máxima seguridad
-
-      for (var doc in otherNotifs.docs) {
-        final data = doc.data();
-        // Ya procesamos las que coinciden exactamente arriba, evitar duplicados en batch
-        if (generalNotifs.docs.any((element) => element.id == doc.id)) continue;
-
-        bool belongsToGroup = false;
-        
-        // Comprobaciones flexibles
-        if (data['groupId'] == widget.group.id) {
-          belongsToGroup = true;
-        } else if (data['entityId'] == widget.group.id) {
-          belongsToGroup = true;
-        } else if (data['additionalData'] is Map) {
-           final additional = data['additionalData'] as Map;
-           if (additional['groupId'] == widget.group.id) {
-             belongsToGroup = true;
-           }
-        }
-
-        // Lógica de rescate para posts sin groupId en la notificación
-        final type = data['entityType'] as String?;
-        if (!belongsToGroup && type == 'group_post' && data['entityId'] != null) {
-           // Si es un post y no pudimos vincularlo, consultamos el post real
-           try {
-             final postId = data['entityId'] as String;
-             final postDoc = await FirebaseFirestore.instance.collection('group_posts').doc(postId).get();
-             if (postDoc.exists) {
-               final postData = postDoc.data();
-               dynamic postGroupRef = postData?['groupId'];
-               String? realGroupId;
-               if (postGroupRef is DocumentReference) {
-                 realGroupId = postGroupRef.id;
-               } else if (postGroupRef is String) {
-                 realGroupId = postGroupRef;
-               }
-               
-               if (realGroupId == widget.group.id) {
-                 belongsToGroup = true;
-               }
-             } else {
-               // El post no existe (fue borrado). 
-               belongsToGroup = true; 
-               debugPrint('⚠️ Marcando notificación huérfana de post grupo eliminado: ${doc.id}');
-             }
-           } catch (e) {
-             debugPrint('Error verificando post grupo huérfano: $e');
-           }
-        }
-        
-        // Verificar tipos específicos relacionados con grupos (EXCLUYENDO CHAT)
-        if (belongsToGroup && (type == 'group_post' || type == 'group_event' || type == 'group')) {
-          batch.update(doc.reference, {'isRead': true});
-          hasUpdates = true;
-        }
-      }
-
       if (hasUpdates) {
         await batch.commit();
-        debugPrint('✅ GROUP_FEED - Notificaciones marcadas como leídas (Robust)');
       }
     } catch (e) {
-      debugPrint('❌ GROUP_FEED - Error al marcar notificaciones como leídas: $e');
+      debugPrint('Error marking notifications: $e');
     }
   }
 
-  // Método para cargar permisos
   Future<void> _loadPermissions() async {
-    // Ya que estos permisos se eliminaron, establecemos todos como true
-    // para que las funcionalidades estén disponibles para todos
     if (mounted) {
       setState(() {
         _canCreateEvents = true;
         _canManageRequests = true;
         _canCreatePosts = true;
-        
-        debugPrint('🔒 GROUP_FEED - Permisos establecidos como disponibles para todos los usuarios');
       });
     }
   }
 
+  Widget _buildEventsSection() {
+    final now = DateTime.now();
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('group_events')
+          .where('groupId', isEqualTo: FirebaseFirestore.instance
+              .collection('groups')
+              .doc(widget.group.id))
+          .orderBy('date')
+          .limit(10)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox.shrink();
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final events = snapshot.data!.docs
+            .map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final date =
+                  (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
+              if (date.isAfter(now) || _isSameDay(date, now)) {
+                return doc;
+              }
+              return null;
+            })
+            .where((element) => element != null)
+            .toList();
+
+        if (events.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        const double cardSize = 210;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.upcomingEvents,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    if (_canCreateEvents)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AdminEventsListScreen(
+                                initialFilterType: 'group',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: cardSize,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: events.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final doc = events[index]!;
+                    final event = GroupEvent.fromFirestore(doc);
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                GroupEventDetailScreen(event: event),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: SizedBox(
+                          width: cardSize,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // 1. Imagen de fondo
+                              if (event.imageUrl.isNotEmpty)
+                                CachedNetworkImage(
+                                  imageUrl: event.imageUrl,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.grey[200],
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.event,
+                                        color: Colors.grey),
+                                  ),
+                                )
+                              else
+                                Container(
+                                  color: Colors.green.withOpacity(0.1),
+                                  child: const Icon(Icons.event,
+                                      size: 48, color: Colors.green),
+                                ),
+
+                              // 2. Gradiente
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.3),
+                                      Colors.black.withOpacity(0.8),
+                                    ],
+                                    stops: const [0.4, 0.7, 1.0],
+                                  ),
+                                ),
+                              ),
+
+                              // 3. Contenido Texto
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      event.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        shadows: [
+                                          Shadow(
+                                            offset: Offset(0, 1),
+                                            blurRadius: 3.0,
+                                            color: Colors.black54,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today,
+                                          size: 14,
+                                          color: Colors.white70,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DateFormat('d MMM • HH:mm',
+                                                  Localizations.localeOf(
+                                                          context)
+                                                      .languageCode)
+                                              .format(event.date),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Determinar si el usuario actual es admin (solo para logging)
-    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final isAdmin = widget.group.isAdmin(userId);
-    
-    // Solo usar permisos directamente, sin combinar con isAdmin
-    debugPrint('🛡️ GROUP_FEED - Permisos: canCreatePosts=$_canCreatePosts, canCreateEvents=$_canCreateEvents, canManageRequests=$_canManageRequests');
-    debugPrint('👑 GROUP_FEED - Admin status (solo informativo): $isAdmin');
-    
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.white,
         elevation: 0,
-        toolbarHeight: 70, // Aumentar altura de la barra
+        scrolledUnderElevation: 2,
         title: GestureDetector(
           onTap: () => Navigator.push(
             context,
@@ -407,52 +342,36 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           ),
           child: Row(
             children: [
-              // Imagen circular del grupo - aumentar tamaño
-              Container(
-                width: 50,
-                height: 50,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  image: widget.group.imageUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(widget.group.imageUrl),
-                          fit: BoxFit.cover,
-                        )
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.green.withOpacity(0.1),
+                backgroundImage: widget.group.imageUrl.isNotEmpty
+                    ? NetworkImage(widget.group.imageUrl)
                       : null,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
                 child: widget.group.imageUrl.isEmpty
-                    ? const Icon(Icons.group, color: Colors.grey, size: 28)
+                    ? const Icon(Icons.group, color: Colors.green)
                     : null,
               ),
-              // Nombre del grupo con textos más grandes
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       widget.group.name,
                       style: const TextStyle(
-                        fontSize: 18,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        fontSize: 16,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       'Grupo',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   ],
@@ -462,30 +381,6 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           ),
         ),
         actions: [
-          // Mostrar botón de crear evento solo si tiene permiso
-          if (_canCreateEvents) 
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.add, color: Colors.white, size: 20),
-              ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.white,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  builder: (context) => CreateGroupEventModal(group: widget.group),
-                );
-              },
-            ),
-          // Mostrar botón de gestionar solicitudes solo si tiene permiso
           if (_canManageRequests) 
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -495,34 +390,27 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                   .where('status', isEqualTo: 'pending')
                   .snapshots(),
               builder: (context, snapshot) {
-                final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
-                
-                return Badge(
+                final pendingCount =
+                    snapshot.hasData ? snapshot.data!.docs.length : 0;
+                return IconButton(
+                  icon: Badge(
                   isLabelVisible: pendingCount > 0,
                   label: Text('$pendingCount'),
-                  backgroundColor: Colors.red,
-                  child: IconButton(
-                    icon: const Icon(Icons.people, color: Colors.white),
+                    child:
+                        const Icon(Icons.people_outline, color: Colors.black87),
+                  ),
                     tooltip: AppLocalizations.of(context)!.manageRequests,
                     onPressed: _navigateToManageRequests,
-                  ),
                 );
               },
             ),
           const SizedBox(width: 8),
         ],
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: CustomScrollView(
         slivers: [
-          // Eventos
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: _buildEventsSection(),
-            ),
-          ),
-          
-          // Posts
+          SliverToBoxAdapter(child: _buildEventsSection()),
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('group_posts')
@@ -533,339 +421,118 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text('Error al cargar los posts')),
+                return SliverToBoxAdapter(
+                  child: Center(child: Text('Error: ${snapshot.error}')),
                 );
               }
 
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
                   child: Center(child: CircularProgressIndicator()),
+                  ),
                 );
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.65,
-                    child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 60, horizontal: 20),
+                    child: Center(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                        // Ícono o ilustración
-                        Container(
-                          height: 120,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.groups_outlined,
-                            size: 60,
-                            color: Colors.green,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Mensaje principal
-                        Text(
-                          AppLocalizations.of(context)!.shareWithGroup,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        // Mensaje secundario
+                          Icon(Icons.groups_outlined,
+                              size: 60, color: Colors.grey[300]),
+                          const SizedBox(height: 16),
                         Text(
                           AppLocalizations.of(context)!.groupNoPostsYet,
+                            textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
+                                color: Colors.grey[500], fontSize: 16),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                        // Botón CTA (solo visible para admins)
-                        if (_canCreatePosts) 
+                          if (_canCreatePosts) ...[
+                            const SizedBox(height: 24),
                           ElevatedButton.icon(
-                            icon: const Icon(Icons.add),
-                            label: Text(AppLocalizations.of(context)!.createPost),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
                             onPressed: () {
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
-                                builder: (context) => CreateGroupPostBottomSheet(
+                                  builder: (context) =>
+                                      CreateGroupPostBottomSheet(
                                   groupId: widget.group.id,
                                 ),
                               );
                             },
-                          ),
+                              icon: const Icon(Icons.add),
+                              label:
+                                  Text(AppLocalizations.of(context)!.createPost),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
-                      ),
                     ),
                   ),
                   ),
                 );
               }
 
-              final posts = snapshot.data!.docs
-                  .map((doc) => GroupPost.fromFirestore(doc))
-                  .toList();
-
-              if (posts.isEmpty) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text('No hay posts disponibles')),
-                );
-              }
-
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    if (index >= posts.length) return null;
-                    final post = posts[index];
-                    
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(post.authorId.id)
-                          .get(),
-                      builder: (context, userSnapshot) {
-                        String userName = 'Usuario';
-                        String userPhotoUrl = '';
-                        
-                        if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
-                          userName = userData['name'] ?? userData['displayName'] ?? 'Usuario';
-                          userPhotoUrl = userData['photoUrl'] ?? '';
-                        }
-                        
-                        // Estilo Instagram para posts
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-                          elevation: 0,
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Cabecera del post (usuario, foto, opciones)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                child: Row(
-                                  children: [
-                                    // Avatar del usuario
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundColor: Colors.grey[200],
-                                      backgroundImage: userPhotoUrl.isNotEmpty 
-                                          ? NetworkImage(userPhotoUrl) 
-                                          : null,
-                                      child: userPhotoUrl.isEmpty
-                                          ? const Icon(Icons.person, size: 20, color: Colors.grey)
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    // Nombre de usuario
-                                    Expanded(
-                                      child: Text(
-                                        userName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    // Menú de opciones (solo visible para el autor)
-                                    if (post.authorId.id == FirebaseAuth.instance.currentUser?.uid)
-                                      IconButton(
-                                        icon: const Icon(Icons.more_vert, size: 20),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            builder: (context) => Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                ListTile(
-                                                  leading: const Icon(Icons.delete, color: Colors.red),
-                                                  title: const Text('Eliminar post', 
-                                                      style: TextStyle(color: Colors.red)),
-                                                  onTap: () async {
-                                                    Navigator.pop(context);
-                                                    // Mostrar diálogo de confirmación
-                                                    final shouldDelete = await showDialog<bool>(
-                                                      context: context,
-                                                      builder: (context) => AlertDialog(
-                                                        title: const Text('Exlcuir post'),
-                                                        content: const Text('Tem certeza que deseja excluir esta publicação?'),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () => Navigator.pop(context, false),
-                                                            child: const Text('Cancelar'),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () => Navigator.pop(context, true),
-                                                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ) ?? false;
-                                                    
-                                                    if (shouldDelete) {
-                                                      try {
-                                                        // Eliminar imágenes si existen
-                                                        for (final imageUrl in post.imageUrls) {
-                                                          try {
-                                                            final ref = FirebaseStorage.instance.refFromURL(imageUrl);
-                                                            await ref.delete();
-                                                          } catch (e) {
-                                                            // Ignorar errores al eliminar imágenes
-                                                            print('Error al eliminar imagen: $e');
-                                                          }
-                                                        }
-                                                        
-                                                        // Eliminar el post
-                                                        await FirebaseFirestore.instance
-                                                            .collection('group_posts')
-                                                            .doc(post.id)
-                                                            .delete();
-                                                        
-                                                        if (context.mounted) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            const SnackBar(content: Text('Publicación eliminada correctamente')),
-                                                          );
-                                                        }
-                                                      } catch (e) {
-                                                        if (context.mounted) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            SnackBar(content: Text('Error al eliminar: $e')),
-                                                          );
-                                                        }
-                                                      }
-                                                    }
-                                                  },
-                                                ),
-                                                const SizedBox(height: 8),
-                                              ],
+                    final doc = snapshot.data!.docs[index];
+                    final post = GroupPost.fromFirestore(doc);
+                    return GroupPostCard(
+                      post: post,
+                      onCommentTap: () => _showComments(context, post),
+                    );
+                  },
+                  childCount: snapshot.data!.docs.length,
                                             ),
                                           );
                                         },
                                       ),
-                                  ],
-                                ),
-                              ),
-                              
-                              // Imagen del post (si existe)
-                              if (post.imageUrls.isNotEmpty)
-                                _buildPostImage(post.imageUrls.first, post.aspectRatio),
-                              
-                              // Acciones (like, comentar)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        post.likes.contains(FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(FirebaseAuth.instance.currentUser?.uid))
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: post.likes.contains(FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(FirebaseAuth.instance.currentUser?.uid))
-                                            ? Colors.red
-                                            : null,
-                                      ),
-                                      onPressed: () => _handleLike(post),
-                                    ),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.chat_bubble_outline),
-                                          onPressed: () => _showComments(context, post),
-                                        ),
-                                        if (post.commentCount > 0)
-                                          Text(
-                                            '${post.commentCount}',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              // Contador de likes
-                              if (post.likes.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 12, bottom: 4),
-                                  child: Text(
-                                    '${post.likes.length} ${post.likes.length == 1 ? 'like' : 'likes'}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                
-                              // Contenido de la publicación (nombre + texto)
-                              if (post.contentText.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                  child: ExpandableText(
-                                    userName: userName,
-                                    text: post.contentText,
-                                  ),
-                                ),
-                                
-                              // Fecha
-                              Padding(
-                                padding: const EdgeInsets.only(left: 12, bottom: 8),
-                                child: Text(
-                                  _formatDate(post.createdAt),
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              
-                              // Divisor
-                              const Divider(height: 1),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  childCount: posts.length,
-                ),
-              );
-            },
-          ),
+          // Espacio extra
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
-      bottomNavigationBar: Container(
+      floatingActionButton: _canCreatePosts
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final images = await picker.pickMultiImage();
+                if (images.isNotEmpty && context.mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreatePostScreen(
+                        initialImages: images,
+                        entityId: widget.group.id,
+                        entityType: PostEntityType.group,
+                      ),
+                    ),
+                  );
+                }
+              },
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.edit),
+              label: Text(AppLocalizations.of(context)!.newPost),
+            )
+          : null,
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -877,14 +544,12 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: 0, // Mantener inicio seleccionado
+        currentIndex: 0,
           onTap: (index) {
-            // Navegar en función del índice seleccionado
             if (index == 0) {
-              // Inicio - Volver a la pantalla principal
-              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil('/home', (route) => false);
             } else if (index == 1) {
-              // Chats - Ir a la pantalla de chat del grupo
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -892,29 +557,6 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                 ),
               );
             } else if (index == 2) {
-              // Para usuarios con permisos: mostrar diálogo de creación
-              // Para usuarios sin permisos: ir a detalles del grupo
-              if (_canCreatePosts) {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => CreateGroupPostBottomSheet(
-                    groupId: widget.group.id,
-                  ),
-                );
-              } else {
-                // Navegar a la pantalla de detalles del grupo
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupDetailsScreen(
-                      group: widget.group,
-                    ),
-                  ),
-                );
-              }
-            } else if (index == 3) {
-              // Perfil - Ir a la pantalla de perfil
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -933,7 +575,8 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
               icon: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('notifications')
-                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                  .where('userId',
+                      isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                     .where('isRead', isEqualTo: false)
                     .where('entityType', isEqualTo: 'group_chat')
                     .snapshots(),
@@ -943,64 +586,19 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                     chatCount = snapshot.data!.docs.where((doc) {
                         final data = doc.data() as Map<String, dynamic>;
                         return data['groupId'] == widget.group.id || 
-                               data['entityId'] == widget.group.id ||
-                               (data['additionalData'] is Map && (data['additionalData'] as Map)['groupId'] == widget.group.id);
-                    }).length;
-                  }
-                  
-                  final icon = chatCount > 0 ? Icons.chat_bubble : Icons.chat_bubble_outline;
-                  
-                  if (chatCount > 0) {
-                    return Badge(
-                      label: Text('$chatCount'),
-                      backgroundColor: Colors.red,
-                      child: Icon(icon, color: AppColors.primary),
-                    );
-                  }
-                  return Icon(icon);
-                },
-              ),
-              activeIcon: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('notifications')
-                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-                    .where('isRead', isEqualTo: false)
-                    .where('entityType', isEqualTo: 'group_chat')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                   int chatCount = 0;
-                  if (snapshot.hasData) {
-                    chatCount = snapshot.data!.docs.where((doc) {
-                        final data = doc.data() as Map<String, dynamic>;
-                        return data['groupId'] == widget.group.id || 
-                               data['entityId'] == widget.group.id ||
-                               (data['additionalData'] is Map && (data['additionalData'] as Map)['groupId'] == widget.group.id);
+                        data['entityId'] == widget.group.id;
                     }).length;
                   }
                   if (chatCount > 0) {
                     return Badge(
                       label: Text('$chatCount'),
-                      backgroundColor: Colors.red,
-                      child: Icon(Icons.chat_bubble, color: AppColors.primary),
-                    );
-                  }
-                  return const Icon(Icons.chat_bubble);
+                    child: const Icon(Icons.chat_bubble_outline),
+                  );
                 }
-              ),
-              label: AppLocalizations.of(context)!.chat,
+                return const Icon(Icons.chat_bubble_outline);
+              },
             ),
-            BottomNavigationBarItem(
-              icon: _canCreatePosts 
-                ? Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 24),
-                  )
-                : const Icon(Icons.info_outline),
-              label: _canCreatePosts ? AppLocalizations.of(context)!.newItem : AppLocalizations.of(context)!.info,
+              label: AppLocalizations.of(context)!.chat,
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline),
@@ -1016,440 +614,424 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           selectedFontSize: 12,
           unselectedFontSize: 12,
           elevation: 0,
-        ),
       ),
     );
   }
   
-  // Construir imagen del post con diferentes relaciones de aspecto
-  Widget _buildPostImage(String imageUrl, String aspectRatio) {
-    double aspectRatioValue = 1.0; // Default square ratio
-    
-    // Determinar la relación de aspecto basada en el valor almacenado
-    if (aspectRatio.contains('portrait')) {
-      aspectRatioValue = 9.0 / 16.0; // Portrait (9:16)
-    } else if (aspectRatio.contains('landscape')) {
-      aspectRatioValue = 16.0 / 9.0; // Landscape (16:9)
-    }
-    
-    return AspectRatio(
-      aspectRatio: aspectRatioValue,
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: BoxFit.contain, // Cambiado de 'cover' a 'contain' para evitar distorsión
-        placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        errorWidget: (context, url, error) => const Center(
-          child: Icon(Icons.error),
-        ),
-        // Removidos los límites de caché para permitir mejor calidad
-        fadeInDuration: const Duration(milliseconds: 200),
-      ),
-    );
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
-  
-  // Formatear fecha en formato relativo
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-    
-    if (difference.inDays > 7) {
-      return DateFormat('d MMM yyyy').format(date);
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}d';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m';
+}
+
+class GroupPostCard extends StatefulWidget {
+  final GroupPost post;
+  final VoidCallback onCommentTap;
+
+  const GroupPostCard({
+    super.key,
+    required this.post,
+    required this.onCommentTap,
+  });
+
+  @override
+  State<GroupPostCard> createState() => _GroupPostCardState();
+}
+
+class _GroupPostCardState extends State<GroupPostCard> {
+  int _currentImageIndex = 0;
+  final PageController _pageController = PageController();
+  late final Future<List<String>> _taggedUserNamesFuture;
+
+  Future<void> _handleLike() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final postRef =
+        FirebaseFirestore.instance.collection('group_posts').doc(widget.post.id);
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    final isLiked = widget.post.likes.any((ref) => ref.id == userId);
+
+    if (isLiked) {
+      await postRef.update({
+        'likes': FieldValue.arrayRemove([userRef])
+      });
     } else {
-      return 'Ahora';
+      await postRef.update({
+        'likes': FieldValue.arrayUnion([userRef])
+      });
     }
   }
 
-  Widget _buildEventsSection() {
-    final now = DateTime.now();
-    
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('group_events')
-          .where('groupId', isEqualTo: FirebaseFirestore.instance.collection('groups').doc(widget.group.id))
-          .orderBy('date')
-          .limit(10)
-          .snapshots(),
-      builder: (context, snapshot) {
-        // Si está cargando, no mostramos nada
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox.shrink();
-        }
-        
-        // Si no hay datos o no hay eventos, no mostramos nada
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        
-        // Filtrar eventos para obtener solo los que son futuros
-        final events = snapshot.data!.docs
-            .map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              final date = (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
-              if (date.isAfter(now) || _isSameDay(date, now)) {
-                return doc;
-              }
-              return null;
-            })
-            .where((element) => element != null)
-            .toList();
-            
-        if (events.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        
-        // Tenemos eventos, ahora mostramos la sección
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
+  @override
+  void initState() {
+    super.initState();
+    _taggedUserNamesFuture = _fetchTaggedUserNames();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final isLiked = widget.post.likes.any((ref) => ref.id == userId);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Colors.grey[100]!),
+          bottom: BorderSide(color: Colors.grey[100]!),
+        ),
+      ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Próximos eventos",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    if (_canCreateEvents) 
-                      IconButton(
-                        icon: const Icon(
-                          Icons.admin_panel_settings,
-                          color: Colors.green,
-                        ),
-                        tooltip: 'Administrar eventos',
+          // 1. Header
+          ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            leading: FutureBuilder<DocumentSnapshot>(
+              future: widget.post.authorId.get(),
+              builder: (context, snapshot) {
+                String? photoUrl;
+                if (snapshot.hasData && snapshot.data!.exists) {
+                  final data = snapshot.data!.data() as Map<String, dynamic>;
+                  photoUrl = data['photoUrl'];
+                }
+                return CircleAvatar(
+                  backgroundImage:
+                      photoUrl != null && photoUrl.isNotEmpty
+                          ? CachedNetworkImageProvider(photoUrl)
+                          : null,
+                  backgroundColor: Colors.grey[200],
+                  child: photoUrl == null || photoUrl.isEmpty
+                      ? const Icon(Icons.person, color: Colors.grey)
+                      : null,
+                );
+              },
+            ),
+            title: FutureBuilder<DocumentSnapshot>(
+              future: widget.post.authorId.get(),
+              builder: (context, snapshot) {
+                String name = 'Usuario';
+                if (snapshot.hasData && snapshot.data!.exists) {
+                  final data = snapshot.data!.data() as Map<String, dynamic>;
+                  name = data['name'] ?? data['displayName'] ?? 'Usuario';
+                }
+                return Text(name,
+                    style: const TextStyle(fontWeight: FontWeight.bold));
+              },
+            ),
+            subtitle: Text(
+              _formatDate(widget.post.createdAt),
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+            ),
+            trailing: widget.post.authorId.id == userId
+                ? IconButton(
+                    icon: const Icon(Icons.more_vert),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AdminEventsListScreen(
-                                initialFilterType: 'group',
-                              ),
-                            ),
-                          ).then((value) {
-                            // Al volver, actualizar la lista de eventos
-                            setState(() {});
+                      _showOptionsBottomSheet(context);
+                    },
+                  )
+                : null,
+          ),
+
+          // 2. Carousel
+          if (widget.post.imageUrls.isNotEmpty)
+            GestureDetector(
+              onDoubleTap: _handleLike,
+              child: AspectRatio(
+                aspectRatio: _getAspectRatio(widget.post.aspectRatio),
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      itemCount: widget.post.imageUrls.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentImageIndex = index;
                           });
                         },
+                  itemBuilder: (context, index) {
+                        return CachedNetworkImage(
+                          imageUrl: widget.post.imageUrls[index],
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[100],
+                            child: const Center(
+                                child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Center(child: Icon(Icons.error)),
+                        );
+                      },
+                    ),
+                    if (widget.post.imageUrls.length > 1)
+                      Positioned(
+                        bottom: 10,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: widget.post.imageUrls
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                      return Container(
+                              width: 6.0,
+                              height: 6.0,
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 3.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _currentImageIndex == entry.key
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.5),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
                   ],
-                ),
-              ),
-              SizedBox(
-                height: 130, // Altura para tarjetas 16:9
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: events.length,
-                  itemBuilder: (context, index) {
-                    final doc = events[index]!;
-                    final data = doc.data() as Map<String, dynamic>;
-                    
-                    final title = data['title'] ?? 'Sin título';
-                    final date = (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
-                    final imageUrl = data['imageUrl'] ?? '';
-                    final description = data['description'] ?? '';
-                    
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GroupEventDetailScreen( 
-                              event: GroupEvent.fromFirestore(doc),
+                                ),
+                              ),
                             ),
+                            
+          // 3. Acciones (Likes/Comentarios)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Row(
+                                  children: [
+                InkWell(
+                  onTap: _handleLike,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: isLiked ? Colors.red : Colors.black87,
+                      size: 26,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: widget.onCommentTap,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.black87,
+                      size: 24,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+          ),
+
+          // 4. Descripción
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                if (widget.post.likes.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      '${widget.post.likes.length} Me gusta',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                        color: Colors.grey[900],
+                      ),
+                    ),
+                  ),
+                if (widget.post.contentText.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: FutureBuilder<DocumentSnapshot>(
+                      future: widget.post.authorId.get(),
+                      builder: (context, snapshot) {
+                        String name = '';
+                        if (snapshot.hasData && snapshot.data!.exists) {
+                          final data =
+                              snapshot.data!.data() as Map<String, dynamic>;
+                          name =
+                              data['name'] ?? data['displayName'] ?? 'Usuario';
+                        }
+                        return RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 14),
+                            children: [
+                              if (name.isNotEmpty)
+                                TextSpan(
+                                  text: '$name ',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              TextSpan(
+                                text: widget.post.contentText,
+                                style: const TextStyle(height: 1.4),
+                              ),
+                            ],
                           ),
                         );
                       },
-                      child: Container(
-                        width: 200,
-                        height: 113, // Proporción 16:9 (200 / 16 * 9 = 112.5)
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                    ),
+                  ),
+                if (widget.post.commentCount > 0)
+                  GestureDetector(
+                    onTap: widget.onCommentTap,
+                    child: Text(
+                      'Ver los ${widget.post.commentCount} comentarios',
+                      style:
+                          TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                  ),
+                if (widget.post.location != null &&
+                    widget.post.location!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.place_outlined,
+                            size: 16, color: Colors.grey[700]),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            widget.post.location!,
+                            style: TextStyle(
+                                color: Colors.grey[700], fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Stack(
-                          children: [
-                            // Imagen de fondo
-                            Positioned.fill(
-                              child: imageUrl.isNotEmpty
-                                ? Image.network(
-                                    imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        color: Colors.grey[300],
-                                        child: const Icon(Icons.image, size: 50, color: Colors.grey),
-                                      );
-                                    },
-                                  )
-                                : Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.event, size: 50, color: Colors.grey),
-                                  ),
+                      ],
+                    ),
+                  ),
+                FutureBuilder<List<String>>(
+                  future: _taggedUserNamesFuture,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    final names = snapshot.data!;
+                    final extra =
+                        names.length > 3 ? ' +${names.length - 3}' : '';
+                    final visibleNames = names.take(3).join(', ');
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Row(
+                        children: [
+                          Icon(Icons.people_alt_outlined,
+                              size: 16, color: Colors.grey[700]),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Con $visibleNames$extra',
+                              style: TextStyle(
+                                  color: Colors.grey[700], fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            
-                            // Gradiente superpuesto para mejorar la legibilidad
-                            Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.black.withOpacity(0.7),
-                                    ],
-                                    stops: const [0.5, 1.0],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            // Insignia de grupo
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.group, color: Colors.white, size: 12),
-                                    SizedBox(width: 2),
-                                    Text(
-                                      'Grupo',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            
-                            // Fecha
-                            Positioned(
-                              top: 8,
-                              left: 8,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  DateFormat('dd/MM/yyyy').format(date),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            // Contenido (Título y detalles)
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      title,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (description.isNotEmpty) ...[
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        description,
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 10,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                    
-                                    // Hora del evento
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.access_time,
-                                          size: 10,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   },
                 ),
+                const SizedBox(height: 12),
+              ],
+                ),
               ),
             ],
           ),
-        );
-      },
     );
   }
-  
-  /*
-  Widget _buildInteractionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isActive = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
+
+  void _showOptionsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isActive ? Colors.red : Colors.grey,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: Text(AppLocalizations.of(context)!.deletePost,
+                style: const TextStyle(color: Colors.red)),
+            onTap: () async {
+              Navigator.pop(context);
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(AppLocalizations.of(context)!.deletePost),
+                  content: Text(
+                      AppLocalizations.of(context)!.deletePostConfirmation),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(AppLocalizations.of(context)!.cancel)),
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(AppLocalizations.of(context)!.delete,
+                            style: const TextStyle(color: Colors.red))),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                try {
+                  for (var url in widget.post.imageUrls) {
+                    try {
+                      await FirebaseStorage.instance.refFromURL(url).delete();
+                    } catch (_) {}
+                  }
+                  await FirebaseFirestore.instance
+                      .collection('group_posts')
+                      .doc(widget.post.id)
+                      .delete();
+                } catch (e) {
+                  // Error handling
+                }
+              }
+            },
+          ),
+        ],
       ),
     );
   }
-  */
 
-  // Función para verificar si dos fechas son el mismo día
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+  double _getAspectRatio(String aspectRatioString) {
+    if (aspectRatioString.contains('portrait')) return 4 / 5;
+    if (aspectRatioString.contains('landscape')) return 16 / 9;
+    return 1.0;
   }
-}
 
-class ExpandableText extends StatefulWidget {
-  final String userName;
-  final String text;
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inDays > 7) return DateFormat('d MMM').format(date);
+    if (diff.inDays > 0) return '${diff.inDays}d';
+    if (diff.inHours > 0) return '${diff.inHours}h';
+    return 'Ahora';
+  }
 
-  const ExpandableText({
-    Key? key,
-    required this.userName,
-    required this.text,
-  }) : super(key: key);
-
-  @override
-  State<ExpandableText> createState() => _ExpandableTextState();
-}
-
-class _ExpandableTextState extends State<ExpandableText> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '${widget.userName} ',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 14,
-                ),
-              ),
-              TextSpan(
-                text: widget.text,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          maxLines: _expanded ? null : 2,
-          overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-        ),
-        if (widget.text.length > 60 && !_expanded)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _expanded = true;
-              });
-            },
-            child: Text(
-              'ver más',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-      ],
-    );
+  Future<List<String>> _fetchTaggedUserNames() async {
+    if (widget.post.taggedUsers.isEmpty) return [];
+    final List<String> names = [];
+    for (final ref in widget.post.taggedUsers) {
+      try {
+        final snap = await ref.get();
+        if (snap.exists) {
+          final data = snap.data() as Map<String, dynamic>;
+          final name = data['name'] ?? data['displayName'];
+          if (name != null && name.toString().isNotEmpty) {
+            names.add(name.toString());
+          }
+        }
+      } catch (_) {}
+    }
+    return names;
   }
 }

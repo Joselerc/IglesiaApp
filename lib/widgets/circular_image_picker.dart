@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+
 import '../services/image_service.dart';
 
 class CircularImagePicker extends StatefulWidget {
@@ -18,7 +22,7 @@ class CircularImagePicker extends StatefulWidget {
   final bool showEditIconOutside;
 
   const CircularImagePicker({
-    Key? key,
+    super.key,
     required this.documentId,
     required this.currentImageUrl,
     required this.storagePath,
@@ -28,14 +32,13 @@ class CircularImagePicker extends StatefulWidget {
     this.isEditable = true,
     this.size = 80,
     this.showEditIconOutside = false,
-  }) : super(key: key);
+  });
 
   @override
   State<CircularImagePicker> createState() => _CircularImagePickerState();
 }
 
 class _CircularImagePickerState extends State<CircularImagePicker> {
-  late final cropController = CropController();
   bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
 
@@ -44,23 +47,21 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile == null) return;
 
-      setState(() {
-        _isUploading = true;
-      });
+      final bytes = await File(pickedFile.path).readAsBytes();
+      final croppedFile = await _cropToCircle(bytes);
+      if (croppedFile == null) return;
 
-      final image = File(pickedFile.path);
-      
-      // Comprimir la imagen para reducir su tamaño
-      final compressedImage = await ImageService().compressImage(image, quality: 85);
-      final file = compressedImage ?? image;
+      setState(() => _isUploading = true);
 
-      // Subir la imagen a Firebase Storage
+      final compressedImage =
+          await ImageService().compressImage(croppedFile, quality: 85);
+      final file = compressedImage ?? croppedFile;
+
       final storageRef = FirebaseStorage.instance
           .ref()
           .child(widget.storagePath)
           .child('${widget.documentId}.jpg');
 
-      // Configurar los metadatos para el tipo de archivo
       final metadata = SettableMetadata(
         contentType: 'image/jpeg',
         customMetadata: {'picked-file-path': file.path},
@@ -69,7 +70,6 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
       await storageRef.putFile(file, metadata);
       final imageUrl = await storageRef.getDownloadURL();
 
-      // Actualizar la URL de la imagen en Firestore
       await FirebaseFirestore.instance
           .collection(widget.collectionName)
           .doc(widget.documentId)
@@ -92,6 +92,85 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
     }
   }
 
+  Future<File?> _cropToCircle(Uint8List bytes) async {
+    final parentContext = context;
+    final croppedBytes = await showDialog<Uint8List>(
+      // ignore: use_build_context_synchronously
+      context: parentContext,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final controller = CropController();
+        bool isCropping = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Scaffold(
+              backgroundColor: Colors.black,
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(dialogContext),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: isCropping
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor:
+                                          AlwaysStoppedAnimation(Colors.white),
+                                    ),
+                                  )
+                                : const Icon(Icons.check, color: Colors.white),
+                            onPressed: isCropping
+                                ? null
+                                : () {
+                                    setState(() => isCropping = true);
+                                    controller.crop();
+                                  },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Crop(
+                          controller: controller,
+                          image: bytes,
+                          aspectRatio: 1,
+                          withCircleUi: true,
+                          maskColor: Colors.black.withValues(alpha: 0.55),
+                          onCropped: (data) {
+                            Navigator.pop(dialogContext, data);
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (croppedBytes == null) return null;
+    final tempDir = await getTemporaryDirectory();
+    final filePath =
+        '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final file = await File(filePath).writeAsBytes(croppedBytes);
+    return file;
+  }
+
   bool get isValidUrl {
     try {
       final uri = Uri.parse(widget.currentImageUrl);
@@ -112,7 +191,7 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
             height: widget.size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).primaryColor.withOpacity(0.2),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
               border: Border.all(
                 color: Colors.white,
                 width: 3,
@@ -138,14 +217,16 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
                     Container(
                       width: widget.size,
                       height: widget.size,
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       child: const Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
                     ),
-                  if (widget.isEditable && !_isUploading && !widget.showEditIconOutside)
+                  if (widget.isEditable &&
+                      !_isUploading &&
+                      !widget.showEditIconOutside)
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -194,4 +275,4 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
       ],
     );
   }
-} 
+}

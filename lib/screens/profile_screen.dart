@@ -35,6 +35,7 @@ import '../services/account_deletion_service.dart'; // <-- Import del servicio d
 import 'admin/delete_ministries_screen.dart';
 import 'admin/delete_groups_screen.dart';
 import 'admin/kids_admin_screen.dart'; // <-- AÑADIR IMPORT PARA LA NUEVA PANTALLA
+import 'admin/families_admin_screen.dart';
 import '../widgets/skeletons/profile_screen_skeleton.dart';
 // import '../widgets/skeletons/additional_fields_skeleton.dart'; // No se usa directamente
 import './statistics/church_statistics_screen.dart'; // <-- IMPORTAR NUEVA PANTALLA
@@ -1045,6 +1046,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen())),
                           ),
                           _buildPermissionControlledTile(
+                            permissionKey: 'manage_family_profiles',
+                            icon: Icons.family_restroom_outlined,
+                            title: AppLocalizations.of(context)!.familiesTitle,
+                            subtitle: AppLocalizations.of(context)!.manageFamilyProfiles,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => FamiliesAdminScreen()),
+                            ),
+                          ),
+                          _buildPermissionControlledTile(
                             permissionKey: 'manage_pages',
                             icon: Icons.edit_document, 
                             title: AppLocalizations.of(context)!.managePages,
@@ -1290,8 +1301,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     subtitle: AppLocalizations.of(context)!.manageFamilyProfiles,
                                     iconColor: Colors.teal.shade700, 
                                     onTap: () {
-                                      // TODO: Navegar a la pantalla de gestión de perfiles familiares
-                                      print(AppLocalizations.of(context)!.navigateToFamilyProfiles);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FamiliesAdminScreen(),
+                                        ),
+                                      );
                                     },
                                   ),
                                   _buildPermissionControlledTile(

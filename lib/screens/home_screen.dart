@@ -23,6 +23,7 @@ import '../widgets/home/ministries_section.dart';
 import '../widgets/home/groups_section.dart';
 import '../widgets/home/private_prayer_section.dart';
 import '../widgets/home/public_prayer_section.dart';
+import '../widgets/home/families_section.dart';
 import 'dart:async';
 import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
@@ -655,6 +656,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 displayTitle: section.title);
                           case HomeScreenSectionType.groups:
                             return GroupsSection(displayTitle: section.title);
+                          case HomeScreenSectionType.families:
+                            return FamiliesSection(displayTitle: section.title);
                           case HomeScreenSectionType.privatePrayer:
                             return PrivatePrayerSection(
                                 displayTitle: section.title);

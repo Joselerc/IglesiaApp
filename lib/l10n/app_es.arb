@@ -4384,5 +4384,66 @@
   "horizontal": "Horizontal",
   "addImages": "Añadir imágenes",
   "addMoreImages": "Añadir más imágenes",
-  "upcomingEvents": "Próximos eventos"
+  "upcomingEvents": "Próximos eventos",
+
+
+  "familiesTitle": "Familias",
+  "familyInvitations": "Invitaciones de familia",
+  "createFamily": "Crear familia",
+  "joinFamily": "Unirme a una familia",
+  "noFamiliesYet": "Aun no perteneces a ninguna familia",
+  "familyFallbackName": "Familia",
+  "familyMembersCount": "{count} miembros",
+  "@familyMembersCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "familyMembersSummary": "{count} familias",
+  "@familyMembersSummary": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "familyNameRequired": "El nombre de la familia es obligatorio",
+  "familyCreated": "Familia creada",
+  "familyNameLabel": "Nombre de la familia",
+  "familyNamePlaceholder": "Ej. Familia Rodriguez",
+  "searchFamilies": "Buscar familias...",
+  "noFamiliesFound": "No se encontraron familias",
+  "alreadyMember": "Ya eres miembro",
+  "requestPending": "Solicitud pendiente",
+  "selectFamilyRole": "Selecciona tu rol",
+  "joinRequestSent": "Solicitud enviada",
+  "requestJoinAction": "Solicitar Unirme",
+  "invitationLabel": "Invitacion",
+  "requestLabel": "Solicitud",
+  "inviteAccepted": "Invitacion aceptada",
+  "inviteRejected": "Invitacion rechazada",
+  "inviteMembers": "Invitar miembros",
+  "sendInvitations": "Enviar invitaciones",
+  "invitesSent": "Invitaciones enviadas",
+  "changeRole": "Cambiar rol",
+  "makeAdmin": "Hacer admin",
+  "removeAdmin": "Quitar admin",
+  "removeMember": "Eliminar miembro",
+  "pendingRequests": "Solicitudes pendientes",
+  "noPendingRequests": "No hay solicitudes pendientes",
+  "sentInvitations": "Invitaciones enviadas",
+  "cancelInvitation": "Cancelar invitacion",
+  "unknownUser": "Usuario desconocido",
+  "leaveFamily": "Salir de la familia",
+  "familyNotFound": "Familia no encontrada",
+  "familyDetailTitle": "Detalle de la familia",
+  "statusPending": "Pendiente",
+  "statusAccepted": "Aceptada",
+  "statusRejected": "Rechazada",
+  "familyRoleFather": "Padre",
+  "familyRoleMother": "Madre",
+  "familyRoleChild": "Hijo",
+  "familyRoleTutor": "Tutor",
+  "familyRoleOther": "Otro",
+  "familyMembersLabel": "Miembros de la familia",
+  "adminLabel": "Admin",
+  "noInvitesFound": "No tienes invitaciones"
 }
