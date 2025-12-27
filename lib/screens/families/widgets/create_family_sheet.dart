@@ -11,6 +11,8 @@ import '../../../theme/app_text_styles.dart';
 import '../../../services/image_service.dart';
 import 'modal_sheet_scaffold.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../widgets/select_users_widget.dart';
 
 Future<void> showCreateFamilySheet(BuildContext context) {
   return showModalBottomSheet(
@@ -58,12 +60,64 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
   final FamilyGroupService _familyService = FamilyGroupService();
   bool _isSaving = false;
   File? _selectedImage;
+  final List<_SelectedInvitee> _invitees = [];
+  final Map<String, Map<String, dynamic>?> _userCache = {};
+  bool _showNameError = false;
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+  static const List<String> _roleOptions = [
+    'padre',
+    'madre',
+    'abuelo',
+    'abuela',
+    'tio',
+    'tia',
+    'hijo',
+    'hija',
+    'tutor',
+    'admin',
+    'otro',
+  ];
+
+  String _roleLabel(AppLocalizations strings, String role) {
+    switch (role) {
+      case 'padre':
+        return strings.familyRoleFather;
+      case 'madre':
+        return strings.familyRoleMother;
+      case 'abuelo':
+        return strings.familyRoleGrandfather;
+      case 'abuela':
+        return strings.familyRoleGrandmother;
+      case 'tio':
+        return strings.familyRoleUncle;
+      case 'tia':
+        return strings.familyRoleAunt;
+      case 'hijo':
+        return strings.familyRoleChild;
+      case 'hija':
+        return strings.familyRoleDaughter;
+      case 'tutor':
+        return strings.familyRoleTutor;
+      case 'admin':
+        return strings.adminLabel;
+      default:
+        return strings.familyRoleOther;
+    }
+  }
+
+  Future<Map<String, dynamic>?> _fetchUser(String uid) async {
+    if (_userCache.containsKey(uid)) return _userCache[uid];
+    final snap =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final data = snap.data();
+    _userCache[uid] = data;
+    return data;
   }
 
   Future<void> _pickImage() async {
@@ -178,6 +232,35 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
     return file.path;
   }
 
+  Future<void> _openInviteSelector() async {
+    final strings = AppLocalizations.of(context)!;
+    final selected = await showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: SelectUsersWidget(
+              title: strings.inviteMembers,
+              confirmButtonText: strings.sendInvitations,
+              emptyStateText: strings.noUsersFound,
+              searchPlaceholder: strings.searchUsers,
+              onConfirm: (ids) => Navigator.pop(context, ids),
+            ),
+          ),
+        );
+      },
+    );
+    if (selected == null || selected.isEmpty) return;
+    setState(() {
+      for (final id in selected) {
+        if (_invitees.any((i) => i.userId == id)) continue;
+        _invitees.add(_SelectedInvitee(userId: id, role: 'otro'));
+      }
+    });
+  }
+
   Future<void> _createFamily() async {
     final strings = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
@@ -189,10 +272,10 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
     final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(strings.familyNameRequired)));
+      setState(() => _showNameError = true);
       return;
     }
+    setState(() => _showNameError = false);
     setState(() => _isSaving = true);
     try {
       String? photoUrl;
@@ -208,11 +291,24 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
         photoUrl = await storageRef.getDownloadURL();
       }
 
-      await _familyService.createFamily(
+      final familyId = await _familyService.createFamily(
         name,
         description: description,
         photoUrl: photoUrl,
       );
+      if (_invitees.isNotEmpty) {
+        final grouped = <String, List<String>>{};
+        for (final invitee in _invitees) {
+          grouped.putIfAbsent(invitee.role, () => []).add(invitee.userId);
+        }
+        for (final entry in grouped.entries) {
+          await _familyService.inviteMembers(
+            familyId: familyId,
+            userIds: entry.value,
+            role: entry.key,
+          );
+        }
+      }
       if (mounted) {
         if (widget.closeOnSuccess) {
           Navigator.of(context).pop(true);
@@ -237,106 +333,231 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
     final strings = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Center(
-          child: GestureDetector(
-            onTap: _isSaving ? null : _pickImage,
-            child: CircleAvatar(
-              radius: 48,
-              backgroundColor: colorScheme.surfaceContainerHighest,
-              backgroundImage:
-                  _selectedImage != null ? FileImage(_selectedImage!) : null,
-              child: _selectedImage == null
-                  ? Icon(Icons.add_a_photo, color: colorScheme.primary, size: 28)
-                  : null,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          strings.familyNameLabel,
-          style: AppTextStyles.subtitle2.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _nameController,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            hintText: strings.familyNamePlaceholder,
-            prefixIcon: const Icon(Icons.family_restroom_outlined),
-            filled: true,
-            fillColor: colorScheme.surfaceContainerHighest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          strings.descriptionOptional,
-          style: AppTextStyles.subtitle2.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _descriptionController,
-          textCapitalization: TextCapitalization.sentences,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: strings.descriptionHint,
-            filled: true,
-            fillColor: colorScheme.surfaceContainerHighest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Center(
-          child: Text(
-            _selectedImage == null
-                ? strings.tapToAddImage
-                : strings.tapToChangeImage,
-            style: AppTextStyles.bodyText2.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            icon: _isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.add),
-            label: Text(strings.createFamily),
-            onPressed: _isSaving ? null : _createFamily,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: GestureDetector(
+              onTap: _isSaving ? null : _pickImage,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 48,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    backgroundImage:
+                        _selectedImage != null ? FileImage(_selectedImage!) : null,
+                    child: _selectedImage == null
+                        ? Icon(Icons.add_a_photo,
+                            color: colorScheme.primary, size: 28)
+                        : null,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _selectedImage == null
+                        ? strings.tapToAddImage
+                        : strings.tapToChangeImage,
+                    style: AppTextStyles.bodyText2.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          strings.familyNameRequired,
-          style: AppTextStyles.caption.copyWith(
-            color: colorScheme.outline,
+          const SizedBox(height: 16),
+          Text(
+            strings.familyNameLabel,
+            style: AppTextStyles.subtitle2.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          TextField(
+            controller: _nameController,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              hintText: strings.familyNamePlaceholder,
+              prefixIcon: const Icon(Icons.family_restroom_outlined),
+              filled: true,
+              fillColor: colorScheme.surfaceContainerHighest,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          if (_showNameError) ...[
+            const SizedBox(height: 6),
+            Text(
+              strings.familyNameRequired,
+              style: AppTextStyles.caption.copyWith(
+                color: colorScheme.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Text(
+            strings.descriptionOptional,
+            style: AppTextStyles.subtitle2.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _descriptionController,
+            textCapitalization: TextCapitalization.sentences,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: strings.descriptionHint,
+              filled: true,
+              fillColor: colorScheme.surfaceContainerHighest,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Divider(color: colorScheme.outlineVariant),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  strings.inviteMembers,
+                  style: AppTextStyles.subtitle2
+                      .copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _isSaving ? null : _openInviteSelector,
+                icon: const Icon(Icons.person_add_alt_1),
+                label: Text(strings.add),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (_invitees.isEmpty)
+            Text(
+              strings.noUsersFound,
+              style: AppTextStyles.bodyText2.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            )
+          else
+            Column(
+              children: _invitees
+                  .map(
+                    (inv) => FutureBuilder<Map<String, dynamic>?>(
+                      future: _fetchUser(inv.userId),
+                      builder: (context, snapshot) {
+                        final data = snapshot.data;
+                        final name = data != null
+                            ? (data['displayName'] ??
+                                '${data['name'] ?? ''} ${data['surname'] ?? ''}'
+                                    .trim())
+                            : inv.userId;
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                            border:
+                                Border.all(color: colorScheme.outlineVariant),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: AppTextStyles.subtitle2.copyWith(
+                                          fontWeight: FontWeight.w700),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: inv.role,
+                                        isDense: true,
+                                        borderRadius: BorderRadius.circular(12),
+                                        items: _roleOptions
+                                            .map(
+                                              (r) => DropdownMenuItem(
+                                                value: r,
+                                                child: Text(
+                                                  _roleLabel(strings, r),
+                                                  style: AppTextStyles.caption
+                                                      .copyWith(
+                                                    color: colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        onChanged: (value) {
+                                          if (value == null) return;
+                                          setState(() {
+                                            inv.role = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    _invitees.remove(inv);
+                                  });
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.add),
+              label: Text(strings.createFamily),
+              onPressed: _isSaving ? null : _createFamily,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+        ],
+      ),
     );
   }
+}
+
+class _SelectedInvitee {
+  _SelectedInvitee({required this.userId, required this.role});
+  final String userId;
+  String role;
 }

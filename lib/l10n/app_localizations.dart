@@ -14750,11 +14750,41 @@ abstract class AppLocalizations {
   /// **'Madre'**
   String get familyRoleMother;
 
+  /// No description provided for @familyRoleGrandfather.
+  ///
+  /// In es, this message translates to:
+  /// **'Abuelo'**
+  String get familyRoleGrandfather;
+
+  /// No description provided for @familyRoleGrandmother.
+  ///
+  /// In es, this message translates to:
+  /// **'Abuela'**
+  String get familyRoleGrandmother;
+
+  /// No description provided for @familyRoleUncle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tío'**
+  String get familyRoleUncle;
+
+  /// No description provided for @familyRoleAunt.
+  ///
+  /// In es, this message translates to:
+  /// **'Tía'**
+  String get familyRoleAunt;
+
   /// No description provided for @familyRoleChild.
   ///
   /// In es, this message translates to:
   /// **'Hijo'**
   String get familyRoleChild;
+
+  /// No description provided for @familyRoleDaughter.
+  ///
+  /// In es, this message translates to:
+  /// **'Hija'**
+  String get familyRoleDaughter;
 
   /// No description provided for @familyRoleTutor.
   ///

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../l10n/app_localizations.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -85,8 +86,11 @@ class _CircularImagePickerState extends State<CircularImagePicker> {
         setState(() {
           _isUploading = false;
         });
+        final strings = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+              content: Text(
+                  strings != null ? strings.somethingWentWrong : 'Error: $e')),
         );
       }
     }

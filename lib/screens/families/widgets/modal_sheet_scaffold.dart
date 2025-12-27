@@ -10,6 +10,8 @@ class ModalSheetScaffold extends StatelessWidget {
     this.padding,
     this.showHandle = true,
     this.showDismiss = true,
+    this.titleStyle,
+    this.useScrollView = true,
   });
 
   final String title;
@@ -18,6 +20,8 @@ class ModalSheetScaffold extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final bool showHandle;
   final bool showDismiss;
+  final TextStyle? titleStyle;
+  final bool useScrollView;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +56,10 @@ class ModalSheetScaffold extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: AppTextStyles.subtitle1.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: titleStyle ??
+                              AppTextStyles.subtitle1.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                       if (trailing != null) trailing!,
@@ -67,12 +72,21 @@ class ModalSheetScaffold extends StatelessWidget {
                   ),
                 ),
                 Flexible(
-                  child: SingleChildScrollView(
-                    padding: (padding ?? const EdgeInsets.fromLTRB(16, 0, 16, 20))
-                        .add(EdgeInsets.only(bottom: bottomInset)),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: child,
-                  ),
+                  child: useScrollView
+                      ? SingleChildScrollView(
+                          padding:
+                              (padding ?? const EdgeInsets.fromLTRB(16, 0, 16, 20))
+                                  .add(EdgeInsets.only(bottom: bottomInset)),
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          child: child,
+                        )
+                      : Padding(
+                          padding:
+                              (padding ?? const EdgeInsets.fromLTRB(16, 0, 16, 20))
+                                  .add(EdgeInsets.only(bottom: bottomInset)),
+                          child: child,
+                        ),
                 ),
               ],
             ),

@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.masiglesia.demo"
-    compileSdkVersion 35
+    compileSdkVersion 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -44,7 +44,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 29
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 9   
          versionName "1.3.2"
         
@@ -114,8 +114,8 @@ dependencies {
     // AndroidX Window con versión más estable
     implementation 'androidx.window:window:1.4.0'
     
-    // Agregar dependencia para desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    // Agregar dependencia para desugaring (requerido por flutter_local_notifications)
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
@@ -125,4 +125,17 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-messaging")
+}
+
+// Workaround (Windows): sometimes Flutter's asset bundling tries to copy assets into an
+// existing `flutter_assets` output and fails with PathExistsException (errno=183).
+// Ensure the folder is recreated fresh for each build variant.
+afterEvaluate {
+    tasks.matching { it.name.startsWith("compileFlutterBuild") }.configureEach { t ->
+        t.doFirst {
+            def variantDir = (t.name - "compileFlutterBuild").toLowerCase()
+            def flutterAssetsDir = new File(rootDir.parentFile, "build/app/intermediates/flutter/${variantDir}/flutter_assets")
+            delete(flutterAssetsDir)
+        }
+    }
 }

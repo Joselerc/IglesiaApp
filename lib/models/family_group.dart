@@ -19,7 +19,12 @@ class FamilyGroup {
   static const List<String> roleOptions = [
     'padre',
     'madre',
+    'abuelo',
+    'abuela',
+    'tio',
+    'tia',
     'hijo',
+    'hija',
     'tutor',
     'otro',
     'admin', // rol técnico para etiquetar administradores

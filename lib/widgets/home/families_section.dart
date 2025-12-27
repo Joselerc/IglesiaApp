@@ -34,6 +34,10 @@ class FamiliesSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final titleText = (displayTitle == null || displayTitle!.trim().isEmpty)
+        ? strings.familiesTitle
+        : displayTitle!;
+
     return StreamBuilder<int>(
       stream: _pendingInvitesCount(userId),
       builder: (context, inviteSnapshot) {
@@ -44,87 +48,100 @@ class FamiliesSection extends StatelessWidget {
             final familiesCount = snapshot.data?.length ?? 0;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: AppCard(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FamiliesHomeScreen(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titleText,
+                    style: AppTextStyles.headline3.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: AppColors.warmSand,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          child: const Icon(
-                            Icons.family_restroom_outlined,
-                            size: 32,
-                            color: AppColors.primary,
-                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FamiliesHomeScreen(),
                         ),
-                        if (invites > 0)
-                          Positioned(
-                            top: -4,
-                            right: -4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              decoration: const BoxDecoration(
+                                color: AppColors.warmSand,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
                               ),
-                              constraints:
-                                  const BoxConstraints(minWidth: 20, minHeight: 20),
-                              child: Center(
-                                child: Text(
-                                  '$invites',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                              padding: const EdgeInsets.all(12),
+                              child: const Icon(
+                                Icons.family_restroom_outlined,
+                                size: 32,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            if (invites > 0)
+                              Positioned(
+                                top: -4,
+                                right: -4,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  constraints:
+                                      const BoxConstraints(minWidth: 20, minHeight: 20),
+                                  child: Center(
+                                    child: Text(
+                                      '$invites',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                titleText,
+                                style: AppTextStyles.subtitle1.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                strings.familyMembersSummary(familiesCount),
+                                style: AppTextStyles.bodyText2.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        const Icon(Icons.chevron_right),
                       ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            displayTitle ?? strings.familiesTitle,
-                            style: AppTextStyles.subtitle1.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            strings.familyMembersSummary(familiesCount),
-                            style: AppTextStyles.bodyText2.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },

@@ -28,22 +28,26 @@ class FamilyInvitesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final maxHeight = MediaQuery.of(context).size.height * 0.75;
     return ModalSheetScaffold(
       title: strings.familyInvitations,
+      titleStyle: theme.textTheme.titleMedium,
       padding: EdgeInsets.zero,
-      child: FamilyInvitesContent(
-        height: MediaQuery.of(context).size.height * 0.6,
+      useScrollView: false,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: FamilyInvitesContent(),
       ),
     );
   }
 }
 
 class FamilyInvitesContent extends StatelessWidget {
-  FamilyInvitesContent({super.key, this.height});
+  FamilyInvitesContent({super.key});
 
   final MembershipRequestService _requestService = MembershipRequestService();
   final FamilyGroupService _familyService = FamilyGroupService();
-  final double? height;
 
   Future<void> _acceptInvite(
     BuildContext context, {
@@ -128,6 +132,7 @@ class FamilyInvitesContent extends StatelessWidget {
 
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          physics: const BouncingScrollPhysics(),
           itemCount: familyDocs.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
@@ -162,17 +167,14 @@ class FamilyInvitesContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.family_restroom_outlined,
-                            color: colorScheme.primary,
-                          ),
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor:
+                              colorScheme.primary.withValues(alpha: 0.12),
+                          child: Icon(Icons.family_restroom_outlined,
+                              color: colorScheme.primary),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -181,78 +183,46 @@ class FamilyInvitesContent extends StatelessWidget {
                             children: [
                               Text(
                                 familyName,
-                                style: AppTextStyles.subtitle1.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: AppTextStyles.subtitle1
+                                    .copyWith(fontWeight: FontWeight.w700),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                requestStatusLabel(strings, status),
+                                style: AppTextStyles.bodyText2.copyWith(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               if (role != null) ...[
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
                                   familyRoleLabel(strings, role),
-                                  style: AppTextStyles.bodyText2.copyWith(
-                                    color: AppColors.textSecondary,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            isInvite
-                                ? strings.invitationLabel
-                                : strings.requestLabel,
-                            style: AppTextStyles.caption.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            requestStatusLabel(strings, status),
-                            style: AppTextStyles.caption.copyWith(
-                              color: statusColor,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        if (isInvite && isPending) ...[
-                          OutlinedButton(
+                    if (isInvite && isPending)
+                      Row(
+                        children: [
+                          TextButton(
                             onPressed: () => _rejectInvite(
                               context,
                               familyId: data['entityId'],
                               userId: userId,
                             ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: colorScheme.primary,
-                              side: BorderSide(color: colorScheme.outlineVariant),
-                            ),
                             child: Text(strings.reject),
                           ),
-                          const SizedBox(width: 8),
+                          const Spacer(),
                           FilledButton(
                             onPressed: () => _acceptInvite(
                               context,
@@ -266,8 +236,7 @@ class FamilyInvitesContent extends StatelessWidget {
                             child: Text(strings.accept),
                           ),
                         ],
-                      ],
-                    ),
+                      ),
                   ],
                 ),
               ),
@@ -277,11 +246,6 @@ class FamilyInvitesContent extends StatelessWidget {
       },
     );
 
-    return height == null
-        ? content
-        : SizedBox(
-            height: height,
-            child: content,
-          );
+    return content;
   }
 }

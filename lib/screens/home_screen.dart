@@ -655,12 +655,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             return MinistriesSection(
                                 displayTitle: section.title);
                           case HomeScreenSectionType.groups:
-                            return GroupsSection(displayTitle: section.title);
+                            return GroupsSection(
+                                displayTitle: section.title.isNotEmpty
+                                    ? section.title
+                                    : AppLocalizations.of(context)!.connect);
                           case HomeScreenSectionType.families:
-                            return FamiliesSection(displayTitle: section.title);
+                              return FamiliesSection(
+                                  displayTitle: section.title.isNotEmpty
+                                      ? section.title
+                                      : AppLocalizations.of(context)!.familiesTitle);
                           case HomeScreenSectionType.privatePrayer:
-                            return PrivatePrayerSection(
-                                displayTitle: section.title);
+                              return PrivatePrayerSection(
+                                  displayTitle:
+                                      AppLocalizations.of(context)!.privatePrayer);
                           case HomeScreenSectionType.publicPrayer:
                             return PublicPrayerSection(
                                 displayTitle: section.title);

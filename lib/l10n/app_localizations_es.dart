@@ -8261,7 +8261,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get familyRoleMother => 'Madre';
 
   @override
+  String get familyRoleGrandfather => 'Abuelo';
+
+  @override
+  String get familyRoleGrandmother => 'Abuela';
+
+  @override
+  String get familyRoleUncle => 'Tío';
+
+  @override
+  String get familyRoleAunt => 'Tía';
+
+  @override
   String get familyRoleChild => 'Hijo';
+
+  @override
+  String get familyRoleDaughter => 'Hija';
 
   @override
   String get familyRoleTutor => 'Tutor';

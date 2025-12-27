@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../l10n/app_localizations.dart';
 
 /// Widget para seleccionar usuarios.
 /// 
@@ -143,6 +144,18 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    final title =
+        widget.title.isNotEmpty ? widget.title : (strings?.inviteMembers ?? '');
+    final confirmText = widget.confirmButtonText.isNotEmpty
+        ? widget.confirmButtonText
+        : (strings?.sendInvitations ?? '');
+    final emptyText = widget.emptyStateText.isNotEmpty
+        ? widget.emptyStateText
+        : (strings?.noUsersFound ?? '');
+    final searchHint = widget.searchPlaceholder.isNotEmpty
+        ? widget.searchPlaceholder
+        : (strings?.searchUsers ?? '');
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -165,7 +178,7 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
             children: [
               Expanded(
                 child: Text(
-                  widget.title,
+                  title,
                   style: AppTextStyles.subtitle1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -194,7 +207,7 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: widget.searchPlaceholder,
+                hintText: searchHint,
                 prefixIcon: Icon(Icons.search, color: AppColors.textSecondary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppSpacing.sm),
@@ -211,11 +224,14 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
           SizedBox(height: AppSpacing.md),
           
           // Contador de seleccionados
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
             children: [
               Text(
-                'Usuários selecionados: ${_selectedUserIds.length}',
+                strings?.selectedUsers(_selectedUserIds.length) ??
+                    'Usuarios seleccionados: ${_selectedUserIds.length}',
                 style: AppTextStyles.bodyText1.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -228,12 +244,12 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
                       _selectedUserIds.clear();
                     });
                   },
-                  icon: Icon(Icons.clear, size: 16),
-                  label: Text('Limpar tudo'),
+                  icon: const Icon(Icons.clear, size: 16),
+                  label: Text(strings?.clear ?? 'Limpiar'),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.textSecondary,
                     padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                    minimumSize: Size(0, 0),
+                    minimumSize: const Size(0, 0),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
@@ -262,7 +278,7 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
                             ),
                             SizedBox(height: AppSpacing.sm),
                             Text(
-                              widget.emptyStateText,
+                              emptyText,
                               style: AppTextStyles.subtitle2,
                               textAlign: TextAlign.center,
                             ),
@@ -291,12 +307,18 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
                                 vertical: AppSpacing.xs,
                               ),
                               leading: CircleAvatar(
-                                backgroundImage: user['photoURL'] != null
+                                backgroundImage: (user['photoURL'] != null &&
+                                        (user['photoURL'] as String).isNotEmpty &&
+                                        (user['photoURL'] as String)
+                                            .toLowerCase()
+                                            .startsWith('http'))
                                     ? NetworkImage(user['photoURL'])
                                     : null,
                                 backgroundColor: AppColors.warmSand,
-                                child: user['photoURL'] == null
-                                    ? Icon(Icons.person, color: AppColors.textSecondary)
+                                child: (user['photoURL'] == null ||
+                                        (user['photoURL'] as String).isEmpty)
+                                    ? Icon(Icons.person,
+                                        color: AppColors.textSecondary)
                                     : null,
                               ),
                               title: Text(
@@ -363,7 +385,7 @@ class _SelectUsersWidgetState extends State<SelectUsersWidget> {
                       ),
                     )
                   : Text(
-                      widget.confirmButtonText,
+                      confirmText,
                       style: AppTextStyles.button,
                     ),
             ),
