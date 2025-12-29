@@ -8,6 +8,7 @@ import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/family_localizations.dart';
+import '../../utils/age_group.dart';
 import '../../widgets/circular_image_picker.dart';
 import '../../widgets/select_users_widget.dart';
 
@@ -23,11 +24,25 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
   final FamilyGroupService _familyService = FamilyGroupService();
   final MembershipRequestService _requestService = MembershipRequestService();
   bool _isActionLoading = false;
+  late final Future<AgeGroup?> _currentUserAgeGroup;
 
   Future<Map<String, dynamic>?> _fetchUser(String userId) async {
     final snap =
         await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return snap.data();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    _currentUserAgeGroup = uid == null
+        ? Future.value(null)
+        : FirebaseFirestore.instance.collection('users').doc(uid).get().then(
+              (doc) => AgeGroup.fromFirestoreValue(
+                doc.data()?['age_group'] as String?,
+              ),
+            );
   }
 
   Future<void> _renameFamily(FamilyGroup family) async {
@@ -493,21 +508,29 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
             ),
         ],
       ),
-      body: StreamBuilder<FamilyGroup?>(
-        stream: _familyService.watchFamily(widget.familyId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<AgeGroup?>(
+        future: _currentUserAgeGroup,
+        builder: (context, ageSnapshot) {
+          if (ageSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final family = snapshot.data;
-          if (family == null) {
-            return Center(child: Text(strings.familyNotFound));
-          }
+          final isAdult = ageSnapshot.data == AgeGroup.plus18;
+          return StreamBuilder<FamilyGroup?>(
+            stream: _familyService.watchFamily(widget.familyId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final family = snapshot.data;
+              if (family == null) {
+                return Center(child: Text(strings.familyNotFound));
+              }
 
-          final currentIsAdmin = family.adminIds.contains(userId);
+              final currentIsAdmin =
+                  isAdult && family.adminIds.contains(userId);
 
-          return Stack(
-            children: [
+              return Stack(
+                children: [
               SingleChildScrollView(
                 padding:
                     EdgeInsets.fromLTRB(16, 16, 16, currentIsAdmin ? 96 : 24),
@@ -590,7 +613,9 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
                     ),
                   ),
                 ),
-            ],
+                ],
+              );
+            },
           );
         },
       ),

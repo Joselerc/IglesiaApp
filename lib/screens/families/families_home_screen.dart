@@ -7,6 +7,7 @@ import '../../services/family_group_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/age_group.dart';
 import 'family_detail_screen.dart';
 import 'widgets/create_family_sheet.dart';
 import 'widgets/family_card.dart';
@@ -71,150 +72,177 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(strings.familiesTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.mail_outline),
-            onPressed: _openInvites,
-            tooltip: strings.familyInvitations,
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream:
+          FirebaseFirestore.instance.collection('users').doc(userId).snapshots(),
+      builder: (context, userSnapshot) {
+        final ageGroup = AgeGroup.fromFirestoreValue(
+          userSnapshot.data?.data()?['age_group'] as String?,
+        );
+        final isAdult = ageGroup == AgeGroup.plus18;
+
+        void openCreateFamilyGuarded() {
+          if (!isAdult) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(strings.familiesAdultsOnlyMessage)),
+            );
+            return;
+          }
+          _openCreateFamily();
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text(strings.familiesTitle),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.mail_outline),
+                onPressed: _openInvites,
+                tooltip: strings.familyInvitations,
+              ),
+            ],
           ),
-        ],
-      ),
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _FamiliesHeroCard(
-                      onCreate: _openCreateFamily,
-                      onJoin: _openJoinFamily,
-                    ),
-                    const SizedBox(height: 14),
-                    StreamBuilder<QuerySnapshot>(
-                      stream: _requestService.getUserRequests(userId),
-                      builder: (context, snapshot) {
-                        final docs = snapshot.data?.docs ?? [];
-                        final hasPending = docs.any((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          return (data['entityType'] ?? 'family') == 'family' &&
-                              (data['requestType'] ?? 'invite') == 'invite' &&
-                              (data['status'] ?? 'pending') == 'pending';
-                        });
-                        return _InvitesBanner(
-                          onTap: _openInvites,
-                          showDot: hasPending,
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: strings.searchFamilies,
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: colorScheme.surfaceContainerHigh,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FamiliesHeroCard(
+                          onCreate: openCreateFamilyGuarded,
+                          onJoin: _openJoinFamily,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                        strings.familiesTitle,
-                        style: AppTextStyles.subtitle1.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    StreamBuilder<List<FamilyGroup>>(
-                      stream: _familyService.streamUserFamilies(userId),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: Center(
-                              child: Text(strings.somethingWentWrong),
-                            ),
-                          );
-                        }
-                        var families = snapshot.data ?? [];
-                        families = families
-                            .where((family) =>
-                                family.name
-                                    .toLowerCase()
-                                    .contains(_searchTerm) ||
-                                _searchTerm.isEmpty)
-                            .toList();
-                        if (families.isEmpty) {
-                          return _EmptyFamiliesState(
-                            onCreate: _openCreateFamily,
-                            onJoin: _openJoinFamily,
-                          );
-                        }
-                        return ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: families.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          padding: const EdgeInsets.only(bottom: 16),
-                          itemBuilder: (context, index) {
-                            final family = families[index];
-                            final isAdmin = family.isAdmin(userId);
-                            return FamilyCard(
-                              title: family.name.isNotEmpty
-                                  ? family.name
-                                  : strings.familyFallbackName,
-                              subtitle: strings.familyMembersCount(
-                                family.memberIds.length,
-                              ),
-                              badge: isAdmin ? strings.adminLabel : null,
-                              surfaceTint: colorScheme.surfaceContainerLow,
-                              photoUrl: family.photoUrl,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => FamilyDetailScreen(
-                                    familyId: family.id,
-                                  ),
-                                ),
-                              ),
+                        const SizedBox(height: 14),
+                        StreamBuilder<QuerySnapshot>(
+                          stream: _requestService.getUserRequests(userId),
+                          builder: (context, snapshot) {
+                            final docs = snapshot.data?.docs ?? [];
+                            final hasPending = docs.any((doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              return (data['entityType'] ?? 'family') ==
+                                      'family' &&
+                                  (data['requestType'] ?? 'invite') ==
+                                      'invite' &&
+                                  (data['status'] ?? 'pending') == 'pending';
+                            });
+                            return _InvitesBanner(
+                              onTap: _openInvites,
+                              showDot: hasPending,
                             );
                           },
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 12),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: strings.searchFamilies,
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: colorScheme.surfaceContainerHigh,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            strings.familiesTitle,
+                            style: AppTextStyles.subtitle1.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        StreamBuilder<List<FamilyGroup>>(
+                          stream: _familyService.streamUserFamilies(userId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 24),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 24),
+                                child: Center(
+                                  child: Text(strings.somethingWentWrong),
+                                ),
+                              );
+                            }
+                            var families = snapshot.data ?? [];
+                            families = families
+                                .where((family) =>
+                                    family.name
+                                        .toLowerCase()
+                                        .contains(_searchTerm) ||
+                                    _searchTerm.isEmpty)
+                                .toList();
+                            if (families.isEmpty) {
+                              return _EmptyFamiliesState(
+                                onCreate: openCreateFamilyGuarded,
+                                onJoin: _openJoinFamily,
+                              );
+                            }
+                            return ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: families.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 12),
+                              padding: const EdgeInsets.only(bottom: 16),
+                              itemBuilder: (context, index) {
+                                final family = families[index];
+                                final isAdmin =
+                                    isAdult && family.isAdmin(userId);
+                                return FamilyCard(
+                                  title: family.name.isNotEmpty
+                                      ? family.name
+                                      : strings.familyFallbackName,
+                                  subtitle: strings.familyMembersCount(
+                                    family.memberIds.length,
+                                  ),
+                                  badge: isAdmin ? strings.adminLabel : null,
+                                  surfaceTint:
+                                      colorScheme.surfaceContainerLow,
+                                  photoUrl: family.photoUrl,
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => FamilyDetailScreen(
+                                        familyId: family.id,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

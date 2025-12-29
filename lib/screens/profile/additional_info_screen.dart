@@ -11,6 +11,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/user_model.dart';
 import '../../l10n/app_localizations.dart';
+import '../../utils/age_group.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
   final bool fromBanner;
@@ -34,9 +35,8 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController(); // Para el número sin código de país
-  String _phoneFullNumber = ''; // Para el número completo con código de país
   String _phoneCountryCode = 'BR'; // Código ISO del país por defecto
-  DateTime? _birthDate;
+  AgeGroup? _ageGroup;
   String? _gender;
   UserModel? _currentUserData; // Para almacenar los datos básicos del usuario
 
@@ -64,23 +64,19 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       // 1. Cargar datos básicos del usuario
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
-        _currentUserData = UserModel.fromMap(userDoc.data()! as Map<String, dynamic>..['id'] = userDoc.id);
+        final userData = userDoc.data()!;
+        userData['id'] = userDoc.id;
+        _currentUserData = UserModel.fromMap(userData);
         _nameController.text = _currentUserData!.name ?? '';
         _surnameController.text = _currentUserData!.surname ?? '';
         
         // Manejo del teléfono
         _phoneController.text = _currentUserData!.phone ?? ''; // Asumiendo que 'phone' es el número local
-        _phoneFullNumber = _currentUserData!.phoneComplete ?? '';
         _phoneCountryCode = _currentUserData!.isoCountryCode?.isNotEmpty == true 
                             ? _currentUserData!.isoCountryCode! 
                             : 'BR'; // O tu lógica para obtener el ISO del dial code
 
-        // birthDate puede ser Timestamp o ya DateTime en tu UserModel
-        if (_currentUserData!.birthDate is Timestamp) {
-          _birthDate = (_currentUserData!.birthDate as Timestamp).toDate();
-        } else if (_currentUserData!.birthDate is DateTime) {
-          _birthDate = _currentUserData!.birthDate as DateTime?;
-        }
+        _ageGroup = AgeGroup.fromFirestoreValue(_currentUserData!.ageGroup);
         _gender = _currentUserData!.gender;
       }
 
@@ -188,11 +184,11 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
     }
 
     // Verificar si hay campos básicos sin completar
-    final hasIncompleteBasicFields = !_isBasicFieldComplete('name') || 
-                                    !_isBasicFieldComplete('surname') || 
-                                    !_isBasicFieldComplete('birthDate') || 
-                                    !_isBasicFieldComplete('gender') || 
-                                    !_isBasicFieldComplete('phone');
+    final hasIncompleteBasicFields = !_isBasicFieldComplete('name') ||
+        !_isBasicFieldComplete('surname') ||
+        !_isBasicFieldComplete('ageGroup') ||
+        !_isBasicFieldComplete('gender') ||
+        !_isBasicFieldComplete('phone');
 
     // Solo mostrar el mensaje de "no hay campos adicionales" si:
     // 1. No hay campos adicionales configurados
@@ -273,15 +269,20 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                           _buildBasicTextField(_nameController, AppLocalizations.of(context)!.name, AppLocalizations.of(context)!.enterYourName, Icons.person),
                         if (!_isBasicFieldComplete('surname')) 
                           _buildBasicTextField(_surnameController, AppLocalizations.of(context)!.surname, AppLocalizations.of(context)!.enterYourSurname, Icons.person_outline),
-                        if (!_isBasicFieldComplete('birthDate')) 
-                          _buildBirthDateField(),
+                        if (!_isBasicFieldComplete('ageGroup')) 
+                          _buildAgeGroupField(),
                         if (!_isBasicFieldComplete('gender')) 
                           _buildGenderField(),
                         if (!_isBasicFieldComplete('phone')) 
                           _buildPhoneField(),
                         
                         // Separador si se muestran campos básicos Y hay campos adicionales
-                        if ((!_isBasicFieldComplete('name') || !_isBasicFieldComplete('surname') || !_isBasicFieldComplete('birthDate') || !_isBasicFieldComplete('gender') || !_isBasicFieldComplete('phone')) && _fields.isNotEmpty)
+                        if ((!_isBasicFieldComplete('name') ||
+                                !_isBasicFieldComplete('surname') ||
+                                !_isBasicFieldComplete('ageGroup') ||
+                                !_isBasicFieldComplete('gender') ||
+                                !_isBasicFieldComplete('phone')) &&
+                            _fields.isNotEmpty)
                           Column(
                             children: [
                               const SizedBox(height: 16),
@@ -493,7 +494,9 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         return SelectionField(
           key: ValueKey('selection_${field.id}'), 
           label: field.name,
-          hint: field.description ?? AppLocalizations.of(context)!.selectAnOption,
+          hint: field.description.isNotEmpty
+              ? field.description
+              : AppLocalizations.of(context)!.selectAnOption,
           value: currentValueInResponses,
           options: options,
           isRequired: field.isRequired,
@@ -534,7 +537,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
     // Validar campos básicos requeridos que están visibles
     if (!_isBasicFieldComplete('name') && (_nameController.text.trim().isEmpty)) allRequiredBasicFilled = false;
     if (!_isBasicFieldComplete('surname') && (_surnameController.text.trim().isEmpty)) allRequiredBasicFilled = false;
-    if (!_isBasicFieldComplete('birthDate') && _birthDate == null) allRequiredBasicFilled = false;
+    if (!_isBasicFieldComplete('ageGroup') && _ageGroup == null) allRequiredBasicFilled = false;
     if (!_isBasicFieldComplete('gender') && (_gender == null || _gender!.isEmpty)) allRequiredBasicFilled = false;
     if (!_isBasicFieldComplete('phone') && (_phoneController.text.trim().isEmpty)) allRequiredBasicFilled = false;
 
@@ -593,7 +596,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         'surname': _surnameController.text.trim(),
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'phone': _phoneController.text.trim(),
-        'birthDate': _birthDate != null ? Timestamp.fromDate(_birthDate!) : null,
+        'age_group': _ageGroup?.firestoreValue,
         'gender': _gender,
         'hasCompletedAdditionalFields': hasCompletedAdditional,
         'additionalFieldsLastUpdated': FieldValue.serverTimestamp(),
@@ -662,7 +665,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       case 'name': return _currentUserData!.name?.isNotEmpty == true;
       case 'surname': return _currentUserData!.surname?.isNotEmpty == true;
       case 'phone': return _currentUserData!.phone?.isNotEmpty == true; 
-      case 'birthDate': return _currentUserData!.birthDate != null;
+      case 'ageGroup': return _currentUserData!.ageGroup?.isNotEmpty == true;
       case 'gender': return _currentUserData!.gender?.isNotEmpty == true;
       default: return true; 
     }
@@ -685,7 +688,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
           suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty) {
+          if (value == null || value.trim().isEmpty) {
             return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           return null;
@@ -695,40 +698,38 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
     );
   }
 
-  Widget _buildBirthDateField() {
+  Widget _buildAgeGroupField() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextFormField(
-        controller: TextEditingController(
-          text: _birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : ''
-        ),
-        readOnly: true,
+      child: DropdownButtonFormField<AgeGroup>(
+        value: _ageGroup,
         decoration: InputDecoration(
-          labelText: AppLocalizations.of(context)!.birthDateLabel,
-          prefixIcon: Icon(Icons.calendar_today, color: AppColors.primary.withOpacity(0.7)),
+          labelText: AppLocalizations.of(context)!.ageConfirmationTitle,
+          hintText: AppLocalizations.of(context)!.ageConfirmationPrompt,
+          prefixIcon: Icon(Icons.verified_user_outlined, color: AppColors.primary.withOpacity(0.7)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
-        onTap: () async {
-          final DateTime? pickedDate = await showDatePicker(
-            context: context,
-            initialDate: _birthDate ?? DateTime.now(),
-            firstDate: DateTime(1900),
-            lastDate: DateTime.now(),
-            locale: const Locale('pt', 'BR'),
-          );
-          if (pickedDate != null && pickedDate != _birthDate) {
-            setState(() {
-              _birthDate = pickedDate;
-              // El controlador se actualiza por el `text` en su constructor la próxima vez que se construya o podrías actualizarlo aquí explícitamente.
-            });
-          }
+        items: [
+          DropdownMenuItem(
+            value: AgeGroup.plus18,
+            child: Text(AppLocalizations.of(context)!.ageOption18Plus),
+          ),
+          DropdownMenuItem(
+            value: AgeGroup.from13To17,
+            child: Text(AppLocalizations.of(context)!.ageOption13To17),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _ageGroup = value;
+          });
         },
         validator: (value) {
-          if (_birthDate == null) { // Validar la variable de estado _birthDate
+          if (value == null) {
             return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
           return null;

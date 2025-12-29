@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
@@ -11,9 +10,15 @@ import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_text_field.dart';
 import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
-import '../../services/role_service.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 import '../../l10n/app_localizations.dart';
+import '../../utils/age_group.dart';
+
+enum _AgeGateSelection {
+  age18Plus,
+  age13To17,
+  under13,
+}
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -56,6 +61,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!_formKey.currentState!.validate()) return;
 
+    final strings = AppLocalizations.of(context)!;
+    final selection = await _showAgeConfirmationSheet(strings);
+    if (!mounted) return;
+    if (selection == null) return;
+
+    if (selection == _AgeGateSelection.under13) {
+      await _showUnder13BlockedDialog(strings);
+      return;
+    }
+
+    final ageGroup = selection == _AgeGateSelection.age18Plus
+        ? AgeGroup.plus18.firestoreValue
+        : AgeGroup.from13To17.firestoreValue;
+
     setState(() => _isLoading = true);
 
     try {
@@ -75,6 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'role': roleName, // Nombre del rol por defecto
+        'age_group': ageGroup,
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'photoUrl': '',
         'createdAt': DateTime.now(),
@@ -106,8 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Luego mostramos un mensaje de bienvenida
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.welcomeCompleteProfile),
-            duration: Duration(seconds: 5),
+            content: Text(strings.welcomeCompleteProfile),
+            duration: const Duration(seconds: 5),
           ),
         );
         
@@ -123,19 +143,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
       switch (e.code) {
         case 'email-already-in-use':
-          message = AppLocalizations.of(context)!.emailAlreadyInUse;
+          message = strings.emailAlreadyInUse;
           break;
         case 'invalid-email':
-          message = AppLocalizations.of(context)!.invalidEmailFormat;
+          message = strings.invalidEmailFormat;
           break;
         case 'operation-not-allowed':
-          message = AppLocalizations.of(context)!.registrationNotEnabled;
+          message = strings.registrationNotEnabled;
           break;
         case 'weak-password':
-          message = AppLocalizations.of(context)!.weakPassword;
+          message = strings.weakPassword;
           break;
         default:
-          message = AppLocalizations.of(context)!.errorRegistering(e.message ?? '');
+          message = strings.errorRegistering(e.message ?? '');
       }
       
       setState(() {
@@ -145,13 +165,144 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       debugPrint('❌ Erro inesperado: $e');
       setState(() {
-        _errorMessage = AppLocalizations.of(context)!.unexpectedError;
+        _errorMessage = strings.unexpectedError;
       });
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<_AgeGateSelection?> _showAgeConfirmationSheet(
+    AppLocalizations strings,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return showModalBottomSheet<_AgeGateSelection>(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: false,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        _AgeGateSelection? selected;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            strings.ageConfirmationTitle,
+                            style: AppTextStyles.subtitle2.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close),
+                          tooltip: strings.close,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      strings.ageConfirmationPrompt,
+                      style: AppTextStyles.bodyText2.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age18Plus,
+                      groupValue: selected,
+                      title: strings.ageOption18Plus,
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age13To17,
+                      groupValue: selected,
+                      title: strings.ageOption13To17,
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.under13,
+                      groupValue: selected,
+                      title: strings.ageOptionUnder13,
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: selected == null
+                            ? null
+                            : () => Navigator.pop(context, selected),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(strings.continueAction),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _showUnder13BlockedDialog(AppLocalizations strings) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(strings.ageConfirmationTitle),
+          content: Text(strings.under13RegistrationBlocked),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(strings.back),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -365,5 +516,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+}
+
+class _AgeGateRadioTile extends StatelessWidget {
+  const _AgeGateRadioTile({
+    required this.value,
+    required this.groupValue,
+    required this.title,
+    required this.onChanged,
+  });
+
+  final _AgeGateSelection value;
+  final _AgeGateSelection? groupValue;
+  final String title;
+  final ValueChanged<_AgeGateSelection> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isSelected = value == groupValue;
+    final borderColor = isSelected
+        ? colorScheme.primary.withValues(alpha: 0.5)
+        : colorScheme.outlineVariant.withValues(alpha: 0.6);
+    final backgroundColor = isSelected
+        ? colorScheme.primary.withValues(alpha: 0.08)
+        : colorScheme.surfaceContainerLowest;
+
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => onChanged(value),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: borderColor),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              Radio<_AgeGateSelection>(
+                value: value,
+                groupValue: groupValue,
+                onChanged: (_) => onChanged(value),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.bodyText2.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

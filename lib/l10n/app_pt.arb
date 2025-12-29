@@ -4371,5 +4371,13 @@
   "familyRoleOther": "Outro",
   "familyMembersLabel": "Membros da família",
   "adminLabel": "Admin",
+  "familiesAdultsOnlyMessage": "Apenas maiores de 18 anos podem criar ou administrar famílias.",
+  "ageConfirmationTitle": "Confirmação de idade",
+  "ageConfirmationPrompt": "Para usar este app, confirme sua faixa etária.",
+  "ageOption18Plus": "Tenho 18 anos ou mais",
+  "ageOption13To17": "Tenho 13–17 anos",
+  "ageOptionUnder13": "Tenho menos de 13 anos",
+  "continueAction": "Continuar",
+  "under13RegistrationBlocked": "Desculpe, você precisa ter pelo menos 13 anos para usar este app.",
   "noInvitesFound": "Você não tem convites"
 }

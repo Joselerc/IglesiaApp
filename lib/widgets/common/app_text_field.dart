@@ -71,6 +71,12 @@ class AppTextField extends StatelessWidget {
   
   /// Si el campo está habilitado
   final bool enabled;
+
+  /// Si el campo es solo lectura (no abre teclado)
+  final bool readOnly;
+
+  /// Acción al tocar el campo (útil para date pickers)
+  final VoidCallback? onTap;
   
   /// Foco para el campo
   final FocusNode? focusNode;
@@ -102,6 +108,8 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.textInputAction,
     this.enabled = true,
+    this.readOnly = false,
+    this.onTap,
     this.focusNode,
     this.autofocus = false,
   }) : super(key: key);
@@ -165,11 +173,13 @@ class AppTextField extends StatelessWidget {
       decoration: decoration,
       style: AppTextStyles.bodyText1,
       obscureText: isPassword,
+      readOnly: readOnly,
       maxLength: maxLength,
       maxLines: isMultiline ? (maxLines ?? 5) : (isPassword ? 1 : maxLines),
       validator: enhancedValidator,
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
+      onTap: onTap,
       inputFormatters: inputFormatters,
       keyboardType: keyboardType ?? (isMultiline ? TextInputType.multiline : TextInputType.text),
       textInputAction: textInputAction ?? (isMultiline ? TextInputAction.newline : TextInputAction.next),

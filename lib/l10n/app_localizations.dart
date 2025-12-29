@@ -14810,11 +14810,59 @@ abstract class AppLocalizations {
   /// **'Admin'**
   String get adminLabel;
 
+  /// No description provided for @familiesAdultsOnlyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo los mayores de 18 años pueden crear o administrar familias.'**
+  String get familiesAdultsOnlyMessage;
+
   /// No description provided for @noInvitesFound.
   ///
   /// In es, this message translates to:
   /// **'No tienes invitaciones'**
   String get noInvitesFound;
+
+  /// No description provided for @ageConfirmationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmación de edad'**
+  String get ageConfirmationTitle;
+
+  /// No description provided for @ageConfirmationPrompt.
+  ///
+  /// In es, this message translates to:
+  /// **'Para usar esta app, confirma tu rango de edad.'**
+  String get ageConfirmationPrompt;
+
+  /// No description provided for @ageOption18Plus.
+  ///
+  /// In es, this message translates to:
+  /// **'Tengo 18 años o más'**
+  String get ageOption18Plus;
+
+  /// No description provided for @ageOption13To17.
+  ///
+  /// In es, this message translates to:
+  /// **'Tengo 13–17 años'**
+  String get ageOption13To17;
+
+  /// No description provided for @ageOptionUnder13.
+  ///
+  /// In es, this message translates to:
+  /// **'Tengo menos de 13 años'**
+  String get ageOptionUnder13;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get continueAction;
+
+  /// No description provided for @under13RegistrationBlocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo sentimos, debes tener al menos 13 años para usar esta app.'**
+  String get under13RegistrationBlocked;
 }
 
 class _AppLocalizationsDelegate

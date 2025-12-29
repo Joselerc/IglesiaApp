@@ -22,6 +22,7 @@ class UserModel {
 
   // --- NUEVOS CAMPOS ---
   final Timestamp? birthDate;
+  final String? ageGroup;
   final String? gender;
   final bool isVisitorOnly;
   // --- FIN NUEVOS CAMPOS ---
@@ -45,6 +46,7 @@ class UserModel {
     this.neverShowBannerAgain = false,
     this.roleId, // <<< Añadir roleId al constructor
     this.birthDate,
+    this.ageGroup,
     this.gender,
     this.isVisitorOnly = false,
   });
@@ -73,6 +75,7 @@ class UserModel {
       'neverShowBannerAgain': neverShowBannerAgain,
       'roleId': roleId, // <<< Añadir roleId al map
       'birthDate': birthDate,
+      'age_group': ageGroup,
       'gender': gender,
       'isVisitorOnly': isVisitorOnly,
     };
@@ -104,6 +107,7 @@ class UserModel {
       neverShowBannerAgain: map['neverShowBannerAgain'] ?? false,
       roleId: map['roleId'], // <<< Añadir roleId de fromMap (puede ser null)
       birthDate: map['birthDate'] as Timestamp?,
+      ageGroup: map['age_group'] as String?,
       gender: map['gender'] as String?,
       isVisitorOnly: map['isVisitorOnly'] ?? false,
     );

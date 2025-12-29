@@ -8291,5 +8291,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get adminLabel => 'Admin';
 
   @override
+  String get familiesAdultsOnlyMessage =>
+      'Solo los mayores de 18 años pueden crear o administrar familias.';
+
+  @override
   String get noInvitesFound => 'No tienes invitaciones';
+
+  @override
+  String get ageConfirmationTitle => 'Confirmación de edad';
+
+  @override
+  String get ageConfirmationPrompt =>
+      'Para usar esta app, confirma tu rango de edad.';
+
+  @override
+  String get ageOption18Plus => 'Tengo 18 años o más';
+
+  @override
+  String get ageOption13To17 => 'Tengo 13–17 años';
+
+  @override
+  String get ageOptionUnder13 => 'Tengo menos de 13 años';
+
+  @override
+  String get continueAction => 'Continuar';
+
+  @override
+  String get under13RegistrationBlocked =>
+      'Lo sentimos, debes tener al menos 13 años para usar esta app.';
 }
