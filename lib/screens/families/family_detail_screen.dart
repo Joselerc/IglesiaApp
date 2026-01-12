@@ -8,7 +8,7 @@ import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/family_localizations.dart';
-import '../../utils/age_group.dart';
+import '../../utils/age_range.dart';
 import '../../widgets/circular_image_picker.dart';
 import '../../widgets/select_users_widget.dart';
 
@@ -24,7 +24,12 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
   final FamilyGroupService _familyService = FamilyGroupService();
   final MembershipRequestService _requestService = MembershipRequestService();
   bool _isActionLoading = false;
-  late final Future<AgeGroup?> _currentUserAgeGroup;
+  late final Future<AgeRange?> _currentUserAgeRange;
+
+  String _capitalizeLabel(String value) {
+    if (value.isEmpty) return value;
+    return value[0].toUpperCase() + value.substring(1);
+  }
 
   Future<Map<String, dynamic>?> _fetchUser(String userId) async {
     final snap =
@@ -36,11 +41,11 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
   void initState() {
     super.initState();
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    _currentUserAgeGroup = uid == null
+    _currentUserAgeRange = uid == null
         ? Future.value(null)
         : FirebaseFirestore.instance.collection('users').doc(uid).get().then(
-              (doc) => AgeGroup.fromFirestoreValue(
-                doc.data()?['age_group'] as String?,
+              (doc) => AgeRange.fromFirestoreValue(
+                doc.data()?['ageRange'] as String?,
               ),
             );
   }
@@ -508,13 +513,13 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
             ),
         ],
       ),
-      body: FutureBuilder<AgeGroup?>(
-        future: _currentUserAgeGroup,
+      body: FutureBuilder<AgeRange?>(
+        future: _currentUserAgeRange,
         builder: (context, ageSnapshot) {
           if (ageSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final isAdult = ageSnapshot.data == AgeGroup.plus18;
+          final isAdult = ageSnapshot.data?.isAdult ?? false;
           return StreamBuilder<FamilyGroup?>(
             stream: _familyService.watchFamily(widget.familyId),
             builder: (context, snapshot) {
@@ -545,7 +550,8 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
                     ),
                     const SizedBox(height: 18),
                     _SectionCard(
-                      title: '${strings.members} (${family.memberIds.length})',
+                      title:
+                          '${_capitalizeLabel(strings.members)} (${family.memberIds.length})',
                       subtitle: strings.familyMembersLabel,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -796,6 +802,7 @@ class _RequestsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     return _SectionCard(
       title: strings.pendingRequests,
       trailing: trailing,
@@ -821,39 +828,117 @@ class _RequestsSection extends StatelessWidget {
                           '${data['name'] ?? ''} ${data['surname'] ?? ''}'
                               .trim())
                       : strings.unknownUser;
+                  final photoUrl = data?['photoUrl'] as String?;
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      tileColor:
-                          Theme.of(context).colorScheme.surfaceContainerLowest,
-                      title: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(familyRoleLabel(strings, role)),
-                      trailing: Wrap(
-                        spacing: 8,
-                        children: [
-                          TextButton(
-                            onPressed: isActionLoading
-                                ? null
-                                : () => onReject(entry.key),
-                            child: Text(strings.reject),
-                          ),
-                          FilledButton.tonal(
-                            onPressed: isActionLoading
-                                ? null
-                                : () => onAccept(
-                                      entry.key,
-                                      role,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor:
+                                  colorScheme.primary.withValues(alpha: 0.12),
+                              backgroundImage: photoUrl != null &&
+                                      photoUrl.isNotEmpty
+                                  ? NetworkImage(photoUrl)
+                                  : null,
+                              child: (photoUrl == null || photoUrl.isEmpty)
+                                  ? Text(
+                                      name.isNotEmpty ? name[0] : '?',
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: colorScheme.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: AppTextStyles.subtitle2.copyWith(
+                                      fontWeight: FontWeight.w700,
                                     ),
-                            child: Text(strings.accept),
-                          ),
-                        ],
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    familyRoleLabel(strings, role),
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      TextButton(
+                                        onPressed: isActionLoading
+                                            ? null
+                                            : () => onReject(entry.key),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor:
+                                              colorScheme.onSurfaceVariant,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          textStyle:
+                                              AppTextStyles.caption.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        child: Text(strings.reject),
+                                      ),
+                                      FilledButton(
+                                        onPressed: isActionLoading
+                                            ? null
+                                            : () => onAccept(
+                                                  entry.key,
+                                                  role,
+                                                ),
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor:
+                                              colorScheme.primary,
+                                          foregroundColor:
+                                              colorScheme.onPrimary,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          minimumSize: const Size(0, 36),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          textStyle:
+                                              AppTextStyles.caption.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        child: Text(strings.accept),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

@@ -65,6 +65,9 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
     'MyKids (Gestão Infantil)': [
       'manage_family_profiles', 'manage_checkin_rooms',
     ],
+    'Famílias': [
+      'manage_families_admin',
+    ],
     'Outros': [
         'manage_profile_fields', // Movido aquí o crear categoría "Perfil"
     ]
@@ -124,6 +127,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       // MyKids (Gestión Infantil)
       'manage_family_profiles': AppLocalizations.of(context)!.manageFamilyProfiles,
       'manage_checkin_rooms': AppLocalizations.of(context)!.manageCheckinRooms,
+      'manage_families_admin': AppLocalizations.of(context)!.manageFamiliesAdmin,
       
       // Otros
       'manage_profile_fields': AppLocalizations.of(context)!.manageProfileFields,
@@ -140,6 +144,7 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       'Aconselhamento e Oração': AppLocalizations.of(context)!.counselingAndPrayer,
       'Relatórios e Estatísticas': AppLocalizations.of(context)!.reportsAndStatistics,
       'MyKids (Gestão Infantil)': AppLocalizations.of(context)!.myKids,
+      'Famílias': AppLocalizations.of(context)!.familiesTitle,
       'Outros': AppLocalizations.of(context)!.others,
     };
   }
@@ -213,7 +218,10 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
        print("Error al guardar rol: $e");
        if (mounted) {
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Erro inesperado: $e'), backgroundColor: Colors.red),
+           SnackBar(
+             content: Text('${AppLocalizations.of(context)!.somethingWentWrong}: $e'),
+             backgroundColor: Colors.red,
+           ),
          );
        }
     } finally {

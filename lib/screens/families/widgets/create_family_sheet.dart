@@ -63,6 +63,7 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
   final List<_SelectedInvitee> _invitees = [];
   final Map<String, Map<String, dynamic>?> _userCache = {};
   bool _showNameError = false;
+  String _creatorMemberRole = 'padre';
 
   @override
   void dispose() {
@@ -80,7 +81,6 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
     'hijo',
     'hija',
     'tutor',
-    'admin',
     'otro',
   ];
 
@@ -104,8 +104,6 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
         return strings.familyRoleDaughter;
       case 'tutor':
         return strings.familyRoleTutor;
-      case 'admin':
-        return strings.adminLabel;
       default:
         return strings.familyRoleOther;
     }
@@ -295,6 +293,7 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
         name,
         description: description,
         photoUrl: photoUrl,
+        creatorMemberRole: _creatorMemberRole,
       );
       if (_invitees.isNotEmpty) {
         final grouped = <String, List<String>>{};
@@ -417,6 +416,41 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            strings.familyCreatorRoleLabel,
+            style: AppTextStyles.subtitle2.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            initialValue: _creatorMemberRole,
+            items: _roleOptions
+                .map(
+                  (role) => DropdownMenuItem(
+                    value: role,
+                    child: Text(_roleLabel(strings, role)),
+                  ),
+                )
+                .toList(),
+            onChanged: _isSaving
+                ? null
+                : (value) {
+                    if (value == null) return;
+                    setState(() => _creatorMemberRole = value);
+                  },
+            decoration: InputDecoration(
+              hintText: strings.familyCreatorRoleHint,
+              filled: true,
+              fillColor: colorScheme.surfaceContainerHighest,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
           const SizedBox(height: 18),
           Divider(color: colorScheme.outlineVariant),
           const SizedBox(height: 12),
@@ -457,70 +491,101 @@ class _CreateFamilyFormState extends State<CreateFamilyForm> {
                                 '${data['name'] ?? ''} ${data['surname'] ?? ''}'
                                     .trim())
                             : inv.userId;
-                        return Container(
+                        final photoUrl =
+                            data?['photoUrl']?.toString().trim();
+                        return Card(
                           margin: const EdgeInsets.symmetric(vertical: 6),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: colorScheme.outlineVariant),
+                          elevation: 0,
+                          color: colorScheme.surfaceContainerLowest,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: colorScheme.outlineVariant,
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      name,
-                                      style: AppTextStyles.subtitle2.copyWith(
-                                          fontWeight: FontWeight.w700),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor:
+                                      colorScheme.primary.withValues(alpha: 0.12),
+                                  backgroundImage: (photoUrl != null &&
+                                          photoUrl.isNotEmpty)
+                                      ? NetworkImage(photoUrl)
+                                      : null,
+                                  child: (photoUrl == null || photoUrl.isEmpty)
+                                      ? Text(
+                                          name.isNotEmpty ? name[0] : '?',
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: colorScheme.primary,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    name,
+                                    style: AppTextStyles.subtitle2.copyWith(
+                                      fontWeight: FontWeight.w700,
                                     ),
-                                    const SizedBox(height: 6),
-                                    DropdownButtonHideUnderline(
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 140),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary
+                                          .withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
                                       child: DropdownButton<String>(
                                         value: inv.role,
                                         isDense: true,
-                                        borderRadius: BorderRadius.circular(12),
+                                        icon: const Icon(Icons.expand_more),
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                         items: _roleOptions
                                             .map(
                                               (r) => DropdownMenuItem(
                                                 value: r,
-                                                child: Text(
-                                                  _roleLabel(strings, r),
-                                                  style: AppTextStyles.caption
-                                                      .copyWith(
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                                ),
+                                                child: Text(_roleLabel(strings, r)),
                                               ),
                                             )
                                             .toList(),
                                         onChanged: (value) {
                                           if (value == null) return;
-                                          setState(() {
-                                            inv.role = value;
-                                          });
+                                          setState(() => inv.role = value);
                                         },
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  setState(() {
-                                    _invitees.remove(inv);
-                                  });
-                                },
-                              )
-                            ],
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  icon: Icon(Icons.close,
+                                      color: colorScheme.onSurfaceVariant),
+                                  onPressed: () {
+                                    setState(() {
+                                      _invitees.remove(inv);
+                                    });
+                                  },
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },

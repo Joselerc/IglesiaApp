@@ -14,6 +14,8 @@ class FamilyCard extends StatelessWidget {
     this.icon = Icons.family_restroom_outlined,
     this.surfaceTint,
     this.photoUrl,
+    this.titleMaxLines = 1,
+    this.subtitleMaxLines = 2,
   });
 
   final String title;
@@ -25,6 +27,8 @@ class FamilyCard extends StatelessWidget {
   final IconData icon;
   final Color? surfaceTint;
   final String? photoUrl;
+  final int titleMaxLines;
+  final int subtitleMaxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +75,7 @@ class FamilyCard extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
                             ),
-                            maxLines: 1,
+                            maxLines: titleMaxLines,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -103,7 +107,7 @@ class FamilyCard extends StatelessWidget {
                       style: AppTextStyles.bodyText2.copyWith(
                         color: AppColors.textSecondary,
                       ),
-                      maxLines: 2,
+                      maxLines: subtitleMaxLines,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],

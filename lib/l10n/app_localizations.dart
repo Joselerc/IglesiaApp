@@ -14552,6 +14552,120 @@ abstract class AppLocalizations {
   /// **'Unirme a una familia'**
   String get joinFamily;
 
+  /// No description provided for @manageFamiliesAdmin.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrar familias'**
+  String get manageFamiliesAdmin;
+
+  /// No description provided for @adminFamiliesTabList.
+  ///
+  /// In es, this message translates to:
+  /// **'Listado'**
+  String get adminFamiliesTabList;
+
+  /// No description provided for @adminFamiliesTabStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
+  String get adminFamiliesTabStats;
+
+  /// No description provided for @adminFamiliesFilterAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas'**
+  String get adminFamiliesFilterAll;
+
+  /// No description provided for @adminFamiliesFilterRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevas'**
+  String get adminFamiliesFilterRecent;
+
+  /// No description provided for @adminFamiliesFilterSingleMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo 1'**
+  String get adminFamiliesFilterSingleMember;
+
+  /// No description provided for @adminFamiliesFilterWithChildren.
+  ///
+  /// In es, this message translates to:
+  /// **'Con hijos'**
+  String get adminFamiliesFilterWithChildren;
+
+  /// No description provided for @adminFamiliesStatsOverview.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get adminFamiliesStatsOverview;
+
+  /// No description provided for @adminFamiliesStatsTotalFamilies.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de familias'**
+  String get adminFamiliesStatsTotalFamilies;
+
+  /// No description provided for @adminFamiliesStatsTotalMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de miembros'**
+  String get adminFamiliesStatsTotalMembers;
+
+  /// No description provided for @adminFamiliesStatsFamiliesWithChildren.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias con hijos'**
+  String get adminFamiliesStatsFamiliesWithChildren;
+
+  /// No description provided for @adminFamiliesStatsFamiliesWithoutChildren.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias sin hijos'**
+  String get adminFamiliesStatsFamiliesWithoutChildren;
+
+  /// No description provided for @adminFamiliesStatsFamiliesNoAdults.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias sin adultos'**
+  String get adminFamiliesStatsFamiliesNoAdults;
+
+  /// No description provided for @adminFamiliesStatsFamiliesSingleMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias de 1 miembro'**
+  String get adminFamiliesStatsFamiliesSingleMember;
+
+  /// No description provided for @adminFamiliesStatsDistribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución'**
+  String get adminFamiliesStatsDistribution;
+
+  /// No description provided for @adminFamiliesStatsFamiliesOverTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Familias creadas'**
+  String get adminFamiliesStatsFamiliesOverTime;
+
+  /// No description provided for @adminFamiliesStatsLastDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos {days} días'**
+  String adminFamiliesStatsLastDays(int days);
+
+  /// No description provided for @adminFamiliesStatsParentsByAgeRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Padres por rango de edad'**
+  String get adminFamiliesStatsParentsByAgeRange;
+
+  /// No description provided for @adminFamiliesStatsNoData.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos'**
+  String get adminFamiliesStatsNoData;
+
   /// No description provided for @noFamiliesYet.
   ///
   /// In es, this message translates to:
@@ -14563,6 +14677,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Familia'**
   String get familyFallbackName;
+
+  /// No description provided for @familyStructureSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'{adults} adultos · {youth} jóvenes'**
+  String familyStructureSummary(int adults, int youth);
+
+  /// No description provided for @familyStructureUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} sin rango'**
+  String familyStructureUnknown(int count);
+
+  /// No description provided for @familyBadgeNoAdults.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin adultos'**
+  String get familyBadgeNoAdults;
+
+  /// No description provided for @familyBadgeSingleMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo 1'**
+  String get familyBadgeSingleMember;
+
+  /// No description provided for @familyBadgeIncomplete.
+  ///
+  /// In es, this message translates to:
+  /// **'Incompleta'**
+  String get familyBadgeIncomplete;
 
   /// No description provided for @familyMembersCount.
   ///
@@ -14798,6 +14942,18 @@ abstract class AppLocalizations {
   /// **'Otro'**
   String get familyRoleOther;
 
+  /// No description provided for @familyCreatorRoleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu rol en la familia'**
+  String get familyCreatorRoleLabel;
+
+  /// No description provided for @familyCreatorRoleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tu rol'**
+  String get familyCreatorRoleHint;
+
   /// No description provided for @familyMembersLabel.
   ///
   /// In es, this message translates to:
@@ -14834,23 +14990,71 @@ abstract class AppLocalizations {
   /// **'Para usar esta app, confirma tu rango de edad.'**
   String get ageConfirmationPrompt;
 
-  /// No description provided for @ageOption18Plus.
-  ///
-  /// In es, this message translates to:
-  /// **'Tengo 18 años o más'**
-  String get ageOption18Plus;
-
-  /// No description provided for @ageOption13To17.
-  ///
-  /// In es, this message translates to:
-  /// **'Tengo 13–17 años'**
-  String get ageOption13To17;
-
   /// No description provided for @ageOptionUnder13.
   ///
   /// In es, this message translates to:
   /// **'Tengo menos de 13 años'**
   String get ageOptionUnder13;
+
+  /// No description provided for @ageRange0To5.
+  ///
+  /// In es, this message translates to:
+  /// **'0–5'**
+  String get ageRange0To5;
+
+  /// No description provided for @ageRange6To12.
+  ///
+  /// In es, this message translates to:
+  /// **'6–12'**
+  String get ageRange6To12;
+
+  /// No description provided for @ageRange13To17.
+  ///
+  /// In es, this message translates to:
+  /// **'13–17'**
+  String get ageRange13To17;
+
+  /// No description provided for @ageRange18To24.
+  ///
+  /// In es, this message translates to:
+  /// **'18–24'**
+  String get ageRange18To24;
+
+  /// No description provided for @ageRange25To30.
+  ///
+  /// In es, this message translates to:
+  /// **'25–30'**
+  String get ageRange25To30;
+
+  /// No description provided for @ageRange31To35.
+  ///
+  /// In es, this message translates to:
+  /// **'31–35'**
+  String get ageRange31To35;
+
+  /// No description provided for @ageRange36To40.
+  ///
+  /// In es, this message translates to:
+  /// **'36–40'**
+  String get ageRange36To40;
+
+  /// No description provided for @ageRange41To50.
+  ///
+  /// In es, this message translates to:
+  /// **'41–50'**
+  String get ageRange41To50;
+
+  /// No description provided for @ageRange51To60.
+  ///
+  /// In es, this message translates to:
+  /// **'51–60'**
+  String get ageRange51To60;
+
+  /// No description provided for @ageRange61Plus.
+  ///
+  /// In es, this message translates to:
+  /// **'61+'**
+  String get ageRange61Plus;
 
   /// No description provided for @continueAction.
   ///

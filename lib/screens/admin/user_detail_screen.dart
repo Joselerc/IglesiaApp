@@ -840,17 +840,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     return DateFormat('dd/MM/yyyy').format(date);
   }
 
-  // NUEVA FUNCIÓN PARA CALCULAR EDAD
-  String _calculateAge(DateTime birthDate) {
-    final currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-      age--;
-    }
-    return age.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -933,15 +922,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     // Teléfono
     if (_user?.phone != null && _user!.phone!.isNotEmpty) {
       infoRows.add(_buildInfoRow(icon: Icons.phone, text: _user!.phone!));
-    }
-    // Fecha de Nacimiento y Edad
-    if (_user?.birthDate != null) {
-      final birthDateTimestamp = _user!.birthDate as Timestamp?;
-      if (birthDateTimestamp != null) {
-        final birthDate = birthDateTimestamp.toDate();
-        final age = _calculateAge(birthDate);
-        infoRows.add(_buildInfoRow(icon: Icons.calendar_today, text: '${_formatDate(birthDate)} ($age anos)'));
-      }
     }
     // Género
     if (_user?.gender != null && _user!.gender!.isNotEmpty) {

@@ -32,7 +32,6 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
 
   // Controladores del Responsable (Visitante)
   final _fullNameController = TextEditingController();
-  DateTime? _birthDate; // Aunque no se muestra en la UI de la imagen, lo mantenemos por consistencia con UserModel
   String? _gender;    // Ídem
   final _phoneController = TextEditingController();
   String _phoneCountryCode = '+55';
@@ -109,7 +108,6 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
         _isoCountryCode = userData.isoCountryCode ?? 'BR';
         _phoneCountryCode = userData.phoneCountryCode ?? '+55';
         _phoneCompleteNumber = userData.phoneComplete ?? '';
-        _birthDate = userData.birthDate?.toDate();
         _gender = userData.gender;
         _existingPhotoUrl = userData.photoUrl;
         // TODO: Cargar dirección si está en UserModel
@@ -323,7 +321,7 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
         name: firstName, surname: lastName, displayName: _fullNameController.text.trim(),
         photoUrl: photoUrl, phone: _phoneController.text.trim(),
         phoneCountryCode: _phoneCountryCode, phoneComplete: _phoneCompleteNumber, isoCountryCode: _isoCountryCode,
-        birthDate: _birthDate != null ? Timestamp.fromDate(_birthDate!) : null, gender: _gender,
+        gender: _gender,
         createdAt: _isEditMode && widget.visitorUserId != null
             ? ((await FirebaseFirestore.instance.collection('users').doc(widget.visitorUserId!).get()).data()?['createdAt'] as Timestamp? ?? Timestamp.now()).toDate()
             : DateTime.now(),
@@ -413,7 +411,6 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
       _isoCountryCode = selectedUser.isoCountryCode ?? 'BR';
       _phoneCountryCode = selectedUser.phoneCountryCode ?? '+55';
       _phoneCompleteNumber = selectedUser.phoneComplete ?? '';
-      _birthDate = selectedUser.birthDate?.toDate();
       _gender = selectedUser.gender;
       _existingPhotoUrl = selectedUser.photoUrl; 
       _pickedImage = null; // Limpiar imagen local
@@ -524,22 +521,6 @@ class _CreateEditVisitorScreenState extends State<CreateEditVisitorScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                                final DateTime? picked = await showDatePicker(
-                                context: context, initialDate: _birthDate ?? DateTime.now(),
-                                firstDate: DateTime(1900), lastDate: DateTime.now(), locale: const Locale('pt', 'BR'),
-                              );
-                              if (picked != null && picked != _birthDate) setState(() => _birthDate = picked);
-                            },
-                            child: InputDecorator(
-                              decoration: const InputDecoration(labelText: 'Nascimento', suffixIcon: Icon(Icons.calendar_today_outlined)),
-                              child: Text(_birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : 'Selecionar data'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             decoration: const InputDecoration(labelText: 'Sexo'),

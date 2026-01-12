@@ -4391,8 +4391,48 @@
   "familyInvitations": "Invitaciones de familia",
   "createFamily": "Crear familia",
   "joinFamily": "Unirme a una familia",
+  "manageFamiliesAdmin": "Administrar familias",
+  "adminFamiliesTabList": "Listado",
+  "adminFamiliesTabStats": "Estadísticas",
+  "adminFamiliesFilterAll": "Todas",
+  "adminFamiliesFilterRecent": "Nuevas",
+  "adminFamiliesFilterSingleMember": "Solo 1",
+  "adminFamiliesFilterWithChildren": "Con hijos",
+  "adminFamiliesStatsOverview": "Resumen",
+  "adminFamiliesStatsTotalFamilies": "Total de familias",
+  "adminFamiliesStatsTotalMembers": "Total de miembros",
+  "adminFamiliesStatsFamiliesWithChildren": "Familias con hijos",
+  "adminFamiliesStatsFamiliesWithoutChildren": "Familias sin hijos",
+  "adminFamiliesStatsFamiliesNoAdults": "Familias sin adultos",
+  "adminFamiliesStatsFamiliesSingleMember": "Familias de 1 miembro",
+  "adminFamiliesStatsDistribution": "Distribución",
+  "adminFamiliesStatsFamiliesOverTime": "Familias creadas",
+  "adminFamiliesStatsLastDays": "Últimos {days} días",
+  "@adminFamiliesStatsLastDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "adminFamiliesStatsParentsByAgeRange": "Padres por rango de edad",
+  "adminFamiliesStatsNoData": "Sin datos",
   "noFamiliesYet": "Aun no perteneces a ninguna familia",
   "familyFallbackName": "Familia",
+  "familyStructureSummary": "{adults} adultos · {youth} jóvenes",
+  "@familyStructureSummary": {
+    "placeholders": {
+      "adults": {"type": "int"},
+      "youth": {"type": "int"}
+    }
+  },
+  "familyStructureUnknown": "{count} sin rango",
+  "@familyStructureUnknown": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "familyBadgeNoAdults": "Sin adultos",
+  "familyBadgeSingleMember": "Solo 1",
+  "familyBadgeIncomplete": "Incompleta",
   "familyMembersCount": "{count} miembros",
   "@familyMembersCount": {
     "placeholders": {
@@ -4448,15 +4488,25 @@
   "familyRoleDaughter": "Hija",
   "familyRoleTutor": "Tutor",
   "familyRoleOther": "Otro",
+  "familyCreatorRoleLabel": "Tu rol en la familia",
+  "familyCreatorRoleHint": "Selecciona tu rol",
   "familyMembersLabel": "Miembros de la familia",
   "adminLabel": "Admin",
   "familiesAdultsOnlyMessage": "Solo los mayores de 18 años pueden crear o administrar familias.",
   "noInvitesFound": "No tienes invitaciones",
   "ageConfirmationTitle": "Confirmación de edad",
   "ageConfirmationPrompt": "Para usar esta app, confirma tu rango de edad.",
-  "ageOption18Plus": "Tengo 18 años o más",
-  "ageOption13To17": "Tengo 13–17 años",
   "ageOptionUnder13": "Tengo menos de 13 años",
+  "ageRange0To5": "0–5",
+  "ageRange6To12": "6–12",
+  "ageRange13To17": "13–17",
+  "ageRange18To24": "18–24",
+  "ageRange25To30": "25–30",
+  "ageRange31To35": "31–35",
+  "ageRange36To40": "36–40",
+  "ageRange41To50": "41–50",
+  "ageRange51To60": "51–60",
+  "ageRange61Plus": "61+",
   "continueAction": "Continuar",
   "under13RegistrationBlocked": "Lo sentimos, debes tener al menos 13 años para usar esta app."
 }

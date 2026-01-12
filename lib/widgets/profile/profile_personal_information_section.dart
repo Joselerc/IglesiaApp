@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../models/user_model.dart'; // Asumiendo la necesidad y la ruta
-import '../../../theme/app_colors.dart'; // Para colores consistentes
 import '../../../theme/app_text_styles.dart'; // Para estilos de texto consistentes
 import '../../l10n/app_localizations.dart';
 
 class ProfilePersonalInformationSection extends StatefulWidget {
   final String userId;
 
-  const ProfilePersonalInformationSection({Key? key, required this.userId}) : super(key: key);
+  const ProfilePersonalInformationSection({super.key, required this.userId});
 
   @override
-  _ProfilePersonalInformationSectionState createState() => _ProfilePersonalInformationSectionState();
+  State<ProfilePersonalInformationSection> createState() =>
+      _ProfilePersonalInformationSectionState();
 }
 
 class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInformationSection> {
@@ -29,11 +27,9 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
   // Variables para el teléfono con código de país
   String _phoneCountryCode = '+55'; // Código de marcación (ej: +55)
   String _phoneCompleteNumber = '';
-  bool _isValidPhone = false;
   String _isoCountryCode = 'BR'; // Código ISO (ej: BR)
 
   // Campos para perfil
-  DateTime? _birthDate;
   String? _gender;
 
   @override
@@ -71,7 +67,6 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
         _isoCountryCode = userData['isoCountryCode'] as String? ?? _getIsoCodeFromDialCode(_phoneCountryCode);
         // _isValidPhone = phoneSimple.length >= 8; // Ajustar según reglas de validación
 
-        _birthDate = (userData['birthDate'] as Timestamp?)?.toDate();
         _gender = userData['gender'] as String?;
         
         // Log para verificar carga
@@ -128,7 +123,6 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
         'isoCountryCode': phoneNumber.isNotEmpty ? currentIsoCode : '',
         'phoneComplete': phoneNumber.isNotEmpty ? currentCompleteNumber : '',
         'phoneCountryCode': phoneNumber.isNotEmpty ? currentCountryCode : '',
-        'birthDate': _birthDate != null ? Timestamp.fromDate(_birthDate!) : null,
         'gender': _gender,
         'lastProfileUpdate': FieldValue.serverTimestamp(),
       };
@@ -294,44 +288,6 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo Fecha de Nacimiento
-                  InkWell(
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _birthDate ?? DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                        locale: const Locale('pt', 'BR'),
-                        builder: (context, child) => Theme(data: Theme.of(context).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary, onPrimary: Colors.white)), child: child!),
-                      );
-                      if (picked != null && picked != _birthDate) {
-                        setState(() => _birthDate = picked);
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.birthDateField,
-                        labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                        prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.calendar_today_outlined, color: const Color(0xFF2196F3).withOpacity(0.7))),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: Text(
-                          _birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : AppLocalizations.of(context)!.selectDate,
-                          style: _birthDate != null ? AppTextStyles.bodyText1.copyWith(color: Colors.black87) : AppTextStyles.bodyText1.copyWith(color: Colors.grey[700]),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
                   // Campo Sexo
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
@@ -384,7 +340,6 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         ),
                         onChanged: (phone) {
                           setState(() {
-                            final cleanNumber = phone.number.replaceAll(RegExp(r'\s+'), '');
                             // NO actualizar _phoneController.text aquí directamente si ya está asignado al widget.
                             // Dejar que el widget maneje la actualización de su propio controller.
                             // Lo que sí actualizamos son las variables de estado para la lógica de guardado.

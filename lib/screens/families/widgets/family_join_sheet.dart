@@ -104,58 +104,87 @@ class _FamilyJoinContentState extends State<FamilyJoinContent> {
     final strings = AppLocalizations.of(context)!;
     return showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         String selected = 'hijo';
+        final availableRoles =
+            FamilyGroup.roleOptions.where((role) => role != 'admin').toList();
+        final maxHeight = MediaQuery.of(context).size.height * 0.75;
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          strings.selectFamilyRole,
-                          style: AppTextStyles.subtitle1
-                              .copyWith(fontWeight: FontWeight.bold),
+            return SizedBox(
+              height: maxHeight,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            strings.selectFamilyRole,
+                            style: AppTextStyles.subtitle1
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: availableRoles.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 4),
+                        itemBuilder: (context, index) {
+                          final role = availableRoles[index];
+                          return RadioListTile<String>(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(familyRoleLabel(strings, role)),
+                            value: role,
+                            groupValue: selected,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setModalState(() => selected = value);
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () => Navigator.pop(context, selected),
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(strings.confirm),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ...FamilyGroup.roleOptions.where((r) => r != 'admin').map(
-                    (role) => RadioListTile<String>(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(familyRoleLabel(strings, role)),
-                      value: role,
-                      groupValue: selected,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setModalState(() => selected = value);
-                        }
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: FilledButton.tonal(
-                      onPressed: () => Navigator.pop(context, selected),
-                      child: Text(strings.confirm),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -341,7 +370,7 @@ class _FamilyJoinContentState extends State<FamilyJoinContent> {
     if (isPending) {
       return Text(
         AppLocalizations.of(context)!.requestPending,
-        style: textStyle.copyWith(color: primary),
+        style: textStyle.copyWith(color: Colors.amber),
       );
     }
     final canTap = _submittingId == null;

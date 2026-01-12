@@ -12,11 +12,18 @@ import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 import '../../l10n/app_localizations.dart';
-import '../../utils/age_group.dart';
+import '../../utils/age_range.dart';
+import '../../utils/age_range_localizations.dart';
 
 enum _AgeGateSelection {
-  age18Plus,
   age13To17,
+  age18To24,
+  age25To30,
+  age31To35,
+  age36To40,
+  age41To50,
+  age51To60,
+  age61Plus,
   under13,
 }
 
@@ -71,9 +78,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final ageGroup = selection == _AgeGateSelection.age18Plus
-        ? AgeGroup.plus18.firestoreValue
-        : AgeGroup.from13To17.firestoreValue;
+    final AgeRange ageRange = switch (selection) {
+      _AgeGateSelection.age13To17 => AgeRange.from13To17,
+      _AgeGateSelection.age18To24 => AgeRange.from18To24,
+      _AgeGateSelection.age25To30 => AgeRange.from25To30,
+      _AgeGateSelection.age31To35 => AgeRange.from31To35,
+      _AgeGateSelection.age36To40 => AgeRange.from36To40,
+      _AgeGateSelection.age41To50 => AgeRange.from41To50,
+      _AgeGateSelection.age51To60 => AgeRange.from51To60,
+      _AgeGateSelection.age61Plus => AgeRange.from61Plus,
+      _AgeGateSelection.under13 => throw StateError('Under13 is blocked'),
+    };
 
     setState(() => _isLoading = true);
 
@@ -94,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'role': roleName, // Nombre del rol por defecto
-        'age_group': ageGroup,
+        'ageRange': ageRange.firestoreValue,
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'photoUrl': '',
         'createdAt': DateTime.now(),
@@ -237,17 +252,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 14),
                     _AgeGateRadioTile(
-                      value: _AgeGateSelection.age18Plus,
+                      value: _AgeGateSelection.age13To17,
                       groupValue: selected,
-                      title: strings.ageOption18Plus,
+                      title: AgeRange.from13To17.label(strings),
                       onChanged: (value) =>
                           setModalState(() => selected = value),
                     ),
                     const SizedBox(height: 10),
                     _AgeGateRadioTile(
-                      value: _AgeGateSelection.age13To17,
+                      value: _AgeGateSelection.age18To24,
                       groupValue: selected,
-                      title: strings.ageOption13To17,
+                      title: AgeRange.from18To24.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age25To30,
+                      groupValue: selected,
+                      title: AgeRange.from25To30.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age31To35,
+                      groupValue: selected,
+                      title: AgeRange.from31To35.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age36To40,
+                      groupValue: selected,
+                      title: AgeRange.from36To40.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age41To50,
+                      groupValue: selected,
+                      title: AgeRange.from41To50.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age51To60,
+                      groupValue: selected,
+                      title: AgeRange.from51To60.label(strings),
+                      onChanged: (value) =>
+                          setModalState(() => selected = value),
+                    ),
+                    const SizedBox(height: 10),
+                    _AgeGateRadioTile(
+                      value: _AgeGateSelection.age61Plus,
+                      groupValue: selected,
+                      title: AgeRange.from61Plus.label(strings),
                       onChanged: (value) =>
                           setModalState(() => selected = value),
                     ),

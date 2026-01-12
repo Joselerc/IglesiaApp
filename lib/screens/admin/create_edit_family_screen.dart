@@ -27,7 +27,6 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
   int _currentStep = 0;
 
   // --- Claves para Forms por Paso ---
-  final _step1FormKey = GlobalKey<FormState>(); // Añadido por consistencia, aunque no se use aún
   final _step2FormKey = GlobalKey<FormState>();
   // --- Fin Claves ---
 
@@ -38,11 +37,8 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
 
   // Controladores y variables para el Paso 2: Datos del Responsable
   final _guardianFullNameController = TextEditingController();
-  DateTime? _guardianBirthDate;
   String? _guardianGender;
   final _guardianPhoneController = TextEditingController();
-  String _guardianPhoneCountryCode = '+55';
-  String _guardianPhoneCompleteNumber = '';
   String _guardianIsoCountryCode = 'BR'; 
   String? _guardianPhoneType;
   final _guardianEmailController = TextEditingController();
@@ -81,7 +77,6 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
   // --- Fin Variable para Paso 4 ---
 
   // --- Flag para controlar validación del Paso 2 ---
-  bool _step2AttemptedValidation = false;
   // --- Fin Flag ---
 
   // --- Estado de Guardado ---
@@ -165,14 +160,9 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
       }
     } else if (_currentStep == 1) {
       // Validar Paso 2 (Datos responsable) usando FormKey
-      setState(() {
-        _step2AttemptedValidation = true; // Marcar que se intentó validar
-      });
-
-      bool isBirthDateValid = _guardianBirthDate != null;
       bool isFormValid = _step2FormKey.currentState?.validate() ?? false;
 
-      if (!isFormValid || !isBirthDateValid) {
+      if (!isFormValid) {
          ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, corrija os erros e preencha todos os campos obrigatórios (*).'), backgroundColor: Colors.red),
         );
@@ -227,8 +217,6 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
 
     try {
       String? familyPhotoUrl;
-      String? guardianPhotoUrl;
-      String? consentPhotoUrl;
       final familyId = const Uuid().v4(); 
       print('[SAVE_FAMILY] Generado familyId: $familyId');
 
@@ -276,9 +264,6 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
       
       // Asignar URLs obtenidas
       familyPhotoUrl = imageUrls['family'];
-      // Si no se subió foto de guardián, mantener la de búsqueda si existe
-      guardianPhotoUrl = imageUrls['guardian'] ?? _guardianPhotoUrlFromSearch;
-      consentPhotoUrl = imageUrls['consent']; // Ya validado que no es null
 
       // 4. Preparar nombre/apellido del responsable
       String guardianFirstName = '';
@@ -429,12 +414,9 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
       // Asumiendo que tu UserModel (el que modificaste para ProfileScreen) tiene estos campos:
       _guardianPhoneController.text = selectedUser.phone ?? ''; 
       // _guardianIsoCountryCode = selectedUser.isoCountryCode ?? 'BR';
-      // _guardianPhoneCountryCode = selectedUser.phoneCountryCode ?? '+55';
-      // _guardianPhoneCompleteNumber = selectedUser.phoneComplete ?? '';
       // La línea anterior está comentada porque tu UserModel actual no tiene isoCountryCode, etc.
       // Si los añades a UserModel, puedes descomentarlos.
 
-      _guardianBirthDate = selectedUser.birthDate?.toDate(); // Corregido: convertir Timestamp a DateTime
       _guardianGender = selectedUser.gender;
       
       _guardianPhotoUrlFromSearch = selectedUser.photoUrl;
@@ -545,7 +527,7 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
               child: SingleChildScrollView(
                 child: Text(
                   fullPrivacyTermsText, // Mostrar el texto completo importado
-                  style: AppTextStyles.bodyText2?.copyWith(fontSize: 13), // Estilo para el texto legal
+                  style: AppTextStyles.bodyText2.copyWith(fontSize: 13), // Estilo para el texto legal
                 ),
               ),
             ),
@@ -555,7 +537,7 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
           const SizedBox(height: 16),
           Text(
             'Confirmações de Leitura e Aceite:',
-            style: AppTextStyles.bodyText1?.copyWith(fontWeight: FontWeight.w600)
+            style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.w600)
           ),
           const SizedBox(height: 12),
           
@@ -945,65 +927,27 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
             ),
             const SizedBox(height: 16),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _guardianBirthDate ?? DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                        locale: const Locale('pt', 'BR'),
-                      );
-                      if (picked != null && picked != _guardianBirthDate) {
-                        setState(() {
-                          _guardianBirthDate = picked;
-                        });
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Nascimento *',
-                        suffixIcon: const Icon(Icons.calendar_today_outlined),
-                        errorText: _step2AttemptedValidation && _guardianBirthDate == null 
-                                   ? 'Data obrigatória' 
-                                   : null,
-                      ),
-                      child: Text(
-                        _guardianBirthDate != null 
-                            ? '${_guardianBirthDate!.day}/${_guardianBirthDate!.month}/${_guardianBirthDate!.year}' 
-                            : 'Selecionar data',
-                        style: _guardianBirthDate != null ? AppTextStyles.bodyText1 : AppTextStyles.bodyText1.copyWith(color: Colors.grey.shade600),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Sexo *'),
-                    value: _guardianGender,
-                    isExpanded: true,
-                    items: ['Masculino', 'Feminino', 'Prefiro não dizer']
-                        .map((label) => DropdownMenuItem(child: Text(label, overflow: TextOverflow.ellipsis), value: label))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _guardianGender = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Obrigatório';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(labelText: 'Sexo *'),
+              value: _guardianGender,
+              isExpanded: true,
+              items: ['Masculino', 'Feminino', 'Prefiro não dizer']
+                  .map((label) => DropdownMenuItem(
+                        child: Text(label, overflow: TextOverflow.ellipsis),
+                        value: label,
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _guardianGender = value;
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Obrigatório';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
 
@@ -1017,15 +961,12 @@ class _CreateEditFamilyScreenState extends State<CreateEditFamilyScreen> {
               languageCode: 'pt',
               onChanged: (phone) {
                 setState(() {
-                  _guardianPhoneCompleteNumber = phone.completeNumber;
-                  _guardianPhoneCountryCode = phone.countryCode;
                   _guardianIsoCountryCode = phone.countryISOCode;
                 });
               },
               onCountryChanged: (country) {
                 setState(() {
                    _guardianIsoCountryCode = country.code;
-                   _guardianPhoneCountryCode = '+${country.dialCode}';
                 });
               },
               validator: (phoneNumber) {

@@ -58,6 +58,7 @@ class FamilyGroupService {
     String name, {
     String? description,
     String? photoUrl,
+    String creatorMemberRole = 'padre',
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -65,12 +66,14 @@ class FamilyGroupService {
     }
     final now = FieldValue.serverTimestamp();
     final doc = _families.doc();
+    final normalizedRole =
+        creatorMemberRole.trim().isEmpty ? 'padre' : creatorMemberRole;
     await doc.set({
       'name': name,
       'creator': _userRef(user.uid),
       'admins': [_userRef(user.uid)],
       'members': [_userRef(user.uid)],
-      'memberRoles': {user.uid: 'admin'},
+      'memberRoles': {user.uid: normalizedRole},
       'pendingInvites': {},
       'pendingRequests': {},
       'createdAt': now,

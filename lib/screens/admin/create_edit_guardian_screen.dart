@@ -34,7 +34,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
 
   // Controladores (similares al Paso 2 de CreateEditFamily)
   final _fullNameController = TextEditingController();
-  DateTime? _birthDate;
   String? _gender;
   final _phoneController = TextEditingController();
   String _phoneCountryCode = '+55';
@@ -88,7 +87,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
         _isoCountryCode = userData.isoCountryCode ?? 'BR';
         _phoneCountryCode = userData.phoneCountryCode ?? '+55';
         _phoneCompleteNumber = userData.phoneComplete ?? '';
-        _birthDate = userData.birthDate?.toDate(); 
         _gender = userData.gender;
         _existingPhotoUrl = userData.photoUrl;
         // No cargamos la contraseña
@@ -108,10 +106,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
   // --- GUARDAR RESPONSÁVEL ---
   Future<void> _saveGuardian() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_birthDate == null) { 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, selecione a data de nascimento.'), backgroundColor: Colors.red));
-      return;
-    }
     if (_isSaving) return;
     setState(() => _isSaving = true);
 
@@ -148,7 +142,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
           'phoneCountryCode': _phoneCountryCode,
           'phoneComplete': _phoneCompleteNumber,
           'isoCountryCode': _isoCountryCode,
-          'birthDate': _birthDate != null ? Timestamp.fromDate(_birthDate!) : null,
           'gender': _gender,
           // Email no se actualiza aquí generalmente, es un identificador.
           // PhoneType no está en UserModel.
@@ -203,7 +196,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
             phoneCountryCode: _phoneCountryCode,
             phoneComplete: _phoneCompleteNumber,
             isoCountryCode: _isoCountryCode,
-            birthDate: _birthDate != null ? Timestamp.fromDate(_birthDate!) : null,
             gender: _gender,
             createdAt: DateTime.now(),
           );
@@ -315,24 +307,6 @@ class _CreateEditGuardianScreenState extends State<CreateEditGuardianScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                               final DateTime? picked = await showDatePicker(
-                                context: context, initialDate: _birthDate ?? DateTime.now(),
-                                firstDate: DateTime(1900), lastDate: DateTime.now(), locale: const Locale('pt', 'BR'),
-                              );
-                              if (picked != null && picked != _birthDate) setState(() => _birthDate = picked);
-                            },
-                            child: InputDecorator(
-                              decoration: InputDecoration(labelText: 'Nascimento *', suffixIcon: const Icon(Icons.calendar_today_outlined),
-                              // TODO: Validar fecha en _saveGuardian si es null
-                              ),
-                               child: Text(_birthDate != null ? DateFormat('dd/MM/yyyy').format(_birthDate!) : 'Selecionar data'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             decoration: const InputDecoration(labelText: 'Sexo *'),

@@ -6,6 +6,8 @@ import '../../theme/app_text_styles.dart';
 import '../../models/user_model.dart'; // Asumiendo que existe
 import '../../services/permission_service.dart'; // <-- IMPORTAR PermissionService
 import '../../l10n/app_localizations.dart';
+import '../../utils/age_range.dart';
+import '../../utils/age_range_localizations.dart';
 
 class ChurchStatisticsScreen extends StatefulWidget {
   const ChurchStatisticsScreen({super.key});
@@ -22,7 +24,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
   bool _isLoading = true;
   int _totalUsers = 0;
   Map<String, int> _genderDistribution = {};
-  Map<int, int> _ageDistribution = {}; // Edad exacta -> Conteo
+  Map<String, int> _ageDistribution = {}; // ageRange -> Conteo
   int _usersInMinistries = 0;
   int _usersInConnects = 0;
   int _usersInCourses = 0; // El valor real se calculará
@@ -175,48 +177,32 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
     _usersInMinistries = _userIdsInMinistries.length;
     _usersInConnects = _userIdsInConnects.length;
     _usersInCourses = _userIdsInCourses.length;
-
-    int usersWithoutBirthDate = 0;
+    final ageRangeCounts = <AgeRange, int>{};
+    int usersWithoutAgeRange = 0;
 
     for (var user in _allUsers) {
       // Género
       final gender = user.gender?.isNotEmpty == true ? user.gender! : AppLocalizations.of(context)!.notInformed;
       _genderDistribution[gender] = (_genderDistribution[gender] ?? 0) + 1;
 
-      // Edad
-      DateTime? birthDate;
-      if (user.birthDate is Timestamp) {
-        birthDate = (user.birthDate as Timestamp).toDate();
-      } else if (user.birthDate is DateTime) {
-        birthDate = user.birthDate as DateTime?;
-      }
-
-      if (birthDate != null) {
-        final age = _calculateAge(birthDate);
-        _ageDistribution[age] = (_ageDistribution[age] ?? 0) + 1; 
+      // Edad (por rango)
+      final range = AgeRange.fromFirestoreValue(user.ageRange);
+      if (range == null) {
+        usersWithoutAgeRange++;
       } else {
-        usersWithoutBirthDate++;
+        ageRangeCounts[range] = (ageRangeCounts[range] ?? 0) + 1;
       }
     }
 
-    // Ordenar _ageDistribution por edad
-    var sortedAgeKeys = _ageDistribution.keys.toList(growable:false)
-    ..sort((k1, k2) => k1.compareTo(k2)); 
-    Map<int, int> sortedAgeMap =  {};
-    for (var key in sortedAgeKeys) {
-        sortedAgeMap[key] = _ageDistribution[key]!;
-    }
-    _ageDistribution = sortedAgeMap;
+    final sortedRanges = AgeRange.values.toList()
+      ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
 
-    // Añadir "Não informou a idade" a _ageDistribution si hay usuarios
-    // Usaremos una clave negativa o muy alta para que no interfiera con edades reales si se ordena,
-    // pero para la visualización, lo manejaremos especialmente en _buildDistributionCard.
-    // Por ahora, lo añadiremos al mapa que se pasa a _buildDistributionCard.
-    // La clave -1 es solo un placeholder para esta categoría.
-    if (usersWithoutBirthDate > 0) {
-      // No lo añadimos directamente a _ageDistribution para no afectar el gráfico de barras futuro
-      // Se manejará en _buildDistributionCard
-    }
+    _ageDistribution = {
+      for (final range in sortedRanges)
+        if ((ageRangeCounts[range] ?? 0) > 0)
+          range.firestoreValue: ageRangeCounts[range]!,
+      if (usersWithoutAgeRange > 0) 'not_informed': usersWithoutAgeRange,
+    };
 
     // Ordenar _genderDistribution: Masculino, Feminino, Não informado
     Map<String, int> sortedGenderMap = {};
@@ -240,16 +226,6 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
       }
     });
     _genderDistribution = sortedGenderMap;
-  }
-
-  int _calculateAge(DateTime birthDate) {
-    final currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-      age--;
-    }
-    return age;
   }
 
   @override
@@ -476,14 +452,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
     required IconData icon,
     required Color color,
   }) {
-    Map<dynamic, int> displayDistribution = Map.from(distribution);
-    if (title == 'Distribuição por Idade') {
-        int usersWithoutBirthDate = _allUsers.where((u) => u.birthDate == null).length;
-        if (usersWithoutBirthDate > 0) {
-            // Usar una clave de String distintiva para no informados en edad
-            displayDistribution['Não informou'] = usersWithoutBirthDate;
-        }
-    }
+    final displayDistribution = Map<dynamic, int>.from(distribution);
 
     return Card(
       elevation: 2,
@@ -548,24 +517,33 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                         ),
                       ),
                       Text(
-                        _getDistributionValueLabel(entry.value, title == AppLocalizations.of(context)!.ageDistribution && entry.key is int ? entry.key as int : null),
+                        _getDistributionValueLabel(
+                          entry.value,
+                          showPercentage:
+                              title == AppLocalizations.of(context)!.ageDistribution,
+                        ),
                         style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary)
                       ),
                     ],
                   ),
                 );
               }).toList(),
-            // Mostrar el gráfico de barras si es la distribución por edad y hay datos
-            if (title == AppLocalizations.of(context)!.ageDistribution && distribution.keys.any((k) => k is int && (distribution[k] ?? 0) > 0) ) 
+            // Mostrar el gráfico de barras si es la distribución por rango de edad y hay datos
+            if (title == AppLocalizations.of(context)!.ageDistribution &&
+                distribution.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 10.0),
                 child: SizedBox(
-                  height: 220, 
-                  child: _buildAgeBarChart(Map<int, int>.fromEntries(
-                    distribution.entries
-                      .where((entry) => entry.key is int) 
-                      .map((entry) => MapEntry(entry.key as int, entry.value)) 
-                  ), color),
+                  height: 220,
+                  child: _buildAgeRangeBarChart(
+                    Map<String, int>.fromEntries(
+                      distribution.entries
+                          .where((entry) => entry.key is String)
+                          .map((entry) =>
+                              MapEntry(entry.key as String, entry.value)),
+                    ),
+                    color,
+                  ),
                 ),
               ),
             // Mostrar el gráfico de barras para Género
@@ -584,99 +562,83 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
   }
 
   String _getDistributionKeyLabel(String cardTitle, dynamic key) {
-    if (cardTitle == AppLocalizations.of(context)!.ageDistribution) {
-      if (key is int) return '$key ${AppLocalizations.of(context)!.years}';
-      if (key == 'Não informou') return AppLocalizations.of(context)!.ageNotInformed;
-      return key.toString(); // Fallback
+    final strings = AppLocalizations.of(context)!;
+    if (cardTitle == strings.ageDistribution) {
+      if (key == 'not_informed') return strings.ageNotInformed;
+      final range = AgeRange.fromFirestoreValue(key.toString());
+      return range?.label(strings) ?? strings.ageNotInformed;
     }
     return key.toString();
   }
 
-  String _getDistributionValueLabel(int count, int? ageKey) {
-    if (ageKey != null && _totalUsers > 0) {
+  String _getDistributionValueLabel(int count, {required bool showPercentage}) {
+    if (showPercentage && _totalUsers > 0) {
       double percentage = (count / _totalUsers) * 100;
       return '$count (${percentage.toStringAsFixed(1)}%)';
     }
-    // Para género, el porcentaje general no tiene tanto sentido por item, se ve en la tarjeta global si se quisiera.
     return count.toString();
   }
 
-  Widget _buildAgeBarChart(Map<int, int> ageData, Color chartColor) {
-    if (ageData.isEmpty) return const SizedBox.shrink();
+  Widget _buildAgeRangeBarChart(Map<String, int> ageRangeData, Color chartColor) {
+    final strings = AppLocalizations.of(context)!;
 
-    final List<BarChartGroupData> barGroups = [];
-    double maxY = 0;
-    int i = 0; // Para el eje X del gráfico
+    final ranges = AgeRange.values.toList()
+      ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
+    final data = <AgeRange, int>{
+      for (final range in ranges) range: ageRangeData[range.firestoreValue] ?? 0,
+    };
+    final nonZero = data.entries.where((e) => e.value > 0).toList();
+    if (nonZero.isEmpty) return const SizedBox.shrink();
 
-    // Necesitamos las claves (edades) ordenadas para el eje X
-    final sortedAges = ageData.keys.toList()..sort();
+    final maxY =
+        nonZero.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final double yInterval =
+        maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble().clamp(1.0, maxY).toDouble();
 
-    for (var age in sortedAges) {
-      final count = ageData[age]!;
-      if (count.toDouble() > maxY) {
-        maxY = count.toDouble();
-      }
-      barGroups.add(
+    final barGroups = <BarChartGroupData>[
+      for (var index = 0; index < ranges.length; index++)
         BarChartGroupData(
-          x: i, // Usar índice para el eje X
+          x: index,
           barRods: [
             BarChartRodData(
-              toY: count.toDouble(),
+              toY: data[ranges[index]]!.toDouble(),
               color: chartColor,
-              width: 16, 
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
-              // Para mostrar el valor encima de la barra:
-              rodStackItems: [
-                BarChartRodStackItem(
-                  0, // desde
-                  count.toDouble(), // hasta
-                  chartColor, // color de la barra interna (misma que la barra)
-                  // Texto que se mostrará encima de la barra
-                  // Esto es un hack, fl_chart no tiene una forma directa fácil para texto *encima*
-                  // La forma más robusta sería usar `showingTooltipIndicators` o un painter customizado.
-                  // Por ahora, el tooltip al tocar mostrará el valor.
-                ),
-              ],
-              // Otra opción es `borderSide: BorderSide(color: Colors.white, width: 2)` para resaltar.
+              width: 14,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
             ),
           ],
-          // Mostrar el valor directamente encima de la barra (usando showingTooltipIndicators)
-          // Esto requiere más estado, así que usaremos el tooltip normal por ahora.
         ),
-      );
-      i++;
-    }
-
-    if (barGroups.isEmpty) return const SizedBox.shrink();
-
-    double yInterval = 1;
-    if (maxY <= 5) yInterval = 1;
-    else if (maxY <= 10) yInterval = 2;
-    else if (maxY <= 20) yInterval = 4; // Ajustar para mejor visualización
-    else if (maxY <= 50) yInterval = 5;
-    else if (maxY <= 100) yInterval = 10;
-    else yInterval = (maxY / 5).ceilToDouble();
-    if (yInterval == 0) yInterval = 1;
+    ];
 
     return BarChart(
       BarChartData(
-        maxY: maxY * 1.2, 
+        maxY: maxY * 1.2,
         alignment: BarChartAlignment.spaceAround,
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey.withOpacity(0.9),
+            tooltipBgColor: Colors.blueGrey.withValues(alpha: 0.9),
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              // El group.x es el índice 'i' que usamos.
-              // Necesitamos mapear este índice de vuelta a la edad real.
-              int ageKey = sortedAges[group.x.toInt()];
+              final index = group.x.toInt().clamp(0, ranges.length - 1);
+              final label = ranges[index].label(strings);
               return BarTooltipItem(
-                '$ageKey ${AppLocalizations.of(context)!.years}\n',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                '$label\n',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
                 children: <TextSpan>[
                   TextSpan(
                     text: rod.toY.round().toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               );
@@ -690,62 +652,61 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              reservedSize: 36,
               getTitlesWidget: (double value, TitleMeta meta) {
-                // value es el índice 'i'
-                if (value.toInt() >= 0 && value.toInt() < sortedAges.length) {
-                  final String text = sortedAges[value.toInt()].toString();
-                  // Mostrar menos etiquetas si hay muchas barras para evitar superposición
-                  if (sortedAges.length > 10 && value.toInt() % (sortedAges.length / 5).ceil() != 0 && value.toInt() != sortedAges.length -1 ) {
-                    // No mostrar todas las etiquetas si son muchas, solo algunas
-                    // return const Text('');
-                  } 
-                  return SideTitleWidget(
-                    axisSide: meta.axisSide,
-                    space: 8.0,
-                    child: Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.w600)),
-                  );
-                }
-                return const Text('');
+                final index = value.toInt();
+                if (index < 0 || index >= ranges.length) return const SizedBox.shrink();
+                final text = ranges[index].label(strings);
+                return SideTitleWidget(
+                  axisSide: meta.axisSide,
+                  space: 8.0,
+                  child: Text(
+                    text,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
               },
-              reservedSize: 38,
-              interval: 1, // Mostrar una etiqueta por barra
             ),
           ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 32, 
+              reservedSize: 32,
               interval: yInterval,
               getTitlesWidget: (double value, TitleMeta meta) {
-                if (value == 0 && maxY == 0) return const Text(''); // No mostrar 0 si no hay datos
-                if (value % yInterval == 0) { // Mostrar solo múltiplos del intervalo
-                   return Text(value.toInt().toString(), style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.w600));
+                if (value == 0 && maxY == 0) return const Text('');
+                if (value % yInterval == 0) {
+                  return Text(
+                    value.toInt().toString(),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  );
                 }
                 return const Text('');
               },
             ),
           ),
         ),
-        borderData: FlBorderData(
-          show: true,
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-            left: BorderSide(color: Colors.grey.shade300, width: 1),
-          ),
-        ),
+        borderData: FlBorderData(show: false),
         gridData: FlGridData(
-            show: true, 
-            drawVerticalLine: false,
-            horizontalInterval: yInterval,
-            getDrawingHorizontalLine: (value) {
-                return FlLine(color: Colors.grey.shade300, strokeWidth: 0.5,);
-            },
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: yInterval,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(color: Colors.grey.shade300, strokeWidth: 0.5);
+          },
         ),
         barGroups: barGroups,
       ),
     );
   }
-
   Widget _buildGenderBarChart(Map<String, int> genderData, Color chartColor) {
     // Filtrar "Não informado" solo para el gráfico
     Map<String, int> chartGenderData = Map.from(genderData);
@@ -775,7 +736,8 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
               width: 35, // Barras un poco más anchas para pocas categorías
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
               rodStackItems: [ // Intento de mostrar valor en la barra (puede no ser ideal)
-                BarChartRodStackItem(0, count.toDouble(), chartColor.withOpacity(0.7)),
+                BarChartRodStackItem(
+                    0, count.toDouble(), chartColor.withValues(alpha: 0.7)),
               ]
             ),
           ],
@@ -787,10 +749,15 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
     if (barGroups.isEmpty) return const SizedBox.shrink();
 
     double yInterval = 1;
-    if (maxY <= 5) yInterval = 1;
-    else if (maxY <= 10) yInterval = 2;
-    else if (maxY <= 50) yInterval = 5;
-    else yInterval = (maxY / 5).ceilToDouble();
+    if (maxY <= 5) {
+      yInterval = 1;
+    } else if (maxY <= 10) {
+      yInterval = 2;
+    } else if (maxY <= 50) {
+      yInterval = 5;
+    } else {
+      yInterval = (maxY / 5).ceilToDouble();
+    }
     if (yInterval == 0) yInterval = 1;
 
     return BarChart(
@@ -800,7 +767,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey.withOpacity(0.9),
+            tooltipBgColor: Colors.blueGrey.withValues(alpha: 0.9),
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               String genderLabel = genderKeys[group.x.toInt()];
               return BarTooltipItem(

@@ -8142,10 +8142,88 @@ class AppLocalizationsPt extends AppLocalizations {
   String get joinFamily => 'Entrar em uma família';
 
   @override
+  String get manageFamiliesAdmin => 'Gerir famílias';
+
+  @override
+  String get adminFamiliesTabList => 'Lista';
+
+  @override
+  String get adminFamiliesTabStats => 'Estatísticas';
+
+  @override
+  String get adminFamiliesFilterAll => 'Todas';
+
+  @override
+  String get adminFamiliesFilterRecent => 'Novas';
+
+  @override
+  String get adminFamiliesFilterSingleMember => 'Só 1';
+
+  @override
+  String get adminFamiliesFilterWithChildren => 'Com filhos';
+
+  @override
+  String get adminFamiliesStatsOverview => 'Resumo';
+
+  @override
+  String get adminFamiliesStatsTotalFamilies => 'Total de famílias';
+
+  @override
+  String get adminFamiliesStatsTotalMembers => 'Total de membros';
+
+  @override
+  String get adminFamiliesStatsFamiliesWithChildren => 'Famílias com filhos';
+
+  @override
+  String get adminFamiliesStatsFamiliesWithoutChildren => 'Famílias sem filhos';
+
+  @override
+  String get adminFamiliesStatsFamiliesNoAdults => 'Famílias sem adultos';
+
+  @override
+  String get adminFamiliesStatsFamiliesSingleMember => 'Famílias com 1 membro';
+
+  @override
+  String get adminFamiliesStatsDistribution => 'Distribuição';
+
+  @override
+  String get adminFamiliesStatsFamiliesOverTime => 'Famílias criadas';
+
+  @override
+  String adminFamiliesStatsLastDays(int days) {
+    return 'Últimos $days dias';
+  }
+
+  @override
+  String get adminFamiliesStatsParentsByAgeRange => 'Pais por faixa etária';
+
+  @override
+  String get adminFamiliesStatsNoData => 'Sem dados';
+
+  @override
   String get noFamiliesYet => 'Você ainda não participa de nenhuma família';
 
   @override
   String get familyFallbackName => 'Família';
+
+  @override
+  String familyStructureSummary(int adults, int youth) {
+    return '$adults adultos · $youth jovens';
+  }
+
+  @override
+  String familyStructureUnknown(int count) {
+    return '$count sem faixa';
+  }
+
+  @override
+  String get familyBadgeNoAdults => 'Sem adultos';
+
+  @override
+  String get familyBadgeSingleMember => 'Só 1';
+
+  @override
+  String get familyBadgeIncomplete => 'Incompleta';
 
   @override
   String familyMembersCount(int count) {
@@ -8269,6 +8347,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get familyRoleOther => 'Outro';
 
   @override
+  String get familyCreatorRoleLabel => 'O seu papel na família';
+
+  @override
+  String get familyCreatorRoleHint => 'Seleciona o teu papel';
+
+  @override
   String get familyMembersLabel => 'Membros da família';
 
   @override
@@ -8289,13 +8373,37 @@ class AppLocalizationsPt extends AppLocalizations {
       'Para usar este app, confirme sua faixa etária.';
 
   @override
-  String get ageOption18Plus => 'Tenho 18 anos ou mais';
-
-  @override
-  String get ageOption13To17 => 'Tenho 13–17 anos';
-
-  @override
   String get ageOptionUnder13 => 'Tenho menos de 13 anos';
+
+  @override
+  String get ageRange0To5 => '0–5';
+
+  @override
+  String get ageRange6To12 => '6–12';
+
+  @override
+  String get ageRange13To17 => '13–17';
+
+  @override
+  String get ageRange18To24 => '18–24';
+
+  @override
+  String get ageRange25To30 => '25–30';
+
+  @override
+  String get ageRange31To35 => '31–35';
+
+  @override
+  String get ageRange36To40 => '36–40';
+
+  @override
+  String get ageRange41To50 => '41–50';
+
+  @override
+  String get ageRange51To60 => '51–60';
+
+  @override
+  String get ageRange61Plus => '61+';
 
   @override
   String get continueAction => 'Continuar';

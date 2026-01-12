@@ -7,7 +7,7 @@ import '../../services/family_group_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../utils/age_group.dart';
+import '../../utils/age_range.dart';
 import 'family_detail_screen.dart';
 import 'widgets/create_family_sheet.dart';
 import 'widgets/family_card.dart';
@@ -76,10 +76,10 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
       stream:
           FirebaseFirestore.instance.collection('users').doc(userId).snapshots(),
       builder: (context, userSnapshot) {
-        final ageGroup = AgeGroup.fromFirestoreValue(
-          userSnapshot.data?.data()?['age_group'] as String?,
+        final ageRange = AgeRange.fromFirestoreValue(
+          userSnapshot.data?.data()?['ageRange'] as String?,
         );
-        final isAdult = ageGroup == AgeGroup.plus18;
+        final isAdult = ageRange?.isAdult ?? false;
 
         void openCreateFamilyGuarded() {
           if (!isAdult) {
@@ -210,6 +210,8 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
                                 final family = families[index];
                                 final isAdmin =
                                     isAdult && family.isAdmin(userId);
+                                final hasPendingRequests =
+                                    isAdmin && family.pendingRequests.isNotEmpty;
                                 return FamilyCard(
                                   title: family.name.isNotEmpty
                                       ? family.name
@@ -221,6 +223,24 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
                                   surfaceTint:
                                       colorScheme.surfaceContainerLow,
                                   photoUrl: family.photoUrl,
+                                  titleMaxLines: 2,
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (hasPendingRequests) ...[
+                                        Icon(
+                                          Icons.notifications_active,
+                                          size: 18,
+                                          color: colorScheme.error,
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      const Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ],
+                                  ),
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
