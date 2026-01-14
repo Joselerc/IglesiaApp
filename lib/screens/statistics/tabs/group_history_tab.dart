@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../../models/group.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GroupHistoryTab extends StatefulWidget {
   final List<Group> groups;
@@ -30,6 +31,7 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
     return FutureBuilder<Map<String, Map<String, List<Map<String, dynamic>>>>>(
       future: _getMembershipHistory(),
       builder: (context, snapshot) {
@@ -663,6 +665,7 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
   }
 
   Widget _buildMemberHistoryItem(Map<String, dynamic> memberData) {
+    final strings = AppLocalizations.of(context)!;
     final String status = memberData['status'] as String;
     final userName = memberData['userName'] ?? 'Usuário';
     final userPhotoUrl = memberData['userPhotoUrl'];
@@ -796,8 +799,8 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                       if (status == 'accepted' && memberData['directAdd'] == true) ...[
                         Row(
                           children: [
-                            const Text(
-                              'Adicionado por: ',
+                            Text(
+                              '${strings.invitedByLabel}: ',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -805,7 +808,7 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                             ),
                             Expanded(
                               child: Text(
-                                memberData['addedByName'] ?? 'Administrador',
+                                memberData['addedByName'] ?? strings.administrator,
                                 style: const TextStyle(
                                   fontSize: 12,
                                 ),

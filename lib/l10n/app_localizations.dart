@@ -5273,13 +5273,13 @@ abstract class AppLocalizations {
   /// No description provided for @notificationSentSuccessfully.
   ///
   /// In es, this message translates to:
-  /// **'✅ Notificación enviada con éxito'**
+  /// **'Notificación enviada con éxito'**
   String get notificationSentSuccessfully;
 
   /// No description provided for @notificationSentPartially.
   ///
   /// In es, this message translates to:
-  /// **'⚠️ Notificación enviada parcialmente'**
+  /// **'Notificación enviada parcialmente'**
   String get notificationSentPartially;
 
   /// No description provided for @sentTo.
@@ -8405,7 +8405,7 @@ abstract class AppLocalizations {
   /// No description provided for @addedBy.
   ///
   /// In es, this message translates to:
-  /// **'Añadido por'**
+  /// **'Invitado por'**
   String get addedBy;
 
   /// No description provided for @administrator.
@@ -15067,6 +15067,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Lo sentimos, debes tener al menos 13 años para usar esta app.'**
   String get under13RegistrationBlocked;
+
+  /// No description provided for @enterAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar'**
+  String get enterAction;
+
+  /// No description provided for @requestJoinShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar'**
+  String get requestJoinShort;
+
+  /// No description provided for @searchGroups.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar grupos...'**
+  String get searchGroups;
+
+  /// No description provided for @mustBeLoggedInToJoinGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para unirte a un grupo'**
+  String get mustBeLoggedInToJoinGroup;
+
+  /// No description provided for @mustBeLoggedInToJoinMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para unirte a un ministerio'**
+  String get mustBeLoggedInToJoinMinistry;
+
+  /// No description provided for @joinRequestPendingApproval.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu solicitud está pendiente de aprobación'**
+  String get joinRequestPendingApproval;
+
+  /// No description provided for @moreInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Más información'**
+  String get moreInfo;
+
+  /// No description provided for @invitedByLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitado por'**
+  String get invitedByLabel;
 }
 
 class _AppLocalizationsDelegate

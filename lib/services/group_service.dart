@@ -226,6 +226,45 @@ class GroupService {
       message: message,
     );
   }
+
+  /// Invita a un usuario a un grupo (sin añadirlo directamente)
+  Future<void> inviteUserToGroup(String userId, String groupId, {String? message}) async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw Exception('Usuario no autenticado');
+    }
+
+    final group = await getGroupById(groupId);
+    if (group == null) {
+      throw Exception('Grupo no encontrado');
+    }
+
+    if (group.memberIds.contains(userId)) {
+      throw Exception('El usuario ya es miembro del grupo');
+    }
+
+    if (group.pendingRequests.containsKey(userId)) {
+      throw Exception('El usuario ya tiene una solicitud pendiente');
+    }
+
+    await _firestore.collection('groups').doc(groupId).update({
+      'pendingRequests.$userId': Timestamp.now(),
+    });
+
+    final inviterDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+    final inviterName = inviterDoc.data()?['name'] ?? inviterDoc.data()?['displayName'] ?? 'Administrador';
+
+    await _requestService.logRequest(
+      userId: userId,
+      entityId: groupId,
+      entityType: 'group',
+      entityName: group.name,
+      message: message,
+      requestType: 'invite',
+      invitedBy: currentUser.uid,
+      invitedByName: inviterName,
+    );
+  }
   
   /// Acepta una solicitud pendiente
   Future<void> acceptJoinRequest(String userId, String groupId, {String? reason}) async {

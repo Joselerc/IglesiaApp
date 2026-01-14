@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../../models/ministry.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/app_colors.dart';
 
 class MinistryHistoryTab extends StatefulWidget {
@@ -31,6 +32,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
     return FutureBuilder<Map<String, Map<String, List<Map<String, dynamic>>>>>(
       future: _getMembershipHistory(),
       builder: (context, snapshot) {
@@ -664,6 +666,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
   }
 
   Widget _buildMemberHistoryItem(Map<String, dynamic> memberData) {
+    final strings = AppLocalizations.of(context)!;
     final String status = memberData['status'] as String;
     final userName = memberData['userName'] ?? 'Usuário';
     final userPhotoUrl = memberData['userPhotoUrl'];
@@ -797,8 +800,8 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                       if (status == 'accepted' && memberData['directAdd'] == true) ...[
                         Row(
                           children: [
-                            const Text(
-                              'Adicionado por: ',
+                            Text(
+                              '${strings.invitedByLabel}: ',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -806,7 +809,7 @@ class _MinistryHistoryTabState extends State<MinistryHistoryTab> {
                             ),
                             Expanded(
                               child: Text(
-                                memberData['addedByName'] ?? 'Administrador',
+                                memberData['addedByName'] ?? strings.administrator,
                                 style: const TextStyle(
                                   fontSize: 12,
                                 ),

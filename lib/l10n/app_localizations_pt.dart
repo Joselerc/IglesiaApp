@@ -2968,11 +2968,10 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get notificationSentSuccessfully =>
-      '✅ Notificação enviada com sucesso';
+  String get notificationSentSuccessfully => 'Notificação enviada com sucesso';
 
   @override
-  String get notificationSentPartially => '⚠️ Notificação enviada parcialmente';
+  String get notificationSentPartially => 'Notificação enviada parcialmente';
 
   @override
   String sentTo(Object count) {
@@ -4669,7 +4668,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unknownDate => 'Data desconhecida';
 
   @override
-  String get addedBy => 'Adicionado por';
+  String get addedBy => 'Convidado por';
 
   @override
   String get administrator => 'Administrador';
@@ -8411,4 +8410,31 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get under13RegistrationBlocked =>
       'Desculpe, você precisa ter pelo menos 13 anos para usar este app.';
+
+  @override
+  String get enterAction => 'Entrar';
+
+  @override
+  String get requestJoinShort => 'Solicitar';
+
+  @override
+  String get searchGroups => 'Buscar grupos...';
+
+  @override
+  String get mustBeLoggedInToJoinGroup =>
+      'Você precisa estar logado para entrar em um grupo';
+
+  @override
+  String get mustBeLoggedInToJoinMinistry =>
+      'Você precisa estar logado para entrar em um ministério';
+
+  @override
+  String get joinRequestPendingApproval =>
+      'Sua solicitação está pendente de aprovação';
+
+  @override
+  String get moreInfo => 'Mais informações';
+
+  @override
+  String get invitedByLabel => 'Convidado por';
 }

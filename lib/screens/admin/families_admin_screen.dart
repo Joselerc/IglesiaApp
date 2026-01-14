@@ -187,7 +187,8 @@ class _FamiliesAdminScreenState extends State<FamiliesAdminScreen> {
                         family.name.toLowerCase().contains(_searchTerm))
                     .toList();
 
-            List<FamilyGroup> visibleFamilies = searchFilteredFamilies;
+            var visibleFamilies =
+                List<FamilyGroup>.from(searchFilteredFamilies);
             switch (_listFilter) {
               case _FamiliesAdminListFilter.all:
                 break;
@@ -293,7 +294,9 @@ class _FamiliesAdminScreenState extends State<FamiliesAdminScreen> {
                             )
                           : FutureBuilder<List<_FamilyStructure>>(
                               future: Future.wait(
-                                visibleFamilies.map(_getFamilyStructure),
+                                visibleFamilies.map<Future<_FamilyStructure>>(
+                                  (family) => _getFamilyStructure(family),
+                                ),
                               ),
                               builder: (context, structureSnapshot) {
                                 if (structureSnapshot.connectionState ==
@@ -420,7 +423,7 @@ class _FamiliesAdminScreenState extends State<FamiliesAdminScreen> {
                   ],
                 ),
                 _FamiliesAdminStatsTab(
-                  families: allFamilies,
+                  families: allFamilies.cast<FamilyGroup>(),
                   computeStats: _computeStats,
                 ),
               ],

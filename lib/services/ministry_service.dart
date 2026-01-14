@@ -227,6 +227,45 @@ class MinistryService {
     );
   }
 
+  // Invitar a un usuario a un ministerio (sin añadirlo directamente)
+  Future<void> inviteUserToMinistry(String userId, String ministryId, {String? message}) async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw Exception('Usuario no autenticado');
+    }
+
+    final ministry = await getMinistryById(ministryId);
+    if (ministry == null) {
+      throw Exception('Ministerio no encontrado');
+    }
+
+    if (ministry.memberIds.contains(userId)) {
+      throw Exception('El usuario ya es miembro del ministerio');
+    }
+
+    if (ministry.pendingRequests.containsKey(userId)) {
+      throw Exception('El usuario ya tiene una solicitud pendiente');
+    }
+
+    await _firestore.collection('ministries').doc(ministryId).update({
+      'pendingRequests.$userId': Timestamp.now(),
+    });
+
+    final inviterDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+    final inviterName = inviterDoc.data()?['name'] ?? inviterDoc.data()?['displayName'] ?? 'Administrador';
+
+    await _requestService.logRequest(
+      userId: userId,
+      entityId: ministryId,
+      entityType: 'ministry',
+      entityName: ministry.name,
+      message: message,
+      requestType: 'invite',
+      invitedBy: currentUser.uid,
+      invitedByName: inviterName,
+    );
+  }
+
   // Aceptar una solicitud pendiente
   Future<void> acceptJoinRequest(String userId, String ministryId, {String? reason}) async {
     final ministry = await getMinistryById(ministryId);

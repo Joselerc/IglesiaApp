@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/group.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../l10n/app_localizations.dart';
 import '../screens/shared/entity_info_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Importar Firestore
 
@@ -19,7 +20,8 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = userId.isNotEmpty ? group.getUserStatus(userId) : 'Solicitar';
+    final strings = AppLocalizations.of(context)!;
+    final status = group.getUserStatus(userId);
     final isAdmin = group.isAdmin(userId);
 
     return Card(
@@ -132,7 +134,7 @@ class GroupCard extends StatelessWidget {
                           ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
-                          tooltip: 'Mais informações',
+                          tooltip: strings.moreInfo,
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -148,7 +150,7 @@ class GroupCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    _formatMemberCount(group.memberIds.length),
+                    strings.memberCount(group.memberIds.length),
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -166,6 +168,7 @@ class GroupCard extends StatelessWidget {
   }
   
   Widget _buildButton(BuildContext context, String status) {
+    final strings = AppLocalizations.of(context)!;
     if (status == 'Enter') {
       return ElevatedButton(
         onPressed: () => onActionPressed(group),
@@ -179,7 +182,7 @@ class GroupCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Entrar'),
+        child: Text(strings.enterAction),
       );
     } else if (status == 'Pending') {
       return OutlinedButton(
@@ -193,7 +196,7 @@ class GroupCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Pendente'),
+        child: Text(strings.pendingStatus),
       );
     } else {
       return OutlinedButton(
@@ -207,16 +210,8 @@ class GroupCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Solicitar'),
+        child: Text(strings.requestJoinShort),
       );
     }
   }
-  
-  String _formatMemberCount(int count) {
-    if (count == 1) {
-      return '1 membro';
-    } else {
-      return '$count membros';
-    }
-  }
-} 
+}

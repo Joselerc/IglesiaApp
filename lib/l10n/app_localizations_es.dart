@@ -2979,11 +2979,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get notificationSentSuccessfully => '✅ Notificación enviada con éxito';
+  String get notificationSentSuccessfully => 'Notificación enviada con éxito';
 
   @override
-  String get notificationSentPartially =>
-      '⚠️ Notificación enviada parcialmente';
+  String get notificationSentPartially => 'Notificación enviada parcialmente';
 
   @override
   String sentTo(Object count) {
@@ -4683,7 +4682,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unknownDate => 'Fecha desconocida';
 
   @override
-  String get addedBy => 'Añadido por';
+  String get addedBy => 'Invitado por';
 
   @override
   String get administrator => 'Administrador';
@@ -8427,4 +8426,31 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get under13RegistrationBlocked =>
       'Lo sentimos, debes tener al menos 13 años para usar esta app.';
+
+  @override
+  String get enterAction => 'Entrar';
+
+  @override
+  String get requestJoinShort => 'Solicitar';
+
+  @override
+  String get searchGroups => 'Buscar grupos...';
+
+  @override
+  String get mustBeLoggedInToJoinGroup =>
+      'Debes iniciar sesión para unirte a un grupo';
+
+  @override
+  String get mustBeLoggedInToJoinMinistry =>
+      'Debes iniciar sesión para unirte a un ministerio';
+
+  @override
+  String get joinRequestPendingApproval =>
+      'Tu solicitud está pendiente de aprobación';
+
+  @override
+  String get moreInfo => 'Más información';
+
+  @override
+  String get invitedByLabel => 'Invitado por';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/ministry.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../l10n/app_localizations.dart';
 import '../screens/shared/entity_info_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Importar Firestore
 
@@ -19,7 +20,8 @@ class MinistryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = userId.isNotEmpty ? ministry.getUserStatus(userId) : 'Solicitar';
+    final strings = AppLocalizations.of(context)!;
+    final status = ministry.getUserStatus(userId);
     final isAdmin = ministry.isAdmin(userId);
 
     return Card(
@@ -136,7 +138,7 @@ class MinistryCard extends StatelessWidget {
                               ),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              tooltip: 'Mais informações',
+                              tooltip: strings.moreInfo,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -152,7 +154,7 @@ class MinistryCard extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        _formatMemberCount(ministry.memberIds.length),
+                        strings.memberCount(ministry.memberIds.length),
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -172,6 +174,7 @@ class MinistryCard extends StatelessWidget {
   }
   
   Widget _buildButton(BuildContext context, String status) {
+    final strings = AppLocalizations.of(context)!;
     if (status == 'Enter') {
       return ElevatedButton(
         onPressed: () => onActionPressed(ministry),
@@ -185,7 +188,7 @@ class MinistryCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Entrar'),
+        child: Text(strings.enterAction),
       );
     } else if (status == 'Pending') {
       return OutlinedButton(
@@ -199,7 +202,7 @@ class MinistryCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Pendente'),
+        child: Text(strings.pendingStatus),
       );
     } else {
       return OutlinedButton(
@@ -213,16 +216,8 @@ class MinistryCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(0, 36),
         ),
-        child: const Text('Solicitar'),
+        child: Text(strings.requestJoinShort),
       );
     }
   }
-  
-  String _formatMemberCount(int count) {
-    if (count == 1) {
-      return '1 membro';
-    } else {
-      return '$count membros';
-    }
-  }
-} 
+}

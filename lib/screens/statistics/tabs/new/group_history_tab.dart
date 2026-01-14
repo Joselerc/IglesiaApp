@@ -1228,16 +1228,17 @@ class _GroupHistoryTabState extends State<GroupHistoryTab> {
                       if (status == 'accepted' && memberData['directAdd'] == true) ...[
                         Row(
                           children: [
-                            const Text(
-                              'Adicionado por: ',
-                              style: TextStyle(
+                            Text(
+                              '${AppLocalizations.of(context)!.invitedByLabel}: ',
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Expanded(
                               child: Text(
-                                memberData['addedByName'] ?? 'Administrador',
+                                memberData['addedByName'] ??
+                                    AppLocalizations.of(context)!.administrator,
                                 style: const TextStyle(
                                   fontSize: 12,
                                 ),

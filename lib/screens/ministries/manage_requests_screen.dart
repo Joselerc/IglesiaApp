@@ -79,6 +79,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
   }
 
   Future<void> _loadPendingRequests() async {
+    final strings = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
     });
@@ -94,12 +95,16 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       
       for (final doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
+        final requestType = data['requestType']?.toString() ?? 'join';
+        if (requestType == 'invite') {
+          continue;
+        }
           
-          requests.add({
+        requests.add({
           'id': doc.id,
           'userId': data['userId'],
-          'name': data['userName'] ?? 'Usuario desconocido',
-          'email': data['userEmail'] ?? 'Sin email',
+          'name': data['userName'] ?? strings.unknownUser,
+          'email': data['userEmail'] ?? strings.noEmail,
           'photoUrl': data['userPhotoUrl'],
           'requestDate': (data['requestTimestamp'] as Timestamp).toDate(),
           'message': data['message'],
@@ -123,11 +128,15 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         setState(() {
           _isLoading = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.errorLoadingData(e.toString()))),
+        );
       }
     }
   }
 
   Future<void> _acceptRequest(String userId, String requestId) async {
+    final strings = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
     });
@@ -158,8 +167,8 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Solicitação aceita corretamente'),
+          SnackBar(
+            content: Text(strings.requestAcceptedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -172,7 +181,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: ${e.toString()}'),
+            content: Text(strings.errorLoadingData(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -181,6 +190,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
   }
 
   Future<void> _rejectRequest(String userId, String requestId) async {
+    final strings = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
     });
@@ -213,15 +223,15 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
       }
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Solicitação rejeitada'),
+        SnackBar(
+          content: Text(strings.requestRejected),
           backgroundColor: Colors.orange,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro: ${e.toString()}'),
+          content: Text(strings.errorLoadingData(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -234,116 +244,47 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
     }
   }
 
-  Future<void> _addUserToMinistry(String userId) async {
+  Future<void> _inviteUserToMinistry(String userId) async {
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        throw Exception('Não há usuário autenticado');
-      }
-      
-      // Obtener información del usuario actual (admin)
-      final adminDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-      
-      final adminName = adminDoc.exists 
-          ? (adminDoc.data()?['name'] ?? 'Administrador') 
-          : 'Administrador';
-      
-      // Obtener información del usuario que se va a añadir
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-      
-      if (!userDoc.exists) {
-        throw Exception('Usuário não encontrado');
-      }
-      
-      final userData = userDoc.data() as Map<String, dynamic>;
-      final userName = userData['name'] ?? userData['displayName'] ?? 'Usuário';
-      final userEmail = userData['email'] ?? '';
-      final userPhotoUrl = userData['photoUrl'] ?? '';
-      
-      print('Adicionando usuário: $userId - $userName - $userEmail');
-      
-      // Agregar el usuario al ministerio
-      await _ministryService.addUserToMinistry(userId, widget.ministry.id);
-      
-      // Registrar en la colección membership_requests que fue añadido directamente
-      await FirebaseFirestore.instance.collection('membership_requests').add({
-        'userId': userId,
-        'entityId': widget.ministry.id,
-        'entityType': 'ministry',
-        'requestTimestamp': FieldValue.serverTimestamp(),
-        'responseTimestamp': FieldValue.serverTimestamp(),
-        'status': 'accepted',
-        'addedBy': currentUser.uid,
-        'addedByName': adminName,
-        'directAdd': true,
-        'userName': userName,
-        'userEmail': userEmail,
-        'userPhotoUrl': userPhotoUrl,
-      });
-      
-      // Incrementar contador de aceptados sólo si el widget sigue montado
-      if (mounted) {
-        setState(() {
-          _acceptedRequests++;
-        });
-      }
-      
+      await _ministryService.inviteUserToMinistry(userId, widget.ministry.id);
     } catch (e) {
-      print('Erro ao adicionar usuário: $e');
-      throw Exception('Erro ao adicionar usuário: $e');
+      print('Erro ao enviar convite: $e');
+      throw Exception('Erro ao enviar convite: $e');
     }
   }
 
-  void _showAddUsersModal() {
+  Future<void> _showAddUsersModal() async {
     if (!mounted) return;
-    
+
+    final strings = AppLocalizations.of(context)!;
     final selectedUsers = <String>{};
+    final selectedFamilies = <String>{};
     List<Map<String, dynamic>> allUsers = [];
     List<Map<String, dynamic>> filteredUsers = [];
-    
-    // Obtener los IDs de miembros actuales para excluirlos
+    List<Map<String, dynamic>> allFamilies = [];
+    List<Map<String, dynamic>> filteredFamilies = [];
+
     final memberIds = widget.ministry.memberIds;
-    
-    print('Ministerio membros atuais: ${memberIds.length}');
-    print('IDs de membros do ministério: $memberIds');
-    
-    // Mostrar carga
+
     setState(() {
       _isLoading = true;
     });
-    
-    // Obtener todos los usuarios
-    FirebaseFirestore.instance.collection('users').get().then((snapshot) {
-      // Verificar si el widget sigue montado antes de actualizar el estado
+
+    try {
+      final usersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .get();
+
       if (!mounted) return;
-      
-      // Limpiar loading
-      setState(() {
-        _isLoading = false;
-      });
-      
-      // Filtrar usuarios
-      for (var doc in snapshot.docs) {
-        // Comprobar si el usuario ya es miembro
+
+      for (var doc in usersSnapshot.docs) {
         final isMember = memberIds.contains(doc.id);
-        
-        // Obtener datos del documento de forma segura
         final userData = doc.data() as Map<String, dynamic>?;
         if (userData == null) continue;
-        
-        final userName = userData['name'] ?? userData['displayName'] ?? 'Usuário sem nome';
-        
-        if (isMember) {
-          print('Usuário ministério ${doc.id} ($userName) é membro');
-        }
-        
-        // Añadir todos los usuarios, pero marcar los que ya son miembros
+
+        final userName =
+            userData['name'] ?? userData['displayName'] ?? strings.unknownUser;
+
         allUsers.add({
           'id': doc.id,
           'name': userName,
@@ -352,318 +293,508 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
           'isMember': isMember,
         });
       }
-      
-      // Inicializar la lista filtrada con TODOS los usuarios al principio
+
       filteredUsers = List<Map<String, dynamic>>.from(allUsers);
-      
-      print('Total de usuários: ${allUsers.length}');
-      print('Usuários filtrados (não membros): ${filteredUsers.length}');
-      
-      // Mostrar modal solo si el widget sigue montado
+
+      final familiesSnapshot = await FirebaseFirestore.instance
+          .collection('family_groups')
+          .get();
+
+      for (var doc in familiesSnapshot.docs) {
+        final familyData = doc.data() as Map<String, dynamic>?;
+        if (familyData == null) continue;
+
+        final familyName = (familyData['name'] as String?)?.trim();
+        final memberIdsRaw = familyData['memberIds'];
+        final familyMemberIds = <String>[];
+        if (memberIdsRaw is Iterable) {
+          for (final entry in memberIdsRaw) {
+            if (entry is String) {
+              familyMemberIds.add(entry);
+            } else if (entry is DocumentReference) {
+              familyMemberIds.add(entry.id);
+            }
+          }
+        }
+
+        allFamilies.add({
+          'id': doc.id,
+          'name': familyName?.isNotEmpty == true
+              ? familyName
+              : strings.familyFallbackName,
+          'photoUrl': familyData['photoUrl'] ?? '',
+          'memberIds': familyMemberIds,
+        });
+      }
+
+      filteredFamilies = List<Map<String, dynamic>>.from(allFamilies);
+
       if (mounted) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          builder: (context) {
-            // Variables para búsqueda y filtrado fuera del StatefulBuilder
-            String searchQuery = '';
-            bool showOnlyNonMembers = false; // Cambiar a false por defecto
-            
-            // Inicializar la lista filtrada con TODOS los usuarios al principio
-            filteredUsers = List<Map<String, dynamic>>.from(allUsers);
-            
-            return StatefulBuilder(
-              builder: (context, setModalState) {
-                // Función para filtrar usuarios
-                void filterUsers(String query) {
-                  setModalState(() {
-                    searchQuery = query;
-                    
-                    // Primero, decidir si aplicamos el filtro de membresía
-                    List<Map<String, dynamic>> baseList = showOnlyNonMembers
-                        ? allUsers.where((user) => !(user['isMember'] as bool))
-                            .toList()
-                            .cast<Map<String, dynamic>>()
-                        : List<Map<String, dynamic>>.from(allUsers);
-                    
-                    // Luego, aplicar filtro de búsqueda si hay una consulta
-                    if (query.isNotEmpty) {
-                      filteredUsers = baseList
-                          .where((user) =>
-                            user['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-                            user['email'].toString().toLowerCase().contains(query.toLowerCase())
-                          )
-                          .toList()
-                          .cast<Map<String, dynamic>>();
-                    } else {
-                      filteredUsers = baseList;
-                    }
-                    
-                    print('Filtrados ministerio: ${filteredUsers.length} usuarios (solo no miembros: $showOnlyNonMembers)');
-                  });
-                }
-                
-                return Container(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Cabecera y botón de cerrar
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.addUsers,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                      
-                      // Campo de búsqueda
-                      TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search),
-                          hintText: AppLocalizations.of(context)!.searchUsers,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      if (!mounted) return;
+
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (context) {
+          String searchQuery = '';
+          bool showOnlyNonMembers = false;
+          bool showFamilies = false;
+
+          void updateFilters() {
+            if (showFamilies) {
+              if (searchQuery.isNotEmpty) {
+                filteredFamilies = allFamilies
+                    .where((family) => family['name']
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchQuery.toLowerCase()))
+                    .toList()
+                    .cast<Map<String, dynamic>>();
+              } else {
+                filteredFamilies = List<Map<String, dynamic>>.from(allFamilies);
+              }
+              return;
+            }
+
+            final baseList = showOnlyNonMembers
+                ? allUsers
+                    .where((user) => !(user['isMember'] as bool))
+                    .toList()
+                    .cast<Map<String, dynamic>>()
+                : List<Map<String, dynamic>>.from(allUsers);
+
+            if (searchQuery.isNotEmpty) {
+              filteredUsers = baseList
+                  .where((user) =>
+                      user['name']
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()) ||
+                      user['email']
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
+                  .toList()
+                  .cast<Map<String, dynamic>>();
+            } else {
+              filteredUsers = baseList;
+            }
+          }
+
+          int selectedInviteCount() {
+            final ids = <String>{}..addAll(selectedUsers);
+            for (final family in allFamilies) {
+              if (!selectedFamilies.contains(family['id'])) continue;
+              final members =
+                  (family['memberIds'] as List?)?.cast<String>() ?? <String>[];
+              ids.addAll(members);
+            }
+            ids.removeWhere(memberIds.contains);
+            return ids.length;
+          }
+
+          updateFilters();
+
+          return StatefulBuilder(
+            builder: (context, setModalState) {
+              return Container(
+                height: MediaQuery.of(context).size.height * 0.8,
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          strings.addUsers,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        onChanged: filterUsers,
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: showFamilies
+                            ? strings.searchFamilies
+                            : strings.searchUsers,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      
+                      onChanged: (value) {
+                        setModalState(() {
+                          searchQuery = value;
+                          updateFilters();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ChoiceChip(
+                          label: Text(strings.users),
+                          selected: !showFamilies,
+                          onSelected: (_) {
+                            setModalState(() {
+                              showFamilies = false;
+                              updateFilters();
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: Text(strings.familiesTitle),
+                          selected: showFamilies,
+                          onSelected: (_) {
+                            setModalState(() {
+                              showFamilies = true;
+                              updateFilters();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    if (!showFamilies) ...[
                       const SizedBox(height: 8),
-                      
-                      // Opciones de filtro
                       Row(
                         children: [
                           Checkbox(
                             value: showOnlyNonMembers,
-                            activeColor: AppColors.primary,
+                            activeColor: Colors.green,
                             onChanged: (value) {
                               setModalState(() {
                                 showOnlyNonMembers = value ?? false;
-                                filterUsers(searchQuery);
+                                updateFilters();
                               });
                             },
                           ),
-                          Text(AppLocalizations.of(context)!.showOnlyNonMembers),
+                          Text(strings.showOnlyNonMembers),
                         ],
                       ),
-                      
-                      // Contador de seleccionados
-                      Text(
-                        AppLocalizations.of(context)!.selectedUsers(selectedUsers.length),
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ],
+                    Text(
+                      strings.selectedUsers(selectedInviteCount()),
+                      style: TextStyle(
+                        color: Colors.green[700],
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      
-                      // Lista de usuarios
-                      Expanded(
-                        child: filteredUsers.isEmpty
-                          ? Center(
-                              child: Text(AppLocalizations.of(context)!.noUserFound,
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: filteredUsers.length,
-                              itemBuilder: (context, index) {
-                                final user = filteredUsers[index];
-                                final isSelected = selectedUsers.contains(user['id']);
-                                final isMember = user['isMember'] as bool;
-                                
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundImage: user['photoUrl'] != null && user['photoUrl'].isNotEmpty
-                                        ? NetworkImage(user['photoUrl'])
-                                        : null,
-                                      child: user['photoUrl'] == null || user['photoUrl'].isEmpty
-                                        ? const Icon(Icons.person)
-                                        : null,
-                                    ),
-                                    title: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            user['name'],
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: showFamilies
+                          ? (filteredFamilies.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    strings.noFamiliesFound,
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: filteredFamilies.length,
+                                  itemBuilder: (context, index) {
+                                    final family = filteredFamilies[index];
+                                    final isSelected =
+                                        selectedFamilies.contains(family['id']);
+                                    final members =
+                                        (family['memberIds'] as List?)
+                                            ?.cast<String>() ??
+                                            <String>[];
+                                    final photoUrl =
+                                        family['photoUrl']?.toString();
+
+                                    return Card(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundImage: photoUrl != null &&
+                                                  photoUrl.isNotEmpty
+                                              ? NetworkImage(photoUrl)
+                                              : null,
+                                          child: photoUrl == null ||
+                                                  photoUrl.isEmpty
+                                              ? const Icon(Icons.family_restroom)
+                                              : null,
                                         ),
-                                        if (isMember)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.primary.withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(10),
-                                              border: Border.all(color: AppColors.primary.withOpacity(0.5)),
-                                            ),
-                                            child: Text(
-                                              AppLocalizations.of(context)!.member,
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                        title: Text(
+                                          family['name'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        subtitle: Text(
+                                          strings.familyMembersCount(
+                                            members.length,
                                           ),
-                                      ],
-                                    ),
-                                    subtitle: Text(
-                                      user['email'],
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    trailing: isMember
-                                      ? Icon(Icons.check_circle, color: AppColors.primary)
-                                      : Checkbox(
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        trailing: Checkbox(
                                           value: isSelected,
-                                          activeColor: AppColors.primary,
+                                          activeColor: Colors.green,
                                           onChanged: (value) {
                                             setModalState(() {
                                               if (value == true) {
-                                                selectedUsers.add(user['id']);
+                                                selectedFamilies.add(family['id']);
                                               } else {
-                                                selectedUsers.remove(user['id']);
+                                                selectedFamilies
+                                                    .remove(family['id']);
                                               }
                                             });
                                           },
                                         ),
-                                    onTap: isMember
-                                      ? null // No hacer nada si ya es miembro
-                                      : () {
+                                        onTap: () {
                                           setModalState(() {
                                             if (isSelected) {
-                                              selectedUsers.remove(user['id']);
+                                              selectedFamilies
+                                                  .remove(family['id']);
                                             } else {
-                                              selectedUsers.add(user['id']);
+                                              selectedFamilies.add(family['id']);
                                             }
                                           });
                                         },
-                                    // Color gris claro de fondo para los que ya son miembros
-                                    tileColor: isMember ? Colors.grey[100] : null,
+                                      ),
+                                    );
+                                  },
+                                ))
+                          : (filteredUsers.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    strings.noUserFound,
+                                    style: TextStyle(color: Colors.grey[600]),
                                   ),
-                                );
-                              },
-                            ),
-                      ),
-                      
-                      // Botón de acción
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: ElevatedButton(
-                          onPressed: selectedUsers.isEmpty
+                                )
+                              : ListView.builder(
+                                  itemCount: filteredUsers.length,
+                                  itemBuilder: (context, index) {
+                                    final user = filteredUsers[index];
+                                    final isSelected =
+                                        selectedUsers.contains(user['id']);
+                                    final isMember = user['isMember'] as bool;
+
+                                    return Card(
+                                      margin:
+                                          const EdgeInsets.symmetric(vertical: 4),
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundImage: user['photoUrl'] != null &&
+                                                  user['photoUrl'].isNotEmpty
+                                              ? NetworkImage(user['photoUrl'])
+                                              : null,
+                                          child: user['photoUrl'] == null ||
+                                                  user['photoUrl'].isEmpty
+                                              ? const Icon(Icons.person)
+                                              : null,
+                                        ),
+                                        title: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                user['name'],
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (isMember)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green
+                                                      .withOpacity(0.2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  border: Border.all(
+                                                    color: Colors.green
+                                                        .withOpacity(0.5),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  strings.member,
+                                                  style: const TextStyle(
+                                                    color: Colors.green,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        subtitle: Text(
+                                          user['email'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        trailing: isMember
+                                            ? const Icon(Icons.check_circle,
+                                                color: Colors.green)
+                                            : Checkbox(
+                                                value: isSelected,
+                                                activeColor: Colors.green,
+                                                onChanged: (value) {
+                                                  setModalState(() {
+                                                    if (value == true) {
+                                                      selectedUsers
+                                                          .add(user['id']);
+                                                    } else {
+                                                      selectedUsers
+                                                          .remove(user['id']);
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                        onTap: isMember
+                                            ? null
+                                            : () {
+                                                setModalState(() {
+                                                  if (isSelected) {
+                                                    selectedUsers
+                                                        .remove(user['id']);
+                                                  } else {
+                                                    selectedUsers
+                                                        .add(user['id']);
+                                                  }
+                                                });
+                                              },
+                                        tileColor:
+                                            isMember ? Colors.grey[100] : null,
+                                      ),
+                                    );
+                                  },
+                                )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: ElevatedButton(
+                        onPressed: selectedUsers.isEmpty &&
+                                selectedFamilies.isEmpty
                             ? null
                             : () async {
-                                // Cerrar el modal
                                 Navigator.pop(context);
-                                
-                                // Verificar si el widget sigue montado
+
                                 if (!mounted) return;
-                                
-                                // Mostrar indicador de carga
+
                                 setState(() {
                                   _isLoading = true;
                                 });
-                                
+
                                 try {
-                                  // Añadir usuarios seleccionados al ministerio
-                                  for (var userId in selectedUsers) {
-                                    if (mounted) { // Verificar antes de cada operación
-                                      await _addUserToMinistry(userId);
+                                  final userIdsToInvite =
+                                      <String>{}..addAll(selectedUsers);
+
+                                  for (final family in allFamilies) {
+                                    if (!selectedFamilies
+                                        .contains(family['id'])) continue;
+                                    final members =
+                                        (family['memberIds'] as List?)
+                                            ?.cast<String>() ??
+                                            <String>[];
+                                    userIdsToInvite.addAll(members);
+                                  }
+
+                                  userIdsToInvite
+                                      .removeWhere(memberIds.contains);
+
+                                  if (userIdsToInvite.isNotEmpty) {
+                                    for (var userId in userIdsToInvite) {
+                                      if (mounted) {
+                                        await _inviteUserToMinistry(userId);
+                                      }
                                     }
                                   }
-                                  
+
                                   if (mounted) {
                                     setState(() {
                                       _isLoading = false;
                                     });
-                                    
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(AppLocalizations.of(context)!.usersAddedToMinistry(selectedUsers.length)),
+                                        content: Text(strings.invitesSent),
                                         backgroundColor: Colors.green,
                                       ),
                                     );
-                                    
-                                    // Recargar datos
+
                                     _loadPendingRequests();
                                     _loadStats();
                                   }
                                 } catch (e) {
-                                  print('Erro ao processar a adição de usuários: $e');
                                   if (mounted) {
                                     setState(() {
                                       _isLoading = false;
                                     });
-                                    
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Erro: $e'),
+                                        content: Text(
+                                            '${strings.somethingWentWrong}: $e'),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
                                   }
                                 }
                               },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 2,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(AppLocalizations.of(context)!.addSelectedUsers),
+                          elevation: 2,
                         ),
+                        child: Text(strings.sendInvitations),
                       ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+
+      if (mounted) {
+        _loadPendingRequests();
+        _loadStats();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${strings.somethingWentWrong}: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
-    }).catchError((e) {
-      // Verificar si el widget sigue montado antes de actualizar el estado
-      if (!mounted) return;
-      
-      setState(() {
-        _isLoading = false;
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao carregar usuários: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1030,7 +1161,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro: ${snapshot.error}'),
+            child: Text(AppLocalizations.of(context)!.errorLoadingData(snapshot.error.toString())),
           );
         }
         
@@ -1074,10 +1205,12 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
             final Duration? responseTime = responseDate != null 
                 ? responseDate.difference(requestDate) 
                 : null;
-
-            // Verificar si fue añadido directamente
+            final String requestType = data['requestType']?.toString() ?? 'join';
             final bool isDirectAdd = data['directAdd'] == true;
-            final String addedByName = data['addedByName'] as String? ?? 'Administrador';
+            final String? invitedByName = data['invitedByName'] as String?;
+            final String? addedByName = data['addedByName'] as String?;
+            final String inviterName = invitedByName ?? addedByName ?? AppLocalizations.of(context)!.administrator;
+            final bool showInviter = requestType == 'invite' || isDirectAdd || invitedByName != null || addedByName != null;
             
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
@@ -1111,7 +1244,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data['userName'] ?? 'Usuário',
+                                data['userName'] ?? AppLocalizations.of(context)!.unknownUser,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -1168,14 +1301,14 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                       ),
                       child: Column(
                         children: [
-                          if (isDirectAdd) 
+                          if (showInviter) 
                             Row(
                               children: [
                                 const Icon(Icons.person_add, size: 14, color: Colors.green),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    '${AppLocalizations.of(context)!.addedBy}: $addedByName',
+                                    '${AppLocalizations.of(context)!.invitedByLabel}: $inviterName',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -1361,7 +1494,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
         
         if (snapshot.hasError) {
           return Center(
-            child: Text('Erro: ${snapshot.error}'),
+            child: Text(AppLocalizations.of(context)!.errorLoadingData(snapshot.error.toString())),
           );
         }
         
@@ -1441,7 +1574,7 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data['userName'] ?? 'Usuário',
+                                data['userName'] ?? AppLocalizations.of(context)!.unknownUser,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -1563,11 +1696,11 @@ class _ManageRequestsScreenState extends State<ManageRequestsScreen> with Single
                                   .doc(removedById)
                                   .get(),
                               builder: (context, snapshot) {
-                                String adminName = 'Administrador';
+                                String adminName = AppLocalizations.of(context)!.administrator;
                                 
                                 if (snapshot.hasData && snapshot.data!.exists) {
                                   final adminData = snapshot.data!.data() as Map<String, dynamic>;
-                                  adminName = adminData['name'] ?? 'Administrador';
+                                  adminName = adminData['name'] ?? AppLocalizations.of(context)!.administrator;
                                 }
                                 
                                 return Row(

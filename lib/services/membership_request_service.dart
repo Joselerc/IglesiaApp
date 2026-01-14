@@ -19,6 +19,7 @@ class MembershipRequestService {
     String requestType = 'join', // 'join' | 'invite'
     String? desiredRole, // Para Familias
     String? invitedBy, // Cuando la solicitud viene de un admin
+    String? invitedByName, // Nombre del admin/invitador
   }) async {
     // Obtener información del usuario solicitante para guardarla
     final userDoc = await _firestore.collection('users').doc(userId).get();
@@ -35,6 +36,7 @@ class MembershipRequestService {
       'requestType': requestType,
       if (desiredRole != null) 'desiredRole': desiredRole,
       if (invitedBy != null) 'invitedBy': invitedBy,
+      if (invitedByName != null) 'invitedByName': invitedByName,
       'userName': userData['name'] ?? userData['displayName'] ?? 'Usuario',
       'userEmail': userData['email'] ?? '',
       'userPhotoUrl': userData['photoUrl'] ?? '',
