@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/family_group_service.dart';
 import '../../../services/membership_request_service.dart';
+import '../../../services/notification_service.dart';
+import '../../../models/notification.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../utils/family_localizations.dart';
@@ -53,10 +55,38 @@ class FamilyInvitesContent extends StatelessWidget {
     BuildContext context, {
     required String familyId,
     required String userId,
+    String? inviterId,
+    String? inviterName,
+    String? familyName,
+    String? userName,
   }) async {
     final strings = AppLocalizations.of(context)!;
     try {
       await _familyService.acceptInvite(familyId: familyId, userId: userId);
+
+      // Enviar notificación al invitador si existe
+      if (inviterId != null && inviterId.isNotEmpty && inviterId != userId) {
+        try {
+          final notificationService = NotificationService();
+          await notificationService.createNotification(
+            title: strings.notifTypeFamilyInviteAccepted,
+            message: strings.familyInviteAcceptedMessage(
+              userName ?? strings.unknownUser,
+              familyName ?? strings.familyFallbackName,
+            ),
+            type: NotificationType.familyInviteAccepted,
+            userId: inviterId,
+            senderId: userId,
+            entityId: familyId,
+            entityType: 'family',
+            groupId: familyId, // Usamos groupId para consistencia aunque sea familia
+            actionRoute: '/families',
+          );
+        } catch (e) {
+          debugPrint('Error enviando notificación de aceptación: $e');
+        }
+      }
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(strings.inviteAccepted)),
@@ -73,10 +103,38 @@ class FamilyInvitesContent extends StatelessWidget {
     BuildContext context, {
     required String familyId,
     required String userId,
+    String? inviterId,
+    String? inviterName,
+    String? familyName,
+    String? userName,
   }) async {
     final strings = AppLocalizations.of(context)!;
     try {
       await _familyService.rejectInvite(familyId: familyId, userId: userId);
+
+      // Enviar notificación al invitador si existe
+      if (inviterId != null && inviterId.isNotEmpty && inviterId != userId) {
+        try {
+          final notificationService = NotificationService();
+          await notificationService.createNotification(
+            title: strings.notifTypeFamilyInviteRejected,
+            message: strings.familyInviteRejectedMessage(
+              userName ?? strings.unknownUser,
+              familyName ?? strings.familyFallbackName,
+            ),
+            type: NotificationType.familyInviteRejected,
+            userId: inviterId,
+            senderId: userId,
+            entityId: familyId,
+            entityType: 'family',
+            groupId: familyId, // Usamos groupId para consistencia aunque sea familia
+            actionRoute: '/families',
+          );
+        } catch (e) {
+          debugPrint('Error enviando notificación de rechazo: $e');
+        }
+      }
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(strings.inviteRejected)),
@@ -143,6 +201,9 @@ class FamilyInvitesContent extends StatelessWidget {
             final familyName =
                 data['entityName'] ?? strings.familyFallbackName;
             final role = data['desiredRole']?.toString();
+            final inviterId = data['invitedBy']?.toString();
+            final inviterName = data['invitedByName']?.toString() ?? strings.unknownUser;
+            final inviteeName = data['userName']?.toString() ?? strings.unknownUser;
             final isPending = status == 'pending';
             Color statusColor;
             switch (status) {
@@ -219,6 +280,10 @@ class FamilyInvitesContent extends StatelessWidget {
                               context,
                               familyId: data['entityId'],
                               userId: userId,
+                              inviterId: inviterId,
+                              inviterName: inviterName,
+                              familyName: familyName,
+                              userName: inviteeName,
                             ),
                             child: Text(strings.reject),
                           ),
@@ -228,6 +293,10 @@ class FamilyInvitesContent extends StatelessWidget {
                               context,
                               familyId: data['entityId'],
                               userId: userId,
+                              inviterId: inviterId,
+                              inviterName: inviterName,
+                              familyName: familyName,
+                              userName: inviteeName,
                             ),
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(

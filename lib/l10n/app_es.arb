@@ -2963,6 +2963,7 @@
   "notifTypeCounselingRejected": "Agendamiento rechazado",
   "notifTypeCounselingCancelled": "Agendamiento cancelado",
   "notifTypeNewVideo": "Nuevo vídeo",
+  "notifTypeNewFamily": "Nueva familia disponible",
   "notifTypeMessage": "Mensaje",
   "notifTypeGeneric": "Notificación",
   "notifTypeCustom": "Notificación personalizada",
@@ -4300,6 +4301,17 @@
   "ministryNotFound": "Ministerio no encontrado",
   "groupNotFound": "Grupo no encontrado",
   "announcementNotFound": "Anuncio no encontrado",
+  "noAccessToGroup": "No tienes acceso a este grupo",
+  "noAccessToGroupDescription": "Has sido rechazado o no tienes permisos para acceder a este grupo.",
+  "noAccessToMinistry": "No tienes acceso a este ministerio",
+  "noAccessToMinistryDescription": "Has sido rechazado o no tienes permisos para acceder a este ministerio.",
+  "noAccessToFamily": "No tienes acceso a esta familia",
+  "noAccessToFamilyDescription": "Has sido rechazado o no tienes permisos para acceder a esta familia.",
+  "mustBeLoggedIn": "Debes iniciar sesión para continuar",
+  "confirmDeleteInvite": "¿Estás seguro de que quieres eliminar esta invitación?",
+  "confirmAction": "Confirmar acción",
+  "delete": "Eliminar",
+  "errorDeletingInvite": "Error al eliminar invitación",
   "clickToSeeMore": "Toca para ver más detalles",
   "markedAsRead": "Marcada como leída",
   "manageAnnouncements": "Gestión de Anuncios",
@@ -4517,5 +4529,105 @@
   "joinRequestPendingApproval": "Tu solicitud está pendiente de aprobación",
   "moreInfo": "Más información"
 ,
-  "invitedByLabel": "Invitado por"
+  "invitedByLabel": "Invitado por",
+  "notifTypeGroupInviteReceived": "Invitacion a grupo",
+  "notifTypeGroupInviteAccepted": "Invitacion a grupo aceptada",
+  "notifTypeGroupInviteRejected": "Invitacion a grupo rechazada",
+  "notifTypeFamilyInviteAccepted": "Invitacion a familia aceptada",
+  "notifTypeFamilyInviteRejected": "Invitacion a familia rechazada",
+  "notifTypeMinistryInviteReceived": "Invitacion a ministerio",
+  "notifTypeMinistryInviteAccepted": "Invitacion a ministerio aceptada",
+  "notifTypeMinistryInviteRejected": "Invitacion a ministerio rechazada",
+  "groupInviteReceivedMessage": "{inviterName} te invito a unirte al grupo {groupName}",
+  "@groupInviteReceivedMessage": {
+    "placeholders": {
+      "inviterName": {
+        "type": "String"
+      },
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "groupInviteAcceptedMessage": "{userName} acepto tu invitacion para unirse a {groupName}",
+  "@groupInviteAcceptedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      },
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "groupInviteRejectedMessage": "{userName} rechazo tu invitacion para unirse a {groupName}",
+  "@groupInviteRejectedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      },
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "familyInviteAcceptedMessage": "{userName} acepto tu invitacion para unirse a la familia {familyName}",
+  "@familyInviteAcceptedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Juan Pérez"
+      },
+      "familyName": {
+        "type": "String",
+        "example": "Familia García"
+      }
+    }
+  },
+  "familyInviteRejectedMessage": "{userName} rechazo tu invitacion para unirse a la familia {familyName}",
+  "@familyInviteRejectedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Juan Pérez"
+      },
+      "familyName": {
+        "type": "String",
+        "example": "Familia García"
+      }
+    }
+  },
+  "ministryInviteReceivedMessage": "{inviterName} te invito a unirte al ministerio {ministryName}",
+  "@ministryInviteReceivedMessage": {
+    "placeholders": {
+      "inviterName": {
+        "type": "String"
+      },
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "ministryInviteAcceptedMessage": "{userName} acepto tu invitacion para unirse a {ministryName}",
+  "@ministryInviteAcceptedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      },
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  },
+  "ministryInviteRejectedMessage": "{userName} rechazo tu invitacion para unirse a {ministryName}",
+  "@ministryInviteRejectedMessage": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      },
+      "ministryName": {
+        "type": "String"
+      }
+    }
+  }
 }

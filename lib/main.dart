@@ -25,6 +25,10 @@ import 'screens/prayers/pastor_private_prayers_screen.dart';
 import 'screens/courses/courses_screen.dart';
 import 'screens/courses/course_detail_screen.dart';
 import 'screens/courses/lesson_screen.dart';
+import 'screens/families/family_detail_screen.dart';
+import 'screens/families/families_home_screen.dart';
+import 'models/family_group.dart';
+import 'services/family_group_service.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'services/fcm_service.dart';
@@ -664,11 +668,55 @@ class MyApp extends StatelessWidget {
             );
           }
 
+          // -------------------
+          // FAMILIAS
+          // -------------------
+
+          // Detalle de familia: /families/family/:familyId
+          if (pathSegments.length == 3 &&
+              pathSegments[0] == 'families' &&
+              pathSegments[1] == 'family') {
+            final familyId = pathSegments[2];
+
+            return MaterialPageRoute(
+              builder: (context) => FutureBuilder<FamilyGroup?>(
+                future: FamilyGroupService().getFamily(familyId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: Text(AppLocalizations.of(context)!.familyNotFound),
+                      ),
+                      body: Center(
+                        child: Text(AppLocalizations.of(context)!.familyNotFound),
+                      ),
+                    );
+                  }
+
+                  return FamilyDetailScreen(familyId: familyId);
+                },
+              ),
+            );
+          }
+
+          // Pantalla principal de familias: /families
+          if (pathSegments.length == 1 && pathSegments[0] == 'families') {
+            return MaterialPageRoute(
+              builder: (context) => const FamiliesHomeScreen(),
+            );
+          }
+
           return null;
         },
       ),
         );
-      },
+      }
     );
   }
 }

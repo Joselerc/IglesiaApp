@@ -1367,6 +1367,83 @@ class NotificationService {
   }
 
   // Método para desuscribirse de topics
+  // Enviar notificación cuando se acepta una solicitud para unirse a una familia
+  Future<void> sendFamilyJoinRequestAcceptedNotification({
+    required String userId,
+    required String familyId,
+    required String familyName,
+  }) async {
+    await createNotification(
+      title: 'Solicitud aceptada',
+      message: 'Tu solicitud para unirte a la familia $familyName ha sido aceptada',
+      type: NotificationType.familyInviteAccepted,
+      userId: userId,
+      entityId: familyId,
+      entityType: 'family',
+      groupId: familyId, // Usamos groupId para consistencia
+      actionRoute: '/families',
+    );
+  }
+
+  // Enviar notificación cuando se rechaza una solicitud para unirse a una familia
+  Future<void> sendFamilyJoinRequestRejectedNotification({
+    required String userId,
+    required String familyId,
+    required String familyName,
+  }) async {
+    await createNotification(
+      title: 'Solicitud rechazada',
+      message: 'Tu solicitud para unirte a la familia $familyName ha sido rechazada',
+      type: NotificationType.familyInviteRejected,
+      userId: userId,
+      entityId: familyId,
+      entityType: 'family',
+      groupId: familyId, // Usamos groupId para consistencia
+      actionRoute: '/families',
+    );
+  }
+
+  // Enviar notificación a los administradores cuando alguien solicita unirse a una familia
+  Future<void> sendFamilyJoinRequestNotification({
+    required String requestUserId,
+    required String requestUserName,
+    required String familyId,
+    required String familyName,
+    required List<String> adminIds,
+  }) async {
+    for (final adminId in adminIds) {
+      await createNotification(
+        title: 'Nueva solicitud de unión',
+        message: '$requestUserName ha solicitado unirse a la familia $familyName',
+        type: NotificationType.newFamily, // Usamos newFamily como tipo genérico
+        userId: adminId,
+        senderId: requestUserId,
+        entityId: familyId,
+        entityType: 'family',
+        groupId: familyId, // Usamos groupId para consistencia
+        actionRoute: '/families/family/$familyId', // Ruta específica a la familia
+      );
+    }
+  }
+
+  // Enviar notificación al usuario confirmando que su solicitud fue enviada
+  Future<void> sendFamilyJoinRequestSentNotification({
+    required String userId,
+    required String familyId,
+    required String familyName,
+  }) async {
+    await createNotification(
+      title: 'Solicitud enviada',
+      message: 'Tu solicitud para unirte a la familia $familyName ha sido enviada correctamente',
+      type: NotificationType.newFamily, // Usamos newFamily como confirmación
+      userId: userId,
+      entityId: familyId,
+      entityType: 'family',
+      groupId: familyId, // Usamos groupId para consistencia
+      actionRoute: '/families',
+    );
+  }
+
   Future<void> unsubscribeFromTopic(String topic) async {
     try {
       await FirebaseMessaging.instance.unsubscribeFromTopic(topic);

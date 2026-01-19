@@ -494,6 +494,7 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
     final strings = AppLocalizations.of(context)!;
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: Text(strings.familyDetailTitle),
         actions: [
@@ -529,6 +530,69 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
               final family = snapshot.data;
               if (family == null) {
                 return Center(child: Text(strings.familyNotFound));
+              }
+
+              // Verificar permisos de acceso a la familia
+              if (userId.isNotEmpty) {
+                final userStatus = family.isMember(userId) ? 'Enter' :
+                                  family.pendingRequests.containsKey(userId) ? 'Pending' : 'None';
+                if (userStatus == 'None') {
+                  // Usuario no tiene acceso a la familia
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 64,
+                        color: Colors.red.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        strings.noAccessToFamily,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          strings.noAccessToFamilyDescription ?? 'No tienes permisos para acceder a esta familia.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              } else {
+                // Usuario no autenticado
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.login,
+                      size: 64,
+                      color: Colors.orange.shade300,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      strings.mustBeLoggedIn,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                );
               }
 
               final currentIsAdmin =

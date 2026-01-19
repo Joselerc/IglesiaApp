@@ -205,142 +205,102 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _AgeGateSelection? selected;
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final options = [
+              (_AgeGateSelection.age13To17, AgeRange.from13To17.label(strings)),
+              (_AgeGateSelection.age18To24, AgeRange.from18To24.label(strings)),
+              (_AgeGateSelection.age25To30, AgeRange.from25To30.label(strings)),
+              (_AgeGateSelection.age31To35, AgeRange.from31To35.label(strings)),
+              (_AgeGateSelection.age36To40, AgeRange.from36To40.label(strings)),
+              (_AgeGateSelection.age41To50, AgeRange.from41To50.label(strings)),
+              (_AgeGateSelection.age51To60, AgeRange.from51To60.label(strings)),
+              (_AgeGateSelection.age61Plus, AgeRange.from61Plus.label(strings)),
+              (_AgeGateSelection.under13, strings.ageOptionUnder13),
+            ];
+
             return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(100),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.82,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            strings.ageConfirmationTitle,
-                            style: AppTextStyles.subtitle2.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: colorScheme.onSurface,
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              strings.ageConfirmationTitle,
+                              style: AppTextStyles.subtitle2.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: colorScheme.onSurface,
+                              ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                          tooltip: strings.close,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      strings.ageConfirmationPrompt,
-                      style: AppTextStyles.bodyText2.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age13To17,
-                      groupValue: selected,
-                      title: AgeRange.from13To17.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age18To24,
-                      groupValue: selected,
-                      title: AgeRange.from18To24.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age25To30,
-                      groupValue: selected,
-                      title: AgeRange.from25To30.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age31To35,
-                      groupValue: selected,
-                      title: AgeRange.from31To35.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age36To40,
-                      groupValue: selected,
-                      title: AgeRange.from36To40.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age41To50,
-                      groupValue: selected,
-                      title: AgeRange.from41To50.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age51To60,
-                      groupValue: selected,
-                      title: AgeRange.from51To60.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.age61Plus,
-                      groupValue: selected,
-                      title: AgeRange.from61Plus.label(strings),
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 10),
-                    _AgeGateRadioTile(
-                      value: _AgeGateSelection.under13,
-                      groupValue: selected,
-                      title: strings.ageOptionUnder13,
-                      onChanged: (value) =>
-                          setModalState(() => selected = value),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: selected == null
-                            ? null
-                            : () => Navigator.pop(context, selected),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            tooltip: strings.close,
                           ),
-                        ),
-                        child: Text(strings.continueAction),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        strings.ageConfirmationPrompt,
+                        style: AppTextStyles.bodyText2.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: options.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final option = options[index];
+                            return _AgeGateRadioTile(
+                              value: option.$1,
+                              groupValue: selected,
+                              title: option.$2,
+                              onChanged: (value) =>
+                                  setModalState(() => selected = value),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: selected == null
+                              ? null
+                              : () => Navigator.pop(context, selected),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(strings.continueAction),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -599,46 +559,26 @@ class _AgeGateRadioTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = value == groupValue;
-    final borderColor = isSelected
-        ? colorScheme.primary.withValues(alpha: 0.5)
-        : colorScheme.outlineVariant.withValues(alpha: 0.6);
-    final backgroundColor = isSelected
-        ? colorScheme.primary.withValues(alpha: 0.08)
-        : colorScheme.surfaceContainerLowest;
-
-    return Material(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => onChanged(value),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: borderColor),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Row(
-            children: [
-              Radio<_AgeGateSelection>(
-                value: value,
-                groupValue: groupValue,
-                onChanged: (_) => onChanged(value),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTextStyles.bodyText2.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return RadioListTile<_AgeGateSelection>(
+      value: value,
+      groupValue: groupValue,
+      onChanged: (_) => onChanged(value),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyText2.copyWith(
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
         ),
       ),
+      activeColor: colorScheme.primary,
+      dense: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      tileColor: colorScheme.surfaceContainerLowest,
+      selectedTileColor: colorScheme.primary.withValues(alpha: 0.12),
+      selected: isSelected,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
     );
   }
 }

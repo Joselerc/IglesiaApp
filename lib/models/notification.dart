@@ -11,6 +11,9 @@ enum NotificationType {
   ministryJoinRequestAccepted,
   ministryJoinRequestRejected,
   ministryJoinRequest,
+  ministryInviteReceived,
+  ministryInviteAccepted,
+  ministryInviteRejected,
   ministryManuallyAdded,
   ministryNewEvent,
   ministryNewPost,
@@ -28,12 +31,21 @@ enum NotificationType {
   groupJoinRequestAccepted,
   groupJoinRequestRejected,
   groupJoinRequest,
+  groupInviteReceived,
+  groupInviteAccepted,
+  groupInviteRejected,
   groupManuallyAdded,
   groupNewEvent,
   groupNewPost,
   groupEventReminder,
   groupNewChat,
   groupPromotedToAdmin,
+
+  // Familias
+  newFamily,
+  familyInviteReceived,
+  familyInviteAccepted,
+  familyInviteRejected,
   
   // Oraciones
   newPrivatePrayer,
@@ -193,6 +205,9 @@ class AppNotification {
       case NotificationType.ministryJoinRequestRejected:
       case NotificationType.ministryJoinRequest:
       case NotificationType.ministryManuallyAdded:
+      case NotificationType.ministryInviteReceived:
+      case NotificationType.ministryInviteAccepted:
+      case NotificationType.ministryInviteRejected:
       case NotificationType.ministryPromotedToAdmin:
         return Icons.people;
       
@@ -219,6 +234,9 @@ class AppNotification {
       case NotificationType.groupJoinRequestRejected:
       case NotificationType.groupJoinRequest:
       case NotificationType.groupManuallyAdded:
+      case NotificationType.groupInviteReceived:
+      case NotificationType.groupInviteAccepted:
+      case NotificationType.groupInviteRejected:
       case NotificationType.groupPromotedToAdmin:
         return Icons.group;
       
@@ -231,7 +249,14 @@ class AppNotification {
       
       case NotificationType.groupNewChat:
         return Icons.chat_bubble;
-      
+
+      // Familias
+      case NotificationType.newFamily:
+      case NotificationType.familyInviteReceived:
+      case NotificationType.familyInviteAccepted:
+      case NotificationType.familyInviteRejected:
+        return Icons.family_restroom;
+
       // Oraciones
       case NotificationType.newPrivatePrayer:
       case NotificationType.privatePrayerPrayed:
@@ -291,6 +316,9 @@ class AppNotification {
       case NotificationType.ministryWorkSlotAvailable:
       case NotificationType.ministryEventReminder:
       case NotificationType.ministryNewChat:
+      case NotificationType.ministryInviteReceived:
+      case NotificationType.ministryInviteAccepted:
+      case NotificationType.ministryInviteRejected:
       case NotificationType.ministryPromotedToAdmin:
         return Colors.blue;
       
@@ -304,9 +332,19 @@ class AppNotification {
       case NotificationType.groupNewPost:
       case NotificationType.groupEventReminder:
       case NotificationType.groupNewChat:
+      case NotificationType.groupInviteReceived:
+      case NotificationType.groupInviteAccepted:
+      case NotificationType.groupInviteRejected:
       case NotificationType.groupPromotedToAdmin:
         return Colors.green;
-      
+
+      // Familias
+      case NotificationType.newFamily:
+      case NotificationType.familyInviteReceived:
+      case NotificationType.familyInviteAccepted:
+      case NotificationType.familyInviteRejected:
+        return Colors.pink;
+
       // Oraciones
       case NotificationType.newPrivatePrayer:
       case NotificationType.privatePrayerPrayed:

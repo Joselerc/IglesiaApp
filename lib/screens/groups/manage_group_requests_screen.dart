@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../../models/group.dart';
 import '../../services/group_service.dart';
 import '../../services/membership_request_service.dart';
+import '../../services/notification_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class ManageGroupRequestsScreen extends StatefulWidget {
@@ -101,18 +103,18 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         print('Solicitud encontrada: ${doc.id}, usuario: ${data['userId']}');
 
         final requestType = data['requestType']?.toString() ?? 'join';
-        if (requestType == 'invite') {
-          continue;
-        }
-        
+        final requestTimestamp = data['requestTimestamp'] as Timestamp?;
+
         requests.add({
           'id': doc.id,
           'userId': data['userId'],
           'name': data['userName'] ?? strings.unknownUser,
           'email': data['userEmail'] ?? strings.noEmail,
           'photoUrl': data['userPhotoUrl'],
-          'requestDate': (data['requestTimestamp'] as Timestamp).toDate(),
+          'requestDate': requestTimestamp?.toDate() ?? DateTime.now(),
           'message': data['message'],
+          'requestType': requestType,
+          'invitedByName': data['invitedByName'],
         });
       }
       
@@ -143,15 +145,30 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
     });
 
     try {
+      // Aceptar solicitud en el grupo
       await _groupService.acceptJoinRequest(userId, widget.group.id);
-      
+
+      // Enviar notificación al usuario
+      if (mounted) {
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendGroupJoinRequestAcceptedNotification(
+            userId: userId,
+            groupId: widget.group.id,
+            groupName: widget.group.name,
+          );
+        } catch (e) {
+          print('Error enviando notificación de aceptación: $e');
+        }
+      }
+
       if (mounted) {
         setState(() {
           _pendingRequests.removeWhere((request) => request['userId'] == userId);
           _acceptedRequests++;
           _isLoading = false;
         });
-        
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(strings.requestAcceptedSuccessfully),
@@ -182,15 +199,30 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
     });
 
     try {
+      // Rechazar solicitud en el grupo
       await _groupService.rejectJoinRequest(userId, widget.group.id);
-      
+
+      // Enviar notificación al usuario
+      if (mounted) {
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.sendGroupJoinRequestRejectedNotification(
+            userId: userId,
+            groupId: widget.group.id,
+            groupName: widget.group.name,
+          );
+        } catch (e) {
+          print('Error enviando notificación de rechazo: $e');
+        }
+      }
+
       if (mounted) {
         setState(() {
           _pendingRequests.removeWhere((request) => request['userId'] == userId);
           _rejectedRequests++;
           _isLoading = false;
         });
-        
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(strings.requestRejected),
@@ -210,6 +242,46 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
               backgroundColor: Colors.red,
             ),
           );
+      }
+    }
+  }
+
+  Future<void> _revokeInvite(String userId) async {
+    final strings = AppLocalizations.of(context)!;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _groupService.rejectJoinRequest(userId, widget.group.id);
+
+      if (mounted) {
+        setState(() {
+          _pendingRequests.removeWhere((request) => request['userId'] == userId);
+          _rejectedRequests++;
+          _isLoading = false;
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.cancelInvitation),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.errorLoadingData(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -375,17 +447,30 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
 
           return StatefulBuilder(
             builder: (context, setModalState) {
-              return Container(
-                height: MediaQuery.of(context).size.height * 0.8,
+              final colorScheme = Theme.of(context).colorScheme;
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOut,
                 padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 16,
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+                child: SafeArea(
+                  top: false,
+                  child: ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: Material(
+                      color: colorScheme.surface,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight:
+                              MediaQuery.of(context).size.height * 0.85,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -420,30 +505,54 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                       },
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        ChoiceChip(
-                          label: Text(strings.users),
-                          selected: !showFamilies,
-                          onSelected: (_) {
-                            setModalState(() {
-                              showFamilies = false;
-                              updateFilters();
-                            });
-                          },
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<bool>(
+                        segments: [
+                          ButtonSegment(
+                            value: false,
+                            label: Text(strings.users),
+                          ),
+                          ButtonSegment(
+                            value: true,
+                            label: Text(strings.familiesTitle),
+                          ),
+                        ],
+                        selected: {showFamilies},
+                        showSelectedIcon: false,
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) => states.contains(MaterialState.selected)
+                                ? colorScheme.primary.withValues(alpha: 0.12)
+                                : colorScheme.surfaceContainerHighest,
+                          ),
+                          foregroundColor: MaterialStateProperty.resolveWith(
+                            (states) => states.contains(MaterialState.selected)
+                                ? colorScheme.primary
+                                : colorScheme.onSurfaceVariant,
+                          ),
+                          side: MaterialStateProperty.resolveWith(
+                            (states) => BorderSide(
+                              color: states.contains(MaterialState.selected)
+                                  ? colorScheme.primary
+                                      .withValues(alpha: 0.35)
+                                  : colorScheme.outlineVariant,
+                            ),
+                          ),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                         ),
-                        const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: Text(strings.familiesTitle),
-                          selected: showFamilies,
-                          onSelected: (_) {
-                            setModalState(() {
-                              showFamilies = true;
-                              updateFilters();
-                            });
-                          },
-                        ),
-                      ],
+                        onSelectionChanged: (selection) {
+                          setModalState(() {
+                            showFamilies = selection.first;
+                            updateFilters();
+                          });
+                        },
+                      ),
                     ),
                     if (!showFamilies) ...[
                       const SizedBox(height: 8),
@@ -451,7 +560,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         children: [
                           Checkbox(
                             value: showOnlyNonMembers,
-                            activeColor: Colors.green,
+                            activeColor: colorScheme.primary,
                             onChanged: (value) {
                               setModalState(() {
                                 showOnlyNonMembers = value ?? false;
@@ -459,7 +568,12 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                               });
                             },
                           ),
-                          Text(strings.showOnlyNonMembers),
+                          Expanded(
+                            child: Text(
+                              strings.showOnlyNonMembers,
+                              softWrap: true,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -736,7 +850,12 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         child: Text(strings.sendInvitations),
                       ),
                     ),
-                  ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -933,187 +1052,302 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
   }
 
   Widget _buildPendingRequestsTab() {
-    if (_pendingRequests.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle_outline,
-              size: 64,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context)!.noPendingRequests,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(context)!.allUpToDate,
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    
-    return RefreshIndicator(
-      onRefresh: _loadRequests,
-      color: Colors.green,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-                  itemCount: _pendingRequests.length,
-                  itemBuilder: (context, index) {
-                    final request = _pendingRequests[index];
+    final strings = AppLocalizations.of(context)!;
+    return StreamBuilder<QuerySnapshot>(
+      stream: _requestService.getPendingRequests(widget.group.id, 'group'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(strings.errorLoadingData(snapshot.error.toString())),
+          );
+        }
+        final docs = List<QueryDocumentSnapshot>.from(snapshot.data?.docs ?? []);
+        docs.sort((a, b) {
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+          DateTime resolveDate(Map<String, dynamic> data) {
+            final raw = data['requestTimestamp'];
+            if (raw is Timestamp) return raw.toDate();
+            if (raw is DateTime) return raw;
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          }
 
-                    return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          return resolveDate(bData).compareTo(resolveDate(aData));
+        });
+        if (docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  size: 64,
+                  color: Colors.grey,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  strings.noPendingRequests,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  strings.allUpToDate,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                // Mostrar más detalles si es necesario
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            await _loadStats();
+          },
+          color: Theme.of(context).colorScheme.primary,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final doc = docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+              final requestType = data['requestType']?.toString() ?? 'join';
+              final isInvite = requestType == 'invite';
+              final inviterName =
+                  data['invitedByName']?.toString() ?? strings.administrator;
+              final statusColor = isInvite
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary;
+              final rawTimestamp = data['requestTimestamp'];
+              final requestDate = rawTimestamp is Timestamp
+                  ? rawTimestamp.toDate()
+                  : rawTimestamp is DateTime
+                      ? rawTimestamp
+                      : DateTime.now();
+              final photoUrl = data['userPhotoUrl']?.toString();
+              final name = data['userName']?.toString() ?? strings.unknownUser;
+              final email = data['userEmail']?.toString() ?? strings.noEmail;
+              final message = data['message']?.toString() ?? '';
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Foto de perfil
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage: request['photoUrl'] != null
-                              ? NetworkImage(request['photoUrl'])
-                              : null,
-                          child: request['photoUrl'] == null
-                              ? const Icon(Icons.person, color: Colors.grey)
-                              : null,
-                        ),
-                        const SizedBox(width: 16),
-                        
-                        // Información del usuario
-                        Expanded(
-                          child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(
-                                request['name'],
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                request['email'],
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
+                            CircleAvatar(
+                              radius: 24,
+                              backgroundColor: Colors.grey[200],
+                              backgroundImage: photoUrl != null &&
+                                      photoUrl.isNotEmpty
+                                  ? NetworkImage(photoUrl)
+                                  : null,
+                              child: photoUrl == null || photoUrl.isEmpty
+                                  ? const Icon(Icons.person,
+                                      color: Colors.grey)
+                                  : null,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 12,
-                                    color: Colors.grey[500],
-                                  ),
-                                  const SizedBox(width: 4),
                                   Text(
-                                    DateFormat('dd/MM/yyyy HH:mm').format(request['requestDate']),
+                                    name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    email,
                                     style: TextStyle(
-                                      color: Colors.grey[500],
-                                fontSize: 12,
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: statusColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                isInvite
+                                    ? strings.invitationLabel
+                                    : strings.requestPending,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+                        if (isInvite) ...[
+                          Row(
+                            children: [
+                              const Icon(Icons.person_add,
+                                  size: 14, color: Colors.grey),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${strings.invitedByLabel}: $inviterName',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                        ],
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today,
+                                size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                '${strings.requestedOn} ${DateFormat('dd/MM/yyyy HH:mm').format(requestDate)}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (message.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(top: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${strings.message}:',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  message,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Row(
+                            children: [
+                              if (isInvite)
+                                TextButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _revokeInvite(
+                                            data['userId'],
+                                          ),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                  child: Text(strings.cancelInvitation),
+                                )
+                              else ...[
+                                TextButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _rejectRequest(
+                                            data['userId'],
+                                            doc.id,
+                                          ),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                  child: Text(strings.reject),
+                                ),
+                                const Spacer(),
+                                FilledButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _acceptRequest(
+                                            data['userId'],
+                                            doc.id,
+                                          ),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                  child: Text(strings.accept),
+                                ),
+                              ],
                             ],
                           ),
                         ),
                       ],
                     ),
-                    
-                    // Mensaje si existe
-                    if (request['message'] != null && request['message'].toString().isNotEmpty)
-                      Container(
-                        margin: const EdgeInsets.only(top: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${AppLocalizations.of(context)!.message}:',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              request['message'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    
-                    // Botones de acción
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          icon: const Icon(Icons.cancel),
-                          label: Text(AppLocalizations.of(context)!.reject),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
-                          ),
-                          onPressed: () => _rejectRequest(request['userId'], request['id']),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.check_circle),
-                          label: Text(AppLocalizations.of(context)!.accept),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: () => _acceptRequest(request['userId'], request['id']),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-                        ),
-                      ),
-                    );
-                  },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
-  
+
   Widget _buildRequestsHistoryTab(String status) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -1213,7 +1447,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         ),
                         const SizedBox(width: 12),
                         
-                        // Información del usuario
+                        // Informacion del usuario
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1535,7 +1769,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                         ),
                         const SizedBox(width: 16),
                         
-                        // Información del usuario
+                        // Informacion del usuario
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

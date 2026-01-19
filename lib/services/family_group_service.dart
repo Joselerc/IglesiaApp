@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/family_group.dart';
 import 'membership_request_service.dart';
+import 'notification_service.dart';
 
 /// Servicio para gestionar la nueva funcionalidad de "Familias".
 /// Usa la colección `family_groups` y guarda miembros como DocumentReference
@@ -235,6 +236,37 @@ class FamilyGroupService {
       requestType: 'join',
       desiredRole: desiredRole,
     );
+
+    // Enviar notificación al usuario confirmando que su solicitud fue enviada
+    try {
+      await NotificationService().sendFamilyJoinRequestSentNotification(
+        userId: user.uid,
+        familyId: familyId,
+        familyName: family.name,
+      );
+    } catch (e) {
+      // No fallar la solicitud si la notificación falla
+      print('Error enviando notificación de solicitud enviada: $e');
+    }
+
+    // Enviar notificación a todos los administradores de la familia
+    if (family.adminIds.isNotEmpty) {
+      try {
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final userName = userDoc.data()?['name'] ?? userDoc.data()?['displayName'] ?? 'Usuario';
+
+        await NotificationService().sendFamilyJoinRequestNotification(
+          requestUserId: user.uid,
+          requestUserName: userName,
+          familyId: familyId,
+          familyName: family.name,
+          adminIds: family.adminIds,
+        );
+      } catch (e) {
+        // No fallar la solicitud si la notificación falla
+        print('Error enviando notificación a administradores: $e');
+      }
+    }
   }
 
   /// Admin acepta una solicitud de unión.
@@ -269,6 +301,18 @@ class FamilyGroupService {
         reason: reason,
       );
     }
+
+    // Enviar notificación al usuario que su solicitud fue aceptada
+    try {
+      await NotificationService().sendFamilyJoinRequestAcceptedNotification(
+        userId: userId,
+        familyId: familyId,
+        familyName: family.name,
+      );
+    } catch (e) {
+      // No fallar la aceptación si la notificación falla
+      print('Error enviando notificación de aceptación: $e');
+    }
   }
 
   Future<void> rejectJoinRequest({
@@ -276,6 +320,9 @@ class FamilyGroupService {
     required String userId,
     String? reason,
   }) async {
+    final family = await getFamily(familyId);
+    if (family == null) throw Exception('Familia no encontrada');
+
     await _families.doc(familyId).update({
       'pendingRequests.$userId': FieldValue.delete(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -290,6 +337,18 @@ class FamilyGroupService {
         actorId: actorId,
         reason: reason,
       );
+    }
+
+    // Enviar notificación al usuario que su solicitud fue rechazada
+    try {
+      await NotificationService().sendFamilyJoinRequestRejectedNotification(
+        userId: userId,
+        familyId: familyId,
+        familyName: family.name,
+      );
+    } catch (e) {
+      // No fallar el rechazo si la notificación falla
+      print('Error enviando notificación de rechazo: $e');
     }
   }
 

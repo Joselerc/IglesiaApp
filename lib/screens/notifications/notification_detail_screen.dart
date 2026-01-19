@@ -4,6 +4,9 @@ import '../../models/notification.dart';
 import 'package:provider/provider.dart';
 import '../../services/notification_service.dart';
 import '../../services/work_schedule_service.dart';
+import '../../services/group_service.dart';
+import '../../services/ministry_service.dart';
+import '../../services/auth_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +27,8 @@ class NotificationDetailScreen extends StatefulWidget {
 
 class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
   final WorkScheduleService _workScheduleService = WorkScheduleService();
+  final GroupService _groupService = GroupService();
+  final MinistryService _ministryService = MinistryService();
   WorkInvite? _workInvite;
   bool _isLoadingInvite = false;
   bool _isProcessing = false;
@@ -60,6 +65,93 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
           _isLoadingInvite = false;
         });
       }
+    }
+  }
+
+  Future<void> _handleSecureNavigation(String route) async {
+    final strings = AppLocalizations.of(context)!;
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.mustBeLoggedIn)),
+      );
+      return;
+    }
+
+    try {
+      // Verificar si es una ruta de grupo: /groups/{groupId}
+      if (route.startsWith('/groups/')) {
+        final groupId = route.substring('/groups/'.length);
+        final group = await _groupService.getGroupById(groupId);
+
+        if (group == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.groupNotFound)),
+          );
+          return;
+        }
+
+        // Verificar permisos de acceso al grupo
+        final userStatus = group.getUserStatus(user.uid);
+        if (userStatus == 'Enter' || userStatus == 'Pending') {
+          // Usuario tiene acceso o solicitud pendiente
+          Navigator.pushNamed(context, route);
+        } else {
+          // Usuario no tiene acceso
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(strings.noAccessToGroup),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Verificar si es una ruta de ministerio: /ministries/{ministryId}
+      if (route.startsWith('/ministries/')) {
+        final pathParts = route.split('/');
+        if (pathParts.length >= 3) {
+          final ministryId = pathParts[2];
+          final ministry = await _ministryService.getMinistryById(ministryId);
+
+          if (ministry == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(strings.ministryNotFound)),
+            );
+            return;
+          }
+
+          // Verificar permisos de acceso al ministerio
+          final userStatus = ministry.getUserStatus(user.uid);
+          if (userStatus == 'Enter' || userStatus == 'Pending') {
+            // Usuario tiene acceso o solicitud pendiente
+            Navigator.pushNamed(context, route);
+          } else {
+            // Usuario no tiene acceso
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(strings.noAccessToMinistry),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      // Para otras rutas, navegar normalmente
+      Navigator.pushNamed(context, route);
+
+    } catch (e) {
+      debugPrint('Error en navegación segura: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(strings.errorLoadingData(e.toString())),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -479,7 +571,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
               Center(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushNamed(context, widget.notification.actionRoute!);
+                    _handleSecureNavigation(widget.notification.actionRoute!);
                   },
                   icon: const Icon(Icons.open_in_new),
                   label: Text(AppLocalizations.of(context)!.viewDetails),
@@ -514,6 +606,12 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
         return loc.notifTypeMinistryJoinRequestRejected;
       case NotificationType.ministryJoinRequest:
         return loc.notifTypeMinistryJoinRequest;
+      case NotificationType.ministryInviteReceived:
+        return loc.invitationLabel;
+      case NotificationType.ministryInviteAccepted:
+        return loc.invitationAccepted;
+      case NotificationType.ministryInviteRejected:
+        return loc.invitationRejected;
       case NotificationType.ministryManuallyAdded:
         return loc.notifTypeMinistryManuallyAdded;
       case NotificationType.ministryNewEvent:
@@ -546,6 +644,12 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
         return loc.notifTypeGroupJoinRequestRejected;
       case NotificationType.groupJoinRequest:
         return loc.notifTypeGroupJoinRequest;
+      case NotificationType.groupInviteReceived:
+        return loc.invitationLabel;
+      case NotificationType.groupInviteAccepted:
+        return loc.invitationAccepted;
+      case NotificationType.groupInviteRejected:
+        return loc.invitationRejected;
       case NotificationType.groupManuallyAdded:
         return loc.notifTypeGroupManuallyAdded;
       case NotificationType.groupNewEvent:
@@ -558,7 +662,17 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
         return loc.notifTypeGroupNewChat;
       case NotificationType.groupPromotedToAdmin:
         return loc.notifTypeGroupPromotedToAdmin;
-      
+
+      // Famílias
+      case NotificationType.newFamily:
+        return loc.notifTypeNewFamily;
+      case NotificationType.familyInviteReceived:
+        return loc.invitationLabel;
+      case NotificationType.familyInviteAccepted:
+        return loc.invitationAccepted;
+      case NotificationType.familyInviteRejected:
+        return loc.invitationRejected;
+
       // Orações
       case NotificationType.newPrivatePrayer:
         return loc.notifTypeNewPrivatePrayer;

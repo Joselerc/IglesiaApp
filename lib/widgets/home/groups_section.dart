@@ -55,15 +55,25 @@ class GroupsSection extends StatelessWidget {
     });
 
     final notificationsStream = FirebaseFirestore.instance
-          .collection('notifications')
-          .where('userId', isEqualTo: userId)
-          .where('isRead', isEqualTo: false)
-          .snapshots();
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .snapshots();
 
-    return CombineLatestStream.combine2(
+    final pendingInvitesStream = FirebaseFirestore.instance
+        .collection('membership_requests')
+        .where('userId', isEqualTo: userId)
+        .where('entityType', isEqualTo: 'group')
+        .where('requestType', isEqualTo: 'invite')
+        .where('status', isEqualTo: 'pending')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+
+    return CombineLatestStream.combine3(
       pendingRequestsStream,
       notificationsStream,
-      (int pendingCount, QuerySnapshot notificationsSnapshot) {
+      pendingInvitesStream,
+      (int pendingCount, QuerySnapshot notificationsSnapshot, int pendingInvitesCount) {
         // Filtrar notificaciones relacionadas con grupos
         final groupNotifications = notificationsSnapshot.docs.where((doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -73,7 +83,7 @@ class GroupsSection extends StatelessWidget {
         
         return GroupNotificationsData(
           pendingRequests: pendingCount, 
-          notifications: groupNotifications
+          notifications: groupNotifications + pendingInvitesCount,
         );
       }
     );

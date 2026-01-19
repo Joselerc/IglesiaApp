@@ -6216,6 +6216,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notifTypeNewVideo => 'Nuevo video';
 
   @override
+  String get notifTypeNewFamily => 'Nueva familia disponible';
+
+  @override
   String get notifTypeMessage => 'Mensaje';
 
   @override
@@ -8064,6 +8067,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get announcementNotFound => 'Anuncio no encontrado';
 
   @override
+  String get noAccessToGroup => 'No tienes acceso a este grupo';
+
+  @override
+  String get noAccessToGroupDescription =>
+      'Has sido rechazado o no tienes permisos para acceder a este grupo.';
+
+  @override
+  String get noAccessToMinistry => 'No tienes acceso a este ministerio';
+
+  @override
+  String get noAccessToMinistryDescription =>
+      'Has sido rechazado o no tienes permisos para acceder a este ministerio.';
+
+  @override
+  String get noAccessToFamily => 'No tienes acceso a esta familia';
+
+  @override
+  String get noAccessToFamilyDescription =>
+      'Has sido rechazado o no tienes permisos para acceder a esta familia.';
+
+  @override
+  String get mustBeLoggedIn => 'Debes iniciar sesión para continuar';
+
+  @override
+  String get confirmDeleteInvite =>
+      '¿Estás seguro de que quieres eliminar esta invitación?';
+
+  @override
+  String get confirmAction => 'Confirmar acción';
+
+  @override
   String get clickToSeeMore => 'Toca para ver más detalles';
 
   @override
@@ -8453,4 +8487,71 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get invitedByLabel => 'Invitado por';
+
+  @override
+  String get notifTypeGroupInviteReceived => 'Invitacion a grupo';
+
+  @override
+  String get notifTypeGroupInviteAccepted => 'Invitacion a grupo aceptada';
+
+  @override
+  String get notifTypeGroupInviteRejected => 'Invitacion a grupo rechazada';
+
+  @override
+  String get notifTypeFamilyInviteAccepted => 'Invitacion a familia aceptada';
+
+  @override
+  String get notifTypeFamilyInviteRejected => 'Invitacion a familia rechazada';
+
+  @override
+  String get notifTypeMinistryInviteReceived => 'Invitacion a ministerio';
+
+  @override
+  String get notifTypeMinistryInviteAccepted =>
+      'Invitacion a ministerio aceptada';
+
+  @override
+  String get notifTypeMinistryInviteRejected =>
+      'Invitacion a ministerio rechazada';
+
+  @override
+  String groupInviteReceivedMessage(String inviterName, String groupName) {
+    return '$inviterName te invito a unirte al grupo $groupName';
+  }
+
+  @override
+  String groupInviteAcceptedMessage(String userName, String groupName) {
+    return '$userName acepto tu invitacion para unirse a $groupName';
+  }
+
+  @override
+  String groupInviteRejectedMessage(String userName, String groupName) {
+    return '$userName rechazo tu invitacion para unirse a $groupName';
+  }
+
+  @override
+  String familyInviteAcceptedMessage(String userName, String familyName) {
+    return '$userName acepto tu invitacion para unirse a la familia $familyName';
+  }
+
+  @override
+  String familyInviteRejectedMessage(String userName, String familyName) {
+    return '$userName rechazo tu invitacion para unirse a la familia $familyName';
+  }
+
+  @override
+  String ministryInviteReceivedMessage(
+      String inviterName, String ministryName) {
+    return '$inviterName te invito a unirte al ministerio $ministryName';
+  }
+
+  @override
+  String ministryInviteAcceptedMessage(String userName, String ministryName) {
+    return '$userName acepto tu invitacion para unirse a $ministryName';
+  }
+
+  @override
+  String ministryInviteRejectedMessage(String userName, String ministryName) {
+    return '$userName rechazo tu invitacion para unirse a $ministryName';
+  }
 }

@@ -13,6 +13,8 @@ import '../../modals/create_ministry_modal.dart';
 import '../../services/permission_service.dart';
 import '../../widgets/skeletons/list_tab_content_skeleton.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/notification.dart';
+import '../../services/notification_service.dart';
 
 class MinistriesListScreen extends StatefulWidget {
   const MinistriesListScreen({super.key});
@@ -231,8 +233,17 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
     required String requestId,
     required String ministryId,
     required bool accept,
+    required String inviterId,
+    required String inviterName,
+    required String ministryName,
+    required String userName,
   }) async {
-    if (_pendingInviteIds.contains(requestId)) return;
+    // Evitar procesamiento múltiple del mismo request
+    if (_pendingInviteIds.contains(requestId)) {
+      debugPrint('Request $requestId ya está siendo procesado');
+      return;
+    }
+
     setState(() {
       _pendingInviteIds.add(requestId);
     });
@@ -240,9 +251,37 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
     final strings = AppLocalizations.of(context)!;
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
+      if (currentUser == null) {
+        debugPrint('Usuario no autenticado');
+        return;
+      }
+
+      debugPrint('Procesando invitación $requestId para ministerio $ministryId - Accept: $accept');
+
       if (accept) {
         await _ministryService.acceptJoinRequest(currentUser.uid, ministryId);
+
+        // Enviar notificación al invitador
+        if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
+          try {
+            final notificationService =
+                Provider.of<NotificationService>(context, listen: false);
+            await notificationService.createNotification(
+              title: strings.notifTypeMinistryInviteAccepted,
+              message: strings.ministryInviteAcceptedMessage(userName, ministryName),
+              type: NotificationType.ministryInviteAccepted,
+              userId: inviterId,
+              senderId: currentUser.uid,
+              entityId: ministryId,
+              entityType: 'ministry',
+              ministryId: ministryId,
+              actionRoute: '/ministries',
+            );
+          } catch (e) {
+            debugPrint('Error enviando notificación de aceptación: $e');
+          }
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(strings.inviteAcceptedSuccessfully)),
@@ -250,24 +289,64 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
         }
       } else {
         await _ministryService.rejectJoinRequest(currentUser.uid, ministryId);
+
+        // Enviar notificación al invitador
+        if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
+          try {
+            final notificationService =
+                Provider.of<NotificationService>(context, listen: false);
+            await notificationService.createNotification(
+              title: strings.notifTypeMinistryInviteRejected,
+              message: strings.ministryInviteRejectedMessage(userName, ministryName),
+              type: NotificationType.ministryInviteRejected,
+              userId: inviterId,
+              senderId: currentUser.uid,
+              entityId: ministryId,
+              entityType: 'ministry',
+              ministryId: ministryId,
+              actionRoute: '/ministries',
+            );
+          } catch (e) {
+            debugPrint('Error enviando notificación de rechazo: $e');
+          }
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(strings.inviteRejectedSuccessfully)),
           );
         }
       }
+
+      debugPrint('Invitación $requestId procesada exitosamente');
+
     } catch (e) {
+      debugPrint('Error procesando invitación $requestId: $e');
+
       if (mounted) {
+        String errorMessage = strings.errorRespondingToInvite(e.toString());
+
+        // Manejar errores específicos
+        if (e.toString().contains('solicitud pendiente')) {
+          errorMessage = 'Esta invitación ya fue procesada anteriormente';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.errorRespondingToInvite(e.toString()))),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
         );
       }
     } finally {
+      // Asegurarse de limpiar el estado incluso si hay error
       if (mounted) {
         setState(() {
           _pendingInviteIds.remove(requestId);
         });
       }
+      debugPrint('Estado limpiado para invitación $requestId');
     }
   }
 
@@ -363,90 +442,169 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
             final status = data['status']?.toString() ?? 'pending';
             final ministryName =
                 data['entityName']?.toString() ?? strings.ministries;
+            final inviterId = data['invitedBy']?.toString() ?? '';
+            final inviterName =
+                data['invitedByName']?.toString() ?? strings.unknownUser;
+            final inviteeName =
+                data['userName']?.toString() ?? strings.unknownUser;
             final isPending = status == 'pending';
             final isBusy = _pendingInviteIds.contains(doc.id);
 
-            return Card(
-              elevation: 0,
-              color: colorScheme.surfaceContainerLowest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            return Dismissible(
+              key: Key('ministry_invite_${doc.id}_$status'),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade500,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor:
-                              colorScheme.primary.withValues(alpha: 0.12),
-                          child:
-                              Icon(Icons.groups, color: colorScheme.primary),
+              confirmDismiss: (direction) async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(strings.confirmAction),
+                    content: Text(strings.confirmDeleteInvite),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(strings.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            ministryName,
-                            style: AppTextStyles.subtitle2,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _inviteStatusColor(colorScheme, status)
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _inviteStatusLabel(strings, status),
-                            style: AppTextStyles.caption.copyWith(
-                              color: _inviteStatusColor(colorScheme, status),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isPending) ...[
-                      const SizedBox(height: 8),
+                        child: Text(strings.delete),
+                      ),
+                    ],
+                  ),
+                );
+                return confirmed ?? false;
+              },
+              onDismissed: (direction) async {
+                try {
+                  // Si está pendiente, rechazar primero
+                  if (isPending && !_pendingInviteIds.contains(doc.id)) {
+                    await _respondToInvite(
+                      requestId: doc.id,
+                      ministryId: data['entityId']?.toString() ?? '',
+                      accept: false,
+                      inviterId: inviterId,
+                      inviterName: inviterName,
+                      ministryName: ministryName,
+                      userName: inviteeName,
+                    );
+                  }
+                  // Marcar como eliminada localmente (opcional, ya que el stream se actualizará)
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${strings.errorDeletingInvite}: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Card(
+                elevation: 0,
+                color: colorScheme.surfaceContainerLowest,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Row(
                         children: [
-                          TextButton(
-                            onPressed: isBusy
-                                ? null
-                                : () => _respondToInvite(
-                                      requestId: doc.id,
-                                      ministryId:
-                                          data['entityId']?.toString() ?? '',
-                                      accept: false,
-                                    ),
-                            child: Text(strings.reject),
+                          CircleAvatar(
+                            backgroundColor:
+                                colorScheme.primary.withValues(alpha: 0.12),
+                            child:
+                                Icon(Icons.groups, color: colorScheme.primary),
                           ),
-                          const Spacer(),
-                          FilledButton(
-                            onPressed: isBusy
-                                ? null
-                                : () => _respondToInvite(
-                                      requestId: doc.id,
-                                      ministryId:
-                                          data['entityId']?.toString() ?? '',
-                                      accept: true,
-                                    ),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              foregroundColor: colorScheme.onPrimary,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              ministryName,
+                              style: AppTextStyles.subtitle2,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            child: Text(strings.accept),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _inviteStatusColor(colorScheme, status)
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _inviteStatusLabel(strings, status),
+                              style: AppTextStyles.caption.copyWith(
+                                color: _inviteStatusColor(colorScheme, status),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
                         ],
                       ),
+                      if (isPending) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () => _respondToInvite(
+                                        requestId: doc.id,
+                                        ministryId:
+                                            data['entityId']?.toString() ?? '',
+                                        accept: false,
+                                        inviterId: inviterId,
+                                        inviterName: inviterName,
+                                        ministryName: ministryName,
+                                        userName: inviteeName,
+                                      ),
+                              child: Text(strings.reject),
+                            ),
+                            const Spacer(),
+                            FilledButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () => _respondToInvite(
+                                        requestId: doc.id,
+                                        ministryId:
+                                            data['entityId']?.toString() ?? '',
+                                        accept: true,
+                                        inviterId: inviterId,
+                                        inviterName: inviterName,
+                                        ministryName: ministryName,
+                                        userName: inviteeName,
+                                      ),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                              ),
+                              child: Text(strings.accept),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             );

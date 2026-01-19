@@ -92,7 +92,6 @@ class MembershipRequestService {
         .where('entityId', isEqualTo: entityId)
         .where('entityType', isEqualTo: entityType)
         .where('status', isEqualTo: 'pending')
-        .orderBy('requestTimestamp', descending: true)
         .snapshots();
   }
   

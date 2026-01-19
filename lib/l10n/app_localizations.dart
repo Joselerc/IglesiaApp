@@ -11120,6 +11120,12 @@ abstract class AppLocalizations {
   /// **'Nuevo video'**
   String get notifTypeNewVideo;
 
+  /// No description provided for @notifTypeNewFamily.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva familia disponible'**
+  String get notifTypeNewFamily;
+
   /// No description provided for @notifTypeMessage.
   ///
   /// In es, this message translates to:
@@ -14384,6 +14390,60 @@ abstract class AppLocalizations {
   /// **'Anuncio no encontrado'**
   String get announcementNotFound;
 
+  /// No description provided for @noAccessToGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes acceso a este grupo'**
+  String get noAccessToGroup;
+
+  /// No description provided for @noAccessToGroupDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Has sido rechazado o no tienes permisos para acceder a este grupo.'**
+  String get noAccessToGroupDescription;
+
+  /// No description provided for @noAccessToMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes acceso a este ministerio'**
+  String get noAccessToMinistry;
+
+  /// No description provided for @noAccessToMinistryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Has sido rechazado o no tienes permisos para acceder a este ministerio.'**
+  String get noAccessToMinistryDescription;
+
+  /// No description provided for @noAccessToFamily.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes acceso a esta familia'**
+  String get noAccessToFamily;
+
+  /// No description provided for @noAccessToFamilyDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Has sido rechazado o no tienes permisos para acceder a esta familia.'**
+  String get noAccessToFamilyDescription;
+
+  /// No description provided for @mustBeLoggedIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes iniciar sesión para continuar'**
+  String get mustBeLoggedIn;
+
+  /// No description provided for @confirmDeleteInvite.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar esta invitación?'**
+  String get confirmDeleteInvite;
+
+  /// No description provided for @confirmAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar acción'**
+  String get confirmAction;
+
   /// No description provided for @clickToSeeMore.
   ///
   /// In es, this message translates to:
@@ -15115,6 +15175,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Invitado por'**
   String get invitedByLabel;
+
+  /// No description provided for @notifTypeGroupInviteReceived.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a grupo'**
+  String get notifTypeGroupInviteReceived;
+
+  /// No description provided for @notifTypeGroupInviteAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a grupo aceptada'**
+  String get notifTypeGroupInviteAccepted;
+
+  /// No description provided for @notifTypeGroupInviteRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a grupo rechazada'**
+  String get notifTypeGroupInviteRejected;
+
+  /// No description provided for @notifTypeFamilyInviteAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a familia aceptada'**
+  String get notifTypeFamilyInviteAccepted;
+
+  /// No description provided for @notifTypeFamilyInviteRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a familia rechazada'**
+  String get notifTypeFamilyInviteRejected;
+
+  /// No description provided for @notifTypeMinistryInviteReceived.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a ministerio'**
+  String get notifTypeMinistryInviteReceived;
+
+  /// No description provided for @notifTypeMinistryInviteAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a ministerio aceptada'**
+  String get notifTypeMinistryInviteAccepted;
+
+  /// No description provided for @notifTypeMinistryInviteRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitacion a ministerio rechazada'**
+  String get notifTypeMinistryInviteRejected;
+
+  /// No description provided for @groupInviteReceivedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{inviterName} te invito a unirte al grupo {groupName}'**
+  String groupInviteReceivedMessage(String inviterName, String groupName);
+
+  /// No description provided for @groupInviteAcceptedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} acepto tu invitacion para unirse a {groupName}'**
+  String groupInviteAcceptedMessage(String userName, String groupName);
+
+  /// No description provided for @groupInviteRejectedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} rechazo tu invitacion para unirse a {groupName}'**
+  String groupInviteRejectedMessage(String userName, String groupName);
+
+  /// No description provided for @familyInviteAcceptedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} acepto tu invitacion para unirse a la familia {familyName}'**
+  String familyInviteAcceptedMessage(String userName, String familyName);
+
+  /// No description provided for @familyInviteRejectedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} rechazo tu invitacion para unirse a la familia {familyName}'**
+  String familyInviteRejectedMessage(String userName, String familyName);
+
+  /// No description provided for @ministryInviteReceivedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{inviterName} te invito a unirte al ministerio {ministryName}'**
+  String ministryInviteReceivedMessage(String inviterName, String ministryName);
+
+  /// No description provided for @ministryInviteAcceptedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} acepto tu invitacion para unirse a {ministryName}'**
+  String ministryInviteAcceptedMessage(String userName, String ministryName);
+
+  /// No description provided for @ministryInviteRejectedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{userName} rechazo tu invitacion para unirse a {ministryName}'**
+  String ministryInviteRejectedMessage(String userName, String ministryName);
 }
 
 class _AppLocalizationsDelegate

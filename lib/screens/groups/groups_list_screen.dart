@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/group.dart';
 import '../../services/auth_service.dart';
 import '../../services/group_service.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
@@ -13,9 +14,15 @@ import '../../widgets/group_card.dart';
 import '../../modals/create_group_modal.dart';
 import '../../services/permission_service.dart';
 import '../../widgets/skeletons/list_tab_content_skeleton.dart';
+import '../../models/notification.dart';
 
 class GroupsListScreen extends StatefulWidget {
-  const GroupsListScreen({super.key});
+  final int initialTabIndex;
+
+  const GroupsListScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<GroupsListScreen> createState() => _GroupsListScreenState();
@@ -212,8 +219,17 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     required String requestId,
     required String groupId,
     required bool accept,
+    required String inviterId,
+    required String inviterName,
+    required String groupName,
+    required String userName,
   }) async {
-    if (_pendingInviteIds.contains(requestId)) return;
+    // Evitar procesamiento múltiple del mismo request
+    if (_pendingInviteIds.contains(requestId)) {
+      debugPrint('Request $requestId ya está siendo procesado');
+      return;
+    }
+
     setState(() {
       _pendingInviteIds.add(requestId);
     });
@@ -221,9 +237,37 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     final strings = AppLocalizations.of(context)!;
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
+      if (currentUser == null) {
+        debugPrint('Usuario no autenticado');
+        return;
+      }
+
+      debugPrint('Procesando invitación $requestId para grupo $groupId - Accept: $accept');
+
       if (accept) {
         await _groupService.acceptJoinRequest(currentUser.uid, groupId);
+
+        // Enviar notificación al invitador
+        if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
+          try {
+            final notificationService =
+                Provider.of<NotificationService>(context, listen: false);
+            await notificationService.createNotification(
+              title: strings.notifTypeGroupInviteAccepted,
+              message: strings.groupInviteAcceptedMessage(userName, groupName),
+              type: NotificationType.groupInviteAccepted,
+              userId: inviterId,
+              senderId: currentUser.uid,
+              entityId: groupId,
+              entityType: 'group',
+              groupId: groupId,
+              actionRoute: '/groups',
+            );
+          } catch (e) {
+            debugPrint('Error enviando notificación de aceptación: $e');
+          }
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(strings.inviteAcceptedSuccessfully)),
@@ -231,24 +275,64 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
         }
       } else {
         await _groupService.rejectJoinRequest(currentUser.uid, groupId);
+
+        // Enviar notificación al invitador
+        if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
+          try {
+            final notificationService =
+                Provider.of<NotificationService>(context, listen: false);
+            await notificationService.createNotification(
+              title: strings.notifTypeGroupInviteRejected,
+              message: strings.groupInviteRejectedMessage(userName, groupName),
+              type: NotificationType.groupInviteRejected,
+              userId: inviterId,
+              senderId: currentUser.uid,
+              entityId: groupId,
+              entityType: 'group',
+              groupId: groupId,
+              actionRoute: '/groups',
+            );
+          } catch (e) {
+            debugPrint('Error enviando notificación de rechazo: $e');
+          }
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(strings.inviteRejectedSuccessfully)),
           );
         }
       }
+
+      debugPrint('Invitación $requestId procesada exitosamente');
+
     } catch (e) {
+      debugPrint('Error procesando invitación $requestId: $e');
+
       if (mounted) {
+        String errorMessage = strings.errorRespondingToInvite(e.toString());
+
+        // Manejar errores específicos
+        if (e.toString().contains('solicitud pendiente')) {
+          errorMessage = 'Esta invitación ya fue procesada anteriormente';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.errorRespondingToInvite(e.toString()))),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
         );
       }
     } finally {
+      // Asegurarse de limpiar el estado incluso si hay error
       if (mounted) {
         setState(() {
           _pendingInviteIds.remove(requestId);
         });
       }
+      debugPrint('Estado limpiado para invitación $requestId');
     }
   }
 
@@ -344,88 +428,167 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
             final status = data['status']?.toString() ?? 'pending';
             final groupName =
                 data['entityName']?.toString() ?? strings.groups;
+            final inviterId = data['invitedBy']?.toString() ?? '';
+            final inviterName =
+                data['invitedByName']?.toString() ?? strings.unknownUser;
+            final inviteeName =
+                data['userName']?.toString() ?? strings.unknownUser;
             final isPending = status == 'pending';
             final isBusy = _pendingInviteIds.contains(doc.id);
 
-            return Card(
-              elevation: 0,
-              color: colorScheme.surfaceContainerLowest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            return Dismissible(
+              key: Key('invite_${doc.id}_$status'),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade500,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor:
-                              colorScheme.primary.withValues(alpha: 0.12),
-                          child: Icon(Icons.group,
-                              color: colorScheme.primary),
+              confirmDismiss: (direction) async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(strings.confirmAction),
+                    content: Text(strings.confirmDeleteInvite),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(strings.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            groupName,
-                            style: AppTextStyles.subtitle2,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _inviteStatusColor(colorScheme, status)
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _inviteStatusLabel(strings, status),
-                            style: AppTextStyles.caption.copyWith(
-                              color: _inviteStatusColor(colorScheme, status),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isPending) ...[
-                      const SizedBox(height: 8),
+                        child: Text(strings.delete),
+                      ),
+                    ],
+                  ),
+                );
+                return confirmed ?? false;
+              },
+              onDismissed: (direction) async {
+                try {
+                  // Si está pendiente, rechazar primero
+                  if (isPending && !_pendingInviteIds.contains(doc.id)) {
+                    await _respondToInvite(
+                      requestId: doc.id,
+                      groupId: data['entityId']?.toString() ?? '',
+                      accept: false,
+                      inviterId: inviterId,
+                      inviterName: inviterName,
+                      groupName: groupName,
+                      userName: inviteeName,
+                    );
+                  }
+                  // Marcar como eliminada localmente (opcional, ya que el stream se actualizará)
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${strings.errorDeletingInvite}: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Card(
+                elevation: 0,
+                color: colorScheme.surfaceContainerLowest,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Row(
                         children: [
-                          TextButton(
-                            onPressed: isBusy
-                                ? null
-                                : () => _respondToInvite(
-                                      requestId: doc.id,
-                                      groupId: data['entityId']?.toString() ?? '',
-                                      accept: false,
-                                    ),
-                            child: Text(strings.reject),
+                          CircleAvatar(
+                            backgroundColor:
+                                colorScheme.primary.withValues(alpha: 0.12),
+                            child: Icon(Icons.group,
+                                color: colorScheme.primary),
                           ),
-                          const Spacer(),
-                          FilledButton(
-                            onPressed: isBusy
-                                ? null
-                                : () => _respondToInvite(
-                                      requestId: doc.id,
-                                      groupId: data['entityId']?.toString() ?? '',
-                                      accept: true,
-                                    ),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              foregroundColor: colorScheme.onPrimary,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              groupName,
+                              style: AppTextStyles.subtitle2,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            child: Text(strings.accept),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _inviteStatusColor(colorScheme, status)
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _inviteStatusLabel(strings, status),
+                              style: AppTextStyles.caption.copyWith(
+                                color: _inviteStatusColor(colorScheme, status),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
                         ],
                       ),
+                      if (isPending) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () => _respondToInvite(
+                                        requestId: doc.id,
+                                        groupId: data['entityId']?.toString() ?? '',
+                                        accept: false,
+                                        inviterId: inviterId,
+                                        inviterName: inviterName,
+                                        groupName: groupName,
+                                        userName: inviteeName,
+                                      ),
+                              child: Text(strings.reject),
+                            ),
+                            const Spacer(),
+                            FilledButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () => _respondToInvite(
+                                        requestId: doc.id,
+                                        groupId: data['entityId']?.toString() ?? '',
+                                        accept: true,
+                                        inviterId: inviterId,
+                                        inviterName: inviterName,
+                                        groupName: groupName,
+                                        userName: inviteeName,
+                                      ),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                              ),
+                              child: Text(strings.accept),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             );
@@ -440,9 +603,11 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     final user = Provider.of<AuthService>(context).currentUser;
     final userId = user?.uid ?? '';
     final strings = AppLocalizations.of(context)!;
+    final int initialIndex = widget.initialTabIndex.clamp(0, 1) as int;
 
     return DefaultTabController(
       length: 2,
+      initialIndex: initialIndex,
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: Column(
