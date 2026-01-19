@@ -261,7 +261,7 @@ class _PrivatePrayerScreenState extends State<PrivatePrayerScreen> with SingleTi
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 22,
+                            fontSize: 21,
                           ),
                         ),
                         const Spacer(),

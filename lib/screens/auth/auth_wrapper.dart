@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:iglesia_app/services/auth_service.dart';
 import 'package:iglesia_app/screens/main_screen.dart';
 import 'package:iglesia_app/screens/auth/login_screen.dart';
 import '../../theme/app_colors.dart';
@@ -10,7 +8,6 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
-import '../../l10n/app_localizations.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
@@ -87,6 +84,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
+          if (FirebaseAuth.instance.currentUser != null) {
+            navigationCubit.navigateTo(NavigationState.home);
+            return const MainScreen();
+          }
           return Scaffold(
             backgroundColor: AppColors.background,
             body: AnnotatedRegion<SystemUiOverlayStyle>(

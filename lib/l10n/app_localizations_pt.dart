@@ -4385,7 +4385,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get myPrivatePrayers => 'Minhas Orações Privadas';
+  String get myPrivatePrayers => 'Orações Privadas';
 
   @override
   String get refresh => 'Atualizar';

@@ -222,46 +222,13 @@ class AccountDeletionService {
 
       debugPrint('✅ Conta eliminada com sucesso');
 
-      debugPrint('🔄 Conta eliminada com sucesso - forçando reinício da app...');
-      
-      // Esperar un momento mínimo para que Firebase procese
-      await Future.delayed(const Duration(milliseconds: 300));
-      
-      // SOLUCIÓN RADICAL: Cerrar la app completamente
-      // Esto fuerza al usuario a volver a abrirla, y al no haber usuario autenticado,
-      // irá automáticamente al AuthWrapper/Login
-      try {
-        if (context.mounted) {
-          // Mostrar mensaje muy breve antes de cerrar
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Conta eliminada! Reabra o aplicativo'),
-              backgroundColor: Colors.green,
-              duration: Duration(milliseconds: 1500),
-            ),
-          );
-          
-          // Esperar que se vea el mensaje
-          await Future.delayed(const Duration(milliseconds: 1500));
-        }
-        
-        // Cerrar la aplicación usando SystemNavigator
-        debugPrint('🔄 Cerrando aplicación...');
-        SystemNavigator.pop();
-        
-      } catch (e) {
-        debugPrint('❌ Error al cerrar app: $e');
-        // Fallback: intentar navegación normal
-        if (context.mounted) {
-          try {
-            Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-              '/',
-              (route) => false,
-            );
-          } catch (navError) {
-            debugPrint('❌ Error en navegación fallback: $navError');
-          }
-        }
+      debugPrint('🔄 Conta eliminada com sucesso - redirecionando ao Auth');
+      await _auth.signOut();
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+          '/auth',
+          (route) => false,
+        );
       }
 
     } catch (e) {

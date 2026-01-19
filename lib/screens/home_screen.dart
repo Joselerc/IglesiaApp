@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   User? _user;
   List<QueryDocumentSnapshot>? _requiredFields;
   List<DocumentSnapshot> _churchLocations = [];
+  List<HomeScreenSection> _cachedSections = [];
 
   // Añadir StreamSubscription para mejor gestión de memoria
   StreamSubscription<DocumentSnapshot>? _userStreamSubscription;
@@ -435,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? _buildUserAvatar(snapshot.data!.data()
                                     as Map<String, dynamic>)
                                 : const Icon(Icons.person,
-                                    color: Color(0xFF2F2F2F), size: 24),
+                                    color: AppColors.charcoal, size: 24),
                           ),
                         );
                       },
@@ -459,9 +460,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               .errorLoadingSections(
                                   snapshot.error.toString())));
                     }
-                    // MODIFICACIÓN: Mostrar esqueleto si las secciones están cargando O si la lógica del banner está cargando.
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        _isBannerLoading) {
+                    final hasCachedSections = _cachedSections.isNotEmpty;
+                    // Mostrar esqueleto solo si no hay cache y está cargando
+                    if ((snapshot.connectionState == ConnectionState.waiting ||
+                            _isBannerLoading) &&
+                        !hasCachedSections) {
                       return const HomeScreenSkeleton();
                     }
                     // Ajuste: Permitir que no haya secciones sin mostrar error
@@ -474,7 +477,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? snapshot.data!.docs
                             .map((doc) => HomeScreenSection.fromFirestore(doc))
                             .toList()
-                        : <HomeScreenSection>[];
+                        : _cachedSections;
+                    if (snapshot.hasData) {
+                      _cachedSections = sections;
+                    }
 
                     // DEBUG: Ver todas las secciones cargadas
                     debugPrint('📋 HOME_SCREEN: Total secciones desde Firestore: ${sections.length}');
@@ -909,11 +915,11 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 48, // Tamaño aumentado
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.person, color: Color(0xFF2F2F2F), size: 24);
+            return const Icon(Icons.person, color: AppColors.charcoal, size: 24);
           },
         ),
       );
     }
-    return const Icon(Icons.person, color: Color(0xFF2F2F2F), size: 24);
+    return const Icon(Icons.person, color: AppColors.charcoal, size: 24);
   }
 }

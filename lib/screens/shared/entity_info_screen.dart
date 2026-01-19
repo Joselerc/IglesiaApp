@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_quill/flutter_quill.dart' hide Text; // Esconder Text de flutter_quill
+import 'package:intl/intl.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/loading_indicator.dart'; // Corregida ruta
-// import '../../widgets/user_avatar.dart'; // No encontrado
+import '../../widgets/loading_indicator.dart';
 
 // Enum para definir el tipo de entidad
 enum EntityType { ministry, group }
@@ -34,7 +34,7 @@ class _FeaturedMemberInfo {
       try {
         document = Document.fromJson(jsonDecode(customInfoDeltaJson));
       } catch (e) {
-        print('Error parsing customInfo for $userId: $e');
+        debugPrint('Error parsing customInfo for $userId: $e');
         document = Document()..insert(0, '(Erro ao carregar info)');
       }
     } else {
@@ -105,17 +105,30 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
 
       _entityData = docSnapshot.data()!;
 
+      // Cargar información del creador si existe
+      final createdByRef = _entityData!['createdBy'] as DocumentReference?;
+      if (createdByRef != null) {
+        try {
+          final creatorDoc = await createdByRef.get();
+          if (creatorDoc.exists) {
+            _entityData!['_creatorName'] = creatorDoc.get('name') ?? 'Usuário Desconhecido';
+          }
+        } catch (e) {
+          debugPrint('Error cargando creador: $e');
+        }
+      }
+
       // Extraer datos básicos
-      final name = _entityData!['name'] as String? ?? 'Nome não definido';
-      final imageUrl = _entityData!['imageUrl'] as String? ?? '';
+      // final name = _entityData!['name'] as String? ?? 'Nome não definido'; // Unused
+      // final imageUrl = _entityData!['imageUrl'] as String? ?? ''; // Unused
 
       // Extraer configuración de miembros destacados
       final showFeaturedSection = _entityData!['showFeaturedMembersSection'] as bool? ?? false;
-      final featuredSectionTitle = _entityData!['featuredMembersSectionTitle'] as String? ?? '';
+      // final featuredSectionTitle = _entityData!['featuredMembersSectionTitle'] as String? ?? ''; // Unused
       final List<dynamic> featuredMembersData = _entityData!['featuredMembers'] as List<dynamic>? ?? [];
 
       // Cargar miembros destacados si la sección está activa
-      List<_FeaturedMemberInfo> tempFeaturedList = [];
+      final List<_FeaturedMemberInfo> tempFeaturedList = [];
       if (showFeaturedSection && featuredMembersData.isNotEmpty) {
         for (var memberMap in featuredMembersData) {
           if (memberMap is Map) {
@@ -136,10 +149,10 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
                     if (customInfoData is Map || customInfoData is List) {
                       customInfoJson = jsonEncode(customInfoData);
                     } else {
-                      print("WARN: customInfo para $userId no es un mapa/lista JSON válido.");
+                      debugPrint("WARN: customInfo para $userId no es un mapa/lista JSON válido.");
                     }
                   } catch (e) {
-                    print("Error encoding customInfo for $userId: $e");
+                    debugPrint("Error encoding customInfo for $userId: $e");
                   }
                 }
 
@@ -150,13 +163,13 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
                   customInfoDeltaJson: customInfoJson,
                 ));
               } else {
-                 print("WARN: Usuario destacado $userId no encontrado.");
+                 debugPrint("WARN: Usuario destacado $userId no encontrado.");
               }
             } else {
-               print("WARN: Miembro destacado sin userId.");
+               debugPrint("WARN: Miembro destacado sin userId.");
             }
           } else {
-             print("WARN: Formato inesperado en lista featuredMembers.");
+             debugPrint("WARN: Formato inesperado en lista featuredMembers.");
           }
         }
       }
@@ -173,7 +186,7 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
       setState(() => _isLoading = false);
 
     } catch (e) {
-      print("Error cargando datos en EntityInfoScreen: $e");
+      debugPrint("Error cargando datos en EntityInfoScreen: $e");
       setState(() {
         _isLoading = false;
         _errorMessage = "Erro ao carregar informações: ${e.toString()}";
@@ -189,14 +202,20 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
         final List<dynamic> deltaList = descriptionData is List ? descriptionData : [descriptionData];
         document = Document.fromJson(deltaList);
       } catch (e) {
-        print('Error parseando descriptionDelta: $e');
+        debugPrint('Error parseando descriptionDelta: $e');
         document = Document()..insert(0, '(Erro ao carregar descrição)');
       }
     } else if (descriptionData is String && descriptionData.isNotEmpty) {
        // Compatibilidad con descripción antigua (texto plano)
       document = Document()..insert(0, descriptionData);
     } else {
-      document = Document(); // Vacío si no hay descripción
+      // Intentar cargar la descripción simple si no hay delta
+      final simpleDescription = _entityData?['description'] as String?;
+      if (simpleDescription != null && simpleDescription.isNotEmpty) {
+        document = Document()..insert(0, simpleDescription);
+      } else {
+        document = Document(); // Vacío si no hay descripción
+      }
     }
 
     if (_descriptionController == null) {
@@ -210,6 +229,68 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
   }
 
   String _entityTypeName() => widget.entityType == EntityType.ministry ? 'Ministério' : 'Grupo';
+
+  Widget _buildGeneralInfoSection() {
+    final createdAt = _entityData!['createdAt'] as Timestamp?;
+    final creatorName = _entityData!['_creatorName'] as String?;
+    final members = _entityData!['members'] as List?;
+    final memberCount = members?.length ?? 0;
+
+    return Card(
+      elevation: 0,
+      color: Colors.grey[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Informações Gerais',
+              style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (createdAt != null)
+              _buildInfoRow(Icons.calendar_today, 'Criado em', DateFormat('dd/MM/yyyy').format(createdAt.toDate())),
+            if (creatorName != null)
+              _buildInfoRow(Icons.person_outline, 'Criado por', creatorName),
+            _buildInfoRow(Icons.people_outline, 'Membros', memberCount.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              '$label: ',
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,6 +309,9 @@ class _EntityInfoScreenState extends State<EntityInfoScreen> {
                   child: ListView(
                     padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 32.0),
                     children: [
+                      // --- Sección Información General ---
+                      _buildGeneralInfoSection(),
+                      const SizedBox(height: 24),
                       // --- Sección Miembros Destacados --- 
                       if (_entityData!['showFeaturedMembersSection'] == true && _featuredMembersInfo.isNotEmpty) ...[
                         _buildFeaturedMembersSection(),

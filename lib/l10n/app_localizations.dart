@@ -7907,7 +7907,7 @@ abstract class AppLocalizations {
   /// No description provided for @myPrivatePrayers.
   ///
   /// In es, this message translates to:
-  /// **'Mis Oraciones Privadas'**
+  /// **'Oraciones Privadas'**
   String get myPrivatePrayers;
 
   /// No description provided for @refresh.

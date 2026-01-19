@@ -15,7 +15,6 @@ import './statistics_services/services_stats_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart'; // Importar para acceder a navigationCubit global
-import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,11 +25,19 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   bool _hasRequestedPermissions = false;
+  late final List<Widget> _screens;
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _screens = const [
+      HomeScreen(),
+      NotificationsScreen(),
+      CalendarScreen(),
+      VideosScreen(),
+      ProfileScreen(),
+    ];
     
     // Solicitar permisos después de un pequeño retraso para asegurar que la UI esté lista
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -85,17 +92,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildBody(NavigationState state) {
+    return IndexedStack(
+      index: _indexForState(state),
+      children: _screens,
+    );
+  }
+
+  int _indexForState(NavigationState state) {
     switch (state) {
       case NavigationState.home:
-        return const HomeScreen();
+        return 0;
       case NavigationState.notifications:
-        return const NotificationsScreen();
+        return 1;
       case NavigationState.calendar:
-        return const CalendarScreen();
+        return 2;
       case NavigationState.videos:
-        return const VideosScreen();
+        return 3;
       case NavigationState.profile:
-        return const ProfileScreen();
+        return 4;
     }
   }
   

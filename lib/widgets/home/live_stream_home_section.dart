@@ -47,7 +47,9 @@ class LiveStreamHomeSection extends StatelessWidget {
               style: AppTextStyles.headline3.copyWith(
                 color: AppColors.textPrimary, // Asegurar color consistente
                 fontWeight: FontWeight.bold, // Asegurar negrita consistente
-              )
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           // const SizedBox(height: AppSpacing.md), // Eliminado porque el padding ya da espacio

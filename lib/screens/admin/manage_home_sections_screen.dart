@@ -284,10 +284,12 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        hideWhenEmpty 
+                        hideWhenEmpty
                           ? AppLocalizations.of(context)!.sectionWillBeHiddenWhen(_getContentTypeText(context, section.type))
                           : AppLocalizations.of(context)!.sectionWillBeDisplayed,
                         style: AppTextStyles.caption.copyWith(color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   const SizedBox(width: 16),
@@ -440,10 +442,14 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                                    color: section.hideWhenEmpty ? AppColors.accent : Colors.green,
                                  ),
                                  const SizedBox(width: 4),
-                                 Text(
-                                   section.hideWhenEmpty ? AppLocalizations.of(context)!.hiddenWhenEmpty : AppLocalizations.of(context)!.alwaysVisible,
-                                   style: AppTextStyles.caption.copyWith(
-                                     color: section.hideWhenEmpty ? AppColors.accent : Colors.green,
+                                 Flexible(
+                                   child: Text(
+                                     section.hideWhenEmpty ? AppLocalizations.of(context)!.hiddenWhenEmpty : AppLocalizations.of(context)!.alwaysVisible,
+                                     style: AppTextStyles.caption.copyWith(
+                                       color: section.hideWhenEmpty ? AppColors.accent : Colors.green,
+                                     ),
+                                     maxLines: 1,
+                                     overflow: TextOverflow.ellipsis,
                                    ),
                                  ),
                                  const SizedBox(width: 8),

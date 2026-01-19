@@ -685,14 +685,18 @@ class _SelectAdminsDialogState extends State<SelectAdminsDialog> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context)!.selectAdministrators,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.selectAdministrators,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(4),

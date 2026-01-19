@@ -26,6 +26,7 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
   final MembershipRequestService _requestService = MembershipRequestService();
   final TextEditingController _searchController = TextEditingController();
   String _searchTerm = '';
+  List<FamilyGroup> _cachedFamilies = [];
 
   @override
   void initState() {
@@ -169,7 +170,8 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
                           stream: _familyService.streamUserFamilies(userId),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
+                                    ConnectionState.waiting &&
+                                _cachedFamilies.isEmpty) {
                               return const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 24),
                                 child:
@@ -185,7 +187,11 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
                                 ),
                               );
                             }
-                            var families = snapshot.data ?? [];
+                            var families =
+                                snapshot.hasData ? snapshot.data! : _cachedFamilies;
+                            if (snapshot.hasData) {
+                              _cachedFamilies = families;
+                            }
                             families = families
                                 .where((family) =>
                                     family.name

@@ -36,7 +36,12 @@ class DonationsSection extends StatelessWidget {
            // Título de la sección (mostrado por HomeScreen)
            Padding(
              padding: const EdgeInsets.only(bottom: AppSpacing.sm, left: AppSpacing.xs), // Padding ajustado
-             child: Text(title, style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+             child: Text(
+               title,
+               style: AppTextStyles.headline3.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+               maxLines: 1,
+               overflow: TextOverflow.ellipsis,
+             ),
            ),
            // Tarjeta clickable
            AppCard(

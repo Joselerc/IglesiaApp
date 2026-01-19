@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Colores definidos para toda la aplicación
 class AppColors {
   // Colores primarios
-  static const Color primary = Color(0xFF1E6FF2); // Azul principal
+  static const Color primary = Color(0xFF4C513B); // Verde oliva principal
   static const Color secondary = Color(0xFFF5F7FA); // Gris azulado claro
   
   // --- Colores antiguos remapeados para compatibilidad ---

@@ -34,6 +34,9 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
   final GroupService _groupService = GroupService();
   final PermissionService _permissionService = PermissionService();
   final Set<String> _pendingInviteIds = {};
+  List<QueryDocumentSnapshot> _cachedInvites = [];
+  List<Group> _cachedGroups = [];
+  int _cachedPendingInviteCount = 0;
   
   // Estado para saber si el usuario tiene permiso para crear grupos
   bool _canCreateGroup = false;
@@ -362,7 +365,12 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _pendingGroupInviteStream(userId),
       builder: (context, snapshot) {
-        final count = snapshot.data?.docs.length ?? 0;
+        final count = snapshot.hasData
+            ? snapshot.data!.docs.length
+            : _cachedPendingInviteCount;
+        if (snapshot.hasData) {
+          _cachedPendingInviteCount = count;
+        }
         return Tab(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -402,11 +410,15 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
           return Center(child: Text(strings.errorLoadingInvitations));
         }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            _cachedInvites.isEmpty) {
           return const ListTabContentSkeleton();
         }
 
-        final invites = snapshot.data?.docs ?? [];
+        final invites = snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
+        if (snapshot.hasData) {
+          _cachedInvites = invites;
+        }
         if (invites.isEmpty) {
           return Center(
             child: Text(
@@ -603,7 +615,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
     final user = Provider.of<AuthService>(context).currentUser;
     final userId = user?.uid ?? '';
     final strings = AppLocalizations.of(context)!;
-    final int initialIndex = widget.initialTabIndex.clamp(0, 1) as int;
+    final int initialIndex = widget.initialTabIndex.clamp(0, 1).toInt();
 
     return DefaultTabController(
       length: 2,
@@ -762,14 +774,20 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                             }
 
                             if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
+                                    ConnectionState.waiting &&
+                                _cachedGroups.isEmpty) {
                               return const ListTabContentSkeleton();
                             }
 
                             try {
-                              final allGroups = snapshot.data!.docs
-                                  .map((doc) => Group.fromFirestore(doc))
-                                  .toList();
+                              final allGroups = snapshot.hasData
+                                  ? snapshot.data!.docs
+                                      .map((doc) => Group.fromFirestore(doc))
+                                      .toList()
+                                  : _cachedGroups;
+                              if (snapshot.hasData) {
+                                _cachedGroups = allGroups;
+                              }
 
                               final filteredGroups = _filterGroups(allGroups);
 

@@ -94,7 +94,7 @@ class AppConfigService {
         await _firestore.collection('appConfig').doc(CONFIG_DOC_ID).set({
           'churchName': 'Amor Em Movimento',
           'logoUrl': '',
-          'primaryColor': 0xFF1E6FF2, // Color azul por defecto
+          'primaryColor': 0xFF4C513B, // Color verde oliva por defecto
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });

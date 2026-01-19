@@ -32,6 +32,9 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
   final PermissionService _permissionService = PermissionService();
   bool _isLoading = false;
   final Set<String> _pendingInviteIds = {};
+  List<QueryDocumentSnapshot> _cachedInvites = [];
+  List<Ministry> _cachedMinistries = [];
+  int _cachedPendingInviteCount = 0;
   
   // Estado para saber si el usuario puede crear ministerios
   bool _canCreateMinistry = false;
@@ -376,7 +379,12 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _pendingMinistryInviteStream(userId),
       builder: (context, snapshot) {
-        final count = snapshot.data?.docs.length ?? 0;
+        final count = snapshot.hasData
+            ? snapshot.data!.docs.length
+            : _cachedPendingInviteCount;
+        if (snapshot.hasData) {
+          _cachedPendingInviteCount = count;
+        }
         return Tab(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -416,11 +424,15 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
           return Center(child: Text(strings.errorLoadingInvitations));
         }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            _cachedInvites.isEmpty) {
           return const ListTabContentSkeleton();
         }
 
-        final invites = snapshot.data?.docs ?? [];
+        final invites = snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
+        if (snapshot.hasData) {
+          _cachedInvites = invites;
+        }
         if (invites.isEmpty) {
           return Center(
             child: Text(
@@ -778,12 +790,17 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
                             }
 
                             if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
+                                    ConnectionState.waiting &&
+                                _cachedMinistries.isEmpty) {
                               return const ListTabContentSkeleton();
                             }
 
                             try {
-                              final ministries = snapshot.data ?? [];
+                              final ministries =
+                                  snapshot.hasData ? snapshot.data! : _cachedMinistries;
+                              if (snapshot.hasData) {
+                                _cachedMinistries = ministries;
+                              }
                               final filteredMinistries =
                                   _filterMinistries(ministries);
 

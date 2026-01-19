@@ -57,6 +57,8 @@ class FamiliesSection extends StatelessWidget {
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
                   AppCard(

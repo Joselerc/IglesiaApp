@@ -2057,7 +2057,7 @@
   "accessDenied": "Acceso Denegado",
   "errorCheckingPermission": "Error al verificar permiso: {error}",
   "appointmentStatus": "Cita {status}",
-  "myPrivatePrayers": "Mis Oraciones Privadas",
+  "myPrivatePrayers": "Oraciones Privadas",
   "refresh": "Actualizar",
   "noPendingPrayers": "Ninguna oración pendiente",
   "noApprovedPrayers": "Ninguna oración aprobada",

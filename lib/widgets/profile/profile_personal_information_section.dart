@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../../models/user_model.dart'; // Asumiendo la necesidad y la ruta
 import '../../../theme/app_text_styles.dart'; // Para estilos de texto consistentes
+import '../../../theme/app_colors.dart'; // Para colores consistentes
 import '../../l10n/app_localizations.dart';
 
 class ProfilePersonalInformationSection extends StatefulWidget {
@@ -178,7 +179,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF2196F3).withOpacity(0.08),
+                color: AppColors.primary.withOpacity(0.08),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -196,7 +197,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2196F3).withOpacity(0.2),
+                              color: AppColors.primary.withOpacity(0.2),
                               spreadRadius: 1,
                               blurRadius: 5,
                               offset: const Offset(0, 2),
@@ -205,7 +206,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         ),
                         child: const Icon(
                           Icons.person_outline,
-                          color: Color(0xFF2196F3),
+                          color: AppColors.primary,
                           size: 20,
                         ),
                       ),
@@ -215,7 +216,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2196F3),
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -232,7 +233,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                         style: TextStyle(fontSize: 13),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2196F3),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         elevation: 0,
@@ -260,10 +261,10 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
                       filled: true,
                       fillColor: Colors.grey[50],
-                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7))),
+                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: AppColors.primary.withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     validator: (value) => (value == null || value.isEmpty) ? AppLocalizations.of(context)!.pleaseEnterYourName : null,
@@ -278,10 +279,10 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
                       filled: true,
                       fillColor: Colors.grey[50],
-                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: const Color(0xFF2196F3).withOpacity(0.7))),
+                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_outline, color: AppColors.primary.withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     validator: (value) => (value == null || value.isEmpty) ? AppLocalizations.of(context)!.pleaseEnterYourSurname : null,
@@ -295,10 +296,10 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       labelStyle: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
                       filled: true,
                       fillColor: Colors.grey[50],
-                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_search_outlined, color: const Color(0xFF2196F3).withOpacity(0.7))),
+                      prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_search_outlined, color: AppColors.primary.withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
                     ),
                     value: _gender,
@@ -332,7 +333,7 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                           labelStyle: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w500),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey[300]!)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
                           filled: true,
                           fillColor: Colors.grey[50],
                           hintText: _phoneController.text.isEmpty ? AppLocalizations.of(context)!.optional : null,

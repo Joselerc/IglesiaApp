@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../screens/prayers/private_prayer_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../theme/app_spacing.dart';
 import '../common/app_card.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -29,6 +28,8 @@ class PrivatePrayerSection extends StatelessWidget {
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 16),
