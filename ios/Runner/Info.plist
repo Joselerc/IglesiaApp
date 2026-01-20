@@ -14,7 +14,7 @@
 		<string>en_US</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>ChurchConnect</string>
+	<string>Amor em Movimento</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,7 +22,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>ChurchConnect</string>
+	<string>Amor em Movimento</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
