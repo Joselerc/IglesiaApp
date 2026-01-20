@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:859775537407:android:8315071fe3915fa4fbfcca",
         "android_client_info": {
-          "package_name": "com.iglesia.app"
+          "package_name": "com.igrejamoremovimento.igreja"
         }
       },
       "oauth_client": [],
@@ -28,7 +28,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:859775537407:android:cb9cb7d1242ec726fbfcca",
         "android_client_info": {
-          "package_name": "com.masiglesia.demo"
+          "package_name": "com.igrejamoremovimento.igreja"
         }
       },
       "oauth_client": [],
