@@ -41,7 +41,7 @@ workflows:
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
-            --build-name=2.1.0 \
+            --build-name=2.2.0 \
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
