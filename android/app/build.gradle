@@ -45,8 +45,13 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 29
         targetSdkVersion 36
-        versionCode 10
-         versionName "2.2.0"
+<<<<<<< HEAD
+        versionCode 11
+         versionName "2.3.0"
+=======
+        versionCode 11
+         versionName "2.3.0"
+>>>>>>> 97cbca8 (Configurar app para Amor em Movimento en producción)
         
         // Configuraciones de seguridad
         multiDexEnabled true
