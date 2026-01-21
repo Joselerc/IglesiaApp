@@ -43,10 +43,10 @@ android {
         applicationId "com.igrejamoremovimento.igreja"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion 29
+        minSdkVersion 21
         targetSdkVersion 36
-        versionCode 12
-         versionName "2.3.0"
+        versionCode 13
+         versionName "2.3.1"
         
         // Configuraciones de seguridad
         multiDexEnabled true
