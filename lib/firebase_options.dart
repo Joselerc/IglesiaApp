@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '859775537407',
     projectId: 'iglesiaapp-2dc33',
     storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
-    iosBundleId: 'com.masiglesia.demo',
+    iosBundleId: 'com.igrejamoremovimento.igreja',
   );
 }
