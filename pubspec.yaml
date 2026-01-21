@@ -2,11 +2,7 @@ name: iglesia_app
 description: "Amor em Movimento - La plataforma definitiva para conectar con tu comunidad de fe. Participa en eventos, únete a grupos de oración, mantente informado y fortalece tu vida espiritual."
 publish_to: 'none'
 
-<<<<<<< HEAD
 version: 2.3.0+3
-=======
-version: 2.3.0+3
->>>>>>> 97cbca8 (Configurar app para Amor em Movimento en producción)
 
 environment:
   sdk: ^3.6.1

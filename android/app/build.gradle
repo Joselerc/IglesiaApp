@@ -39,19 +39,14 @@ android {
     }
 
     defaultConfig {
-        // Application ID único para Mas Iglesia Demo
-        applicationId "com.masiglesia.demo"
+        // Application ID para Amor em Movimento
+        applicationId "com.igrejamoremovimento.igreja"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 29
         targetSdkVersion 36
-<<<<<<< HEAD
         versionCode 11
          versionName "2.3.0"
-=======
-        versionCode 11
-         versionName "2.3.0"
->>>>>>> 97cbca8 (Configurar app para Amor em Movimento en producción)
         
         // Configuraciones de seguridad
         multiDexEnabled true

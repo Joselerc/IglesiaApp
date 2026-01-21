@@ -41,11 +41,7 @@ workflows:
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
-<<<<<<< HEAD
             --build-name=2.3.0 \
-=======
-            --build-name=2.3.0 \
->>>>>>> 97cbca8 (Configurar app para Amor em Movimento en producción)
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
