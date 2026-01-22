@@ -48,7 +48,9 @@ class DaySchedule {
   factory DaySchedule.fromMap(Map<String, dynamic> map) {
     List<TimeSlot> slots = [];
     if (map['timeSlots'] != null) {
-      slots = (map['timeSlots'] as List).map((slot) => TimeSlot.fromMap(slot)).toList();
+      slots = (map['timeSlots'] as List)
+          .map((slot) => TimeSlot.fromMap(slot))
+          .toList();
     } else if (map['onlineStart'] != null && map['onlineEnd'] != null) {
       // Compatibilidad con el formato anterior
       slots.add(TimeSlot(
@@ -57,7 +59,7 @@ class DaySchedule {
         isOnline: true,
         isInPerson: false,
       ));
-      
+
       if (map['inPersonStart'] != null && map['inPersonEnd'] != null) {
         slots.add(TimeSlot(
           start: map['inPersonStart'] as String,
@@ -67,7 +69,7 @@ class DaySchedule {
         ));
       }
     }
-    
+
     return DaySchedule(
       isWorking: map['isWorking'] ?? false,
       timeSlots: slots,
@@ -82,18 +84,55 @@ class DaySchedule {
       'sessionDuration': sessionDuration,
     };
   }
-  
+
   // Métodos de conveniencia para compatibilidad
-  String? get onlineStart => timeSlots.firstWhere((slot) => slot.isOnline, orElse: () => TimeSlot(start: '', end: '')).start.isEmpty ? null : timeSlots.firstWhere((slot) => slot.isOnline, orElse: () => TimeSlot(start: '', end: '')).start;
-  String? get onlineEnd => timeSlots.firstWhere((slot) => slot.isOnline, orElse: () => TimeSlot(start: '', end: '')).end.isEmpty ? null : timeSlots.firstWhere((slot) => slot.isOnline, orElse: () => TimeSlot(start: '', end: '')).end;
-  String? get inPersonStart => timeSlots.firstWhere((slot) => slot.isInPerson, orElse: () => TimeSlot(start: '', end: '')).start.isEmpty ? null : timeSlots.firstWhere((slot) => slot.isInPerson, orElse: () => TimeSlot(start: '', end: '')).start;
-  String? get inPersonEnd => timeSlots.firstWhere((slot) => slot.isInPerson, orElse: () => TimeSlot(start: '', end: '')).end.isEmpty ? null : timeSlots.firstWhere((slot) => slot.isInPerson, orElse: () => TimeSlot(start: '', end: '')).end;
+  String? get onlineStart => timeSlots
+          .firstWhere((slot) => slot.isOnline,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .start
+          .isEmpty
+      ? null
+      : timeSlots
+          .firstWhere((slot) => slot.isOnline,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .start;
+  String? get onlineEnd => timeSlots
+          .firstWhere((slot) => slot.isOnline,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .end
+          .isEmpty
+      ? null
+      : timeSlots
+          .firstWhere((slot) => slot.isOnline,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .end;
+  String? get inPersonStart => timeSlots
+          .firstWhere((slot) => slot.isInPerson,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .start
+          .isEmpty
+      ? null
+      : timeSlots
+          .firstWhere((slot) => slot.isInPerson,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .start;
+  String? get inPersonEnd => timeSlots
+          .firstWhere((slot) => slot.isInPerson,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .end
+          .isEmpty
+      ? null
+      : timeSlots
+          .firstWhere((slot) => slot.isInPerson,
+              orElse: () => TimeSlot(start: '', end: ''))
+          .end;
 }
 
 // Clase para representar una semana específica
 class WeekSchedule {
   final DateTime startDate;
-  final Map<int, DaySchedule> days; // Clave: día de la semana (1-7), Valor: horario
+  final Map<int, DaySchedule>
+      days; // Clave: día de la semana (1-7), Valor: horario
 
   WeekSchedule({
     required this.startDate,
@@ -101,8 +140,9 @@ class WeekSchedule {
   });
 
   factory WeekSchedule.fromMap(Map<String, dynamic> map) {
-    print('WeekSchedule.fromMap - Tipo de startDate: ${map['startDate']?.runtimeType}');
-    
+    print(
+        'WeekSchedule.fromMap - Tipo de startDate: ${map['startDate']?.runtimeType}');
+
     // Asegurarse de que startDate sea un DateTime
     DateTime startDate;
     try {
@@ -111,7 +151,8 @@ class WeekSchedule {
         print('Convertido Timestamp a DateTime: $startDate');
       } else if (map['startDate'] is int) {
         // Convertir timestamp en milisegundos a DateTime
-        startDate = DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int);
+        startDate =
+            DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int);
         print('Convertido int a DateTime: $startDate');
       } else if (map['startDate'] is DateTime) {
         // Ya es un DateTime
@@ -123,7 +164,8 @@ class WeekSchedule {
         print('Convertido String a DateTime: $startDate');
       } else {
         // Valor por defecto si no se puede convertir
-        print('Tipo de startDate no reconocido: ${map['startDate']?.runtimeType}');
+        print(
+            'Tipo de startDate no reconocido: ${map['startDate']?.runtimeType}');
         startDate = DateTime.now();
         print('Usando fecha actual: $startDate');
       }
@@ -132,9 +174,9 @@ class WeekSchedule {
       startDate = DateTime.now();
       print('Usando fecha actual después de error: $startDate');
     }
-    
+
     final daysMap = <int, DaySchedule>{};
-    
+
     try {
       final daysData = map['days'] as Map<String, dynamic>?;
       if (daysData != null) {
@@ -153,7 +195,7 @@ class WeekSchedule {
     } catch (e) {
       print('Error al procesar días: $e');
     }
-    
+
     return WeekSchedule(
       startDate: startDate,
       days: daysMap,
@@ -162,17 +204,17 @@ class WeekSchedule {
 
   Map<String, dynamic> toMap() {
     print('WeekSchedule.toMap - Convirtiendo startDate: $startDate');
-    
+
     final daysMap = <String, dynamic>{};
     days.forEach((key, value) {
       daysMap[key.toString()] = value.toMap();
     });
-    
+
     // Asegurarse de que startDate se convierta correctamente a Timestamp
     try {
       final timestamp = Timestamp.fromDate(startDate);
       print('Convertido DateTime a Timestamp: $timestamp');
-      
+
       return {
         'startDate': timestamp,
         'days': daysMap,
@@ -183,14 +225,14 @@ class WeekSchedule {
       final now = DateTime.now();
       final timestamp = Timestamp.fromDate(now);
       print('Usando fecha actual como respaldo: $timestamp');
-      
+
       return {
         'startDate': timestamp,
         'days': daysMap,
       };
     }
   }
-  
+
   // Obtener el horario para un día específico
   DaySchedule? getScheduleForDay(DateTime date) {
     final dayOfWeek = date.weekday; // 1 = lunes, 7 = domingo
@@ -209,7 +251,8 @@ class PastorAvailability {
   final DaySchedule saturday;
   final DaySchedule sunday;
   final List<DateTime> unavailableDates;
-  final List<WeekSchedule> weekSchedules; // Nuevo: horarios por semana específica
+  final List<WeekSchedule>
+      weekSchedules; // Nuevo: horarios por semana específica
   final String location;
   final bool isAcceptingOnline;
   final bool isAcceptingInPerson;
@@ -239,11 +282,11 @@ class PastorAvailability {
 
   factory PastorAvailability.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>?;
-    
+
     if (data == null) {
       throw Exception('Documento no contiene datos');
     }
-    
+
     // Convertir fechas bloqueadas
     List<DateTime> unavailableDates = [];
     if (data['unavailableDates'] != null) {
@@ -251,7 +294,7 @@ class PastorAvailability {
           .map((date) => (date as Timestamp).toDate())
           .toList();
     }
-    
+
     // Convertir horarios por semana
     List<WeekSchedule> weekSchedules = [];
     if (data['weekSchedules'] != null) {
@@ -259,30 +302,30 @@ class PastorAvailability {
           .map((week) => WeekSchedule.fromMap(week as Map<String, dynamic>))
           .toList();
     }
-    
+
     return PastorAvailability(
       id: doc.id,
       userId: data['userId'] as DocumentReference,
-      monday: data['monday'] != null 
-          ? DaySchedule.fromMap(data['monday'] as Map<String, dynamic>) 
+      monday: data['monday'] != null
+          ? DaySchedule.fromMap(data['monday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      tuesday: data['tuesday'] != null 
-          ? DaySchedule.fromMap(data['tuesday'] as Map<String, dynamic>) 
+      tuesday: data['tuesday'] != null
+          ? DaySchedule.fromMap(data['tuesday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      wednesday: data['wednesday'] != null 
-          ? DaySchedule.fromMap(data['wednesday'] as Map<String, dynamic>) 
+      wednesday: data['wednesday'] != null
+          ? DaySchedule.fromMap(data['wednesday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      thursday: data['thursday'] != null 
-          ? DaySchedule.fromMap(data['thursday'] as Map<String, dynamic>) 
+      thursday: data['thursday'] != null
+          ? DaySchedule.fromMap(data['thursday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      friday: data['friday'] != null 
-          ? DaySchedule.fromMap(data['friday'] as Map<String, dynamic>) 
+      friday: data['friday'] != null
+          ? DaySchedule.fromMap(data['friday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      saturday: data['saturday'] != null 
-          ? DaySchedule.fromMap(data['saturday'] as Map<String, dynamic>) 
+      saturday: data['saturday'] != null
+          ? DaySchedule.fromMap(data['saturday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
-      sunday: data['sunday'] != null 
-          ? DaySchedule.fromMap(data['sunday'] as Map<String, dynamic>) 
+      sunday: data['sunday'] != null
+          ? DaySchedule.fromMap(data['sunday'] as Map<String, dynamic>)
           : DaySchedule(isWorking: false),
       unavailableDates: unavailableDates,
       weekSchedules: weekSchedules,
@@ -291,8 +334,8 @@ class PastorAvailability {
       isAcceptingInPerson: data['isAcceptingInPerson'] as bool? ?? true,
       sessionDuration: data['sessionDuration'] as int? ?? 60,
       breakDuration: data['breakDuration'] as int? ?? 0,
-      updatedAt: data['updatedAt'] != null 
-          ? (data['updatedAt'] as Timestamp).toDate() 
+      updatedAt: data['updatedAt'] != null
+          ? (data['updatedAt'] as Timestamp).toDate()
           : DateTime.now(),
     );
   }
@@ -307,7 +350,8 @@ class PastorAvailability {
       'friday': friday.toMap(),
       'saturday': saturday.toMap(),
       'sunday': sunday.toMap(),
-      'unavailableDates': unavailableDates.map((date) => Timestamp.fromDate(date)).toList(),
+      'unavailableDates':
+          unavailableDates.map((date) => Timestamp.fromDate(date)).toList(),
       'weekSchedules': weekSchedules.map((week) => week.toMap()).toList(),
       'location': location,
       'isAcceptingOnline': isAcceptingOnline,
@@ -321,13 +365,13 @@ class PastorAvailability {
   // Método para verificar si un día específico está disponible
   bool isDayAvailable(DateTime date) {
     // Verificar si la fecha está en la lista de fechas no disponibles
-    if (unavailableDates.any((blockedDate) => 
-        blockedDate.year == date.year && 
-        blockedDate.month == date.month && 
+    if (unavailableDates.any((blockedDate) =>
+        blockedDate.year == date.year &&
+        blockedDate.month == date.month &&
         blockedDate.day == date.day)) {
       return false;
     }
-    
+
     // Verificar si hay un horario específico para esta semana
     for (final weekSchedule in weekSchedules) {
       final weekStart = DateTime(
@@ -336,8 +380,8 @@ class PastorAvailability {
         weekSchedule.startDate.day,
       );
       final weekEnd = weekStart.add(const Duration(days: 6));
-      
-      if (date.isAfter(weekStart.subtract(const Duration(days: 1))) && 
+
+      if (date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
           date.isBefore(weekEnd.add(const Duration(days: 1)))) {
         final daySchedule = weekSchedule.getScheduleForDay(date);
         if (daySchedule != null) {
@@ -345,7 +389,7 @@ class PastorAvailability {
         }
       }
     }
-    
+
     // Si no hay horario específico para esta semana, usar el horario predeterminado
     final dayOfWeek = date.weekday;
     switch (dayOfWeek) {
@@ -378,8 +422,8 @@ class PastorAvailability {
         weekSchedule.startDate.day,
       );
       final weekEnd = weekStart.add(const Duration(days: 6));
-      
-      if (date.isAfter(weekStart.subtract(const Duration(days: 1))) && 
+
+      if (date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
           date.isBefore(weekEnd.add(const Duration(days: 1)))) {
         final daySchedule = weekSchedule.getScheduleForDay(date);
         if (daySchedule != null) {
@@ -387,7 +431,7 @@ class PastorAvailability {
         }
       }
     }
-    
+
     // Si no hay horario específico para esta semana, usar el horario predeterminado
     final dayOfWeek = date.weekday;
     switch (dayOfWeek) {
@@ -409,4 +453,40 @@ class PastorAvailability {
         return DaySchedule(isWorking: false);
     }
   }
-} 
+
+  /// Retorna `true` cuando existe alguna fecha disponible desde [from] en adelante.
+  bool hasUpcomingAvailability({
+    DateTime? from,
+    int lookaheadDays = 60,
+  }) {
+    final baseDate = from ?? DateTime.now();
+    final startOfDay = DateTime(baseDate.year, baseDate.month, baseDate.day);
+
+    for (int i = 0; i < lookaheadDays; i++) {
+      final candidate = startOfDay.add(Duration(days: i));
+      if (isDayAvailable(candidate)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Devuelve el siguiente día disponible o `null` si no encuentra ninguno en el rango.
+  DateTime? getNextAvailableDate({
+    DateTime? from,
+    int lookaheadDays = 60,
+  }) {
+    final baseDate = from ?? DateTime.now();
+    final startOfDay = DateTime(baseDate.year, baseDate.month, baseDate.day);
+
+    for (int i = 0; i < lookaheadDays; i++) {
+      final candidate = startOfDay.add(Duration(days: i));
+      if (isDayAvailable(candidate)) {
+        return candidate;
+      }
+    }
+
+    return null;
+  }
+}
