@@ -964,6 +964,358 @@ class AppLocalizationsEs extends AppLocalizations {
   String get talkToAPastor => 'Habla con un pastor para orientación espiritual';
 
   @override
+  String get requestCounselingTitle => 'Solicitar consulta';
+
+  @override
+  String get stepPastor => 'Pastor';
+
+  @override
+  String get stepDetails => 'Detalles';
+
+  @override
+  String get counselingDetailsTitle => 'Detalles del asesoramiento';
+
+  @override
+  String get counselingReasonLabel => 'Motivo de la consulta';
+
+  @override
+  String get counselingReasonHint =>
+      'Describe brevemente el motivo de tu consulta';
+
+  @override
+  String get counselingPhoneLabel => 'Número de teléfono';
+
+  @override
+  String get counselingPhoneExample => 'Ej. +34 612 345 678';
+
+  @override
+  String get counselingWhatsappConsent =>
+      'Acepto recibir comunicaciones por WhatsApp o llamada relacionadas con mi consulta';
+
+  @override
+  String get buttonPrevious => 'Anterior';
+
+  @override
+  String get buttonNext => 'Siguiente';
+
+  @override
+  String get buttonRequestAppointment => 'Solicitar consulta';
+
+  @override
+  String get ticketModalTitle => 'Crear nuevo ticket';
+
+  @override
+  String get ticketPermissionDenied => 'No tienes permiso para crear tickets';
+
+  @override
+  String get ticketPermissionError => 'Error al verificar permisos';
+
+  @override
+  String get ticketDeadlineNotSelected => 'No seleccionada';
+
+  @override
+  String get ticketCreatedSuccessfully => 'Ticket creado con éxito';
+
+  @override
+  String get ticketDeadlineRequired =>
+      'Debes seleccionar una fecha límite para las inscripciones';
+
+  @override
+  String get ticketFieldNameRequired => 'El nombre del campo es obligatorio';
+
+  @override
+  String get ticketFieldDuplicated => 'Ya existe un campo con ese nombre';
+
+  @override
+  String get ticketsCannotRemoveBaseFields =>
+      'No puedes eliminar todos los campos básicos';
+
+  @override
+  String get ticketTypeLabel => 'Tipo de ticket';
+
+  @override
+  String get ticketTypeHint => 'Ej: General, VIP, Estudiante';
+
+  @override
+  String get ticketEntryNameRequired =>
+      'Por favor ingresa un nombre para la entrada';
+
+  @override
+  String get ticketPaidToggleLabel => 'Ticket pagado';
+
+  @override
+  String get ticketPaidToggleSubtitlePaid => 'Los participantes deberán pagar';
+
+  @override
+  String get ticketPaidToggleSubtitleFree => 'Ticket gratuito';
+
+  @override
+  String get ticketPriceLabel => 'Precio';
+
+  @override
+  String get ticketPriceRequired => 'Por favor ingresa un precio';
+
+  @override
+  String get ticketPriceInvalid => 'Por favor ingresa un precio válido';
+
+  @override
+  String get ticketCurrencyLabel => 'Moneda';
+
+  @override
+  String get ticketAvailableQuantityLabel => 'Cantidad disponible (opcional)';
+
+  @override
+  String get ticketAvailableQuantityHint => 'Déjalo vacío para ilimitado';
+
+  @override
+  String get ticketPerUserLabel => 'Límite de tickets por usuario';
+
+  @override
+  String get ticketPerUserHint => 'Ej: 1, 2, 3';
+
+  @override
+  String get ticketEnterNumber => 'Por favor ingresa un número';
+
+  @override
+  String get ticketPerUserMinimum => 'El mínimo es 1 ticket por usuario';
+
+  @override
+  String get ticketDeadlineSectionTitle => 'Fecha límite para inscripciones';
+
+  @override
+  String get ticketDeadlineOptionEvent => 'Hasta la fecha del evento';
+
+  @override
+  String get ticketDeadlineOptionCustom =>
+      'Elegir una fecha límite personalizada';
+
+  @override
+  String ticketDeadlineLabel(String date) {
+    return 'Fecha límite: $date';
+  }
+
+  @override
+  String get ticketAccessSectionTitle => 'Permisos de registro';
+
+  @override
+  String get ticketAccessOptionPublic => 'Abierto al público';
+
+  @override
+  String get ticketAccessOptionPublicSubtitle =>
+      'Cualquier persona puede registrarse';
+
+  @override
+  String get ticketAccessOptionMinistry => 'Solo miembros del ministerio';
+
+  @override
+  String get ticketAccessOptionGroup => 'Solo miembros de grupos';
+
+  @override
+  String get ticketAccessOptionChurch => 'Solo miembros de la iglesia';
+
+  @override
+  String get ticketFormFieldsTitle => 'Campos del formulario de registro';
+
+  @override
+  String get ticketFormFieldsDescription =>
+      'Define los campos que el usuario debe completar al registrarse';
+
+  @override
+  String get ticketAddFieldButtonLabel => 'Agregar campo';
+
+  @override
+  String get ticketCreateButtonLabel => 'Crear ticket';
+
+  @override
+  String get ticketFieldDialogAddTitle => 'Agregar campo';
+
+  @override
+  String get ticketFieldDialogNameLabel => 'Nombre del campo';
+
+  @override
+  String get ticketFieldDialogNameHint => 'Ej: Edad, País, etc.';
+
+  @override
+  String get ticketFieldTypeLabel => 'Tipo de campo';
+
+  @override
+  String get ticketFieldTypeText => 'Texto';
+
+  @override
+  String get ticketFieldTypeEmail => 'Email';
+
+  @override
+  String get ticketFieldTypePhone => 'Teléfono';
+
+  @override
+  String get ticketFieldTypeNumber => 'Número';
+
+  @override
+  String get ticketFieldTypeSelect => 'Selección';
+
+  @override
+  String get ticketFieldRequiredSwitch => 'Campo obligatorio';
+
+  @override
+  String get ticketFieldUseProfileSwitch => 'Usar datos del perfil';
+
+  @override
+  String get ticketFieldUseProfileSubtitle =>
+      'Rellenar con información del usuario';
+
+  @override
+  String get ticketFieldProfileLabel => 'Campo del perfil';
+
+  @override
+  String get ticketFieldDialogEditTitle => 'Editar campo';
+
+  @override
+  String get ticketFieldAutoFillLabel => 'Auto';
+
+  @override
+  String get registerTicketFormTitle => 'Registrarse para el evento';
+
+  @override
+  String get loadingTicketInformation => 'Cargando información...';
+
+  @override
+  String get ticketInformationHeader => 'Información del ticket';
+
+  @override
+  String get eventLabel => 'Evento';
+
+  @override
+  String get contactInformationHeader => 'Información de contacto';
+
+  @override
+  String get registerTicketButtonLabel => 'Registrar ahora';
+
+  @override
+  String get ticketLoadError =>
+      'No fue posible cargar la información del ticket';
+
+  @override
+  String get eventFallbackName => 'Evento';
+
+  @override
+  String get freeLabel => 'Gratis';
+
+  @override
+  String get unlimitedLabel => 'Ilimitado';
+
+  @override
+  String ticketsAvailable(int count) {
+    return '$count disponibles';
+  }
+
+  @override
+  String ticketPerUserLimit(int count) {
+    return '$count por usuario';
+  }
+
+  @override
+  String attendanceScreenTitle(String eventTitle) {
+    return 'Presencia - $eventTitle';
+  }
+
+  @override
+  String get selectTicketFirst => 'Selecciona un tipo de ticket primero';
+
+  @override
+  String get selectTicketHint => 'Seleccionar ticket';
+
+  @override
+  String get registeredStatus => 'Registrados';
+
+  @override
+  String get attendedStatus => 'Presentes';
+
+  @override
+  String get filterAll => 'Todos';
+
+  @override
+  String get filterRegisteredOnly => 'Solo registrados';
+
+  @override
+  String get filterAttendedOnly => 'Solo presentes';
+
+  @override
+  String get addAttendeeButton => 'Agregar';
+
+  @override
+  String get searchByNameEmailPhone => 'Buscar por nombre, email o teléfono';
+
+  @override
+  String get addAttendeeManuallyTooltip => 'Añadir asistente manualmente';
+
+  @override
+  String get attendeesEmptyStateHelp =>
+      'Añade asistentes o espera a que los usuarios se registren';
+
+  @override
+  String get noRegisteredUsers => 'No hay usuarios solo registrados';
+
+  @override
+  String get noAttendedUsers => 'No hay usuarios presentes';
+
+  @override
+  String get noAttendeeRecords => 'No hay registros de participantes';
+
+  @override
+  String attendedAtLabel(String date) {
+    return 'Presente el $date';
+  }
+
+  @override
+  String get confirmAttendanceTooltip => 'Confirmar presencia';
+
+  @override
+  String get cancelAttendanceTooltip => 'Cancelar presencia';
+
+  @override
+  String get deleteRegistrationTitle => 'Eliminar registro';
+
+  @override
+  String confirmDeleteRegistration(String name) {
+    return '¿Seguro que deseas eliminar el registro de $name?';
+  }
+
+  @override
+  String get attendeeAddedSuccessfully => 'Participante añadido con éxito';
+
+  @override
+  String errorAddingAttendee(String error) {
+    return 'Error al añadir participante: $error';
+  }
+
+  @override
+  String get registrationDeletedSuccessfully => 'Registro eliminado con éxito';
+
+  @override
+  String errorDeletingRegistration(String error) {
+    return 'Error al eliminar registro: $error';
+  }
+
+  @override
+  String errorConfirmingAttendance(String error) {
+    return 'Error al confirmar asistencia: $error';
+  }
+
+  @override
+  String errorCancellingAttendance(String error) {
+    return 'Error al cancelar presencia: $error';
+  }
+
+  @override
+  String get searchUserTitle => 'Buscar usuario';
+
+  @override
+  String get noUsersFound => 'Ningún usuario encontrado';
+
+  @override
+  String get userFallbackName => 'Usuario';
+
+  @override
   String get viewAll => 'Ver todos';
 
   @override
@@ -3246,9 +3598,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get searchUsers => 'Buscar usuarios...';
-
-  @override
-  String get noUsersFound => 'Ningún usuario encontrado';
 
   @override
   String get selectedAdministrators => 'Administradores seleccionados:';
@@ -7674,9 +8023,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get errorConfirmingAttendance => 'Error al confirmar asistencia';
-
-  @override
   String get errorRestoringState => 'Error al restaurar estado';
 
   @override
@@ -8423,6 +8769,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ageOptionUnder13 => 'Tengo menos de 13 años';
+
+  @override
+  String get ageOptionPreferNotToSay => 'Prefiero no decirlo';
 
   @override
   String get ageRange0To5 => '0–5';

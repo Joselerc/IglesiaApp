@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/event_model.dart';
 import '../../../models/ticket_model.dart';
 import '../../../services/ticket_service.dart';
@@ -23,12 +24,14 @@ class RegisterTicketForm extends StatefulWidget {
 class _RegisterTicketFormState extends State<RegisterTicketForm> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _fieldControllers = {};
-  
+
   final _ticketService = TicketService();
   bool _isLoading = false;
   String? _errorMessage;
   TicketModel? _ticket;
   Map<String, dynamic> _userData = {};
+
+  AppLocalizations get _loc => AppLocalizations.of(context)!;
 
   @override
   void initState() {
@@ -51,19 +54,20 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
         _userData = {
           'displayName': user.displayName ?? '',
           'email': user.email ?? '',
-          'phoneNumber': user.phoneNumber ?? '', // Campo padrão do Firebase Auth
+          'phoneNumber':
+              user.phoneNumber ?? '', // Campo padrão do Firebase Auth
           'photoURL': user.photoURL,
           'uid': user.uid,
         };
       });
-      
+
       // Tentar carregar dados adicionais do usuário do Firestore
       try {
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
-            
+
         if (userDoc.exists) {
           final additionalData = userDoc.data() as Map<String, dynamic>;
           // Garantir que não sobrescreva campos essenciais com nulos ou vazios
@@ -82,32 +86,34 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
 
   Future<void> _loadTicketData() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      final ticket = await _ticketService.getTicketById(widget.event.id, widget.ticketId);
-      
+      final ticket =
+          await _ticketService.getTicketById(widget.event.id, widget.ticketId);
+
       if (ticket == null) {
         setState(() {
-          _errorMessage = 'Não foi possível carregar as informações do ingresso'; // Traducido
+          _errorMessage = _loc.ticketLoadError;
           _isLoading = false;
         });
         return;
       }
-      
+
       setState(() {
         _ticket = ticket;
-        
+
         // Criar controladores para os campos personalizados
         for (final field in ticket.formFields) {
           final controller = TextEditingController();
-          
+
           // Log 1: Início do processamento do campo
           print('--- Campo: ${field.id} (${field.label}) ---');
-          print('  useUserProfile: ${field.useUserProfile}, userProfileField: ${field.userProfileField}');
-          
+          print(
+              '  useUserProfile: ${field.useUserProfile}, userProfileField: ${field.userProfileField}');
+
           // Lógica de preenchimento aprimorada
-          if (field.useUserProfile && field.userProfileField != null) {
-            final profileFieldKey = field.userProfileField!; // Campo primário configurado
+          if (field.useUserProfile && field.userProfileField.isNotEmpty) {
+            final profileFieldKey = field.userProfileField; // Campo primário configurado
             String? valueToFill;
             bool isPhoneField = field.type == 'phone';
 
@@ -115,12 +121,15 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
             print('  Tentando preencher com chave de perfil: $profileFieldKey');
 
             // Buscar valor inicial e logar
-            dynamic rawValueFromProfile; // Usar dynamic para logar o tipo original
+            dynamic
+                rawValueFromProfile; // Usar dynamic para logar o tipo original
             if (_userData.containsKey(profileFieldKey)) {
               rawValueFromProfile = _userData[profileFieldKey];
               // Log 3: Valor encontrado (cru)
-              print('  Valor encontrado para $profileFieldKey em _userData: $rawValueFromProfile (Tipo: ${rawValueFromProfile?.runtimeType})');
-              if (rawValueFromProfile != null && rawValueFromProfile.toString().trim().isNotEmpty) {
+              print(
+                  '  Valor encontrado para $profileFieldKey em _userData: $rawValueFromProfile (Tipo: ${rawValueFromProfile?.runtimeType})');
+              if (rawValueFromProfile != null &&
+                  rawValueFromProfile.toString().trim().isNotEmpty) {
                 valueToFill = rawValueFromProfile.toString();
               }
             } else {
@@ -130,69 +139,86 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
 
             // Lógica de Fallback APENAS para telefone (mantendo logs existentes)
             if (isPhoneField) {
-                // 1. Tentar phoneComplete primeiro (se não for o campo primário já buscado)
-                const phoneCompleteKey = 'phoneComplete';
-                if (profileFieldKey != phoneCompleteKey && _userData.containsKey(phoneCompleteKey)) {
-                    final phoneCompValue = _userData[phoneCompleteKey];
-                    if (phoneCompValue != null && phoneCompValue.toString().trim().isNotEmpty) {
-                        valueToFill = phoneCompValue.toString(); // Sobrescreve se phoneComplete tiver valor
-                        print('  [Telefone] Usando phoneComplete (${valueToFill}) diretamente.');
-                    }
+              // 1. Tentar phoneComplete primeiro (se não for o campo primário já buscado)
+              const phoneCompleteKey = 'phoneComplete';
+              if (profileFieldKey != phoneCompleteKey &&
+                  _userData.containsKey(phoneCompleteKey)) {
+                final phoneCompValue = _userData[phoneCompleteKey];
+                if (phoneCompValue != null &&
+                    phoneCompValue.toString().trim().isNotEmpty) {
+                  valueToFill = phoneCompValue
+                      .toString(); // Sobrescreve se phoneComplete tiver valor
+                  print(
+                      '  [Telefone] Usando phoneComplete (${valueToFill}) diretamente.');
                 }
+              }
 
-                // 2. Se AINDA vazio, verificar campo primário e adicionar prefixo se necessário
-                if ((valueToFill == null || valueToFill.isEmpty) && rawValueFromProfile != null && rawValueFromProfile.toString().trim().isNotEmpty) {
-                    valueToFill = rawValueFromProfile.toString(); // Usar o valor primário encontrado
-                    if (!valueToFill!.startsWith('+')) {
-                        if (!valueToFill.startsWith('55')) {
-                            valueToFill = '+55' + valueToFill;
-                            print('  [Telefone] Adicionando +55 ao valor de ${profileFieldKey} (${rawValueFromProfile}). Resultado: ${valueToFill}');
-                        } else if (valueToFill.length > 9) { // Evitar adicionar +5555...
-                            valueToFill = '+' + valueToFill;
-                            print('  [Telefone] Adicionando + ao valor de ${profileFieldKey} (${rawValueFromProfile}). Resultado: ${valueToFill}');
-                        }
-                    }
+              // 2. Se AINDA vazio, verificar campo primário e adicionar prefixo se necessário
+              if ((valueToFill == null || valueToFill.isEmpty) &&
+                  rawValueFromProfile != null &&
+                  rawValueFromProfile.toString().trim().isNotEmpty) {
+                valueToFill = rawValueFromProfile
+                    .toString(); // Usar o valor primário encontrado
+                if (!valueToFill.startsWith('+')) {
+                  if (!valueToFill.startsWith('55')) {
+                    valueToFill = '+55' + valueToFill;
+                    print(
+                        '  [Telefone] Adicionando +55 ao valor de ${profileFieldKey} (${rawValueFromProfile}). Resultado: ${valueToFill}');
+                  } else if (valueToFill.length > 9) {
+                    // Evitar adicionar +5555...
+                    valueToFill = '+' + valueToFill;
+                    print(
+                        '  [Telefone] Adicionando + ao valor de ${profileFieldKey} (${rawValueFromProfile}). Resultado: ${valueToFill}');
+                  }
                 }
-                
-                // 3. Se AINDA vazio, tentar fallback para 'phone' (se não for o primário) e adicionar prefixo
-                 const phoneKey = 'phone';
-                 if ((valueToFill == null || valueToFill.isEmpty) && profileFieldKey != phoneKey && _userData.containsKey(phoneKey)) {
-                    final phoneValue = _userData[phoneKey];
-                     if (phoneValue != null && phoneValue.toString().trim().isNotEmpty) {
-                        valueToFill = phoneValue.toString();
-                         if (!valueToFill!.startsWith('+')) {
-                            if (!valueToFill.startsWith('55')) {
-                                valueToFill = '+55' + valueToFill;
-                                print('  [Telefone Fallback] Usando ${phoneKey} e adicionando +55. Resultado: ${valueToFill}');
-                            } else if (valueToFill.length > 9) {
-                                valueToFill = '+' + valueToFill;
-                                print('  [Telefone Fallback] Usando ${phoneKey} e adicionando +. Resultado: ${valueToFill}');
-                            }
-                         }
-                     }
-                 }
+              }
+
+              // 3. Se AINDA vazio, tentar fallback para 'phone' (se não for o primário) e adicionar prefixo
+              const phoneKey = 'phone';
+              if ((valueToFill == null || valueToFill.isEmpty) &&
+                  profileFieldKey != phoneKey &&
+                  _userData.containsKey(phoneKey)) {
+                final phoneValue = _userData[phoneKey];
+                if (phoneValue != null &&
+                    phoneValue.toString().trim().isNotEmpty) {
+                  valueToFill = phoneValue.toString();
+                  if (!valueToFill.startsWith('+')) {
+                    if (!valueToFill.startsWith('55')) {
+                      valueToFill = '+55' + valueToFill;
+                      print(
+                          '  [Telefone Fallback] Usando ${phoneKey} e adicionando +55. Resultado: ${valueToFill}');
+                    } else if (valueToFill.length > 9) {
+                      valueToFill = '+' + valueToFill;
+                      print(
+                          '  [Telefone Fallback] Usando ${phoneKey} e adicionando +. Resultado: ${valueToFill}');
+                    }
+                  }
+                }
+              }
             }
             // Fim da lógica específica de telefone
-            
+
             // Atribuição final ao controller
             controller.text = valueToFill ?? '';
-            
-             // Log 5: Valor final atribuído
-            print('  => Final atribuído ao campo ${field.id}: "${controller.text}"');
 
+            // Log 5: Valor final atribuído
+            print(
+                '  => Final atribuído ao campo ${field.id}: "${controller.text}"');
           } else {
-             // Log 2: Não vai usar perfil
-             print('  Não usará perfil (useUserProfile=${field.useUserProfile}, userProfileField=${field.userProfileField})');
-             controller.text = '';
-             print('  => Final atribuído ao campo ${field.id}: "${controller.text}"');
+            // Log 2: Não vai usar perfil
+            print(
+                '  Não usará perfil (useUserProfile=${field.useUserProfile}, userProfileField=${field.userProfileField})');
+            controller.text = '';
+            print(
+                '  => Final atribuído ao campo ${field.id}: "${controller.text}"');
           }
-          
+
           _fieldControllers[field.id] = controller;
         }
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Erro ao carregar o ingresso: ${e.toString()}'; // Traducido
+        _errorMessage = '${_loc.ticketLoadError}: ${e.toString()}';
       });
     } finally {
       setState(() => _isLoading = false);
@@ -203,10 +229,10 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
     if (_formKey.currentState?.validate() != true) {
       return;
     }
-    
+
     if (_ticket == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Não foi possível carregar as informações do ingresso')), // Traducido
+        SnackBar(content: Text(_loc.ticketLoadError)),
       );
       return;
     }
@@ -226,16 +252,22 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       // Garantir que o nome do evento não seja nulo
       final String safeEventName = (widget.event.title.isNotEmpty)
           ? widget.event.title
-          : 'Evento'; // Traducido
-      
+          : _loc.eventFallbackName;
+
       // Extrair valores básicos (assumindo IDs 'fullName', 'email', 'phone')
       // Se os IDs forem diferentes, ajuste aqui.
-      final userName = _fieldControllers['fullName']?.text.trim() ?? _userData['displayName'] ?? '';
-      final userEmail = _fieldControllers['email']?.text.trim() ?? _userData['email'] ?? '';
-      final userPhone = _fieldControllers['phone']?.text.trim() ?? _userData['phoneNumber'] ?? _userData['phone'] ?? '';
+      final userName = _fieldControllers['fullName']?.text.trim() ??
+          _userData['displayName'] ??
+          '';
+      final userEmail =
+          _fieldControllers['email']?.text.trim() ?? _userData['email'] ?? '';
+      final userPhone = _fieldControllers['phone']?.text.trim() ??
+          _userData['phoneNumber'] ??
+          _userData['phone'] ??
+          '';
 
       // Registrar para o ingresso
-      final registrationId = await _ticketService.registerForTicket(
+      await _ticketService.registerForTicket(
         ticketId: widget.ticketId,
         eventId: widget.event.id,
         eventName: safeEventName,
@@ -246,16 +278,19 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       );
 
       // Obter o registro recém-criado
-      final registration = await _ticketService.getMyRegistrationForEvent(widget.event.id);
-      
+      final registration =
+          await _ticketService.getMyRegistrationForEvent(widget.event.id);
+
       if (registration != null && mounted) {
         // Fechar o formulário atual
-        Navigator.of(context).pop(true); // Passar true para indicar que o registro foi concluído
-        
+        Navigator.of(context)
+            .pop(true); // Passar true para indicar que o registro foi concluído
+
         // Mostrar o QR em tela cheia
         final String safeQrCode = registration.qrCode;
-        final String safeUserName = userName.isNotEmpty ? userName : 'Participante'; // Traducido
-        
+        final String safeUserName =
+            userName.isNotEmpty ? userName : 'Participante'; // Traducido
+
         Navigator.of(context).push(
           MaterialPageRoute(
             fullscreenDialog: true,
@@ -270,7 +305,8 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString(); // Manter erro técnico em inglês ou formatar
+        _errorMessage =
+            e.toString(); // Manter erro técnico em inglês ou formatar
       });
     } finally {
       if (mounted) {
@@ -281,8 +317,9 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
 
   Widget _buildFormField(TicketFormField field) {
     final controller = _fieldControllers[field.id];
+    final loc = _loc;
     if (controller == null) return SizedBox.shrink();
-    
+
     // Determinar o tipo de teclado
     TextInputType keyboardType;
     switch (field.type) {
@@ -298,34 +335,35 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       default:
         keyboardType = TextInputType.text;
     }
-    
+
     // Função de validação conforme o tipo
     String? Function(String?)? validator;
     if (field.isRequired) {
       validator = (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Este campo é obrigatório'; // Traducido
+          return loc.requiredField;
         }
-        
+
         if (field.type == 'email' && !value.contains('@')) {
-          return 'Insira um email válido'; // Traducido
+          return loc.invalidEmail;
         }
-        
-        // Ajustar validação de telefone se necessário (ex: verificar formato específico)
-        if (field.type == 'phone' && value.replaceAll(RegExp(r'\D'), '').length < 8) { 
-          return 'Insira um número de telefone válido'; // Traducido
+
+        if (field.type == 'phone' &&
+            value.replaceAll(RegExp(r'\D'), '').length < 8) {
+          return loc.enterAValidPhoneNumber;
         }
-        
+
         return null;
       };
     }
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(
-          labelText: field.label, // Label já vem do Firestore (assumindo português)
+          labelText:
+              field.label, // Label já vem do Firestore (assumindo português)
           border: OutlineInputBorder(),
           prefixIcon: _getIconForFieldType(field.type),
         ),
@@ -335,7 +373,7 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       ),
     );
   }
-  
+
   // Ícones (manter em inglês, são identificadores)
   Widget? _getIconForFieldType(String type) {
     switch (type) {
@@ -356,9 +394,10 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = _loc;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registrar-se para o evento'), // Traducido
+        title: Text(loc.registerTicketFormTitle),
       ),
       body: _isLoading && _ticket == null
           ? Center(
@@ -367,7 +406,7 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Carregando informações...'), // Traducido
+                  Text(loc.loadingTicketInformation),
                 ],
               ),
             )
@@ -386,20 +425,25 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Informações do ingresso', // Traducido
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              loc.ticketInformationHeader,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             SizedBox(height: 16),
                             Row(
                               children: [
-                                Text('Evento:'), // Traducido
+                                Text('${loc.eventLabel}:'),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    widget.event.title, // Já deve estar em português
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    widget.event
+                                        .title, // Já deve estar em português
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                   ),
@@ -409,12 +453,14 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                             SizedBox(height: 8),
                             Row(
                               children: [
-                                Text('Tipo de ingresso:'), // Traducido
+                                Text('${loc.ticketTypeLabel}:'),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    _ticket?.type ?? '', // Já deve estar em português
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    _ticket?.type ??
+                                        '', // Já deve estar em português
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                   ),
@@ -424,10 +470,10 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                             SizedBox(height: 8),
                             Row(
                               children: [
-                                Text('Preço:'), // Traducido
+                                Text('${loc.ticketPriceLabel}:'),
                                 SizedBox(width: 8),
                                 Text(
-                                  _ticket?.priceDisplay ?? '', // Já deve estar em português
+                                  _ticket == null ? '' : _ticket!.priceDisplay(loc),
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ],
@@ -436,21 +482,23 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                         ),
                       ),
                     ),
-                    
+
                     SizedBox(height: 24),
-                    
+
                     Text(
-                      'Informações de contato', // Traducido
+                      loc.contactInformationHeader,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     SizedBox(height: 16),
-                    
+
                     // Campos de formulário dinâmicos
                     if (_ticket != null)
-                      ..._ticket!.formFields.map((field) => _buildFormField(field)).toList(),
-                    
+                      ..._ticket!.formFields
+                          .map((field) => _buildFormField(field))
+                          .toList(),
+
                     // Mensagem de erro
                     if (_errorMessage != null) ...[
                       SizedBox(height: 16),
@@ -475,9 +523,9 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                         ),
                       ),
                     ],
-                    
+
                     SizedBox(height: 24),
-                    
+
                     // Botão de registro
                     SizedBox(
                       width: double.infinity,
@@ -495,7 +543,7 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text('Registrar-se agora'), // Traducido
+                            : Text(loc.registerTicketButtonLabel),
                       ),
                     ),
                   ],
@@ -504,4 +552,4 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
             ),
     );
   }
-} 
+}

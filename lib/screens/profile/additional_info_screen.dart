@@ -11,8 +11,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/user_model.dart';
 import '../../l10n/app_localizations.dart';
-import '../../utils/age_range.dart';
-import '../../utils/age_range_localizations.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
   final bool fromBanner;
@@ -37,7 +35,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   final TextEditingController _surnameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController(); // Para el número sin código de país
   String _phoneCountryCode = 'BR'; // Código ISO del país por defecto
-  AgeRange? _ageRange;
   String? _gender;
   UserModel? _currentUserData; // Para almacenar los datos básicos del usuario
 
@@ -77,7 +74,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                             ? _currentUserData!.isoCountryCode! 
                             : 'BR'; // O tu lógica para obtener el ISO del dial code
 
-        _ageRange = AgeRange.fromFirestoreValue(_currentUserData!.ageRange);
         _gender = _currentUserData!.gender;
       }
 
@@ -187,7 +183,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
     // Verificar si hay campos básicos sin completar
     final hasIncompleteBasicFields = !_isBasicFieldComplete('name') ||
         !_isBasicFieldComplete('surname') ||
-        !_isBasicFieldComplete('ageRange') ||
         !_isBasicFieldComplete('gender') ||
         !_isBasicFieldComplete('phone');
 
@@ -271,8 +266,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                           _buildBasicTextField(_nameController, AppLocalizations.of(context)!.name, AppLocalizations.of(context)!.enterYourName, Icons.person),
                         if (!_isBasicFieldComplete('surname')) 
                           _buildBasicTextField(_surnameController, AppLocalizations.of(context)!.surname, AppLocalizations.of(context)!.enterYourSurname, Icons.person_outline),
-                        if (!_isBasicFieldComplete('ageRange')) 
-                          _buildAgeRangeField(),
                         if (!_isBasicFieldComplete('gender')) 
                           _buildGenderField(),
                         if (!_isBasicFieldComplete('phone')) 
@@ -281,7 +274,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                         // Separador si se muestran campos básicos Y hay campos adicionales
                         if ((!_isBasicFieldComplete('name') ||
                                 !_isBasicFieldComplete('surname') ||
-                                !_isBasicFieldComplete('ageRange') ||
                                 !_isBasicFieldComplete('gender') ||
                                 !_isBasicFieldComplete('phone')) &&
                             _fields.isNotEmpty)
@@ -555,9 +547,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
     // Validar campos básicos requeridos que están visibles
     if (!_isBasicFieldComplete('name') && (_nameController.text.trim().isEmpty)) allRequiredBasicFilled = false;
     if (!_isBasicFieldComplete('surname') && (_surnameController.text.trim().isEmpty)) allRequiredBasicFilled = false;
-    if (!_isBasicFieldComplete('ageRange') && _ageRange == null) {
-      allRequiredBasicFilled = false;
-    }
     if (!_isBasicFieldComplete('gender') && (_gender == null || _gender!.isEmpty)) allRequiredBasicFilled = false;
     if (!_isBasicFieldComplete('phone') && (_phoneController.text.trim().isEmpty)) allRequiredBasicFilled = false;
 
@@ -616,7 +605,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         'surname': _surnameController.text.trim(),
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'phone': _phoneController.text.trim(),
-        'ageRange': _ageRange?.firestoreValue,
         'gender': _gender,
         'hasCompletedAdditionalFields': hasCompletedAdditional,
         'additionalFieldsLastUpdated': FieldValue.serverTimestamp(),
@@ -685,7 +673,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       case 'name': return _currentUserData!.name?.isNotEmpty == true;
       case 'surname': return _currentUserData!.surname?.isNotEmpty == true;
       case 'phone': return _currentUserData!.phone?.isNotEmpty == true; 
-      case 'ageRange': return _currentUserData!.ageRange?.isNotEmpty == true;
       case 'gender': return _currentUserData!.gender?.isNotEmpty == true;
       default: return true; 
     }
@@ -714,52 +701,6 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
           return null;
         },
         // onChanged: (value) { setState(() {}); } // Podría ser necesario para actualizar el estado si _isBasicFieldComplete depende de controladores
-      ),
-    );
-  }
-
-  Widget _buildAgeRangeField() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: DropdownButtonFormField<AgeRange>(
-        value: _ageRange,
-        decoration: InputDecoration(
-          labelText: AppLocalizations.of(context)!.ageConfirmationTitle,
-          hintText: AppLocalizations.of(context)!.ageConfirmationPrompt,
-          prefixIcon: Icon(Icons.verified_user_outlined, color: AppColors.primary.withOpacity(0.7)),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          filled: true,
-          fillColor: Colors.grey[50],
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
-        ),
-        items: [
-          for (final range in [
-            AgeRange.from13To17,
-            AgeRange.from18To24,
-            AgeRange.from25To30,
-            AgeRange.from31To35,
-            AgeRange.from36To40,
-            AgeRange.from41To50,
-            AgeRange.from51To60,
-            AgeRange.from61Plus,
-          ])
-            DropdownMenuItem(
-              value: range,
-              child: Text(range.label(AppLocalizations.of(context)!)),
-            ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _ageRange = value;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return AppLocalizations.of(context)!.thisFieldIsRequired;
-          }
-          return null;
-        },
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/event_model.dart';
 import '../../../models/ticket_model.dart';
 import '../../../services/ticket_service.dart';
@@ -23,23 +24,23 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   final _formKey = GlobalKey<FormState>();
   final _ticketService = TicketService();
   final _permissionService = PermissionService();
-  
+
   final _typeController = TextEditingController();
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
   final _ticketsPerUserController = TextEditingController(text: '1');
-  
+
   bool _isPaid = false;
   String _currency = 'BRL';
   bool _isLoading = false;
   String? _errorMessage;
   bool _hasPermission = false;
-  
+
   // Nuevos campos
   bool _useEventDateAsDeadline = true;
   DateTime? _registrationDeadline;
   String _accessRestriction = 'public';
-  
+
   // Lista de campos personalizados para el formulario
   List<TicketFormField> _formFields = [
     TicketFormField(
@@ -68,43 +69,46 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
     ),
   ];
 
+  AppLocalizations get _loc => AppLocalizations.of(context)!;
+
   @override
   void initState() {
     super.initState();
     _checkPermissions();
   }
-  
+
   Future<void> _checkPermissions() async {
     try {
       final isPastor = await _isPastor();
-      final hasManageTicketPermission = await _permissionService.hasPermission('manage_event_tickets');
-      
+      final hasManageTicketPermission =
+          await _permissionService.hasPermission('manage_event_tickets');
+
       setState(() {
         _hasPermission = isPastor || hasManageTicketPermission;
-        
+
         if (!_hasPermission) {
-          _errorMessage = 'No tienes permiso para crear tickets';
+          _errorMessage = _loc.ticketPermissionDenied;
         }
       });
     } catch (e) {
       print('Error al verificar permisos: $e');
       setState(() {
-        _errorMessage = 'Error al verificar permisos';
+        _errorMessage = _loc.ticketPermissionError;
         _hasPermission = false;
       });
     }
   }
-  
+
   Future<bool> _isPastor() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return false;
-      
+
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-          
+
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
         return userData['role'] == 'pastor';
@@ -124,24 +128,25 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
     _ticketsPerUserController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _selectDeadlineDate() async {
     final initialDate = _registrationDeadline ?? DateTime.now();
-    final lastDate = widget.event.startDate ?? DateTime.now().add(const Duration(days: 365));
-    
+    final lastDate =
+        widget.event.startDate ?? DateTime.now().add(const Duration(days: 365));
+
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: lastDate,
     );
-    
+
     if (selectedDate != null) {
       final selectedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initialDate),
       );
-      
+
       if (selectedTime != null) {
         setState(() {
           _registrationDeadline = DateTime(
@@ -155,9 +160,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       }
     }
   }
-  
+
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Não selecionada';
+    if (date == null) return _loc.ticketDeadlineNotSelected;
     return DateFormat('dd/MM/yyyy HH:mm').format(date);
   }
 
@@ -165,31 +170,31 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
     // No permitir crear tickets si no tiene permiso
     if (!_hasPermission) {
       setState(() {
-        _errorMessage = 'No tienes permiso para crear tickets';
+        _errorMessage = _loc.ticketPermissionDenied;
       });
       return;
     }
-    
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('Usuário não autenticado');
+        throw Exception(_loc.unauthenticatedUser);
       }
-      
+
       // Validar fecha límite
       if (!_useEventDateAsDeadline && _registrationDeadline == null) {
-        throw Exception('Você deve selecionar uma data limite para as inscrições');
+        throw Exception(_loc.ticketDeadlineRequired);
       }
-      
+
       // Crear el modelo de ticket
       final ticket = TicketModel(
         id: '', // Se asignará al guardar
@@ -198,22 +203,23 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
         isPaid: _isPaid,
         price: _isPaid ? double.tryParse(_priceController.text) ?? 0 : 0,
         currency: _currency,
-        quantity: _quantityController.text.isNotEmpty 
-            ? int.tryParse(_quantityController.text) 
+        quantity: _quantityController.text.isNotEmpty
+            ? int.tryParse(_quantityController.text)
             : null,
         formFields: _formFields,
         createdBy: currentUser.uid,
         createdAt: DateTime.now(),
         // Nuevos campos
         useEventDateAsDeadline: _useEventDateAsDeadline,
-        registrationDeadline: _useEventDateAsDeadline ? null : _registrationDeadline,
+        registrationDeadline:
+            _useEventDateAsDeadline ? null : _registrationDeadline,
         accessRestriction: _accessRestriction,
         ticketsPerUser: int.tryParse(_ticketsPerUserController.text) ?? 1,
       );
-      
+
       // Guardar el ticket
       await _ticketService.createTicket(widget.event.id, ticket);
-      
+
       // Actualizar el evento para indicar que tiene tickets
       if (!widget.event.hasTickets) {
         await _updateEventHasTickets();
@@ -222,7 +228,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ingresso criado com sucesso')),
+          SnackBar(content: Text(_loc.ticketCreatedSuccessfully)),
         );
       }
     } catch (e) {
@@ -235,7 +241,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       });
     }
   }
-  
+
   Future<void> _updateEventHasTickets() async {
     try {
       await FirebaseFirestore.instance
@@ -248,6 +254,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   }
 
   void _addFormField() {
+    final loc = _loc;
     showDialog(
       context: context,
       builder: (context) {
@@ -256,9 +263,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
         bool isRequired = true;
         bool useProfile = false;
         String profileField = '';
-        
+
         return AlertDialog(
-          title: Text('Adicionar campo'),
+          title: Text(loc.ticketFieldDialogAddTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -266,35 +273,42 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                 TextFormField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText: 'Nome do campo',
-                    hintText: 'Ex: Idade, País, etc.',
+                    labelText: loc.ticketFieldDialogNameLabel,
+                    hintText: loc.ticketFieldDialogNameHint,
                   ),
                 ),
                 SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: fieldType,
                   decoration: InputDecoration(
-                    labelText: 'Tipo de campo',
+                    labelText: loc.ticketFieldTypeLabel,
                   ),
                   items: [
-                    DropdownMenuItem(value: 'text', child: Text('Texto')),
-                    DropdownMenuItem(value: 'email', child: Text('Email')),
-                    DropdownMenuItem(value: 'phone', child: Text('Telefone')),
-                    DropdownMenuItem(value: 'number', child: Text('Número')),
-                    DropdownMenuItem(value: 'select', child: Text('Seleção')),
+                    DropdownMenuItem(
+                        value: 'text', child: Text(loc.ticketFieldTypeText)),
+                    DropdownMenuItem(
+                        value: 'email', child: Text(loc.ticketFieldTypeEmail)),
+                    DropdownMenuItem(
+                        value: 'phone', child: Text(loc.ticketFieldTypePhone)),
+                    DropdownMenuItem(
+                        value: 'number',
+                        child: Text(loc.ticketFieldTypeNumber)),
+                    DropdownMenuItem(
+                        value: 'select',
+                        child: Text(loc.ticketFieldTypeSelect)),
                   ],
                   onChanged: (value) {
                     if (value != null) fieldType = value;
                   },
                 ),
                 SwitchListTile(
-                  title: Text('Campo obrigatório'),
+                  title: Text(loc.ticketFieldRequiredSwitch),
                   value: isRequired,
                   onChanged: (value) => isRequired = value,
                 ),
                 SwitchListTile(
-                  title: Text('Usar dados do perfil'),
-                  subtitle: Text('Preencher com informações do usuário'),
+                  title: Text(loc.ticketFieldUseProfileSwitch),
+                  subtitle: Text(loc.ticketFieldUseProfileSubtitle),
                   value: useProfile,
                   onChanged: (value) {
                     useProfile = value;
@@ -314,12 +328,14 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                   DropdownButtonFormField<String>(
                     value: profileField,
                     decoration: InputDecoration(
-                      labelText: 'Campo do perfil',
+                      labelText: loc.ticketFieldProfileLabel,
                     ),
                     items: [
-                      DropdownMenuItem(value: 'displayName', child: Text('Nome')),
-                      DropdownMenuItem(value: 'email', child: Text('Email')),
-                      DropdownMenuItem(value: 'phoneNumber', child: Text('Telefone')),
+                      DropdownMenuItem(
+                          value: 'displayName', child: Text(loc.name)),
+                      DropdownMenuItem(value: 'email', child: Text(loc.email)),
+                      DropdownMenuItem(
+                          value: 'phoneNumber', child: Text(loc.phone)),
                     ],
                     onChanged: (value) {
                       if (value != null) profileField = value;
@@ -331,31 +347,32 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: Text(loc.cancel),
             ),
             TextButton(
               onPressed: () {
                 if (nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('O nome do campo é obrigatório')),
+                    SnackBar(content: Text(loc.ticketFieldNameRequired)),
                   );
                   return;
                 }
-                
+
                 // Generar un ID único basado en el nombre
-                final id = nameController.text.trim()
+                final id = nameController.text
+                    .trim()
                     .toLowerCase()
                     .replaceAll(' ', '_')
                     .replaceAll(RegExp(r'[^\w\s]'), '');
-                
+
                 // Verificar que el ID sea único
                 if (_formFields.any((field) => field.id == id)) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Já existe um campo com esse nome')),
+                    SnackBar(content: Text(loc.ticketFieldDuplicated)),
                   );
                   return;
                 }
-                
+
                 final newField = TicketFormField(
                   id: id,
                   label: nameController.text.trim(),
@@ -364,24 +381,25 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                   useUserProfile: useProfile,
                   userProfileField: useProfile ? profileField : '',
                 );
-                
+
                 setState(() {
                   _formFields.add(newField);
                 });
-                
+
                 Navigator.pop(context);
               },
-              child: Text('Adicionar'),
+              child: Text(loc.add),
             ),
           ],
         );
       },
     );
   }
-  
+
   void _editFormField(int index) {
+    final loc = _loc;
     final field = _formFields[index];
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -390,9 +408,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
         bool isRequired = field.isRequired;
         bool useProfile = field.useUserProfile;
         String profileField = field.userProfileField;
-        
+
         return AlertDialog(
-          title: Text('Editar campo'),
+          title: Text(loc.ticketFieldDialogEditTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -400,34 +418,41 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                 TextFormField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText: 'Nome do campo',
+                    labelText: loc.ticketFieldDialogNameLabel,
                   ),
                 ),
                 SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: fieldType,
                   decoration: InputDecoration(
-                    labelText: 'Tipo de campo',
+                    labelText: loc.ticketFieldTypeLabel,
                   ),
                   items: [
-                    DropdownMenuItem(value: 'text', child: Text('Texto')),
-                    DropdownMenuItem(value: 'email', child: Text('Email')),
-                    DropdownMenuItem(value: 'phone', child: Text('Telefone')),
-                    DropdownMenuItem(value: 'number', child: Text('Número')),
-                    DropdownMenuItem(value: 'select', child: Text('Seleção')),
+                    DropdownMenuItem(
+                        value: 'text', child: Text(loc.ticketFieldTypeText)),
+                    DropdownMenuItem(
+                        value: 'email', child: Text(loc.ticketFieldTypeEmail)),
+                    DropdownMenuItem(
+                        value: 'phone', child: Text(loc.ticketFieldTypePhone)),
+                    DropdownMenuItem(
+                        value: 'number',
+                        child: Text(loc.ticketFieldTypeNumber)),
+                    DropdownMenuItem(
+                        value: 'select',
+                        child: Text(loc.ticketFieldTypeSelect)),
                   ],
                   onChanged: (value) {
                     if (value != null) fieldType = value;
                   },
                 ),
                 SwitchListTile(
-                  title: Text('Campo obrigatório'),
+                  title: Text(loc.ticketFieldRequiredSwitch),
                   value: isRequired,
                   onChanged: (value) => isRequired = value,
                 ),
                 SwitchListTile(
-                  title: Text('Usar dados do perfil'),
-                  subtitle: Text('Preencher com informações do usuário'),
+                  title: Text(loc.ticketFieldUseProfileSwitch),
+                  subtitle: Text(loc.ticketFieldUseProfileSubtitle),
                   value: useProfile,
                   onChanged: (value) {
                     useProfile = value;
@@ -435,14 +460,17 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                 ),
                 if (useProfile)
                   DropdownButtonFormField<String>(
-                    value: profileField.isNotEmpty ? profileField : 'displayName',
+                    value:
+                        profileField.isNotEmpty ? profileField : 'displayName',
                     decoration: InputDecoration(
-                      labelText: 'Campo do perfil',
+                      labelText: loc.ticketFieldProfileLabel,
                     ),
                     items: [
-                      DropdownMenuItem(value: 'displayName', child: Text('Nome')),
-                      DropdownMenuItem(value: 'email', child: Text('Email')),
-                      DropdownMenuItem(value: 'phoneNumber', child: Text('Telefone')),
+                      DropdownMenuItem(
+                          value: 'displayName', child: Text(loc.name)),
+                      DropdownMenuItem(value: 'email', child: Text(loc.email)),
+                      DropdownMenuItem(
+                          value: 'phoneNumber', child: Text(loc.phone)),
                     ],
                     onChanged: (value) {
                       if (value != null) profileField = value;
@@ -454,17 +482,17 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: Text(loc.cancel),
             ),
             TextButton(
               onPressed: () {
                 if (nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('O nome do campo é obrigatório')),
+                    SnackBar(content: Text(loc.ticketFieldNameRequired)),
                   );
                   return;
                 }
-                
+
                 setState(() {
                   _formFields[index] = TicketFormField(
                     id: field.id, // Mantener el ID original
@@ -477,31 +505,31 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                     defaultValue: field.defaultValue,
                   );
                 });
-                
+
                 Navigator.pop(context);
               },
-              child: Text('Salvar'),
+              child: Text(loc.save),
             ),
           ],
         );
       },
     );
   }
-  
+
   void _removeFormField(int index) {
     // No permitir eliminar los campos básicos si son los únicos
     if (_formFields.length <= 3 && index < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Não é possível excluir todos os campos básicos')),
+        SnackBar(content: Text(_loc.ticketsCannotRemoveBaseFields)),
       );
       return;
     }
-    
+
     setState(() {
       _formFields.removeAt(index);
     });
   }
-  
+
   void _reorderFormFields(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) {
@@ -513,20 +541,31 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   }
 
   String _getFieldTypeText(String type) {
+    final loc = _loc;
     switch (type) {
       case 'text':
-        return 'Texto';
+        return loc.ticketFieldTypeText;
       case 'email':
-        return 'Email';
+        return loc.ticketFieldTypeEmail;
       case 'phone':
-        return 'Telefone';
+        return loc.ticketFieldTypePhone;
       case 'number':
-        return 'Número';
+        return loc.ticketFieldTypeNumber;
       case 'select':
-        return 'Seleção';
+        return loc.ticketFieldTypeSelect;
       default:
-        return 'Desconhecido';
+        return loc.unknown;
     }
+  }
+
+  String _buildFieldSubtitle(TicketFormField field) {
+    final loc = _loc;
+    final tokens = <String>[_getFieldTypeText(field.type)];
+    tokens.add(field.isRequired ? loc.requiredField : loc.optional);
+    if (field.useUserProfile) {
+      tokens.add(loc.ticketFieldAutoFillLabel);
+    }
+    return tokens.where((token) => token.isNotEmpty).join(' • ');
   }
 
   IconData _getFieldTypeIcon(String type) {
@@ -548,6 +587,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = _loc;
     // Si no tiene permiso, mostrar mensaje de error
     if (!_hasPermission && _errorMessage != null) {
       return Container(
@@ -574,14 +614,14 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                   backgroundColor: Colors.red.shade700,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Cerrar'),
+                child: Text(loc.close),
               ),
             ],
           ),
         ),
       );
     }
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
@@ -602,14 +642,15 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                   Theme.of(context).primaryColor.withOpacity(0.85),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Row(
               children: [
                 Icon(Icons.confirmation_number, color: Colors.white, size: 24),
                 const SizedBox(width: 12),
                 Text(
-                  'Criar novo ingresso',
+                  loc.ticketModalTitle,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -623,7 +664,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
               ],
             ),
           ),
-          
+
           // Form
           Expanded(
             child: SingleChildScrollView(
@@ -636,20 +677,20 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                     // Tipo de ticket
                     TextFormField(
                       controller: _typeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de ingresso',
-                        hintText: 'Ex: Geral, VIP, Estudante',
+                      decoration: InputDecoration(
+                        labelText: loc.ticketTypeLabel,
+                        hintText: loc.ticketTypeHint,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor digite o tipo de ingresso';
+                          return loc.ticketEntryNameRequired;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Entrada pagada ou gratuita
                     Card(
                       elevation: 0,
@@ -660,8 +701,10 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: SwitchListTile(
-                          title: const Text('Ingresso pago'),
-                          subtitle: Text(_isPaid ? 'Os participantes deverão pagar' : 'Ingresso gratuito'),
+                          title: Text(loc.ticketPaidToggleLabel),
+                          subtitle: Text(_isPaid
+                              ? loc.ticketPaidToggleSubtitlePaid
+                              : loc.ticketPaidToggleSubtitleFree),
                           value: _isPaid,
                           activeColor: Theme.of(context).primaryColor,
                           onChanged: (value) {
@@ -672,7 +715,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ),
                       ),
                     ),
-                    
+
                     // Precio (solo se é pagada)
                     if (_isPaid) ...[
                       const SizedBox(height: 20),
@@ -684,18 +727,18 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                             flex: 2,
                             child: TextFormField(
                               controller: _priceController,
-                              decoration: const InputDecoration(
-                                labelText: 'Preço',
+                              decoration: InputDecoration(
+                                labelText: loc.ticketPriceLabel,
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (_isPaid) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Informe o preço';
+                                    return loc.ticketPriceRequired;
                                   }
                                   if (double.tryParse(value) == null) {
-                                    return 'Informe um número válido';
+                                    return loc.ticketPriceInvalid;
                                   }
                                 }
                                 return null;
@@ -703,20 +746,23 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                             ),
                           ),
                           const SizedBox(width: 16),
-                          
+
                           // Moeda
                           Expanded(
                             flex: 1,
                             child: DropdownButtonFormField<String>(
-                              decoration: const InputDecoration(
-                                labelText: 'Moeda',
+                              decoration: InputDecoration(
+                                labelText: loc.ticketCurrencyLabel,
                                 border: OutlineInputBorder(),
                               ),
                               value: _currency,
                               items: const [
-                                DropdownMenuItem(value: 'BRL', child: Text('BRL')),
-                                DropdownMenuItem(value: 'USD', child: Text('USD')),
-                                DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                                DropdownMenuItem(
+                                    value: 'BRL', child: Text('BRL')),
+                                DropdownMenuItem(
+                                    value: 'USD', child: Text('USD')),
+                                DropdownMenuItem(
+                                    value: 'EUR', child: Text('EUR')),
                               ],
                               onChanged: (value) {
                                 if (value != null) {
@@ -730,60 +776,60 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ],
                       ),
                     ],
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Quantidade disponível
                     TextFormField(
                       controller: _quantityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Quantidade disponível (opcional)',
-                        hintText: 'Deixe em branco para ilimitado',
+                      decoration: InputDecoration(
+                        labelText: loc.ticketAvailableQuantityLabel,
+                        hintText: loc.ticketAvailableQuantityHint,
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value != null && value.isNotEmpty) {
                           if (int.tryParse(value) == null) {
-                            return 'Informe um número inteiro válido';
+                            return loc.enterAValidNumber;
                           }
                         }
                         return null;
                       },
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Limite de entradas por usuário
                     TextFormField(
                       controller: _ticketsPerUserController,
-                      decoration: const InputDecoration(
-                        labelText: 'Limite de ingressos por usuário',
-                        hintText: 'Ex: 1, 2, 3',
+                      decoration: InputDecoration(
+                        labelText: loc.ticketPerUserLabel,
+                        hintText: loc.ticketPerUserHint,
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Informe um número';
+                          return loc.ticketEnterNumber;
                         }
                         final number = int.tryParse(value);
                         if (number == null) {
-                          return 'Informe um número inteiro válido';
+                          return loc.enterAValidNumber;
                         }
                         if (number < 1) {
-                          return 'O mínimo é 1 ingresso por usuário';
+                          return loc.ticketPerUserMinimum;
                         }
                         return null;
                       },
                     ),
-                    
+
                     const SizedBox(height: 28),
-                    
-                    // Seção de data limite para inscrições
-                    _buildSectionHeader('Data limite para inscrições'),
+
+                    // Sección de fecha límite
+                    _buildSectionHeader(loc.ticketDeadlineSectionTitle),
                     const SizedBox(height: 10),
-                    
+
                     // Opções de data limite
                     Card(
                       elevation: 0,
@@ -794,7 +840,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                       child: Column(
                         children: [
                           RadioListTile<bool>(
-                            title: const Text('Até a data do evento'),
+                            title: Text(loc.ticketDeadlineOptionEvent),
                             value: true,
                             groupValue: _useEventDateAsDeadline,
                             activeColor: Theme.of(context).primaryColor,
@@ -806,7 +852,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                           ),
                           const Divider(height: 1),
                           RadioListTile<bool>(
-                            title: const Text('Escolher uma data limite personalizada'),
+                            title: Text(loc.ticketDeadlineOptionCustom),
                             value: false,
                             groupValue: _useEventDateAsDeadline,
                             activeColor: Theme.of(context).primaryColor,
@@ -819,40 +865,45 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ],
                       ),
                     ),
-                    
+
                     // Selector de data limite (se personalizada)
                     if (!_useEventDateAsDeadline) ...[
                       const SizedBox(height: 12),
                       InkWell(
                         onTap: _selectDeadlineDate,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 15),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.calendar_today, size: 18, color: Theme.of(context).primaryColor),
+                              Icon(Icons.calendar_today,
+                                  size: 18,
+                                  color: Theme.of(context).primaryColor),
                               const SizedBox(width: 10),
                               Text(
-                                'Data limite: ${_formatDate(_registrationDeadline)}',
+                                loc.ticketDeadlineLabel(
+                                    _formatDate(_registrationDeadline)),
                                 style: const TextStyle(fontSize: 15),
                               ),
                               const Spacer(),
-                              Icon(Icons.arrow_drop_down, color: Theme.of(context).primaryColor),
+                              Icon(Icons.arrow_drop_down,
+                                  color: Theme.of(context).primaryColor),
                             ],
                           ),
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 28),
-                    
-                    // Seção de restrições de acesso
-                    _buildSectionHeader('Permissões de registro'),
+
+                    // Sección de permisos
+                    _buildSectionHeader(loc.ticketAccessSectionTitle),
                     const SizedBox(height: 10),
-                    
+
                     // Opções de restrição de acesso
                     Card(
                       elevation: 0,
@@ -863,8 +914,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                       child: Column(
                         children: [
                           RadioListTile<String>(
-                            title: const Text('Aberto ao público'),
-                            subtitle: const Text('Qualquer pessoa pode se registrar'),
+                            title: Text(loc.ticketAccessOptionPublic),
+                            subtitle:
+                                Text(loc.ticketAccessOptionPublicSubtitle),
                             value: 'public',
                             groupValue: _accessRestriction,
                             activeColor: Theme.of(context).primaryColor,
@@ -876,7 +928,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                           ),
                           const Divider(height: 1),
                           RadioListTile<String>(
-                            title: const Text('Apenas membros do ministério'),
+                            title: Text(loc.ticketAccessOptionMinistry),
                             value: 'ministry',
                             groupValue: _accessRestriction,
                             activeColor: Theme.of(context).primaryColor,
@@ -888,7 +940,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                           ),
                           const Divider(height: 1),
                           RadioListTile<String>(
-                            title: const Text('Apenas membros de grupos'),
+                            title: Text(loc.ticketAccessOptionGroup),
                             value: 'group',
                             groupValue: _accessRestriction,
                             activeColor: Theme.of(context).primaryColor,
@@ -900,7 +952,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                           ),
                           const Divider(height: 1),
                           RadioListTile<String>(
-                            title: const Text('Apenas membros da igreja'),
+                            title: Text(loc.ticketAccessOptionChurch),
                             value: 'church',
                             groupValue: _accessRestriction,
                             activeColor: Theme.of(context).primaryColor,
@@ -913,21 +965,21 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 28),
-                    
-                    // Seção de campos do formulário personalizado
-                    _buildSectionHeader('Campos do formulário de registro'),
+
+                    // Sección de campos personalizados
+                    _buildSectionHeader(loc.ticketFormFieldsTitle),
                     const SizedBox(height: 4),
                     Text(
-                      'Defina os campos que o usuário deverá preencher ao se registrar',
+                      loc.ticketFormFieldsDescription,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade700,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Lista de campos atuais
                     Container(
                       decoration: BoxDecoration(
@@ -949,13 +1001,12 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                               ),
                               child: ListTile(
                                 title: Text(_formFields[i].label),
-                                subtitle: Text(
-                                  _getFieldTypeText(_formFields[i].type) +
-                                      (_formFields[i].isRequired ? ' (Obrigatório)' : ' (Opcional)') +
-                                      (_formFields[i].useUserProfile ? ' - Auto' : ''),
-                                ),
+                                subtitle:
+                                    Text(_buildFieldSubtitle(_formFields[i])),
                                 leading: CircleAvatar(
-                                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                                  backgroundColor: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.2),
                                   child: Icon(
                                     _getFieldTypeIcon(_formFields[i].type),
                                     color: Theme.of(context).primaryColor,
@@ -966,11 +1017,13 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit, size: 20, color: Colors.blue),
+                                      icon: Icon(Icons.edit,
+                                          size: 20, color: Colors.blue),
                                       onPressed: () => _editFormField(i),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete, size: 20, color: Colors.red),
+                                      icon: Icon(Icons.delete,
+                                          size: 20, color: Colors.red),
                                       onPressed: () => _removeFormField(i),
                                     ),
                                   ],
@@ -980,23 +1033,24 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ],
                       ),
                     ),
-                    
+
                     // Botão para adicionar campo
                     const SizedBox(height: 12),
                     Center(
                       child: OutlinedButton.icon(
                         onPressed: _addFormField,
                         icon: Icon(Icons.add),
-                        label: Text('Adicionar campo'),
+                        label: Text(loc.ticketAddFieldButtonLabel),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
                     ),
-                    
+
                     // Mensagem de erro
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 24),
@@ -1009,7 +1063,8 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700),
+                            Icon(Icons.error_outline,
+                                color: Colors.red.shade700),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -1021,9 +1076,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Botão de criar
                     SizedBox(
                       width: double.infinity,
@@ -1046,7 +1101,9 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Criar ingresso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            : Text(loc.ticketCreateButtonLabel,
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -1059,7 +1116,7 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       ),
     );
   }
-  
+
   Widget _buildSectionHeader(String title) {
     return Row(
       children: [
@@ -1082,4 +1139,4 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       ],
     );
   }
-} 
+}

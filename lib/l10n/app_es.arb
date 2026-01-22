@@ -398,6 +398,183 @@
     "hybrid": "Híbrido",
     "schedulePastoralCounseling": "Agenda una cita pastoral",
     "talkToAPastor": "Habla con un pastor para orientación espiritual",
+    "requestCounselingTitle": "Solicitar consulta",
+    "stepPastor": "Pastor",
+    "stepDetails": "Detalles",
+    "counselingDetailsTitle": "Detalles del asesoramiento",
+    "counselingReasonLabel": "Motivo de la consulta",
+    "counselingReasonHint": "Describe brevemente el motivo de tu consulta",
+    "counselingPhoneLabel": "Número de teléfono",
+    "counselingPhoneExample": "Ej. +34 612 345 678",
+    "counselingWhatsappConsent": "Acepto recibir comunicaciones por WhatsApp o llamada relacionadas con mi consulta",
+    "buttonPrevious": "Anterior",
+    "buttonNext": "Siguiente",
+    "buttonRequestAppointment": "Solicitar consulta",
+    "ticketModalTitle": "Crear nuevo ticket",
+    "ticketPermissionDenied": "No tienes permiso para crear tickets",
+    "ticketPermissionError": "Error al verificar permisos",
+    "ticketDeadlineNotSelected": "No seleccionada",
+    "ticketCreatedSuccessfully": "Ticket creado con éxito",
+    "ticketDeadlineRequired": "Debes seleccionar una fecha límite para las inscripciones",
+    "ticketFieldNameRequired": "El nombre del campo es obligatorio",
+    "ticketFieldDuplicated": "Ya existe un campo con ese nombre",
+    "ticketsCannotRemoveBaseFields": "No puedes eliminar todos los campos básicos",
+    "ticketTypeLabel": "Tipo de ticket",
+    "ticketTypeHint": "Ej: General, VIP, Estudiante",
+    "ticketEntryNameRequired": "Por favor ingresa un nombre para la entrada",
+    "ticketPaidToggleLabel": "Ticket pagado",
+    "ticketPaidToggleSubtitlePaid": "Los participantes deberán pagar",
+    "ticketPaidToggleSubtitleFree": "Ticket gratuito",
+    "ticketPriceLabel": "Precio",
+    "ticketPriceRequired": "Por favor ingresa un precio",
+    "ticketPriceInvalid": "Por favor ingresa un precio válido",
+    "ticketCurrencyLabel": "Moneda",
+    "ticketAvailableQuantityLabel": "Cantidad disponible (opcional)",
+    "ticketAvailableQuantityHint": "Déjalo vacío para ilimitado",
+    "ticketPerUserLabel": "Límite de tickets por usuario",
+    "ticketPerUserHint": "Ej: 1, 2, 3",
+    "ticketEnterNumber": "Por favor ingresa un número",
+    "ticketPerUserMinimum": "El mínimo es 1 ticket por usuario",
+    "ticketDeadlineSectionTitle": "Fecha límite para inscripciones",
+    "ticketDeadlineOptionEvent": "Hasta la fecha del evento",
+    "ticketDeadlineOptionCustom": "Elegir una fecha límite personalizada",
+    "ticketDeadlineLabel": "Fecha límite: {date}",
+    "@ticketDeadlineLabel": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "ticketAccessSectionTitle": "Permisos de registro",
+    "ticketAccessOptionPublic": "Abierto al público",
+    "ticketAccessOptionPublicSubtitle": "Cualquier persona puede registrarse",
+    "ticketAccessOptionMinistry": "Solo miembros del ministerio",
+    "ticketAccessOptionGroup": "Solo miembros de grupos",
+    "ticketAccessOptionChurch": "Solo miembros de la iglesia",
+    "ticketFormFieldsTitle": "Campos del formulario de registro",
+    "ticketFormFieldsDescription": "Define los campos que el usuario debe completar al registrarse",
+    "ticketAddFieldButtonLabel": "Agregar campo",
+    "ticketCreateButtonLabel": "Crear ticket",
+    "ticketFieldDialogAddTitle": "Agregar campo",
+    "ticketFieldDialogNameLabel": "Nombre del campo",
+    "ticketFieldDialogNameHint": "Ej: Edad, País, etc.",
+    "ticketFieldTypeLabel": "Tipo de campo",
+    "ticketFieldTypeText": "Texto",
+    "ticketFieldTypeEmail": "Email",
+    "ticketFieldTypePhone": "Teléfono",
+    "ticketFieldTypeNumber": "Número",
+    "ticketFieldTypeSelect": "Selección",
+    "ticketFieldRequiredSwitch": "Campo obligatorio",
+    "ticketFieldUseProfileSwitch": "Usar datos del perfil",
+    "ticketFieldUseProfileSubtitle": "Rellenar con información del usuario",
+    "ticketFieldProfileLabel": "Campo del perfil",
+    "ticketFieldDialogEditTitle": "Editar campo",
+    "ticketFieldAutoFillLabel": "Auto",
+    "registerTicketFormTitle": "Registrarse para el evento",
+    "loadingTicketInformation": "Cargando información...",
+    "ticketInformationHeader": "Información del ticket",
+    "eventLabel": "Evento",
+    "contactInformationHeader": "Información de contacto",
+    "registerTicketButtonLabel": "Registrar ahora",
+    "ticketLoadError": "No fue posible cargar la información del ticket",
+    "eventFallbackName": "Evento",
+    "freeLabel": "Gratis",
+    "unlimitedLabel": "Ilimitado",
+    "ticketsAvailable": "{count} disponibles",
+    "@ticketsAvailable": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "ticketPerUserLimit": "{count} por usuario",
+    "@ticketPerUserLimit": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "attendanceScreenTitle": "Presencia - {eventTitle}",
+    "@attendanceScreenTitle": {
+        "placeholders": {
+            "eventTitle": {
+                "type": "String"
+            }
+        }
+    },
+    "selectTicketFirst": "Selecciona un tipo de ticket primero",
+    "selectTicketHint": "Seleccionar ticket",
+    "registeredStatus": "Registrados",
+    "attendedStatus": "Presentes",
+    "filterAll": "Todos",
+    "filterRegisteredOnly": "Solo registrados",
+    "filterAttendedOnly": "Solo presentes",
+    "addAttendeeButton": "Agregar",
+    "searchByNameEmailPhone": "Buscar por nombre, email o teléfono",
+    "addAttendeeManuallyTooltip": "Añadir asistente manualmente",
+    "attendeesEmptyStateHelp": "Añade asistentes o espera a que los usuarios se registren",
+    "noRegisteredUsers": "No hay usuarios solo registrados",
+    "noAttendedUsers": "No hay usuarios presentes",
+    "noAttendeeRecords": "No hay registros de participantes",
+    "attendedAtLabel": "Presente el {date}",
+    "@attendedAtLabel": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmAttendanceTooltip": "Confirmar presencia",
+    "cancelAttendanceTooltip": "Cancelar presencia",
+    "deleteRegistrationTitle": "Eliminar registro",
+    "confirmDeleteRegistration": "¿Seguro que deseas eliminar el registro de {name}?",
+    "@confirmDeleteRegistration": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "attendeeAddedSuccessfully": "Participante añadido con éxito",
+    "errorAddingAttendee": "Error al añadir participante: {error}",
+    "@errorAddingAttendee": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "registrationDeletedSuccessfully": "Registro eliminado con éxito",
+    "errorDeletingRegistration": "Error al eliminar registro: {error}",
+    "@errorDeletingRegistration": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorConfirmingAttendance": "Error al confirmar presencia: {error}",
+    "@errorConfirmingAttendance": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorCancellingAttendance": "Error al cancelar presencia: {error}",
+    "@errorCancellingAttendance": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "searchUserTitle": "Buscar usuario",
+    "noUsersFound": "Ningún usuario encontrado",
+    "userFallbackName": "Usuario",
     "viewAll": "Ver todos",
     "swipeToSeeFeaturedCourses": "Desliza para ver cursos destacados",
     "lessons": "{count, plural, =1{1 lección} other{{count} lecciones}}",
@@ -4010,7 +4187,7 @@
       }
     }
   },
-  "errorConfirmingAttendance": "Error al confirmar asistencia",
+  "errorConfirmingAttendance": "Error al confirmar asistencia: {error}",
   "errorRestoringState": "Error al restaurar estado",
   "attendanceChangedTo": "Asistencia cambiada a {newUserName}",
   "@attendanceChangedTo": {
@@ -4509,6 +4686,7 @@
   "ageConfirmationTitle": "Confirmación de edad",
   "ageConfirmationPrompt": "Para usar esta app, confirma tu rango de edad.",
   "ageOptionUnder13": "Tengo menos de 13 años",
+  "ageOptionPreferNotToSay": "Prefiero no decirlo",
   "ageRange0To5": "0–5",
   "ageRange6To12": "6–12",
   "ageRange13To17": "13–17",

@@ -61,45 +61,49 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título y descripción
-              Text(
-                AppLocalizations.of(context)!.recurrenceSettings,
-                style: AppTextStyles.subtitle1.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context)!.defineRecurringEventFrequency,
-                style: AppTextStyles.bodyText2.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              
-              // Sección de frecuencia
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Título y descripción
+                      Text(
+                        AppLocalizations.of(context)!.recurrenceSettings,
+                        style: AppTextStyles.subtitle1.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context)!.defineRecurringEventFrequency,
+                        style: AppTextStyles.bodyText2.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Sección de frecuencia
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                     Row(
                       children: [
                         Container(
@@ -269,26 +273,26 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                 ),
               ),
               
-              const SizedBox(height: 24),
-              
-              // Sección de fin de recurrencia
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                      const SizedBox(height: 24),
+                      
+                      // Sección de fin de recurrencia
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                     Row(
                       children: [
                         Container(
@@ -521,48 +525,45 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                         ],
                       ),
                     ),
-                  ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildBottomButton(
+                          label: AppLocalizations.of(context)!.cancel,
+                          onPressed: () => Navigator.pop(context),
+                          backgroundColor: Colors.red.withOpacity(0.1),
+                          foregroundColor: Colors.red,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    child: const Text('Cancelar'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _type = RecurrenceType.recurring;
-                      });
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildBottomButton(
+                          label: AppLocalizations.of(context)!.done,
+                          onPressed: () {
+                            setState(() {
+                              _type = RecurrenceType.recurring;
+                            });
+                            Navigator.pop(context);
+                          },
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
-                    child: const Text('Concluído'),
+                    ],
                   ),
-                ],
+                ),
               ),
-              // Espacio adicional para alejar los botones del borde inferior
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -717,19 +718,57 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
                   ),
                   const SizedBox(height: 16),
                   SegmentedButton<RecurrenceType>(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith(
+                        (states) => states.contains(MaterialState.selected)
+                            ? AppColors.primary
+                            : Colors.grey.shade100,
+                      ),
+                      foregroundColor: MaterialStateProperty.resolveWith(
+                        (states) => states.contains(MaterialState.selected)
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                      ),
+                      side: MaterialStateProperty.all(
+                        const BorderSide(color: Colors.transparent),
+                      ),
+                      padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
                     segments: [
                       ButtonSegment(
                         value: RecurrenceType.single,
-                        label: Text(AppLocalizations.of(context)!.single),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            AppLocalizations.of(context)!.single,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         icon: const Icon(Icons.event),
                       ),
                       ButtonSegment(
                         value: RecurrenceType.recurring,
-                        label: Text(AppLocalizations.of(context)!.recurring),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            AppLocalizations.of(context)!.recurring,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         icon: const Icon(Icons.repeat),
                       ),
                     ],
                     selected: {_type},
+                    showSelectedIcon: false,
                     onSelectionChanged: (Set<RecurrenceType> newSelection) {
                       setState(() {
                         _type = newSelection.first;
@@ -785,48 +824,32 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
             ),
             const Spacer(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    OutlinedButton(
-                      onPressed: widget.onBack,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                      child: Text(AppLocalizations.of(context)!.back),
-                    ),
-                    const SizedBox(width: 12),
-                    OutlinedButton(
-                      onPressed: widget.onCancel,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                    ),
-                  ],
+                Expanded(
+                  child: _buildBottomButton(
+                    label: AppLocalizations.of(context)!.back,
+                    onPressed: widget.onBack,
+                    backgroundColor: Colors.grey.shade100,
+                    foregroundColor: AppColors.primary,
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: _handleCreate,
-                  style: ElevatedButton.styleFrom(
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildBottomButton(
+                    label: AppLocalizations.of(context)!.cancel,
+                    onPressed: widget.onCancel,
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    foregroundColor: Colors.red,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildBottomButton(
+                    label: AppLocalizations.of(context)!.create,
+                    onPressed: _handleCreate,
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
-                  child: Text(AppLocalizations.of(context)!.create),
                 ),
               ],
             ),
@@ -837,4 +860,33 @@ class _EventRecurrenceStepState extends State<EventRecurrenceStep> {
       ),
     );
   }
-} 
+
+  Widget _buildBottomButton({
+    required String label,
+    required VoidCallback? onPressed,
+    required Color backgroundColor,
+    required Color foregroundColor,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+}

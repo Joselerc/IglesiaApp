@@ -685,54 +685,35 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
                 
                 // Botones de navegación
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    OutlinedButton(
-                      onPressed: widget.onCancel,
-                      style: OutlinedButton.styleFrom(
+                    Expanded(
+                      child: _buildBottomButton(
+                        label: AppLocalizations.of(context)!.cancel,
+                        onPressed: widget.onCancel,
+                        backgroundColor: Colors.red.withOpacity(0.1),
                         foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
-                    ElevatedButton.icon(
-                      onPressed: _isLoading || _isSelectingImage 
-                          ? null 
-                          : () {
-                              if (_formKey.currentState!.validate()) {
-                                widget.onNext(
-                                  _titleController.text.trim(),
-                                  _selectedCategory!,
-                                  _descriptionController.text.trim(),
-                                  _imageFile,
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildBottomButton(
+                        label: AppLocalizations.of(context)!.advance,
+                        onPressed: _isLoading || _isSelectingImage
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  widget.onNext(
+                                    _titleController.text.trim(),
+                                    _selectedCategory!,
+                                    _descriptionController.text.trim(),
+                                    _imageFile,
+                                  );
+                                }
+                              },
                         backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      icon: _isLoading 
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.arrow_forward, size: 20, color: Colors.white),
-                      label: Text(
-                        AppLocalizations.of(context)!.advance,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        foregroundColor: Colors.white,
+                        isLoading: _isLoading,
+                        trailingIcon: Icons.arrow_forward,
                       ),
                     ),
                   ],
@@ -746,4 +727,55 @@ class _EventBasicInfoStepState extends State<EventBasicInfoStep> {
       ),
     );
   }
-} 
+
+  Widget _buildBottomButton({
+    required String label,
+    required VoidCallback? onPressed,
+    required Color backgroundColor,
+    required Color foregroundColor,
+    bool isLoading = false,
+    IconData? trailingIcon,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading) ...[
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            if (!isLoading && trailingIcon != null) ...[
+              const SizedBox(width: 8),
+              Icon(trailingIcon, size: 18),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

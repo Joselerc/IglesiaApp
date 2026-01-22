@@ -7,7 +7,6 @@ import '../../services/family_group_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../utils/age_range.dart';
 import 'family_detail_screen.dart';
 import 'widgets/create_family_sheet.dart';
 import 'widgets/family_card.dart';
@@ -76,19 +75,8 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream:
           FirebaseFirestore.instance.collection('users').doc(userId).snapshots(),
-      builder: (context, userSnapshot) {
-        final ageRange = AgeRange.fromFirestoreValue(
-          userSnapshot.data?.data()?['ageRange'] as String?,
-        );
-        final isAdult = ageRange?.isAdult ?? false;
-
+      builder: (context, _) {
         void openCreateFamilyGuarded() {
-          if (!isAdult) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(strings.familiesAdultsOnlyMessage)),
-            );
-            return;
-          }
           _openCreateFamily();
         }
 
@@ -214,8 +202,7 @@ class _FamiliesHomeScreenState extends State<FamiliesHomeScreen> {
                               padding: const EdgeInsets.only(bottom: 16),
                               itemBuilder: (context, index) {
                                 final family = families[index];
-                                final isAdmin =
-                                    isAdult && family.isAdmin(userId);
+                                final isAdmin = family.isAdmin(userId);
                                 final hasPendingRequests =
                                     isAdmin && family.pendingRequests.isNotEmpty;
                                 return FamilyCard(

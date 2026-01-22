@@ -515,48 +515,32 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
               const Spacer(),
               // Botones de navegación
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      OutlinedButton(
-                        onPressed: widget.onBack,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.back),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: widget.onCancel,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.cancel),
-                      ),
-                    ],
+                  Expanded(
+                    child: _buildBottomButton(
+                      label: AppLocalizations.of(context)!.back,
+                      onPressed: widget.onBack,
+                      backgroundColor: Colors.grey.shade100,
+                      foregroundColor: AppColors.primary,
+                    ),
                   ),
-                  ElevatedButton(
-                    onPressed: _handleNext,
-                    style: ElevatedButton.styleFrom(
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildBottomButton(
+                      label: AppLocalizations.of(context)!.cancel,
+                      onPressed: widget.onCancel,
+                      backgroundColor: Colors.red.withOpacity(0.1),
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildBottomButton(
+                      label: AppLocalizations.of(context)!.next,
+                      onPressed: _handleNext,
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    child: Text(AppLocalizations.of(context)!.next),
                   ),
                 ],
               ),
@@ -564,6 +548,35 @@ class _EventDateTimeStepState extends State<EventDateTimeStep> {
               const SizedBox(height: 24),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomButton({
+    required String label,
+    required VoidCallback? onPressed,
+    required Color backgroundColor,
+    required Color foregroundColor,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );

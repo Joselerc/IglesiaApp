@@ -8,6 +8,7 @@ import '../../services/group_service.dart';
 import '../../services/membership_request_service.dart';
 import '../../services/notification_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../utils/family_localizations.dart';
 
 class ManageGroupRequestsScreen extends StatefulWidget {
   final Group group;
@@ -305,8 +306,42 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
     List<Map<String, dynamic>> filteredUsers = [];
     List<Map<String, dynamic>> allFamilies = [];
     List<Map<String, dynamic>> filteredFamilies = [];
+    final userLookup = <String, Map<String, dynamic>>{};
+    final expandedFamilyIds = <String>{};
 
     final memberIds = widget.group.memberIds;
+
+    List<String> extractUserIds(dynamic rawList) {
+      if (rawList is Iterable) {
+        return rawList.map<String>((entry) {
+          if (entry is DocumentReference) return entry.id;
+          if (entry is String && entry.startsWith('/users/')) {
+            return entry.substring(7);
+          }
+          return entry.toString();
+        }).toList();
+      }
+      return [];
+    }
+
+    Map<String, String> extractRoles(dynamic rawMap) {
+      final roles = <String, String>{};
+      if (rawMap is Map) {
+        rawMap.forEach((key, value) {
+          if (key == null) return;
+          String userId;
+          if (key is DocumentReference) {
+            userId = key.id;
+          } else if (key is String && key.startsWith('/users/')) {
+            userId = key.substring(7);
+          } else {
+            userId = key.toString();
+          }
+          roles[userId] = value?.toString() ?? '';
+        });
+      }
+      return roles;
+    }
 
     setState(() {
       _isLoading = true;
@@ -326,14 +361,21 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
 
         final userName =
             userData['name'] ?? userData['displayName'] ?? strings.unknownUser;
+        final photoUrl = userData['photoUrl'] ?? '';
+        final email = userData['email'] ?? '';
 
         allUsers.add({
           'id': doc.id,
           'name': userName,
-          'email': userData['email'] ?? '',
-          'photoUrl': userData['photoUrl'] ?? '',
+          'email': email,
+          'photoUrl': photoUrl,
           'isMember': isMember,
         });
+        userLookup[doc.id] = {
+          'name': userName,
+          'email': email,
+          'photoUrl': photoUrl,
+        };
       }
 
       filteredUsers = List<Map<String, dynamic>>.from(allUsers);
@@ -347,17 +389,9 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
         if (familyData == null) continue;
 
         final familyName = (familyData['name'] as String?)?.trim();
-        final memberIdsRaw = familyData['memberIds'];
-        final familyMemberIds = <String>[];
-        if (memberIdsRaw is Iterable) {
-          for (final entry in memberIdsRaw) {
-            if (entry is String) {
-              familyMemberIds.add(entry);
-            } else if (entry is DocumentReference) {
-              familyMemberIds.add(entry.id);
-            }
-          }
-        }
+        final membersRaw = familyData['members'] ?? familyData['memberIds'];
+        final familyMemberIds = extractUserIds(membersRaw).toSet().toList();
+        final memberRoles = extractRoles(familyData['memberRoles']);
 
         allFamilies.add({
           'id': doc.id,
@@ -366,6 +400,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
               : strings.familyFallbackName,
           'photoUrl': familyData['photoUrl'] ?? '',
           'memberIds': familyMemberIds,
+          'memberRoles': memberRoles,
         });
       }
 
@@ -448,6 +483,261 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
           return StatefulBuilder(
             builder: (context, setModalState) {
               final colorScheme = Theme.of(context).colorScheme;
+              Widget buildMemberRow(Map<String, dynamic> member) {
+                final memberId = member['id']?.toString() ?? '';
+                final photoUrl = member['photoUrl']?.toString() ?? '';
+                final isMember = member['isMember'] == true;
+                final isSelected = member['isSelected'] == true;
+                final canSelect = member['canSelect'] == true;
+
+                void toggleSelection() {
+                  setModalState(() {
+                    if (isSelected) {
+                      selectedUsers.remove(memberId);
+                    } else {
+                      selectedUsers.add(memberId);
+                    }
+                  });
+                }
+
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: canSelect ? toggleSelection : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor:
+                              colorScheme.primary.withValues(alpha: 0.12),
+                          backgroundImage:
+                              photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
+                          child: photoUrl.isEmpty
+                              ? Icon(Icons.person,
+                                  size: 18, color: colorScheme.primary)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                member['name']?.toString() ?? strings.unknownUser,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                member['role']?.toString() ??
+                                    familyRoleLabel(strings, 'otro'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isMember)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: Text(
+                              strings.member,
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        else
+                          Checkbox(
+                            value: isSelected,
+                            onChanged: canSelect ? (_) => toggleSelection() : null,
+                            activeColor: colorScheme.primary,
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              Widget buildFamilyCard(Map<String, dynamic> family) {
+                final familyId = family['id']?.toString() ?? '';
+                final isSelected = selectedFamilies.contains(familyId);
+                final isExpanded = expandedFamilyIds.contains(familyId);
+                final members = (family['memberIds'] as List?)
+                        ?.cast<String>() ??
+                    <String>[];
+                final memberRoles =
+                    (family['memberRoles'] as Map?)?.cast<String, String>() ??
+                        <String, String>{};
+                final photoUrl = family['photoUrl']?.toString() ?? '';
+
+                final memberItems = members.map((memberId) {
+                  final user = userLookup[memberId] ?? const <String, dynamic>{};
+                  final alreadyMember = memberIds.contains(memberId);
+                  final isSelectedByUser = selectedUsers.contains(memberId);
+                  final isSelectedRow = isSelected || isSelectedByUser;
+                  final canSelect = !alreadyMember && !isSelected;
+
+                  return {
+                    'id': memberId,
+                    'name': user['name'] ?? strings.unknownUser,
+                    'photoUrl': user['photoUrl'] ?? '',
+                    'role': familyRoleLabel(
+                      strings,
+                      memberRoles[memberId]?.toString() ?? 'otro',
+                    ),
+                    'isMember': alreadyMember,
+                    'isSelected': isSelectedRow,
+                    'canSelect': canSelect,
+                  };
+                }).toList();
+                memberItems.sort((a, b) => (a['name'] as String)
+                    .toLowerCase()
+                    .compareTo((b['name'] as String).toLowerCase()));
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          setModalState(() {
+                            if (isExpanded) {
+                              expandedFamilyIds.remove(familyId);
+                            } else {
+                              expandedFamilyIds.add(familyId);
+                            }
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundImage: photoUrl.isNotEmpty
+                                    ? NetworkImage(photoUrl)
+                                    : null,
+                                backgroundColor:
+                                    colorScheme.primary.withValues(alpha: 0.12),
+                                child: photoUrl.isEmpty
+                                    ? Icon(Icons.family_restroom,
+                                        color: colorScheme.primary)
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      family['name'],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      strings.familyMembersCount(members.length),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Checkbox(
+                                value: isSelected,
+                                activeColor: colorScheme.primary,
+                                onChanged: (value) {
+                                  setModalState(() {
+                                    if (value == true) {
+                                      selectedFamilies.add(familyId);
+                                    } else {
+                                      selectedFamilies.remove(familyId);
+                                    }
+                                  });
+                                },
+                              ),
+                              AnimatedRotation(
+                                turns: isExpanded ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 200),
+                                child: Icon(
+                                  Icons.expand_more,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        child: isExpanded
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      strings.familyMembersLabel,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (memberItems.isEmpty)
+                                      Text(
+                                        strings.noUsersFound,
+                                        style: TextStyle(
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    if (memberItems.isNotEmpty)
+                                      ...memberItems.map(buildMemberRow),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOut,
@@ -598,67 +888,7 @@ class _ManageGroupRequestsScreenState extends State<ManageGroupRequestsScreen> w
                                   itemCount: filteredFamilies.length,
                                   itemBuilder: (context, index) {
                                     final family = filteredFamilies[index];
-                                    final isSelected =
-                                        selectedFamilies.contains(family['id']);
-                                    final members =
-                                        (family['memberIds'] as List?)
-                                            ?.cast<String>() ??
-                                            <String>[];
-                                    final photoUrl =
-                                        family['photoUrl']?.toString();
-
-                                    return Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 4),
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundImage: photoUrl != null &&
-                                                  photoUrl.isNotEmpty
-                                              ? NetworkImage(photoUrl)
-                                              : null,
-                                          child: photoUrl == null ||
-                                                  photoUrl.isEmpty
-                                              ? const Icon(Icons.family_restroom)
-                                              : null,
-                                        ),
-                                        title: Text(
-                                          family['name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        subtitle: Text(
-                                          strings.familyMembersCount(
-                                            members.length,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        trailing: Checkbox(
-                                          value: isSelected,
-                                          activeColor: Colors.green,
-                                          onChanged: (value) {
-                                            setModalState(() {
-                                              if (value == true) {
-                                                selectedFamilies.add(family['id']);
-                                              } else {
-                                                selectedFamilies
-                                                    .remove(family['id']);
-                                              }
-                                            });
-                                          },
-                                        ),
-                                        onTap: () {
-                                          setModalState(() {
-                                            if (isSelected) {
-                                              selectedFamilies
-                                                  .remove(family['id']);
-                                            } else {
-                                              selectedFamilies.add(family['id']);
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    );
+                                    return buildFamilyCard(family);
                                   },
                                 ))
                           : (filteredUsers.isEmpty

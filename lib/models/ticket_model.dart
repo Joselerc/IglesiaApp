@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../l10n/app_localizations.dart';
 
 class TicketFormField {
-  final String id;           // Identificador único del campo 
-  final String label;        // Etiqueta visible para el usuario
-  final String type;         // Tipo de campo: "text", "email", "phone", "number", "select", etc.
-  final bool isRequired;     // Si el campo es obligatorio
-  final bool useUserProfile; // Si debe prellenarse con datos del perfil del usuario
+  final String id; // Identificador único del campo
+  final String label; // Etiqueta visible para el usuario
+  final String
+      type; // Tipo de campo: "text", "email", "phone", "number", "select", etc.
+  final bool isRequired; // Si el campo es obligatorio
+  final bool
+      useUserProfile; // Si debe prellenarse con datos del perfil del usuario
   final String userProfileField; // Campo del perfil a usar para prellenado
   final List<String>? options; // Opciones para campos tipo select
   final String? defaultValue; // Valor predeterminado
@@ -29,7 +32,8 @@ class TicketFormField {
       isRequired: map['isRequired'] ?? true,
       useUserProfile: map['useUserProfile'] ?? false,
       userProfileField: map['userProfileField'] ?? '',
-      options: map['options'] != null ? List<String>.from(map['options']) : null,
+      options:
+          map['options'] != null ? List<String>.from(map['options']) : null,
       defaultValue: map['defaultValue'],
     );
   }
@@ -56,15 +60,19 @@ class TicketModel {
   final double price;
   final String currency;
   final int? quantity; // Cantidad disponible (null = ilimitado)
-  final List<TicketFormField> formFields; // Campos personalizados para el formulario
+  final List<TicketFormField>
+      formFields; // Campos personalizados para el formulario
   final String createdBy; // ID del usuario que creó el ticket
   final DateTime createdAt;
-  
+
   // Nuevos campos
-  final DateTime? registrationDeadline; // Fecha límite de registro (null = hasta la fecha del evento)
-  final bool useEventDateAsDeadline; // Si se usa la fecha del evento como límite
+  final DateTime?
+      registrationDeadline; // Fecha límite de registro (null = hasta la fecha del evento)
+  final bool
+      useEventDateAsDeadline; // Si se usa la fecha del evento como límite
   final String accessRestriction; // "public", "ministry", "group", "church"
-  final int ticketsPerUser; // Cuántas entradas puede reservar cada usuario (0 = ilimitado)
+  final int
+      ticketsPerUser; // Cuántas entradas puede reservar cada usuario (0 = ilimitado)
 
   TicketModel({
     required this.id,
@@ -85,7 +93,7 @@ class TicketModel {
 
   factory TicketModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     // Extraer los campos personalizados
     final List<TicketFormField> formFields = [];
     if (data['formFields'] != null) {
@@ -121,7 +129,7 @@ class TicketModel {
         ),
       ]);
     }
-    
+
     return TicketModel(
       id: doc.id,
       eventId: data['eventId'] ?? '',
@@ -132,11 +140,11 @@ class TicketModel {
       quantity: data['quantity'],
       formFields: formFields,
       createdBy: data['createdBy'] ?? '',
-      createdAt: data['createdAt'] != null 
-          ? (data['createdAt'] as Timestamp).toDate() 
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
-      registrationDeadline: data['registrationDeadline'] != null 
-          ? (data['registrationDeadline'] as Timestamp).toDate() 
+      registrationDeadline: data['registrationDeadline'] != null
+          ? (data['registrationDeadline'] as Timestamp).toDate()
           : null,
       useEventDateAsDeadline: data['useEventDateAsDeadline'] ?? true,
       accessRestriction: data['accessRestriction'] ?? 'public',
@@ -155,8 +163,8 @@ class TicketModel {
       'formFields': formFields.map((field) => field.toMap()).toList(),
       'createdBy': createdBy,
       'createdAt': Timestamp.fromDate(createdAt),
-      'registrationDeadline': registrationDeadline != null 
-          ? Timestamp.fromDate(registrationDeadline!) 
+      'registrationDeadline': registrationDeadline != null
+          ? Timestamp.fromDate(registrationDeadline!)
           : null,
       'useEventDateAsDeadline': useEventDateAsDeadline,
       'accessRestriction': accessRestriction,
@@ -165,12 +173,26 @@ class TicketModel {
   }
 
   // Helper para obtener un texto descriptivo del precio
-  String get priceDisplay => isPaid ? '$price $currency' : 'Gratis';
-  
-  // Helper para obtener un texto descriptivo de la disponibilidad
-  String get availabilityDisplay => quantity != null ? '$quantity disponíveis	' : 'Ilimitado';
-  
-  // Helper para obtener un texto descriptivo de la restricción de acceso
+  String priceDisplay(AppLocalizations loc) =>
+      isPaid ? '$price $currency' : loc.freeLabel;
+
+  String availabilityDisplay(AppLocalizations loc) =>
+      quantity != null ? loc.ticketsAvailable(quantity!) : loc.unlimitedLabel;
+
+  String accessRestrictionLabel(AppLocalizations loc) {
+    switch (accessRestriction) {
+      case 'ministry':
+        return loc.ticketAccessOptionMinistry;
+      case 'group':
+        return loc.ticketAccessOptionGroup;
+      case 'church':
+        return loc.ticketAccessOptionChurch;
+      case 'public':
+      default:
+        return loc.ticketAccessOptionPublic;
+    }
+  }
+
   String get accessRestrictionDisplay {
     switch (accessRestriction) {
       case 'ministry':
@@ -184,8 +206,8 @@ class TicketModel {
         return 'Abierto al público';
     }
   }
-  
-  // Helper para obtener un texto descriptivo del límite de entradas por usuario
-  String get ticketsPerUserDisplay => 
-      ticketsPerUser > 0 ? '$ticketsPerUser por usuário	' : 'Ilimitado';
-} 
+
+  String ticketsPerUserDisplay(AppLocalizations loc) => ticketsPerUser > 0
+      ? loc.ticketPerUserLimit(ticketsPerUser)
+      : loc.unlimitedLabel;
+}

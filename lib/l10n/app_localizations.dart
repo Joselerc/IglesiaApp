@@ -1814,6 +1814,648 @@ abstract class AppLocalizations {
   /// **'Habla con un pastor para orientación espiritual'**
   String get talkToAPastor;
 
+  /// No description provided for @requestCounselingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar consulta'**
+  String get requestCounselingTitle;
+
+  /// No description provided for @stepPastor.
+  ///
+  /// In es, this message translates to:
+  /// **'Pastor'**
+  String get stepPastor;
+
+  /// No description provided for @stepDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles'**
+  String get stepDetails;
+
+  /// No description provided for @counselingDetailsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles del asesoramiento'**
+  String get counselingDetailsTitle;
+
+  /// No description provided for @counselingReasonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo de la consulta'**
+  String get counselingReasonLabel;
+
+  /// No description provided for @counselingReasonHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Describe brevemente el motivo de tu consulta'**
+  String get counselingReasonHint;
+
+  /// No description provided for @counselingPhoneLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de teléfono'**
+  String get counselingPhoneLabel;
+
+  /// No description provided for @counselingPhoneExample.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. +34 612 345 678'**
+  String get counselingPhoneExample;
+
+  /// No description provided for @counselingWhatsappConsent.
+  ///
+  /// In es, this message translates to:
+  /// **'Acepto recibir comunicaciones por WhatsApp o llamada relacionadas con mi consulta'**
+  String get counselingWhatsappConsent;
+
+  /// No description provided for @buttonPrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get buttonPrevious;
+
+  /// No description provided for @buttonNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get buttonNext;
+
+  /// No description provided for @buttonRequestAppointment.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar consulta'**
+  String get buttonRequestAppointment;
+
+  /// No description provided for @ticketModalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nuevo ticket'**
+  String get ticketModalTitle;
+
+  /// No description provided for @ticketPermissionDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes permiso para crear tickets'**
+  String get ticketPermissionDenied;
+
+  /// No description provided for @ticketPermissionError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al verificar permisos'**
+  String get ticketPermissionError;
+
+  /// No description provided for @ticketDeadlineNotSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'No seleccionada'**
+  String get ticketDeadlineNotSelected;
+
+  /// No description provided for @ticketCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Ticket creado con éxito'**
+  String get ticketCreatedSuccessfully;
+
+  /// No description provided for @ticketDeadlineRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes seleccionar una fecha límite para las inscripciones'**
+  String get ticketDeadlineRequired;
+
+  /// No description provided for @ticketFieldNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre del campo es obligatorio'**
+  String get ticketFieldNameRequired;
+
+  /// No description provided for @ticketFieldDuplicated.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya existe un campo con ese nombre'**
+  String get ticketFieldDuplicated;
+
+  /// No description provided for @ticketsCannotRemoveBaseFields.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes eliminar todos los campos básicos'**
+  String get ticketsCannotRemoveBaseFields;
+
+  /// No description provided for @ticketTypeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de ticket'**
+  String get ticketTypeLabel;
+
+  /// No description provided for @ticketTypeHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: General, VIP, Estudiante'**
+  String get ticketTypeHint;
+
+  /// No description provided for @ticketEntryNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un nombre para la entrada'**
+  String get ticketEntryNameRequired;
+
+  /// No description provided for @ticketPaidToggleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Ticket pagado'**
+  String get ticketPaidToggleLabel;
+
+  /// No description provided for @ticketPaidToggleSubtitlePaid.
+  ///
+  /// In es, this message translates to:
+  /// **'Los participantes deberán pagar'**
+  String get ticketPaidToggleSubtitlePaid;
+
+  /// No description provided for @ticketPaidToggleSubtitleFree.
+  ///
+  /// In es, this message translates to:
+  /// **'Ticket gratuito'**
+  String get ticketPaidToggleSubtitleFree;
+
+  /// No description provided for @ticketPriceLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio'**
+  String get ticketPriceLabel;
+
+  /// No description provided for @ticketPriceRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un precio'**
+  String get ticketPriceRequired;
+
+  /// No description provided for @ticketPriceInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un precio válido'**
+  String get ticketPriceInvalid;
+
+  /// No description provided for @ticketCurrencyLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Moneda'**
+  String get ticketCurrencyLabel;
+
+  /// No description provided for @ticketAvailableQuantityLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad disponible (opcional)'**
+  String get ticketAvailableQuantityLabel;
+
+  /// No description provided for @ticketAvailableQuantityHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Déjalo vacío para ilimitado'**
+  String get ticketAvailableQuantityHint;
+
+  /// No description provided for @ticketPerUserLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Límite de tickets por usuario'**
+  String get ticketPerUserLabel;
+
+  /// No description provided for @ticketPerUserHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: 1, 2, 3'**
+  String get ticketPerUserHint;
+
+  /// No description provided for @ticketEnterNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un número'**
+  String get ticketEnterNumber;
+
+  /// No description provided for @ticketPerUserMinimum.
+  ///
+  /// In es, this message translates to:
+  /// **'El mínimo es 1 ticket por usuario'**
+  String get ticketPerUserMinimum;
+
+  /// No description provided for @ticketDeadlineSectionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha límite para inscripciones'**
+  String get ticketDeadlineSectionTitle;
+
+  /// No description provided for @ticketDeadlineOptionEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta la fecha del evento'**
+  String get ticketDeadlineOptionEvent;
+
+  /// No description provided for @ticketDeadlineOptionCustom.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir una fecha límite personalizada'**
+  String get ticketDeadlineOptionCustom;
+
+  /// No description provided for @ticketDeadlineLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha límite: {date}'**
+  String ticketDeadlineLabel(String date);
+
+  /// No description provided for @ticketAccessSectionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Permisos de registro'**
+  String get ticketAccessSectionTitle;
+
+  /// No description provided for @ticketAccessOptionPublic.
+  ///
+  /// In es, this message translates to:
+  /// **'Abierto al público'**
+  String get ticketAccessOptionPublic;
+
+  /// No description provided for @ticketAccessOptionPublicSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cualquier persona puede registrarse'**
+  String get ticketAccessOptionPublicSubtitle;
+
+  /// No description provided for @ticketAccessOptionMinistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo miembros del ministerio'**
+  String get ticketAccessOptionMinistry;
+
+  /// No description provided for @ticketAccessOptionGroup.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo miembros de grupos'**
+  String get ticketAccessOptionGroup;
+
+  /// No description provided for @ticketAccessOptionChurch.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo miembros de la iglesia'**
+  String get ticketAccessOptionChurch;
+
+  /// No description provided for @ticketFormFieldsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Campos del formulario de registro'**
+  String get ticketFormFieldsTitle;
+
+  /// No description provided for @ticketFormFieldsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Define los campos que el usuario debe completar al registrarse'**
+  String get ticketFormFieldsDescription;
+
+  /// No description provided for @ticketAddFieldButtonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar campo'**
+  String get ticketAddFieldButtonLabel;
+
+  /// No description provided for @ticketCreateButtonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear ticket'**
+  String get ticketCreateButtonLabel;
+
+  /// No description provided for @ticketFieldDialogAddTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar campo'**
+  String get ticketFieldDialogAddTitle;
+
+  /// No description provided for @ticketFieldDialogNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del campo'**
+  String get ticketFieldDialogNameLabel;
+
+  /// No description provided for @ticketFieldDialogNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Edad, País, etc.'**
+  String get ticketFieldDialogNameHint;
+
+  /// No description provided for @ticketFieldTypeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de campo'**
+  String get ticketFieldTypeLabel;
+
+  /// No description provided for @ticketFieldTypeText.
+  ///
+  /// In es, this message translates to:
+  /// **'Texto'**
+  String get ticketFieldTypeText;
+
+  /// No description provided for @ticketFieldTypeEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Email'**
+  String get ticketFieldTypeEmail;
+
+  /// No description provided for @ticketFieldTypePhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get ticketFieldTypePhone;
+
+  /// No description provided for @ticketFieldTypeNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Número'**
+  String get ticketFieldTypeNumber;
+
+  /// No description provided for @ticketFieldTypeSelect.
+  ///
+  /// In es, this message translates to:
+  /// **'Selección'**
+  String get ticketFieldTypeSelect;
+
+  /// No description provided for @ticketFieldRequiredSwitch.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo obligatorio'**
+  String get ticketFieldRequiredSwitch;
+
+  /// No description provided for @ticketFieldUseProfileSwitch.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar datos del perfil'**
+  String get ticketFieldUseProfileSwitch;
+
+  /// No description provided for @ticketFieldUseProfileSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Rellenar con información del usuario'**
+  String get ticketFieldUseProfileSubtitle;
+
+  /// No description provided for @ticketFieldProfileLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo del perfil'**
+  String get ticketFieldProfileLabel;
+
+  /// No description provided for @ticketFieldDialogEditTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar campo'**
+  String get ticketFieldDialogEditTitle;
+
+  /// No description provided for @ticketFieldAutoFillLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Auto'**
+  String get ticketFieldAutoFillLabel;
+
+  /// No description provided for @registerTicketFormTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse para el evento'**
+  String get registerTicketFormTitle;
+
+  /// No description provided for @loadingTicketInformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando información...'**
+  String get loadingTicketInformation;
+
+  /// No description provided for @ticketInformationHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'Información del ticket'**
+  String get ticketInformationHeader;
+
+  /// No description provided for @eventLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento'**
+  String get eventLabel;
+
+  /// No description provided for @contactInformationHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'Información de contacto'**
+  String get contactInformationHeader;
+
+  /// No description provided for @registerTicketButtonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar ahora'**
+  String get registerTicketButtonLabel;
+
+  /// No description provided for @ticketLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No fue posible cargar la información del ticket'**
+  String get ticketLoadError;
+
+  /// No description provided for @eventFallbackName.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento'**
+  String get eventFallbackName;
+
+  /// No description provided for @freeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Gratis'**
+  String get freeLabel;
+
+  /// No description provided for @unlimitedLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Ilimitado'**
+  String get unlimitedLabel;
+
+  /// No description provided for @ticketsAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} disponibles'**
+  String ticketsAvailable(int count);
+
+  /// No description provided for @ticketPerUserLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} por usuario'**
+  String ticketPerUserLimit(int count);
+
+  /// No description provided for @attendanceScreenTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Presencia - {eventTitle}'**
+  String attendanceScreenTitle(String eventTitle);
+
+  /// No description provided for @selectTicketFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un tipo de ticket primero'**
+  String get selectTicketFirst;
+
+  /// No description provided for @selectTicketHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar ticket'**
+  String get selectTicketHint;
+
+  /// No description provided for @registeredStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrados'**
+  String get registeredStatus;
+
+  /// No description provided for @attendedStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Presentes'**
+  String get attendedStatus;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get filterAll;
+
+  /// No description provided for @filterRegisteredOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo registrados'**
+  String get filterRegisteredOnly;
+
+  /// No description provided for @filterAttendedOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo presentes'**
+  String get filterAttendedOnly;
+
+  /// No description provided for @addAttendeeButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar'**
+  String get addAttendeeButton;
+
+  /// No description provided for @searchByNameEmailPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre, email o teléfono'**
+  String get searchByNameEmailPhone;
+
+  /// No description provided for @addAttendeeManuallyTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir asistente manualmente'**
+  String get addAttendeeManuallyTooltip;
+
+  /// No description provided for @attendeesEmptyStateHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Añade asistentes o espera a que los usuarios se registren'**
+  String get attendeesEmptyStateHelp;
+
+  /// No description provided for @noRegisteredUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuarios solo registrados'**
+  String get noRegisteredUsers;
+
+  /// No description provided for @noAttendedUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuarios presentes'**
+  String get noAttendedUsers;
+
+  /// No description provided for @noAttendeeRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay registros de participantes'**
+  String get noAttendeeRecords;
+
+  /// No description provided for @attendedAtLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Presente el {date}'**
+  String attendedAtLabel(String date);
+
+  /// No description provided for @confirmAttendanceTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar presencia'**
+  String get confirmAttendanceTooltip;
+
+  /// No description provided for @cancelAttendanceTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar presencia'**
+  String get cancelAttendanceTooltip;
+
+  /// No description provided for @deleteRegistrationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar registro'**
+  String get deleteRegistrationTitle;
+
+  /// No description provided for @confirmDeleteRegistration.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que deseas eliminar el registro de {name}?'**
+  String confirmDeleteRegistration(String name);
+
+  /// No description provided for @attendeeAddedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Participante añadido con éxito'**
+  String get attendeeAddedSuccessfully;
+
+  /// No description provided for @errorAddingAttendee.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al añadir participante: {error}'**
+  String errorAddingAttendee(String error);
+
+  /// No description provided for @registrationDeletedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Registro eliminado con éxito'**
+  String get registrationDeletedSuccessfully;
+
+  /// No description provided for @errorDeletingRegistration.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar registro: {error}'**
+  String errorDeletingRegistration(String error);
+
+  /// No description provided for @errorConfirmingAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al confirmar asistencia: {error}'**
+  String errorConfirmingAttendance(String error);
+
+  /// No description provided for @errorCancellingAttendance.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cancelar presencia: {error}'**
+  String errorCancellingAttendance(String error);
+
+  /// No description provided for @searchUserTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar usuario'**
+  String get searchUserTitle;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún usuario encontrado'**
+  String get noUsersFound;
+
+  /// No description provided for @userFallbackName.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get userFallbackName;
+
   /// No description provided for @viewAll.
   ///
   /// In es, this message translates to:
@@ -5737,12 +6379,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Buscar usuarios...'**
   String get searchUsers;
-
-  /// No description provided for @noUsersFound.
-  ///
-  /// In es, this message translates to:
-  /// **'Ningún usuario encontrado'**
-  String get noUsersFound;
 
   /// No description provided for @selectedAdministrators.
   ///
@@ -13688,12 +14324,6 @@ abstract class AppLocalizations {
   /// **'Asistencia de {userName} confirmada'**
   String attendanceConfirmed(String userName);
 
-  /// No description provided for @errorConfirmingAttendance.
-  ///
-  /// In es, this message translates to:
-  /// **'Error al confirmar asistencia'**
-  String get errorConfirmingAttendance;
-
   /// No description provided for @errorRestoringState.
   ///
   /// In es, this message translates to:
@@ -15055,6 +15685,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tengo menos de 13 años'**
   String get ageOptionUnder13;
+
+  /// No description provided for @ageOptionPreferNotToSay.
+  ///
+  /// In es, this message translates to:
+  /// **'Prefiero no decirlo'**
+  String get ageOptionPreferNotToSay;
 
   /// No description provided for @ageRange0To5.
   ///

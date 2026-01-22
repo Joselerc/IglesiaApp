@@ -119,19 +119,16 @@ class _HomeScreenState extends State<HomeScreen> {
         // Si tienes otra lógica (ej. 'phoneComplete'), ajústalo.
         final phoneMissing = _userData!['phone'] == null ||
             (_userData!['phone'] as String).trim().isEmpty;
-        final ageRangeMissing = (_userData!['ageRange'] is! String) ||
-            (_userData!['ageRange'] as String).trim().isEmpty;
         final genderMissing = _userData!['gender'] == null ||
             (_userData!['gender'] as String).trim().isEmpty;
 
         basicInfoMissing =
-            nameMissing || surnameMissing || phoneMissing || ageRangeMissing || genderMissing;
+            nameMissing || surnameMissing || phoneMissing || genderMissing;
 
         debugPrint('ℹ️ HOME_SCREEN - Verificación campos básicos:');
         debugPrint('  - Nome ausente: $nameMissing');
         debugPrint('  - Sobrenome ausente: $surnameMissing');
         debugPrint('  - Telefone ausente: $phoneMissing');
-        debugPrint('  - Faixa etária ausente: $ageRangeMissing');
         debugPrint('  - Gênero ausente: $genderMissing');
         debugPrint('  ➡️ Informação básica ausente: $basicInfoMissing');
       } else {

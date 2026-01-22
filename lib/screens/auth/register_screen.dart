@@ -24,6 +24,7 @@ enum _AgeGateSelection {
   age41To50,
   age51To60,
   age61Plus,
+  preferNotToSay,
   under13,
 }
 
@@ -78,7 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final AgeRange ageRange = switch (selection) {
+    final AgeRange? ageRange = switch (selection) {
       _AgeGateSelection.age13To17 => AgeRange.from13To17,
       _AgeGateSelection.age18To24 => AgeRange.from18To24,
       _AgeGateSelection.age25To30 => AgeRange.from25To30,
@@ -87,6 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _AgeGateSelection.age41To50 => AgeRange.from41To50,
       _AgeGateSelection.age51To60 => AgeRange.from51To60,
       _AgeGateSelection.age61Plus => AgeRange.from61Plus,
+      _AgeGateSelection.preferNotToSay => null,
       _AgeGateSelection.under13 => throw StateError('Under13 is blocked'),
     };
 
@@ -109,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'role': roleName, // Nombre del rol por defecto
-        'ageRange': ageRange.firestoreValue,
+        'ageRange': ageRange?.firestoreValue,
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
         'photoUrl': '',
         'createdAt': DateTime.now(),
@@ -202,10 +204,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        _AgeGateSelection? selected;
+        _AgeGateSelection? selected = _AgeGateSelection.preferNotToSay;
         return StatefulBuilder(
           builder: (context, setModalState) {
             final options = [
+              (_AgeGateSelection.preferNotToSay, strings.ageOptionPreferNotToSay),
               (_AgeGateSelection.age13To17, AgeRange.from13To17.label(strings)),
               (_AgeGateSelection.age18To24, AgeRange.from18To24.label(strings)),
               (_AgeGateSelection.age25To30, AgeRange.from25To30.label(strings)),

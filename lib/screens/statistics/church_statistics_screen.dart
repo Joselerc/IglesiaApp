@@ -652,7 +652,7 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 36,
+              reservedSize: 48,
               getTitlesWidget: (double value, TitleMeta meta) {
                 final index = value.toInt();
                 if (index < 0 || index >= ranges.length) return const SizedBox.shrink();
@@ -660,12 +660,15 @@ class _ChurchStatisticsScreenState extends State<ChurchStatisticsScreen> {
                 return SideTitleWidget(
                   axisSide: meta.axisSide,
                   space: 8.0,
-                  child: Text(
-                    text,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
+                  child: Transform.rotate(
+                    angle: -0.6,
+                    child: Text(
+                      text,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 );

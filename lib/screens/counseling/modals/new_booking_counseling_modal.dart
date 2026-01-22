@@ -1212,11 +1212,12 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
 
   // Widget para el formulario de detalles (ya no es un ListView para evitar conflictos de scroll)
   Widget _buildDetailsForm() {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Detalhes do Aconselhamento',
+          loc.counselingDetailsTitle,
           style: AppTextStyles.subtitle1.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -1225,7 +1226,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
 
         // Motivo de la consulta
         Text(
-          'Motivo do Aconselhamento',
+          loc.counselingReasonLabel,
           style: AppTextStyles.subtitle2.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -1234,7 +1235,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
         TextFormField(
           controller: _reasonController,
           decoration: InputDecoration(
-            hintText: 'Descreva brevemente o motivo da sua consulta',
+            hintText: loc.counselingReasonHint,
             hintStyle: AppTextStyles.bodyText2
                 .copyWith(color: AppColors.textSecondary),
             border: OutlineInputBorder(
@@ -1252,7 +1253,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
 
         // Número de teléfono
         Text(
-          'Número de Telefone',
+          loc.counselingPhoneLabel,
           style: AppTextStyles.subtitle2.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -1265,7 +1266,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
             return TextFormField(
               controller: _phoneController,
               decoration: InputDecoration(
-                hintText: 'Ex. +55 11 98765-4321',
+                hintText: loc.counselingPhoneExample,
                 hintStyle: AppTextStyles.bodyText2
                     .copyWith(color: AppColors.textSecondary),
                 prefixIcon: const Icon(Icons.phone),
@@ -1291,7 +1292,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
         // Aceptación de comunicaciones
         CheckboxListTile(
           title: Text(
-            'Aceito receber comunicações por WhatsApp ou chamada relacionadas à minha consulta',
+            loc.counselingWhatsappConsent,
             style: AppTextStyles.bodyText2,
           ),
           value: _acceptsWhatsApp,
@@ -1405,6 +1406,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -1428,7 +1430,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
             Row(
               children: [
                 Text(
-                  'Solicitar Aconselhamento',
+                  loc.requestCounselingTitle,
                   style: AppTextStyles.headline3.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -1446,13 +1448,13 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Row(
                 children: [
-                  _buildStepIndicator(0, 'Pastor', _selectedPastorRef != null),
+                  _buildStepIndicator(0, loc.stepPastor, _selectedPastorRef != null),
                   _buildStepConnector(),
-                  _buildStepIndicator(1, 'Data', _selectedDay != null),
+                  _buildStepIndicator(1, loc.date, _selectedDay != null),
                   _buildStepConnector(),
-                  _buildStepIndicator(2, 'Horário', _selectedTimeSlot != null),
+                  _buildStepIndicator(2, loc.time, _selectedTimeSlot != null),
                   _buildStepConnector(),
-                  _buildStepIndicator(3, 'Detalhes', false),
+                  _buildStepIndicator(3, loc.stepDetails, false),
                 ],
               ),
             ),
@@ -1502,7 +1504,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                       ),
-                      child: const Text('Anterior'),
+                      child: Text(loc.buttonPrevious),
                     ),
                   const Spacer(),
                   if (_currentStep < 3)
@@ -1529,7 +1531,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                       ),
-                      child: const Text('Próximo'),
+                      child: Text(loc.buttonNext),
                     )
                   else
                     ElevatedButton(
@@ -1553,7 +1555,7 @@ class _NewBookCounselingModalState extends State<NewBookCounselingModal> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text('Solicitar Consulta'),
+                          : Text(loc.buttonRequestAppointment),
                     ),
                 ],
               ),

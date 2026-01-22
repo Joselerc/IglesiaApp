@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/ticket_registration_model.dart';
 import '../../models/ticket_model.dart';
-import '../../services/ticket_service.dart';
 import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventAttendeeManagementScreen extends StatefulWidget {
   final String eventId;
@@ -21,13 +21,14 @@ class EventAttendeeManagementScreen extends StatefulWidget {
 }
 
 class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementScreen> {
-  final TicketService _ticketService = TicketService();
   List<TicketModel> _tickets = [];
   Map<String, List<TicketRegistrationModel>> _registrationsByTicket = {};
   bool _isLoading = true;
   String? _selectedTicketId;
   String _searchQuery = '';
   String _viewFilter = 'all'; // 'all', 'registered', 'attended'
+
+  AppLocalizations get _loc => AppLocalizations.of(context)!;
   
   @override
   void initState() {
@@ -89,7 +90,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: $e')),
+          SnackBar(content: Text(_loc.errorLoadingData(e.toString()))),
         );
       }
     }
@@ -99,7 +100,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
   Future<void> _searchAndAddUser() async {
     if (_selectedTicketId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione um tipo de ingresso primeiro')),
+        SnackBar(content: Text(_loc.selectTicketFirst)),
       );
       return;
     }
@@ -125,7 +126,9 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
             .add({
               'ticketId': _selectedTicketId,
               'eventId': widget.eventId,
-              'userName': selectedUser['name'] ?? selectedUser['displayName'] ?? 'Usuário',
+              'userName': selectedUser['name'] ??
+                  selectedUser['displayName'] ??
+                  _loc.userFallbackName,
               'userEmail': selectedUser['email'] ?? '',
               'userPhone': selectedUser['phone'] ?? '',
               'userId': selectedUser['id'],
@@ -141,7 +144,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante adicionado com sucesso')),
+            SnackBar(content: Text(_loc.attendeeAddedSuccessfully)),
           );
         }
       } catch (e) {
@@ -150,7 +153,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar participante: $e')),
+            SnackBar(content: Text(_loc.errorAddingAttendee(e.toString()))),
           );
         }
       }
@@ -161,19 +164,19 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir registro'),
-        content: Text('Tem certeza que deseja excluir o registro de ${registration.userName}?'),
+        title: Text(_loc.deleteRegistrationTitle),
+        content: Text(_loc.confirmDeleteRegistration(registration.userName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(_loc.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir'),
+            child: Text(_loc.delete),
           ),
         ],
       ),
@@ -196,7 +199,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registro excluído com sucesso')),
+            SnackBar(content: Text(_loc.registrationDeletedSuccessfully)),
           );
         }
       } catch (e) {
@@ -205,7 +208,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao excluir registro: $e')),
+            SnackBar(content: Text(_loc.errorDeletingRegistration(e.toString()))),
           );
         }
       }
@@ -263,7 +266,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao confirmar presença: $e')),
+          SnackBar(content: Text(_loc.errorConfirmingAttendance(e.toString()))),
         );
       }
     }
@@ -319,7 +322,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao cancelar presença: $e')),
+          SnackBar(content: Text(_loc.errorCancellingAttendance(e.toString()))),
         );
       }
     }
@@ -381,7 +384,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Presença - ${widget.eventTitle}'),
+        title: Text(_loc.attendanceScreenTitle(widget.eventTitle)),
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -389,7 +392,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
-            tooltip: 'Atualizar',
+            tooltip: _loc.refresh,
           ),
         ],
       ),
@@ -432,8 +435,8 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Tipo de Ticket',
+                      Text(
+                        _loc.ticketTypeLabel,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -454,12 +457,12 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                           child: DropdownButton<String>(
                             value: _selectedTicketId,
                             isExpanded: true,
-                            hint: const Text('Selecionar ticket'),
+                            hint: Text(_loc.selectTicketHint),
                             items: _tickets.map((ticket) {
                               return DropdownMenuItem<String>(
                                 value: ticket.id,
                                 child: Text(
-                                  '${ticket.type} - ${ticket.priceDisplay}',
+                                  '${ticket.type} - ${ticket.priceDisplay(_loc)}',
                                   style: const TextStyle(fontWeight: FontWeight.w500),
                                 ),
                               );
@@ -483,7 +486,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                           children: [
                             Expanded(
                               child: _buildStatCard(
-                                title: 'Registrados',
+                                title: _loc.registeredStatus,
                                 value: _getTicketStats()['total'].toString(),
                                 icon: Icons.confirmation_number,
                                 iconColor: Colors.blue.shade700,
@@ -493,7 +496,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildStatCard(
-                                title: 'Presentes',
+                                title: _loc.attendedStatus,
                                 value: _getTicketStats()['attended'].toString(),
                                 icon: Icons.check_circle,
                                 iconColor: Colors.green.shade700,
@@ -524,15 +527,15 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                                     items: [
                                       DropdownMenuItem(
                                         value: 'all',
-                                        child: Text('Todos'),
+                                        child: Text(_loc.filterAll),
                                       ),
                                       DropdownMenuItem(
                                         value: 'registered',
-                                        child: Text('Só registrados'),
+                                        child: Text(_loc.filterRegisteredOnly),
                                       ),
                                       DropdownMenuItem(
                                         value: 'attended',
-                                        child: Text('Só presentes'),
+                                        child: Text(_loc.filterAttendedOnly),
                                       ),
                                     ],
                                     onChanged: (value) {
@@ -552,7 +555,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                             // Botón para añadir asistente manual
                             ElevatedButton.icon(
                               icon: const Icon(Icons.person_add, size: 20),
-                              label: const Text('Adicionar'),
+                              label: Text(_loc.addAttendeeButton),
                               onPressed: _searchAndAddUser,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepPurple,
@@ -572,7 +575,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                       // Búsqueda
                       TextField(
                         decoration: InputDecoration(
-                          hintText: 'Buscar por nome, email ou telefone',
+                          hintText: _loc.searchByNameEmailPhone,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -603,7 +606,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
               onPressed: _searchAndAddUser,
               backgroundColor: Theme.of(context).primaryColor,
               child: const Icon(Icons.person_add),
-              tooltip: 'Añadir asistente manualmente',
+              tooltip: _loc.addAttendeeManuallyTooltip,
             )
           : null,
     );
@@ -631,7 +634,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
             SizedBox(
               width: 280,
               child: Text(
-                'Añade asistentes o espera a que los usuarios se registren',
+                _loc.attendeesEmptyStateHelp,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey.shade600,
@@ -658,12 +661,12 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
   String _getEmptyStateMessage() {
     switch (_viewFilter) {
       case 'registered':
-        return 'Não há usuários só registrados';
+        return _loc.noRegisteredUsers;
       case 'attended':
-        return 'Não há usuários presentes';
+        return _loc.noAttendedUsers;
       case 'all':
       default:
-        return 'Não há registros de participantes';
+        return _loc.noAttendeeRecords;
     }
   }
   
@@ -791,7 +794,9 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        registration.isUsed ? 'Presente' : 'Registrado',
+                        registration.isUsed
+                            ? _loc.attendedStatus
+                            : _loc.registeredStatus,
                         style: TextStyle(
                           fontSize: 12,
                           color: registration.isUsed 
@@ -853,7 +858,10 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                         Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                         const SizedBox(width: 8),
                         Text(
-                          'Presente em ${DateFormat('dd/MM/yyyy HH:mm').format(registration.usedAt!)}',
+                          _loc.attendedAtLabel(
+                            DateFormat('dd/MM/yyyy HH:mm')
+                                .format(registration.usedAt!),
+                          ),
                           style: TextStyle(
                             color: Colors.grey.shade700,
                             fontSize: 13,
@@ -877,7 +885,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                   IconButton(
                     onPressed: () => _confirmAttendance(registration),
                     icon: Icon(Icons.check_circle, color: Colors.green.shade600, size: 24),
-                    tooltip: 'Confirmar presença',
+                    tooltip: _loc.confirmAttendanceTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   )
@@ -885,7 +893,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                   IconButton(
                     onPressed: () => _cancelAttendance(registration),
                     icon: Icon(Icons.cancel, color: Colors.orange.shade600, size: 24),
-                    tooltip: 'Cancelar presença',
+                    tooltip: _loc.cancelAttendanceTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -893,7 +901,7 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
                 IconButton(
                   onPressed: () => _deleteRegistration(registration),
                   icon: Icon(Icons.delete, color: Colors.red.shade600, size: 24),
-                  tooltip: 'Excluir',
+                  tooltip: _loc.delete,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -919,6 +927,8 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
   List<DocumentSnapshot> _users = [];
   List<DocumentSnapshot> _filteredUsers = [];
   bool _isLoading = true;
+
+  AppLocalizations get _loc => AppLocalizations.of(context)!;
 
   @override
   void initState() {
@@ -987,7 +997,7 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Buscar usuário',
+              _loc.searchUserTitle,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -998,7 +1008,7 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar por nome, email ou telefone',
+                hintText: _loc.searchByNameEmailPhone,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1026,7 +1036,7 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Nenhum usuário encontrado',
+                                _loc.noUsersFound,
                                 style: TextStyle(
                                   color: Colors.grey.shade700,
                                   fontWeight: FontWeight.w500,
@@ -1040,7 +1050,8 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
                           itemBuilder: (context, index) {
                             final doc = _filteredUsers[index];
                             final data = doc.data() as Map<String, dynamic>;
-                            final name = data['name'] as String? ?? 'Usuário';
+                            final name =
+                                data['name'] as String? ?? _loc.userFallbackName;
                             final email = data['email'] as String? ?? '';
                             final phone = data['phone'] as String? ?? '';
                             
@@ -1084,7 +1095,7 @@ class _UserSearchDialogState extends State<UserSearchDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
+                  child: Text(_loc.cancel),
                 ),
               ],
             ),
