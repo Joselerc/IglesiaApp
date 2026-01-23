@@ -15692,6 +15692,18 @@ abstract class AppLocalizations {
   /// **'Prefiero no decirlo'**
   String get ageOptionPreferNotToSay;
 
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar como invitado'**
+  String get continueAsGuest;
+
+  /// No description provided for @guestUserName.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitado'**
+  String get guestUserName;
+
   /// No description provided for @ageRange0To5.
   ///
   /// In es, this message translates to:

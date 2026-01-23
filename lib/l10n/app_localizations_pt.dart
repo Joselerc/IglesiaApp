@@ -8759,6 +8759,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ageOptionPreferNotToSay => 'Prefiro não dizer';
 
   @override
+  String get continueAsGuest => 'Continuar como convidado';
+
+  @override
+  String get guestUserName => 'Convidado';
+
+  @override
   String get ageRange0To5 => '0–5';
 
   @override

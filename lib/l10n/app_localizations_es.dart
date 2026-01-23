@@ -8774,6 +8774,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ageOptionPreferNotToSay => 'Prefiero no decirlo';
 
   @override
+  String get continueAsGuest => 'Continuar como invitado';
+
+  @override
+  String get guestUserName => 'Invitado';
+
+  @override
   String get ageRange0To5 => '0–5';
 
   @override

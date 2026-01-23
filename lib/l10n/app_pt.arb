@@ -4607,6 +4607,8 @@
   "ageConfirmationPrompt": "Para usar este app, confirme sua faixa etária.",
   "ageOptionUnder13": "Tenho menos de 13 anos",
   "ageOptionPreferNotToSay": "Prefiro não dizer",
+  "continueAsGuest": "Continuar como convidado",
+  "guestUserName": "Convidado",
   "ageRange0To5": "0–5",
   "ageRange6To12": "6–12",
   "ageRange13To17": "13–17",

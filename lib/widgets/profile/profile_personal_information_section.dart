@@ -157,6 +157,14 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
       return const CircularProgressIndicator(); // Placeholder, podrías usar un skeleton más elaborado
     }
 
+    final genderOptions = [
+      AppLocalizations.of(context)!.male,
+      AppLocalizations.of(context)!.female,
+      AppLocalizations.of(context)!.preferNotToSay,
+    ];
+    final selectedGender =
+        genderOptions.contains(_gender?.trim()) ? _gender : null;
+
     // Aquí irá la UI copiada y adaptada de ProfileScreen
     return Form(
       key: _formKey,
@@ -302,14 +310,14 @@ class _ProfilePersonalInformationSectionState extends State<ProfilePersonalInfor
                       prefixIcon: Container(margin: const EdgeInsets.only(left: 12, right: 8), child: Icon(Icons.person_search_outlined, color: AppColors.primary.withOpacity(0.7))),
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
                     ),
-                    value: _gender,
+                    value: selectedGender,
                     isExpanded: true,
-                    items: [AppLocalizations.of(context)!.male, AppLocalizations.of(context)!.female, AppLocalizations.of(context)!.preferNotToSay]
+                    items: genderOptions
                         .map((label) => DropdownMenuItem(child: Padding(padding: const EdgeInsets.only(left: 12.0), child: Text(label)), value: label))
                         .toList(),
                     onChanged: (value) => setState(() => _gender = value),
                     selectedItemBuilder: (BuildContext context) {
-                      return [AppLocalizations.of(context)!.male, AppLocalizations.of(context)!.female, AppLocalizations.of(context)!.preferNotToSay].map<Widget>((String item) {
+                      return genderOptions.map<Widget>((String item) {
                         return Padding(padding: const EdgeInsets.only(left:12.0), child: Text(item, style: AppTextStyles.bodyText1.copyWith(color: Colors.black87)));
                       }).toList();
                     },

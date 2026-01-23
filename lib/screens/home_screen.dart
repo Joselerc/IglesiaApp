@@ -108,6 +108,16 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint(
           '✅ HOME_SCREEN - Datos de usuario obtenidos: ${_userData?.keys.toList()}');
 
+      if (_userData?['isVisitorOnly'] == true) {
+        if (mounted) {
+          setState(() {
+            _shouldShowBanner = false;
+            _isBannerLoading = false;
+          });
+        }
+        return;
+      }
+
       // --- Verificación de campos básicos ---
       bool basicInfoMissing = false;
       if (_userData != null) {

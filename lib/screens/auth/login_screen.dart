@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/auth_service.dart';
@@ -171,6 +172,67 @@ class _LoginScreenState extends State<LoginScreen> {
         // Tentar realizar um login mais simples como fallback
         _simpleLoginFallback();
       } else {
+        setState(() {
+          _errorMessage = AppLocalizations.of(context)!.unexpectedError;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _continueAsGuest() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    try {
+      final credential = await FirebaseAuth.instance.signInAnonymously();
+      final user = credential.user;
+      if (user == null) {
+        throw Exception('Guest sign-in failed');
+      }
+
+      final strings = AppLocalizations.of(context)!;
+      final userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final snapshot = await userRef.get();
+      final now = DateTime.now();
+
+      if (!snapshot.exists) {
+        await userRef.set({
+          'name': strings.guestUserName,
+          'surname': '',
+          'email': '',
+          'phone': '',
+          'role': 'guest',
+          'ageRange': null,
+          'gender': '',
+          'displayName': strings.guestUserName,
+          'photoUrl': '',
+          'createdAt': now,
+          'lastLogin': now,
+          'isVisitorOnly': true,
+          'hasCompletedAdditionalFields': true,
+          'hasSkippedBanner': true,
+          'neverShowBannerAgain': true,
+        });
+      } else {
+        await userRef.set({
+          'lastLogin': now,
+          'isVisitorOnly': true,
+        }, SetOptions(merge: true));
+      }
+
+      if (mounted) {
+        navigationCubit.navigateTo(NavigationState.home);
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    } catch (e) {
+      debugPrint('❌ LOGIN_SCREEN - Erro no modo convidado: $e');
+      if (mounted) {
         setState(() {
           _errorMessage = AppLocalizations.of(context)!.unexpectedError;
         });
@@ -351,6 +413,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  TextButton(
+                    onPressed: _isLoading ? null : _continueAsGuest,
+                    child: Text(
+                      AppLocalizations.of(context)!.continueAsGuest,
+                      style: AppTextStyles.bodyText2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ],
               ),
