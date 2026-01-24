@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDeBWeQTSlBoLQHLhxUc_d1LXl1QlsEyBA</string>
+	<string>AIzaSyCGTdnIZ5m-zROkgb67iIL3AzXaBJFSbRQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>859775537407</string>
+	<string>1039506776024</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.masiglesia.demo</string>
+	<string>com.igrejamoremovimento.igreja</string>
 	<key>PROJECT_ID</key>
-	<string>iglesiaapp-2dc33</string>
+	<string>igreja-amor-em-movimento</string>
 	<key>STORAGE_BUCKET</key>
-	<string>iglesiaapp-2dc33.firebasestorage.app</string>
+	<string>igreja-amor-em-movimento.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:859775537407:ios:3313811f9a5ac782fbfcca</string>
+	<string>1:1039506776024:ios:0feee15e891f5eef341cad</string>
 </dict>
 </plist>

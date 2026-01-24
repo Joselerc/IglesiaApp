@@ -1,13 +1,51 @@
 {
   "project_info": {
-    "project_number": "859775537407",
-    "project_id": "iglesiaapp-2dc33",
-    "storage_bucket": "iglesiaapp-2dc33.firebasestorage.app"
+    "project_number": "1039506776024",
+    "project_id": "igreja-amor-em-movimento",
+    "storage_bucket": "igreja-amor-em-movimento.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:859775537407:android:cb9cb7d1242ec726fbfcca",
+        "mobilesdk_app_id": "1:1039506776024:android:8614825b0835d80d341cad",
+        "android_client_info": {
+          "package_name": "com.iglesia.iglesia_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039506776024:android:ca92f3c5f6eab01c341cad",
+        "android_client_info": {
+          "package_name": "com.igrejamoremovimento.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039506776024:android:f6a2d50dbddf0cf8341cad",
         "android_client_info": {
           "package_name": "com.igrejamoremovimento.igreja"
         }
@@ -15,7 +53,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBlduEpFx5FTQn0CD0qRZCraFv9h01rYTE"
+          "current_key": "AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU"
         }
       ],
       "services": {

@@ -56,7 +56,6 @@ dependencies:
   path: ^1.9.0
 
   # Audio / scanning
-  record: ^5.2.1
   just_audio: ^0.9.46
   flutter_sound: ^9.23.1
   mobile_scanner: ^6.0.7
@@ -74,9 +73,7 @@ dependencies:
   flutter_local_notifications: ^19.0.0
   shared_preferences: ^2.5.2
 
-dependency_overrides:
-  # Evita el breaking-change de `record_platform_interface` (startStream abstracto) que rompe `record_linux`.
-  record_platform_interface: 1.2.0
+dependency_overrides: {}
 
 dev_dependencies:
   flutter_test:

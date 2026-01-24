@@ -86,15 +86,67 @@ import 'screens/admin/admin_announcements_screen.dart';
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
 
+class WebSafeModeApp extends StatelessWidget {
+  const WebSafeModeApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'IglesiaApp (Web Safe Mode)',
+      theme: AppTheme.lightTheme,
+      home: const WebSafeModeScreen(),
+    );
+  }
+}
+
+class WebSafeModeScreen extends StatelessWidget {
+  const WebSafeModeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.warning_amber_rounded, size: 56),
+                SizedBox(height: 16),
+                Text(
+                  'Web mode (Firebase not configured)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'This web build is running in Safe Mode because Firebase '
+                  'Web is not configured yet. Please configure FlutterFire '
+                  'for Web and rebuild.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 void main() async {
   // Iniciar medición de tiempo de inicio
   PerformanceService.startMeasurement('app_startup');
 
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  if (!kIsWeb) {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   // Configurar manejo global de errores
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -115,9 +167,29 @@ void main() async {
     });
   }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  bool firebaseReady = true;
+  if (kIsWeb) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      firebaseReady = false;
+      debugPrint(
+        '⚠️ WEB SAFE MODE - Firebase Web no configurado. '
+        'Configura FlutterFire para web y vuelve a compilar. Error: $e',
+      );
+    }
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
+  if (kIsWeb && !firebaseReady) {
+    runApp(const WebSafeModeApp());
+    return;
+  }
 
   // FlutterDownloader eliminado - reemplazado por Dio para compatibilidad iOS 18.6+
   if (kDebugMode) {

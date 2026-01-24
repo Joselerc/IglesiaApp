@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -50,19 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBlduEpFx5FTQn0CD0qRZCraFv9h01rYTE',
-    appId: '1:859775537407:android:cb9cb7d1242ec726fbfcca',
-    messagingSenderId: '859775537407',
-    projectId: 'iglesiaapp-2dc33',
-    storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
+    apiKey: 'AIzaSyD5B9FFxJ0V-Tl9K5xnZFO-sqNtcmS6jTU',
+    appId: '1:1039506776024:android:8614825b0835d80d341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDeBWeQTSlBoLQHLhxUc_d1LXl1QlsEyBA',
-    appId: '1:859775537407:ios:3313811f9a5ac782fbfcca',
-    messagingSenderId: '859775537407',
-    projectId: 'iglesiaapp-2dc33',
-    storageBucket: 'iglesiaapp-2dc33.firebasestorage.app',
+    apiKey: 'AIzaSyCGTdnIZ5m-zROkgb67iIL3AzXaBJFSbRQ',
+    appId: '1:1039506776024:ios:0feee15e891f5eef341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
     iosBundleId: 'com.igrejamoremovimento.igreja',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBjRgDiR0VfJ3VjN38CdfXt_WK7VL-P8Go',
+    appId: '1:1039506776024:web:cb0d7104def4f5c4341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    authDomain: 'igreja-amor-em-movimento.firebaseapp.com',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
+    measurementId: 'G-YFJNLJD7M1',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCGTdnIZ5m-zROkgb67iIL3AzXaBJFSbRQ',
+    appId: '1:1039506776024:ios:4ccb9f31b9f741a1341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
+    iosBundleId: 'com.example.churchAppBr',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBjRgDiR0VfJ3VjN38CdfXt_WK7VL-P8Go',
+    appId: '1:1039506776024:web:12e8460350d8ad75341cad',
+    messagingSenderId: '1039506776024',
+    projectId: 'igreja-amor-em-movimento',
+    authDomain: 'igreja-amor-em-movimento.firebaseapp.com',
+    storageBucket: 'igreja-amor-em-movimento.firebasestorage.app',
+    measurementId: 'G-869R4LDN7V',
+  );
+
 }
