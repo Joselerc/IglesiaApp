@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/auth_service.dart';
+import '../../services/language_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
@@ -284,6 +285,124 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _showLanguageSheet() {
+    final strings = AppLocalizations.of(context)!;
+    final languageService = Provider.of<LanguageService>(context, listen: false);
+    final currentLocale = languageService.locale.languageCode;
+    const spanishLabel = 'Español';
+    const portugueseLabel = 'Português (Brasil)';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        Widget buildOption({
+          required String languageCode,
+          required String label,
+          required String flag,
+        }) {
+          final isSelected = currentLocale == languageCode;
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+            leading: Text(flag, style: const TextStyle(fontSize: 20)),
+            title: Text(
+              label,
+              style: AppTextStyles.bodyText1.copyWith(
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+            trailing: isSelected
+                ? const Icon(Icons.check, color: AppColors.primary)
+                : null,
+            selected: isSelected,
+            selectedTileColor: AppColors.primary.withOpacity(0.08),
+            onTap: () async {
+              await languageService.setLanguage(languageCode);
+              if (mounted) Navigator.pop(context);
+            },
+          );
+        }
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.mutedGray.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                strings.language,
+                style: AppTextStyles.subtitle2,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                strings.selectYourPreferredLanguage,
+                style: AppTextStyles.caption,
+              ),
+              const SizedBox(height: 12),
+              buildOption(
+                languageCode: 'es',
+                label: spanishLabel,
+                flag: '🇪🇸',
+              ),
+              buildOption(
+                languageCode: 'pt',
+                label: portugueseLabel,
+                flag: '🇧🇷',
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageTrigger() {
+    final languageService = Provider.of<LanguageService>(context);
+    final currentLocale = languageService.locale.languageCode;
+    final currentCode = currentLocale == 'pt' ? 'PT-BR' : 'ES';
+    final currentFlag = currentLocale == 'pt' ? '🇧🇷' : '🇪🇸';
+
+    return Align(
+      alignment: Alignment.centerRight,
+      child: InkWell(
+        onTap: _showLanguageSheet,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.language, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(currentFlag, style: const TextStyle(fontSize: 14)),
+              const SizedBox(width: 4),
+              Text(
+                currentCode,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obter o serviço de autenticação
@@ -305,6 +424,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  _buildLanguageTrigger(),
+                  const SizedBox(height: 16),
                   // Logo da igreja - Optimizado para carga instantánea
                   const SizedBox(height: 40),
                   const Center(

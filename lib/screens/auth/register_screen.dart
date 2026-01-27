@@ -3,15 +3,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_spacing.dart';
+import '../../theme/app_input_styles.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_text_field.dart';
 import '../../widgets/common/church_logo.dart'; // Logo optimizado
 import '../../cubits/navigation_cubit.dart';
 import '../../main.dart'; // Importar para acceder a navigationCubit global
 import '../../l10n/app_localizations.dart';
+import '../../services/language_service.dart';
 import '../../utils/age_range.dart';
 import '../../utils/age_range_localizations.dart';
 
@@ -43,6 +47,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  String _phoneCountryCode = '+55';
+  String _phoneCompleteNumber = '';
+  String _isoCountryCode = 'BR';
+  bool _localeDefaultsInitialized = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -59,6 +67,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_localeDefaultsInitialized) {
+      final languageCode = Localizations.localeOf(context).languageCode;
+      if (languageCode == 'pt') {
+        _isoCountryCode = 'BR';
+        _phoneCountryCode = '+55';
+      } else {
+        _isoCountryCode = 'ES';
+        _phoneCountryCode = '+34';
+      }
+      _localeDefaultsInitialized = true;
+    }
   }
 
   Future<void> _register() async {
@@ -105,11 +129,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String roleName = 'member'; // Valor por defecto
       
       // Crear documento en Firestore
+      final phoneNumber = _phoneController.text.trim();
+      final phoneCountryCode = phoneNumber.isNotEmpty ? _phoneCountryCode : '';
+      final isoCountryCode = phoneNumber.isNotEmpty ? _isoCountryCode : '';
+      final phoneComplete = phoneNumber.isNotEmpty
+          ? (_phoneCompleteNumber.isNotEmpty
+              ? _phoneCompleteNumber
+              : '$phoneCountryCode$phoneNumber')
+          : '';
+
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
         'name': _nameController.text.trim(),
         'surname': _surnameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim(),
+        'phone': phoneNumber,
+        'phoneCountryCode': phoneCountryCode,
+        'phoneComplete': phoneComplete,
+        'isoCountryCode': isoCountryCode,
         'role': roleName, // Nombre del rol por defecto
         'ageRange': ageRange?.firestoreValue,
         'displayName': '${_nameController.text.trim()} ${_surnameController.text.trim()}',
@@ -331,6 +367,124 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  void _showLanguageSheet() {
+    final strings = AppLocalizations.of(context)!;
+    final languageService = Provider.of<LanguageService>(context, listen: false);
+    final currentLocale = languageService.locale.languageCode;
+    const spanishLabel = 'Español';
+    const portugueseLabel = 'Português (Brasil)';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        Widget buildOption({
+          required String languageCode,
+          required String label,
+          required String flag,
+        }) {
+          final isSelected = currentLocale == languageCode;
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+            leading: Text(flag, style: const TextStyle(fontSize: 20)),
+            title: Text(
+              label,
+              style: AppTextStyles.bodyText1.copyWith(
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+            trailing: isSelected
+                ? const Icon(Icons.check, color: AppColors.primary)
+                : null,
+            selected: isSelected,
+            selectedTileColor: AppColors.primary.withOpacity(0.08),
+            onTap: () async {
+              await languageService.setLanguage(languageCode);
+              if (mounted) Navigator.pop(context);
+            },
+          );
+        }
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.mutedGray.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                strings.language,
+                style: AppTextStyles.subtitle2,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                strings.selectYourPreferredLanguage,
+                style: AppTextStyles.caption,
+              ),
+              const SizedBox(height: 12),
+              buildOption(
+                languageCode: 'es',
+                label: spanishLabel,
+                flag: '🇪🇸',
+              ),
+              buildOption(
+                languageCode: 'pt',
+                label: portugueseLabel,
+                flag: '🇧🇷',
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageTrigger() {
+    final languageService = Provider.of<LanguageService>(context);
+    final currentLocale = languageService.locale.languageCode;
+    final currentCode = currentLocale == 'pt' ? 'PT-BR' : 'ES';
+    final currentFlag = currentLocale == 'pt' ? '🇧🇷' : '🇪🇸';
+
+    return Align(
+      alignment: Alignment.centerRight,
+      child: InkWell(
+        onTap: _showLanguageSheet,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.language, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(currentFlag, style: const TextStyle(fontSize: 14)),
+              const SizedBox(width: 4),
+              Text(
+                currentCode,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -349,6 +503,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  _buildLanguageTrigger(),
+                  const SizedBox(height: 16),
                   // Logo da igreja optimizado - carga instantánea
                   const SizedBox(height: 24),
                   const Center(
@@ -437,20 +593,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   AppSpacing.verticalSpacerMD,
-                  AppTextField(
+                  IntlPhoneField(
                     controller: _phoneController,
-                    label: AppLocalizations.of(context)!.phoneNumber,
-                    hint: AppLocalizations.of(context)!.phoneNumberHint,
-                    prefixIcon: Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                    isRequired: false,
+                    initialCountryCode: _isoCountryCode,
+                    decoration: AppInputStyles.textFieldDecoration(
+                      labelText: AppLocalizations.of(context)!.phoneNumber,
+                      hintText: AppLocalizations.of(context)!.phoneNumberHint,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(11),
+                      LengthLimitingTextInputFormatter(15),
                     ],
-                    validator: (value) {
-                      // Solo validar si el usuario ingresó algo
-                      if (value != null && value.isNotEmpty && value.length < 10) {
+                    onChanged: (phone) {
+                      setState(() {
+                        _phoneCountryCode = phone.countryCode;
+                        _isoCountryCode = phone.countryISOCode;
+                        _phoneCompleteNumber =
+                            phone.number.isEmpty ? '' : phone.completeNumber;
+                      });
+                    },
+                    onCountryChanged: (country) {
+                      setState(() {
+                        _isoCountryCode = country.code;
+                        _phoneCountryCode = '+${country.dialCode}';
+                        if (_phoneController.text.isNotEmpty) {
+                          _phoneCompleteNumber =
+                              '$_phoneCountryCode${_phoneController.text}';
+                        } else {
+                          _phoneCompleteNumber = '';
+                        }
+                      });
+                    },
+                    validator: (phone) {
+                      if (phone == null || phone.number.trim().isEmpty) {
+                        return null;
+                      }
+                      if (phone.number.trim().length < 8) {
                         return AppLocalizations.of(context)!.pleaseEnterAValidPhone;
                       }
                       return null;

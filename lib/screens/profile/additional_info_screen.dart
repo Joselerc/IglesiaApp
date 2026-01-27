@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/profile_field.dart';
 import '../../models/profile_field_response.dart';
@@ -34,7 +35,9 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController(); // Para el número sin código de país
-  String _phoneCountryCode = 'BR'; // Código ISO del país por defecto
+  String _phoneCountryCode = '+55'; // Código de marcación por defecto
+  String _phoneCompleteNumber = '';
+  String _isoCountryCode = 'BR'; // Código ISO por defecto
   String? _gender;
   UserModel? _currentUserData; // Para almacenar los datos básicos del usuario
 
@@ -70,9 +73,13 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
         
         // Manejo del teléfono
         _phoneController.text = _currentUserData!.phone ?? ''; // Asumiendo que 'phone' es el número local
-        _phoneCountryCode = _currentUserData!.isoCountryCode?.isNotEmpty == true 
-                            ? _currentUserData!.isoCountryCode! 
-                            : 'BR'; // O tu lógica para obtener el ISO del dial code
+        _phoneCountryCode = _currentUserData!.phoneCountryCode?.isNotEmpty == true
+            ? _currentUserData!.phoneCountryCode!
+            : '+55';
+        _phoneCompleteNumber = _currentUserData!.phoneComplete ?? '';
+        _isoCountryCode = _currentUserData!.isoCountryCode?.isNotEmpty == true
+            ? _currentUserData!.isoCountryCode!
+            : _getIsoCodeFromDialCode(_phoneCountryCode);
 
         _gender = _currentUserData!.gender;
       }
@@ -613,16 +620,12 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       // Lógica para phoneComplete, isoCountryCode y phoneCountryCode (código de marcación)
       final String phoneNumber = _phoneController.text.trim();
       if (phoneNumber.isNotEmpty) {
-        userDataToUpdate['isoCountryCode'] = _phoneCountryCode; // _phoneCountryCode aquí es el ISO (ej: 'BR')
-        
-        // Intentar obtener el código de marcación de _currentUserData o usar un fallback
-        String dialCode = _currentUserData?.phoneCountryCode ?? ''; // Este es el código de marcación (+55)
-        if (dialCode.isEmpty && _phoneCountryCode == 'BR') {
-          dialCode = '+55'; // Fallback para Brasil si no hay nada en _currentUserData
-        }
-        userDataToUpdate['phoneCountryCode'] = dialCode; // Código de marcación (+55)
-        userDataToUpdate['phoneComplete'] = '$dialCode$phoneNumber';
-
+        final completeNumber = _phoneCompleteNumber.isNotEmpty
+            ? _phoneCompleteNumber
+            : '$_phoneCountryCode$phoneNumber';
+        userDataToUpdate['isoCountryCode'] = _isoCountryCode;
+        userDataToUpdate['phoneCountryCode'] = _phoneCountryCode;
+        userDataToUpdate['phoneComplete'] = completeNumber;
       } else {
         userDataToUpdate['isoCountryCode'] = '';
         userDataToUpdate['phoneCountryCode'] = '';
@@ -676,6 +679,15 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
       case 'gender': return _currentUserData!.gender?.isNotEmpty == true;
       default: return true; 
     }
+  }
+
+  String _getIsoCodeFromDialCode(String? dialCode) {
+    final Map<String, String> dialCodeToIso = {
+      '+1': 'US', '+44': 'GB', '+351': 'PT', '+34': 'ES', '+49': 'DE',
+      '+33': 'FR', '+39': 'IT', '+54': 'AR', '+57': 'CO', '+52': 'MX',
+      '+55': 'BR', '+81': 'JP', '+86': 'CN', '+91': 'IN',
+    };
+    return dialCodeToIso[dialCode] ?? 'BR';
   }
 
   // --- WIDGETS PARA CONSTRUIR CAMPOS BÁSICOS ---
@@ -745,33 +757,47 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   }
 
   Widget _buildPhoneField() {
-    // Usar IntlPhoneField que ya tienes en ProfileScreen sería ideal para consistencia,
-    // pero requiere más configuración. Por ahora, un TextFormField simple.
-    // Si quieres IntlPhoneField, necesitaríamos añadir la dependencia y la lógica de manejo del número completo.
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextFormField(
-        controller: _phoneController, // Asume que _phoneController solo tiene el número local
+      child: IntlPhoneField(
+        controller: _phoneController,
+        initialCountryCode: _isoCountryCode,
         decoration: InputDecoration(
           labelText: AppLocalizations.of(context)!.phoneLabel,
           hintText: AppLocalizations.of(context)!.phoneHint,
-          prefixIcon: Icon(Icons.phone, color: AppColors.primary.withOpacity(0.7)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[50],
           floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: Tooltip(message: AppLocalizations.of(context)!.requiredField, child: Icon(Icons.star, size: 10, color: Colors.red)),
         ),
-        keyboardType: TextInputType.phone,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
+        onChanged: (phone) {
+          setState(() {
+            _phoneCountryCode = phone.countryCode;
+            _isoCountryCode = phone.countryISOCode;
+            _phoneCompleteNumber =
+                phone.number.isEmpty ? '' : phone.completeNumber;
+          });
+        },
+        onCountryChanged: (country) {
+          setState(() {
+            _isoCountryCode = country.code;
+            _phoneCountryCode = '+${country.dialCode}';
+            if (_phoneController.text.isNotEmpty) {
+              _phoneCompleteNumber = '$_phoneCountryCode${_phoneController.text}';
+            } else {
+              _phoneCompleteNumber = '';
+            }
+          });
+        },
+        validator: (phone) {
+          if (phone == null || phone.number.isEmpty) {
             return AppLocalizations.of(context)!.thisFieldIsRequired;
           }
-          // Aquí podrías añadir una validación de formato de teléfono más específica si lo deseas.
+          if (phone.number.length < 8) {
+            return AppLocalizations.of(context)!.invalidPhone;
+          }
           return null;
-        },
-        onChanged: (value) {
-          // Actualizar el número de teléfono. La lógica del número completo se manejará al guardar.
         },
       ),
     );
