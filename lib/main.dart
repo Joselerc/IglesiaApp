@@ -221,7 +221,7 @@ void main() async {
   timeago.setLocaleMessages(
       'es', timeago.EsMessages()); // Añadir mensajes en español
   timeago.setDefaultLocale(
-      'es'); // Establecer español como predeterminado para timeago
+      'pt_BR'); // Establecer portugués como predeterminado para timeago
 
   // Migrar datos existentes (solo en debug para evitar delays en producción)
   if (kDebugMode) {

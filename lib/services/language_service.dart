@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 class LanguageService extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
-  Locale _locale = const Locale('es', ''); // Español por defecto
+  Locale _locale = const Locale('pt', ''); // Portugués por defecto
 
   Locale get locale => _locale;
 
@@ -13,7 +12,7 @@ class LanguageService extends ChangeNotifier {
 
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final languageCode = prefs.getString(_languageKey) ?? 'es';
+    final languageCode = prefs.getString(_languageKey) ?? 'pt';
     _locale = Locale(languageCode, '');
     notifyListeners();
   }
