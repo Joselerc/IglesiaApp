@@ -17,7 +17,12 @@ import '../../models/notification.dart';
 import '../../services/notification_service.dart';
 
 class MinistriesListScreen extends StatefulWidget {
-  const MinistriesListScreen({super.key});
+  final bool inviteOnly;
+
+  const MinistriesListScreen({
+    super.key,
+    this.inviteOnly = false,
+  });
 
   @override
   State<MinistriesListScreen> createState() => _MinistriesListScreenState();
@@ -181,6 +186,8 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(strings.joinRequestPendingApproval)),
       );
+    } else if (widget.inviteOnly) {
+      return;
     } else {
       try {
         await _ministryService.requestToJoin(ministry.id);
@@ -712,7 +719,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white70,
                       tabs: [
-                        Tab(text: strings.ministries),
+                        Tab(text: widget.inviteOnly ? 'Mis ministerios' : strings.ministries),
                         _buildInvitesTabLabel(userId, strings),
                       ],
                     ),
@@ -776,7 +783,9 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
                       ),
                       Expanded(
                         child: StreamBuilder<List<Ministry>>(
-                          stream: _ministryService.getMinistries(),
+                          stream: widget.inviteOnly
+                              ? _ministryService.getUserMinistries(userId)
+                              : _ministryService.getMinistries(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
@@ -863,7 +872,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
             ),
           ],
         ),
-        floatingActionButton: _canCreateMinistry
+        floatingActionButton: _canCreateMinistry && !widget.inviteOnly
             ? FloatingActionButton(
                 onPressed: () {
                   showModalBottomSheet(

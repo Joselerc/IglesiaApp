@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:dio/dio.dart';
 import '../models/notification.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/foundation.dart';
 
 class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
   
   // Plugin de notificaciones locales
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = 
@@ -137,6 +137,7 @@ class NotificationService {
     return _notificationsRef
         .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
+        .limit(50)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => AppNotification.fromFirestore(doc))
@@ -154,6 +155,7 @@ class NotificationService {
         .where('userId', isEqualTo: userId)
         .where('isRead', isEqualTo: false)
         .orderBy('createdAt', descending: true)
+        .limit(100)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => AppNotification.fromFirestore(doc))
@@ -1308,11 +1310,6 @@ class NotificationService {
       }
       */
       
-      final dio = Dio();
-      
-      // URL de la Cloud Function (ajustar según tu proyecto)
-      const cloudFunctionUrl = 'https://us-central1-churchappbr.cloudfunctions.net/sendPushNotification';
-      
       final payload = {
         'userIds': userIds,
         'notification': {
@@ -1326,30 +1323,11 @@ class NotificationService {
           'sentAt': DateTime.now().toIso8601String(),
         },
       };
-      
-      print('🔍 [DEBUG] Enviando a Cloud Function: $cloudFunctionUrl');
-      // print('🔍 [DEBUG] Payload: ${payload.toString().substring(0, 200)}...');
-      
-      final response = await dio.post(
-        cloudFunctionUrl,
-        data: payload,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          sendTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
-        ),
-      );
-      
-      print('🔍 [DEBUG] Respuesta Cloud Function: ${response.statusCode}');
-      
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        print('✅ [DEBUG] Resultado PUSH: ${responseData['successCount']} éxitos, ${responseData['failureCount']} fallos');
-      } else {
-        print('❌ [DEBUG] Error en Cloud Function: ${response.statusCode} - ${response.statusMessage}');
-      }
+
+      final callable = _functions.httpsCallable('sendPushNotifications');
+      final response = await callable.call<Map<String, dynamic>>(payload);
+      final responseData = response.data;
+      print('✅ [DEBUG] Resultado PUSH: ${responseData['successCount']} éxitos, ${responseData['failureCount']} fallos');
     } catch (e) {
       print('❌ [DEBUG] Excepción enviando push notification: $e');
       // No relanzar el error para que no afecte la funcionalidad principal

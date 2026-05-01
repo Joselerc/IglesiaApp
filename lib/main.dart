@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,6 +86,7 @@ import 'screens/admin/admin_announcements_screen.dart';
 
 // Crear una instancia global del NavigationCubit que todos pueden acceder
 final NavigationCubit navigationCubit = NavigationCubit();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 class WebSafeModeApp extends StatelessWidget {
   const WebSafeModeApp({super.key});
@@ -191,6 +193,24 @@ void main() async {
     return;
   }
 
+  if (kIsWeb) {
+    const recaptchaSiteKey = String.fromEnvironment('RECAPTCHA_V3_SITE_KEY');
+    if (recaptchaSiteKey.isNotEmpty) {
+      await FirebaseAppCheck.instance.activate(
+        webProvider: ReCaptchaV3Provider(recaptchaSiteKey),
+      );
+    }
+  } else {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: kReleaseMode
+          ? AndroidProvider.playIntegrity
+          : AndroidProvider.debug,
+      appleProvider: kReleaseMode
+          ? AppleProvider.appAttestWithDeviceCheckFallback
+          : AppleProvider.debug,
+    );
+  }
+
   // FlutterDownloader eliminado - reemplazado por Dio para compatibilidad iOS 18.6+
   if (kDebugMode) {
     debugPrint('✅ Usando Dio para downloads - compatible iOS/Android');
@@ -274,6 +294,7 @@ class MyApp extends StatelessWidget {
           child: MaterialApp(
             title: 'IglesiaApp',
             navigatorKey: EventService.navigatorKey,
+            navigatorObservers: [routeObserver],
             theme: AppTheme.lightTheme,
             home: const AuthWrapper(),
             localizationsDelegates: const [

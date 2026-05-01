@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/ministry.dart';
 import '../../models/ministry_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../widgets/create_post_bottom_sheet.dart';
+import '../../widgets/create_group_post_bottom_sheet.dart';
 import '../../screens/create_post_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../modals/comments_modal.dart';
@@ -74,6 +74,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
           .collection('ministry_events')
           .where('ministryId', isEqualTo: FirebaseFirestore.instance.collection('ministries').doc(widget.ministry.id))
           .orderBy('date')
+          .limit(10)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -367,7 +368,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
-                    strings.noAccessToMinistryDescription ?? 'No tienes permisos para acceder a este ministerio.',
+                    strings.noAccessToMinistryDescription,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -508,6 +509,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                     .collection('ministries')
                     .doc(widget.ministry.id))
                 .orderBy('createdAt', descending: true)
+                .limit(30)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -546,8 +548,9 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
-                                builder: (context) => CreatePostBottomSheet(
+                                builder: (context) => CreateGroupPostBottomSheet(
                                   ministryId: widget.ministry.id,
+                                  entityType: PostComposerEntityType.ministry,
                                 ),
                               );
                             },

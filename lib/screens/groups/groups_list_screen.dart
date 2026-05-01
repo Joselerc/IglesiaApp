@@ -18,10 +18,12 @@ import '../../models/notification.dart';
 
 class GroupsListScreen extends StatefulWidget {
   final int initialTabIndex;
+  final bool inviteOnly;
 
   const GroupsListScreen({
     super.key,
     this.initialTabIndex = 0,
+    this.inviteOnly = false,
   });
 
   @override
@@ -173,6 +175,8 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(strings.joinRequestPendingApproval)),
       );
+    } else if (widget.inviteOnly) {
+      return;
     } else {
       try {
         await _groupService.requestToJoin(group.id);
@@ -694,7 +698,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white70,
                       tabs: [
-                        Tab(text: strings.groups),
+                        Tab(text: widget.inviteOnly ? 'Mis grupos' : strings.groups),
                         _buildInvitesTabLabel(userId, strings),
                       ],
                     ),
@@ -757,10 +761,10 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                         ),
                       ),
                       Expanded(
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('groups')
-                              .snapshots(),
+                        child: StreamBuilder<List<Group>>(
+                          stream: widget.inviteOnly
+                              ? _groupService.getUserGroups(userId)
+                              : _groupService.getGroups(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
@@ -781,9 +785,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
 
                             try {
                               final allGroups = snapshot.hasData
-                                  ? snapshot.data!.docs
-                                      .map((doc) => Group.fromFirestore(doc))
-                                      .toList()
+                                  ? snapshot.data!
                                   : _cachedGroups;
                               if (snapshot.hasData) {
                                 _cachedGroups = allGroups;
@@ -851,7 +853,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
             ),
           ],
         ),
-        floatingActionButton: _canCreateGroup
+        floatingActionButton: _canCreateGroup && !widget.inviteOnly
             ? FloatingActionButton(
                 onPressed: () {
                   showModalBottomSheet(

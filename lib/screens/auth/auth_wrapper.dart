@@ -19,6 +19,7 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   // Sistema UI configurado una sola vez
   static bool _systemUIConfigured = false;
+  String? _lastAuthUserId;
   
   @override
   void initState() {
@@ -85,7 +86,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           if (FirebaseAuth.instance.currentUser != null) {
-            navigationCubit.navigateTo(NavigationState.home);
+            final currentUid = FirebaseAuth.instance.currentUser!.uid;
+            if (_lastAuthUserId != currentUid) {
+              navigationCubit.navigateTo(NavigationState.home);
+              _lastAuthUserId = currentUid;
+            }
             return const MainScreen();
           }
           return Scaffold(
@@ -132,11 +137,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (snapshot.hasData) {
           // Asegurarnos de que el NavigationCubit esté configurado correctamente
-          navigationCubit.navigateTo(NavigationState.home);
-          debugPrint('🧭 AUTH_WRAPPER - NavigationCubit reseteado a HOME');
+          final currentUid = snapshot.data!.uid;
+          if (_lastAuthUserId != currentUid) {
+            navigationCubit.navigateTo(NavigationState.home);
+            _lastAuthUserId = currentUid;
+            debugPrint('🧭 AUTH_WRAPPER - NavigationCubit reseteado a HOME (nuevo usuario)');
+          }
           return const MainScreen();
         }
 
+        _lastAuthUserId = null;
         return const LoginScreen();
       },
     );

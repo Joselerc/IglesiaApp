@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uuid/uuid.dart';
 import '../models/ticket_model.dart';
 import '../models/ticket_registration_model.dart';
 import '../services/permission_service.dart';
@@ -8,8 +8,8 @@ import '../services/permission_service.dart';
 class TicketService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
   final PermissionService _permissionService = PermissionService();
-  final uuid = Uuid();
 
   // Referencia a la colección de eventos
   CollectionReference get _eventsCollection => 
@@ -209,147 +209,21 @@ class TicketService {
         throw Exception('O ticket selecionado não existe');
       }
       
-      final ticketData = ticketDoc.data() as Map<String, dynamic>;
       final ticket = TicketModel.fromFirestore(ticketDoc);
-      
-      // Verificar si el ticket está disponible (no excede su cantidad)
-      if (ticket.quantity != null) {
-        // Contar cuántos registros hay para este ticket
-        final registrationsCount = await _eventsCollection
-            .doc(eventId)
-            .collection('registrations')
-            .where('ticketId', isEqualTo: ticketId)
-            .count()
-            .get();
-            
-        final int currentCount = registrationsCount.count ?? 0;
-        final int maxQuantity = ticket.quantity ?? 0;
-        
-        if (currentCount >= maxQuantity) {
-          throw Exception('Não há mais ingressos disponíveis para este tipo de ticket');
-        }
-      }
-      
-      // Verificar la fecha límite de registro
-      final DateTime now = DateTime.now();
-      
-      if (!ticket.useEventDateAsDeadline && ticket.registrationDeadline != null) {
-        if (now.isAfter(ticket.registrationDeadline!)) {
-          throw Exception('O prazo para se registrar neste ticket expirou');
-        }
-      }
-      
-      // Obtener el evento para verificar fecha límite si es necesario
-      if (ticket.useEventDateAsDeadline) {
-        final eventDoc = await _eventsCollection.doc(eventId).get();
-        if (eventDoc.exists) {
-          final eventData = eventDoc.data() as Map<String, dynamic>;
-          if (eventData['startDate'] != null) {
-            final eventDate = (eventData['startDate'] as Timestamp).toDate();
-            if (now.isAfter(eventDate)) {
-              throw Exception('O evento já começou, não é possível se registrar');
-            }
-          }
-        }
-      }
-      
-      // Verificar las restricciones de acceso
-      if (ticket.accessRestriction != 'public') {
-        bool hasAccess = false;
-        
-        switch (ticket.accessRestriction) {
-          case 'ministry':
-            // Verificar si el usuario es miembro del ministerio
-            final userMinistries = await _firestore
-                .collection('users')
-                .doc(currentUser.uid)
-                .collection('ministries')
-                .get();
-            hasAccess = userMinistries.docs.isNotEmpty;
-            break;
-          
-          case 'group':
-            // Verificar si el usuario es miembro de algún grupo
-            final userGroups = await _firestore
-                .collection('users')
-                .doc(currentUser.uid)
-                .collection('groups')
-                .get();
-            hasAccess = userGroups.docs.isNotEmpty;
-            break;
-            
-          case 'church':
-            // Verificar si el usuario es miembro de la iglesia
-            final userDoc = await _firestore
-                .collection('users')
-                .doc(currentUser.uid)
-                .get();
-            if (userDoc.exists) {
-              final userData = userDoc.data() as Map<String, dynamic>;
-              hasAccess = userData['isChurchMember'] == true;
-            }
-            break;
-        }
-        
-        if (!hasAccess) {
-          throw Exception('Você não tem acesso a este tipo de ingresso. ' +
-              'Este ingresso é exclusivo para: ${ticket.accessRestrictionDisplay}');
-        }
-      }
-      
-      // Verificar si el usuario ya está registrado para este ticket
-      final existingRegistrations = await _eventsCollection
-          .doc(eventId)
-          .collection('registrations')
-          .where('userId', isEqualTo: currentUser.uid)
-          .where('ticketId', isEqualTo: ticketId)
-          .get();
-      
-      if (existingRegistrations.docs.isNotEmpty) {
-        throw Exception('Você já está registrado para este ticket');
-      }
-      
-      // Verificar límite de entradas por usuario
-      if (ticket.ticketsPerUser > 0) {
-        // Contar registros del usuario para este ticket
-        final userRegistrationCount = await _eventsCollection
-            .doc(eventId)
-            .collection('registrations')
-            .where('userId', isEqualTo: currentUser.uid)
-            .count()
-            .get();
-            
-        final int currentUserCount = userRegistrationCount.count ?? 0;
-        
-        if (currentUserCount >= ticket.ticketsPerUser) {
-          throw Exception('Você atingiu o limite de ${ticket.ticketsPerUser} ingresso(s) para este evento');
-        }
+      if (ticket.isPaid) {
+        throw Exception('Este ticket requiere pago antes de registrarse');
       }
 
-      // Generar un código QR único (combinación de IDs)
-      final qrCode = '$eventId-$ticketId-${currentUser.uid}-${uuid.v4()}';
-
-      // Crear el registro
-      final registration = {
-        'eventId': eventId,
+      final callable = _functions.httpsCallable('registerFreeEventTicket');
+      final response = await callable.call<Map<String, dynamic>>({
         'ticketId': ticketId,
-        'userId': currentUser.uid,
+        'eventId': eventId,
         'userName': userName,
         'userEmail': userEmail,
         'userPhone': userPhone,
         'formData': formData,
-        'qrCode': qrCode,
-        'createdAt': FieldValue.serverTimestamp(),
-        'isUsed': false,
-      };
-
-      // Guardar en Firestore
-      final docRef = await _eventsCollection
-          .doc(eventId)
-          .collection('registrations')
-          .add(registration);
-          
-      return docRef.id;
+      });
+      return response.data['registrationId'] as String? ?? '';
     } catch (e) {
       print('Error al registrar para el ticket: $e');
       throw e;

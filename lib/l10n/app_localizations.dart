@@ -15494,6 +15494,240 @@ abstract class AppLocalizations {
   /// **'Invitacion rechazada'**
   String get inviteRejected;
 
+  /// No description provided for @financeAccountsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuentas destino'**
+  String get financeAccountsTitle;
+
+  /// No description provided for @financeAccountsEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay cuentas destino registradas'**
+  String get financeAccountsEmpty;
+
+  /// No description provided for @addFinanceAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar cuenta'**
+  String get addFinanceAccount;
+
+  /// No description provided for @editFinanceAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar cuenta'**
+  String get editFinanceAccount;
+
+  /// No description provided for @financeAccountNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la cuenta'**
+  String get financeAccountNameLabel;
+
+  /// No description provided for @financeAccountIdReceiverLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'IdReceiver Safe2Pay'**
+  String get financeAccountIdReceiverLabel;
+
+  /// No description provided for @financeAccountPaymentAccountIdLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Payment Account ID'**
+  String get financeAccountPaymentAccountIdLabel;
+
+  /// No description provided for @financeAccountActiveLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Activa'**
+  String get financeAccountActiveLabel;
+
+  /// No description provided for @financeAccountSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta guardada'**
+  String get financeAccountSaved;
+
+  /// No description provided for @financeAccountSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cuenta'**
+  String get financeAccountSaveError;
+
+  /// No description provided for @financeAccountInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre, IdReceiver y Payment Account ID son obligatorios'**
+  String get financeAccountInvalid;
+
+  /// No description provided for @paymentDataTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos para el pago'**
+  String get paymentDataTitle;
+
+  /// No description provided for @paymentDataSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Necesitamos algunos datos obligatorios para continuar.'**
+  String get paymentDataSubtitle;
+
+  /// No description provided for @paymentIdentityLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Documento (CPF/CNPJ)'**
+  String get paymentIdentityLabel;
+
+  /// No description provided for @paymentIdentityHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo números'**
+  String get paymentIdentityHint;
+
+  /// No description provided for @paymentCityIbgeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Código IBGE (ciudad)'**
+  String get paymentCityIbgeLabel;
+
+  /// No description provided for @paymentCityIbgeHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: 4323002'**
+  String get paymentCityIbgeHint;
+
+  /// No description provided for @paymentDataContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get paymentDataContinue;
+
+  /// No description provided for @manageFinanceAccounts.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar cuentas destino'**
+  String get manageFinanceAccounts;
+
+  /// No description provided for @manageFinanceAccountsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar cuentas receptoras para cobros'**
+  String get manageFinanceAccountsSubtitle;
+
+  /// No description provided for @financeAndPayments.
+  ///
+  /// In es, this message translates to:
+  /// **'Finanzas y Pagos'**
+  String get financeAndPayments;
+
+  /// No description provided for @manageDonationPayments.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar pagos de donaciones'**
+  String get manageDonationPayments;
+
+  /// No description provided for @manageEventPayments.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar pagos de eventos'**
+  String get manageEventPayments;
+
+  /// No description provided for @manageRecurringDonations.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar donaciones recurrentes'**
+  String get manageRecurringDonations;
+
+  /// No description provided for @viewFinanceReports.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver reportes financieros'**
+  String get viewFinanceReports;
+
+  /// No description provided for @donateNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Donar ahora'**
+  String get donateNow;
+
+  /// No description provided for @donationAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Monto de donación'**
+  String get donationAmount;
+
+  /// No description provided for @donationCustomAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro monto'**
+  String get donationCustomAmount;
+
+  /// No description provided for @donationFrequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia'**
+  String get donationFrequency;
+
+  /// No description provided for @donationOneTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Única'**
+  String get donationOneTime;
+
+  /// No description provided for @donationRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrente'**
+  String get donationRecurring;
+
+  /// No description provided for @donationMethod.
+  ///
+  /// In es, this message translates to:
+  /// **'Método de pago'**
+  String get donationMethod;
+
+  /// No description provided for @donationMethodPix.
+  ///
+  /// In es, this message translates to:
+  /// **'Pix'**
+  String get donationMethodPix;
+
+  /// No description provided for @donationMethodCard.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjeta'**
+  String get donationMethodCard;
+
+  /// No description provided for @donationContinueToPayment.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar al pago'**
+  String get donationContinueToPayment;
+
+  /// No description provided for @donationInvalidAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa un monto válido'**
+  String get donationInvalidAmount;
+
+  /// No description provided for @donationPaymentNotConfigured.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago aún no configurado. Contacta al administrador.'**
+  String get donationPaymentNotConfigured;
+
+  /// No description provided for @donationPaymentPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago pendiente. Te notificaremos al confirmar.'**
+  String get donationPaymentPending;
+
+  /// No description provided for @selectFinanceReceiver.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta destino'**
+  String get selectFinanceReceiver;
+
   /// No description provided for @inviteMembers.
   ///
   /// In es, this message translates to:

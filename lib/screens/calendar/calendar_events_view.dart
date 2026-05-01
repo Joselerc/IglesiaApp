@@ -16,10 +16,17 @@ class CalendarEventsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dayStart = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final dayEnd = dayStart.add(const Duration(days: 1));
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('events')
           .where('isActive', isEqualTo: true)
+          .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(dayStart))
+          .where('startDate', isLessThan: Timestamp.fromDate(dayEnd))
+          .orderBy('startDate')
+          .limit(50)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -49,18 +56,10 @@ class CalendarEventsView extends StatelessWidget {
           );
         }
 
-        // Obtener eventos
-        final allEvents = snapshot.data!.docs
+        // Obtener eventos ya acotados al día seleccionado en Firestore.
+        final eventsForSelectedDate = snapshot.data!.docs
             .map((doc) => EventModel.fromFirestore(doc))
             .toList();
-
-        // Filtrar eventos para la fecha seleccionada
-        final eventsForSelectedDate = allEvents.where((event) {
-          final eventDate = event.startDate;
-          return eventDate.year == selectedDate.year &&
-              eventDate.month == selectedDate.month &&
-              eventDate.day == selectedDate.day;
-        }).toList();
 
         if (eventsForSelectedDate.isEmpty) {
           return Center(

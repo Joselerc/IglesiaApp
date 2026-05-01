@@ -8658,6 +8658,128 @@ class AppLocalizationsPt extends AppLocalizations {
   String get inviteRejected => 'Convite rejeitado';
 
   @override
+  String get financeAccountsTitle => 'Contas destino';
+
+  @override
+  String get financeAccountsEmpty => 'Nenhuma conta destino cadastrada';
+
+  @override
+  String get addFinanceAccount => 'Adicionar conta';
+
+  @override
+  String get editFinanceAccount => 'Editar conta';
+
+  @override
+  String get financeAccountNameLabel => 'Nome da conta';
+
+  @override
+  String get financeAccountIdReceiverLabel => 'IdReceiver Safe2Pay';
+
+  @override
+  String get financeAccountPaymentAccountIdLabel => 'Payment Account ID';
+
+  @override
+  String get financeAccountActiveLabel => 'Ativa';
+
+  @override
+  String get financeAccountSaved => 'Conta salva';
+
+  @override
+  String get financeAccountSaveError => 'Erro ao salvar conta';
+
+  @override
+  String get financeAccountInvalid =>
+      'Nome, IdReceiver e Payment Account ID são obrigatórios';
+
+  @override
+  String get paymentDataTitle => 'Dados para pagamento';
+
+  @override
+  String get paymentDataSubtitle =>
+      'Precisamos de alguns dados obrigatórios para continuar.';
+
+  @override
+  String get paymentIdentityLabel => 'Documento (CPF/CNPJ)';
+
+  @override
+  String get paymentIdentityHint => 'Somente números';
+
+  @override
+  String get paymentCityIbgeLabel => 'Código IBGE (cidade)';
+
+  @override
+  String get paymentCityIbgeHint => 'Ex: 4323002';
+
+  @override
+  String get paymentDataContinue => 'Continuar';
+
+  @override
+  String get manageFinanceAccounts => 'Gerenciar contas destino';
+
+  @override
+  String get manageFinanceAccountsSubtitle =>
+      'Configurar contas receptoras para cobranças';
+
+  @override
+  String get financeAndPayments => 'Finanças e Pagamentos';
+
+  @override
+  String get manageDonationPayments => 'Gerenciar pagamentos de doações';
+
+  @override
+  String get manageEventPayments => 'Gerenciar pagamentos de eventos';
+
+  @override
+  String get manageRecurringDonations => 'Gerenciar doações recorrentes';
+
+  @override
+  String get viewFinanceReports => 'Ver relatórios financeiros';
+
+  @override
+  String get donateNow => 'Doar agora';
+
+  @override
+  String get donationAmount => 'Valor da doação';
+
+  @override
+  String get donationCustomAmount => 'Outro valor';
+
+  @override
+  String get donationFrequency => 'Frequência';
+
+  @override
+  String get donationOneTime => 'Única';
+
+  @override
+  String get donationRecurring => 'Recorrente';
+
+  @override
+  String get donationMethod => 'Método de pagamento';
+
+  @override
+  String get donationMethodPix => 'Pix';
+
+  @override
+  String get donationMethodCard => 'Cartão';
+
+  @override
+  String get donationContinueToPayment => 'Continuar para o pagamento';
+
+  @override
+  String get donationInvalidAmount => 'Informe um valor válido';
+
+  @override
+  String get donationPaymentNotConfigured =>
+      'Pagamento ainda não configurado. Fale com o administrador.';
+
+  @override
+  String get donationPaymentPending =>
+      'Pagamento pendente. Vamos avisar ao confirmar.';
+
+  @override
+  String get selectFinanceReceiver => 'Conta destino';
+
+  @override
   String get inviteMembers => 'Convidar membros';
 
   @override

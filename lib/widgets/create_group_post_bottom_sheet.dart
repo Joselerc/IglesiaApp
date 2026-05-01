@@ -16,13 +16,22 @@ enum AspectRatioOption {
   landscape
 }
 
+enum PostComposerEntityType { group, ministry }
+
 class CreateGroupPostBottomSheet extends StatefulWidget {
-  final String groupId;
+  final String? groupId;
+  final String? ministryId;
+  final PostComposerEntityType entityType;
 
   const CreateGroupPostBottomSheet({
     super.key,
-    required this.groupId,
-  });
+    this.groupId,
+    this.ministryId,
+    this.entityType = PostComposerEntityType.group,
+  }) : assert(
+          (entityType == PostComposerEntityType.group && groupId != null) ||
+              (entityType == PostComposerEntityType.ministry && ministryId != null),
+        );
 
   @override
   State<CreateGroupPostBottomSheet> createState() => _CreateGroupPostBottomSheetState();
@@ -33,6 +42,22 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
   final List<File> _selectedImages = [];
   bool _isLoading = false;
   AspectRatioOption _selectedAspectRatio = AspectRatioOption.square;
+
+  String get _entityId => widget.entityType == PostComposerEntityType.group
+      ? widget.groupId!
+      : widget.ministryId!;
+  String get _entityCollection => widget.entityType == PostComposerEntityType.group
+      ? 'groups'
+      : 'ministries';
+  String get _postCollection => widget.entityType == PostComposerEntityType.group
+      ? 'group_posts'
+      : 'ministry_posts';
+  String get _entityField => widget.entityType == PostComposerEntityType.group
+      ? 'groupId'
+      : 'ministryId';
+  String get _adminField => widget.entityType == PostComposerEntityType.group
+      ? 'groupAdmin'
+      : 'ministrieAdmin';
 
   void _removeImage(int index) {
     setState(() {
@@ -78,6 +103,9 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
     final notificationService = Provider.of<NotificationService>(context, listen: false);
 
     setState(() {
@@ -89,7 +117,7 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
       if (userId == null) throw Exception('Usuario no autenticado');
 
       final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
-      final groupRef = FirebaseFirestore.instance.collection('groups').doc(widget.groupId);
+      final entityRef = FirebaseFirestore.instance.collection(_entityCollection).doc(_entityId);
       final List<String> imageUrls = [];
 
       if (_selectedImages.isNotEmpty) {
@@ -97,8 +125,8 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
           final fileName = '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
           final storageRef = FirebaseStorage.instance
               .ref()
-              .child('group_posts')
-              .child(widget.groupId)
+              .child(_postCollection)
+              .child(_entityId)
               .child(fileName);
 
           final metadata = SettableMetadata(
@@ -116,11 +144,11 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
         }
       }
 
-      final postRef = await FirebaseFirestore.instance.collection('group_posts').add({
+      final postRef = await FirebaseFirestore.instance.collection(_postCollection).add({
         'contentText': content,
         'createdAt': FieldValue.serverTimestamp(),
         'authorId': userRef,
-        'groupId': groupRef,
+        _entityField: entityRef,
         'imageUrls': imageUrls,
         'aspectRatio': _selectedAspectRatio.toString(),
         'likes': [],
@@ -131,54 +159,70 @@ class _CreateGroupPostBottomSheetState extends State<CreateGroupPostBottomSheet>
 
       // Notificación
       try {
-        final groupDoc = await groupRef.get();
-        if (groupDoc.exists) {
-            final data = groupDoc.data() as Map<String, dynamic>;
-            final groupName = data['name'] ?? 'Grupo';
-            List<String> memberIds = [];
+        final entityDoc = await entityRef.get();
+        if (entityDoc.exists) {
+          final data = entityDoc.data() as Map<String, dynamic>;
+          final entityName = data['name'] ?? (widget.entityType == PostComposerEntityType.group ? 'Grupo' : 'Ministerio');
+          final memberIds = <String>[];
             
-            if (data['members'] != null) {
-              for (var member in (data['members'] as List)) {
-                if (member is DocumentReference) {
-                  memberIds.add(member.id);
-                } else if (member is String) {
-                   memberIds.add(member.startsWith('/users/') ? member.split('/').last : member);
-                }
+          if (data['members'] != null) {
+            for (var member in (data['members'] as List)) {
+              if (member is DocumentReference) {
+                memberIds.add(member.id);
+              } else if (member is String) {
+                memberIds.add(member.startsWith('/users/') ? member.split('/').last : member);
               }
             }
-             if (data['groupAdmin'] != null) {
-              for (var admin in (data['groupAdmin'] as List)) {
-                String? adminId;
-                if (admin is DocumentReference) adminId = admin.id;
-                else if (admin is String) adminId = admin.startsWith('/users/') ? admin.split('/').last : admin;
-                if (adminId != null && !memberIds.contains(adminId)) memberIds.add(adminId);
+          }
+          if (data[_adminField] != null) {
+            for (var admin in (data[_adminField] as List)) {
+              String? adminId;
+              if (admin is DocumentReference) {
+                adminId = admin.id;
+              } else if (admin is String) {
+                adminId = admin.startsWith('/users/') ? admin.split('/').last : admin;
+              }
+              if (adminId != null && !memberIds.contains(adminId)) {
+                memberIds.add(adminId);
               }
             }
+          }
 
+          final title = content.isNotEmpty
+              ? (content.length > 50 ? '${content.substring(0, 50)}...' : content)
+              : 'Nueva publicación';
+          if (widget.entityType == PostComposerEntityType.group) {
             await notificationService.sendGroupNewPostNotification(
-                groupId: widget.groupId,
-                groupName: groupName,
-                postId: postRef.id,
-                postTitle: content.isNotEmpty 
-                    ? (content.length > 50 ? '${content.substring(0, 50)}...' : content)
-                    : 'Nueva publicación',
-                memberIds: memberIds,
+              groupId: _entityId,
+              groupName: entityName,
+              postId: postRef.id,
+              postTitle: title,
+              memberIds: memberIds,
             );
+          } else {
+            await notificationService.sendMinistryNewPostNotification(
+              ministryId: _entityId,
+              ministryName: entityName,
+              postId: postRef.id,
+              postTitle: title,
+              memberIds: memberIds,
+            );
+          }
         }
       } catch (e) {
-        print('Error notificando grupo: $e');
+        debugPrint('Error notificando publicación: $e');
       }
 
       if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.postCreatedSuccessfully)),
+        navigator.pop();
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.postCreatedSuccessfully)),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.errorCreatingPost}: $e')),
+        messenger.showSnackBar(
+          SnackBar(content: Text('${l10n.errorCreatingPost}: $e')),
         );
       }
     } finally {

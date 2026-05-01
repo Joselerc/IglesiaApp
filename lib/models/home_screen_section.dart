@@ -20,6 +20,11 @@ enum HomeScreenSectionType {
   unknown // Para manejo de errores o tipos futuros
 }
 
+enum SectionAccessMode {
+  open,
+  inviteOnly,
+}
+
 class HomeScreenSection {
   final String id;
   final String title; // Título visible, editable para customPageList
@@ -28,6 +33,7 @@ class HomeScreenSection {
   final bool isActive;
   final List<String>? pageIds; // Solo para customPageList
   final bool hideWhenEmpty; // Para eventos y anuncios: ocultar cuando no hay contenido
+  final SectionAccessMode accessMode;
   // final String? layout; // Posible campo futuro para layout (list, grid, carousel)
 
   HomeScreenSection({
@@ -38,6 +44,7 @@ class HomeScreenSection {
     this.isActive = true,
     this.pageIds,
     this.hideWhenEmpty = false, // Por defecto no ocultar
+    this.accessMode = SectionAccessMode.open,
     // this.layout,
   });
 
@@ -60,6 +67,7 @@ class HomeScreenSection {
       isActive: data['isActive'] ?? true, // Activo por defecto
       pageIds: parsedPageIds,
       hideWhenEmpty: data['hideWhenEmpty'] ?? false, // Por defecto no ocultar
+      accessMode: _stringToAccessMode(data['accessMode']),
       // layout: data['layout'] as String?,
     );
   }
@@ -71,10 +79,32 @@ class HomeScreenSection {
       'order': order,
       'isActive': isActive,
       'hideWhenEmpty': hideWhenEmpty,
+      'accessMode': _accessModeToString(accessMode),
       if (pageIds != null) 'pageIds': pageIds,
       // if (layout != null) 'layout': layout,
       // Considera añadir 'createdAt', 'updatedAt' si es necesario
     };
+  }
+
+  bool get isInviteOnly => accessMode == SectionAccessMode.inviteOnly;
+
+  static SectionAccessMode _stringToAccessMode(String? value) {
+    switch (value) {
+      case 'inviteOnly':
+        return SectionAccessMode.inviteOnly;
+      case 'open':
+      default:
+        return SectionAccessMode.open;
+    }
+  }
+
+  static String _accessModeToString(SectionAccessMode mode) {
+    switch (mode) {
+      case SectionAccessMode.inviteOnly:
+        return 'inviteOnly';
+      case SectionAccessMode.open:
+        return 'open';
+    }
   }
 
   // Helper para convertir string a Enum desde Firestore

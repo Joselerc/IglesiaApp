@@ -367,7 +367,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
-                    strings.noAccessToGroupDescription ?? 'No tienes permisos para acceder a este grupo.',
+                    strings.noAccessToGroupDescription,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -511,6 +511,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                     .collection('groups')
                     .doc(widget.group.id))
                 .orderBy('createdAt', descending: true)
+                .limit(30)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {

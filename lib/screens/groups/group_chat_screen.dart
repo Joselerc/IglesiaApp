@@ -880,6 +880,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                       .collection('groups')
                       .doc(widget.group.id))
                   .orderBy('createdAt', descending: true)
+                  .limit(50)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {

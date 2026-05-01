@@ -15,6 +15,8 @@ class GroupService {
   Stream<List<Group>> getGroups() {
     return _firestore
         .collection('groups')
+        .orderBy('name')
+        .limit(100)
         .snapshots()
         .map((snapshot) => 
             snapshot.docs.map((doc) => Group.fromFirestore(doc)).toList());
@@ -32,6 +34,7 @@ class GroupService {
     return _firestore
         .collection('groups')
         .where('members', arrayContains: _firestore.doc('users/$userId'))
+        .limit(50)
         .snapshots()
         .map((snapshot) => 
             snapshot.docs.map((doc) => Group.fromFirestore(doc)).toList());
@@ -471,7 +474,7 @@ class GroupService {
       final group = Group.fromFirestore(groupDoc);
       
       // Obtener todos los miembros del grupo
-      final members = group.memberIds ?? [];
+      final members = group.memberIds;
       
       // Batch para hacer todas las operaciones atómicamente
       final batch = _firestore.batch();

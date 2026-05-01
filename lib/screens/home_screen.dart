@@ -27,6 +27,8 @@ import '../widgets/home/families_section.dart';
 import 'dart:async';
 import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
+import '../main.dart' as main_app;
+import '../cubits/navigation_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -433,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
-                            Navigator.pushNamed(context, '/profile_screen');
+                            main_app.navigationCubit.navigateTo(NavigationState.profile);
                           },
                           child: CircleAvatar(
                             radius: 24,
@@ -664,12 +666,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           case HomeScreenSectionType.ministries:
                             return MinistriesSection(
-                                displayTitle: section.title);
+                              displayTitle: section.title,
+                              accessMode: section.accessMode,
+                            );
                           case HomeScreenSectionType.groups:
                             return GroupsSection(
-                                displayTitle: section.title.isNotEmpty
-                                    ? section.title
-                                    : AppLocalizations.of(context)!.connect);
+                              displayTitle: section.title.isNotEmpty
+                                  ? section.title
+                                  : AppLocalizations.of(context)!.connect,
+                              accessMode: section.accessMode,
+                            );
                           case HomeScreenSectionType.families:
                               return FamiliesSection(
                                   displayTitle: section.title.isNotEmpty

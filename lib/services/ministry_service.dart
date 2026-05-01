@@ -15,6 +15,8 @@ class MinistryService {
   Stream<List<Ministry>> getMinistries() {
     return _firestore
         .collection('ministries')
+        .orderBy('name')
+        .limit(100)
         .snapshots()
         .map((snapshot) => 
             snapshot.docs.map((doc) => Ministry.fromFirestore(doc)).toList());
@@ -32,6 +34,7 @@ class MinistryService {
     return _firestore
         .collection('ministries')
         .where('members', arrayContains: _firestore.doc('users/$userId'))
+        .limit(50)
         .snapshots()
         .map((snapshot) => 
             snapshot.docs.map((doc) => Ministry.fromFirestore(doc)).toList());
@@ -523,7 +526,7 @@ class MinistryService {
       final ministry = Ministry.fromFirestore(ministryDoc);
       
       // Obtener todos los miembros del ministerio
-      final members = ministry.memberIds ?? [];
+      final members = ministry.memberIds;
       
       // Batch para hacer todas las operaciones atómicamente
       final batch = _firestore.batch();
