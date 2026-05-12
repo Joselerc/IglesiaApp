@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../screens/groups/groups_list_screen.dart';
-import '../../models/home_screen_section.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/app_card.dart';
@@ -20,40 +19,15 @@ class GroupNotificationsData {
 
 class GroupsSection extends StatelessWidget {
   final String displayTitle;
-  final SectionAccessMode accessMode;
+  final String accessMode;
   
   const GroupsSection({
     super.key,
     this.displayTitle = 'Connect',
-    this.accessMode = SectionAccessMode.open,
+    this.accessMode = 'open',
   });
 
-  Stream<bool> _userHasGroupAccessSignal(String userId) {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    final membershipsStream = FirebaseFirestore.instance
-        .collection('groups')
-        .where('members', arrayContains: userRef)
-        .limit(1)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.isNotEmpty);
-
-    final pendingInvitesStream = FirebaseFirestore.instance
-        .collection('membership_requests')
-        .where('userId', isEqualTo: userId)
-        .where('entityType', isEqualTo: 'group')
-        .where('requestType', isEqualTo: 'invite')
-        .where('status', isEqualTo: 'pending')
-        .limit(1)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.isNotEmpty);
-
-    return CombineLatestStream.combine2(
-      membershipsStream,
-      pendingInvitesStream,
-      (bool hasMembership, bool hasPendingInvite) =>
-          hasMembership || hasPendingInvite,
-    );
-  }
+  bool get _inviteOnly => accessMode == 'inviteOnly';
 
   // Obtener número de notificaciones de grupos (solicitudes pendientes para admins + notificaciones no leídas)
   Stream<GroupNotificationsData> _getGroupNotificationsCount() {
@@ -122,21 +96,13 @@ class GroupsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return const SizedBox.shrink();
+    if (_inviteOnly && userId == null) {
+      return const SizedBox.shrink();
+    }
 
-    return StreamBuilder<bool>(
-      stream: accessMode == SectionAccessMode.inviteOnly
-          ? _userHasGroupAccessSignal(userId)
-          : Stream.value(true),
-      builder: (context, accessSnapshot) {
-        if (accessMode == SectionAccessMode.inviteOnly &&
-            accessSnapshot.data != true) {
-          return const SizedBox.shrink();
-        }
-
-        return StreamBuilder<GroupNotificationsData>(
-          stream: _getGroupNotificationsCount(),
-          builder: (context, snapshot) {
+    return StreamBuilder<GroupNotificationsData>(
+      stream: _getGroupNotificationsCount(),
+      builder: (context, snapshot) {
         final data = snapshot.data ?? GroupNotificationsData(pendingRequests: 0, notifications: 0);
         final totalCount = data.total;
 
@@ -163,7 +129,7 @@ class GroupsSection extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => GroupsListScreen(
-                        inviteOnly: accessMode == SectionAccessMode.inviteOnly,
+                        inviteOnly: _inviteOnly,
                       ),
                     ),
                   );
@@ -289,8 +255,6 @@ class GroupsSection extends StatelessWidget {
               ),
             ),
           ],
-        );
-          },
         );
       }
     );

@@ -118,12 +118,7 @@ class PermissionService {
       'view_ministry_stats',
       'view_group_stats',
       'view_schedule_stats',
-      'manage_videos',
-      'manage_finance_accounts',
-      'manage_donation_payments',
-      'manage_event_payments',
-      'manage_recurring_donations',
-      'view_finance_reports'
+      'manage_videos'
     ];
     
     // Comprobar si es SuperUser primero

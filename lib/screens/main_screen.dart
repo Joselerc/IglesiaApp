@@ -18,7 +18,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, RouteAware {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   bool _hasRequestedPermissions = false;
   late final List<Widget> _screens;
   
@@ -42,7 +42,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ro
   
   @override
   void dispose() {
-    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -106,25 +105,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ro
       case NavigationState.profile:
         return 4;
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      routeObserver.subscribe(this, route);
-    }
-  }
-
-  @override
-  void didPopNext() {
-    final pending = navigationCubit.consumePendingReturn();
-    if (pending == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      navigationCubit.navigateTo(pending);
-    });
   }
   
 }

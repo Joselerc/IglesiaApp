@@ -31,7 +31,9 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
   String _searchQuery = '';
   String _descriptionText = '';
   Set<String> _mediaSenders = {};
+  Set<String> _postSenders = {};
   bool _isSavingMediaSenders = false;
+  bool _isSavingPostSenders = false;
 
   @override
   void initState() {
@@ -90,7 +92,7 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
             initialSelected: _mediaSenders,
             lockedIds: widget.ministry.adminIds.toSet(),
             adminLabel: AppLocalizations.of(context)!.ministryAdmin,
-            title: 'Permisos de envío de fotos y videos',
+            title: AppLocalizations.of(context)!.mediaSendPermissionsTitle,
             selectAllLabel: AppLocalizations.of(context)!.selectAll,
             deselectAllLabel: AppLocalizations.of(context)!.deselectAll,
             searchHint: AppLocalizations.of(context)!.searchUsers,
@@ -103,6 +105,42 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
       if (selected != null) {
         setState(() => _mediaSenders = selected);
         await _updateMediaSenders();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingMembers)),
+        );
+      }
+    }
+  }
+
+  Future<void> _openPostPermissionsSheet(List<String> memberIds) async {
+    try {
+      final members = await _loadMembers(memberIds);
+      if (!mounted) return;
+      final selected = await showModalBottomSheet<Set<String>>(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return MediaPermissionsSheet(
+            members: members,
+            initialSelected: _postSenders,
+            lockedIds: widget.ministry.adminIds.toSet(),
+            adminLabel: AppLocalizations.of(context)!.ministryAdmin,
+            title: AppLocalizations.of(context)!.postPermissionsTitle,
+            selectAllLabel: AppLocalizations.of(context)!.selectAll,
+            deselectAllLabel: AppLocalizations.of(context)!.deselectAll,
+            searchHint: AppLocalizations.of(context)!.searchUsers,
+            saveLabel: AppLocalizations.of(context)!.save,
+            emptyLabel: AppLocalizations.of(context)!.noMembersFound,
+            onSave: (value) => Navigator.of(context).pop(value),
+          );
+        },
+      );
+      if (selected != null) {
+        setState(() => _postSenders = selected);
+        await _updatePostSenders();
       }
     } catch (_) {
       if (mounted) {
@@ -239,6 +277,19 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
           .set({'mediaSenders': _mediaSenders.toList()}, SetOptions(merge: true));
     } finally {
       if (mounted) setState(() => _isSavingMediaSenders = false);
+    }
+  }
+
+  Future<void> _updatePostSenders() async {
+    if (_isSavingPostSenders) return;
+    setState(() => _isSavingPostSenders = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('ministries')
+          .doc(widget.ministry.id)
+          .set({'postSenders': _postSenders.toList()}, SetOptions(merge: true));
+    } finally {
+      if (mounted) setState(() => _isSavingPostSenders = false);
     }
   }
 
@@ -612,8 +663,15 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                   ?.map((e) => e.toString())
                   .toList() ??
               [];
+          final postSendersField = (ministryData['postSenders'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              [];
           if (_mediaSenders.isEmpty && mediaSendersField.isNotEmpty) {
             _mediaSenders = mediaSendersField.toSet();
+          }
+          if (_postSenders.isEmpty && postSendersField.isNotEmpty) {
+            _postSenders = postSendersField.toSet();
           }
           
           final List<String> adminIds = _getAdminIds(ministryData);
@@ -826,10 +884,71 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
                         Row(
                           children: [
                             Text(
-                              '${_mediaSenders.length} / ${memberIds.length} ${AppLocalizations.of(context)!.members}',
+                              AppLocalizations.of(context)!.allowedMembersCount(
+                                _mediaSenders
+                                    .union(widget.ministry.adminIds.toSet())
+                                    .where(memberIds.contains)
+                                    .length,
+                                memberIds.length,
+                              ),
                               style: TextStyle(color: Colors.grey[700]),
                             ),
                             if (_isSavingMediaSenders) ...[
+                              const SizedBox(width: 8),
+                              const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.edit_note_outlined, size: 18, color: Colors.blueGrey),
+                            const SizedBox(width: 6),
+                            Text(
+                              AppLocalizations.of(context)!.postPermissionsTitle,
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: _isSavingPostSenders
+                                  ? null
+                                  : () => _openPostPermissionsSheet(memberIds),
+                              child: Text(AppLocalizations.of(context)!.edit),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.allowedMembersCount(
+                                _postSenders
+                                    .union(widget.ministry.adminIds.toSet())
+                                    .where(memberIds.contains)
+                                    .length,
+                                memberIds.length,
+                              ),
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                            if (_isSavingPostSenders) ...[
                               const SizedBox(width: 8),
                               const SizedBox(
                                 width: 14,

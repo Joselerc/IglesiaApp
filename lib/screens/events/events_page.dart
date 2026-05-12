@@ -6,7 +6,10 @@ import '../../models/event_model.dart';
 import './create/create_event_modal.dart';
 import './event_detail_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
+import '../../services/auth_service.dart';
 import '../../services/permission_service.dart';
+import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 
 class EventsPage extends StatefulWidget {
@@ -59,20 +62,17 @@ class _EventsPageState extends State<EventsPage> {
         return baseQuery
             .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(now))
             .where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(endOfWeek))
-            .orderBy('startDate', descending: false)
-            .limit(50);
+            .orderBy('startDate', descending: false);
       case 'Este mês':
         final endOfMonth = DateTime(now.year, now.month + 1, 0);
         return baseQuery
             .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(now))
             .where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
-            .orderBy('startDate', descending: false)
-            .limit(100);
+            .orderBy('startDate', descending: false);
       case 'Todos':
       default:
         return baseQuery
-            .orderBy('startDate', descending: false)
-            .limit(100);
+            .orderBy('startDate', descending: false);
     }
   }
   

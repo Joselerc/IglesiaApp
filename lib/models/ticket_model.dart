@@ -64,8 +64,6 @@ class TicketModel {
       formFields; // Campos personalizados para el formulario
   final String createdBy; // ID del usuario que creó el ticket
   final DateTime createdAt;
-  final String? receiverId;
-  final String? paymentAccountId;
 
   // Nuevos campos
   final DateTime?
@@ -87,8 +85,6 @@ class TicketModel {
     required this.formFields,
     required this.createdBy,
     required this.createdAt,
-    this.receiverId,
-    this.paymentAccountId,
     this.registrationDeadline,
     this.useEventDateAsDeadline = true,
     this.accessRestriction = 'public',
@@ -147,8 +143,6 @@ class TicketModel {
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
-      receiverId: data['receiverId'] as String?,
-      paymentAccountId: data['paymentAccountId'] as String?,
       registrationDeadline: data['registrationDeadline'] != null
           ? (data['registrationDeadline'] as Timestamp).toDate()
           : null,
@@ -169,8 +163,6 @@ class TicketModel {
       'formFields': formFields.map((field) => field.toMap()).toList(),
       'createdBy': createdBy,
       'createdAt': Timestamp.fromDate(createdAt),
-      'receiverId': receiverId,
-      'paymentAccountId': paymentAccountId,
       'registrationDeadline': registrationDeadline != null
           ? Timestamp.fromDate(registrationDeadline!)
           : null,

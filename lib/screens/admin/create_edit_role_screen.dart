@@ -62,13 +62,6 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       'view_course_stats', 'view_church_statistics', 'view_cult_stats',
       'view_work_stats',
     ],
-    'Finanças e Pagamentos': [
-      'manage_finance_accounts',
-      'manage_donation_payments',
-      'manage_event_payments',
-      'manage_recurring_donations',
-      'view_finance_reports',
-    ],
     'MyKids (Gestão Infantil)': [
       'manage_family_profiles', 'manage_checkin_rooms',
     ],
@@ -130,13 +123,6 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       'view_church_statistics': AppLocalizations.of(context)!.viewChurchStatistics,
       'view_cult_stats': AppLocalizations.of(context)!.viewCultStats,
       'view_work_stats': AppLocalizations.of(context)!.viewWorkStats,
-
-      // Finanças e Pagamentos
-      'manage_finance_accounts': AppLocalizations.of(context)!.manageFinanceAccounts,
-      'manage_donation_payments': AppLocalizations.of(context)!.manageDonationPayments,
-      'manage_event_payments': AppLocalizations.of(context)!.manageEventPayments,
-      'manage_recurring_donations': AppLocalizations.of(context)!.manageRecurringDonations,
-      'view_finance_reports': AppLocalizations.of(context)!.viewFinanceReports,
       
       // MyKids (Gestión Infantil)
       'manage_family_profiles': AppLocalizations.of(context)!.manageFamilyProfiles,
@@ -157,7 +143,6 @@ class _CreateEditRoleScreenState extends State<CreateEditRoleScreen> {
       'Comunidade (Ministérios)': AppLocalizations.of(context)!.community + ' (Ministerios)',
       'Aconselhamento e Oração': AppLocalizations.of(context)!.counselingAndPrayer,
       'Relatórios e Estatísticas': AppLocalizations.of(context)!.reportsAndStatistics,
-      'Finanças e Pagamentos': AppLocalizations.of(context)!.financeAndPayments,
       'MyKids (Gestão Infantil)': AppLocalizations.of(context)!.myKids,
       'Famílias': AppLocalizations.of(context)!.familiesTitle,
       'Outros': AppLocalizations.of(context)!.others,

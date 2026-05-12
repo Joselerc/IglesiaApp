@@ -119,14 +119,27 @@ class FamilyGroupService {
     final family = await getFamily(familyId);
     if (family == null) throw Exception('Familia no encontrada');
 
+    // Evitar invitar a miembros/pendientes
+    final pendingUpdates = <String, dynamic>{};
     for (final uid in userIds) {
       if (family.memberIds.contains(uid)) continue;
       if (family.pendingInvites.containsKey(uid)) continue;
-      final pendingRequest =
-          await _requestService.findPendingRequest(uid, familyId, 'family');
-      if (pendingRequest != null) continue;
-      await _requestService.createPendingEntityRequest(
-        entityRef: _families.doc(familyId),
+      pendingUpdates['pendingInvites.$uid'] = {
+        'role': role,
+        'invitedBy': actor.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+    }
+
+    if (pendingUpdates.isEmpty) return;
+
+    await _families.doc(familyId).update({
+      ...pendingUpdates,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    for (final uid in userIds) {
+      await _requestService.logRequest(
         userId: uid,
         entityId: familyId,
         entityType: 'family',
@@ -134,13 +147,6 @@ class FamilyGroupService {
         requestType: 'invite',
         desiredRole: role,
         invitedBy: actor.uid,
-        pendingField: 'pendingInvites',
-        pendingValue: {
-          'role': role,
-          'invitedBy': actor.uid,
-          'createdAt': FieldValue.serverTimestamp(),
-        },
-        entityExtraUpdates: {'updatedAt': FieldValue.serverTimestamp()},
       );
     }
   }
@@ -208,14 +214,20 @@ class FamilyGroupService {
     if (family.memberIds.contains(user.uid)) {
       throw Exception('Ya eres miembro de esta familia');
     }
-    final pendingRequest =
-        await _requestService.findPendingRequest(user.uid, familyId, 'family');
-    if (pendingRequest != null) {
+    if (family.pendingRequests.containsKey(user.uid)) {
       throw Exception('Solicitud pendiente ya registrada');
     }
 
-    await _requestService.createPendingEntityRequest(
-      entityRef: _families.doc(familyId),
+    await _families.doc(familyId).update({
+      'pendingRequests.${user.uid}': {
+        'role': desiredRole,
+        'createdAt': FieldValue.serverTimestamp(),
+        if (message != null) 'message': message,
+      },
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    await _requestService.logRequest(
       userId: user.uid,
       entityId: familyId,
       entityType: 'family',
@@ -223,12 +235,6 @@ class FamilyGroupService {
       message: message,
       requestType: 'join',
       desiredRole: desiredRole,
-      pendingValue: {
-        'role': desiredRole,
-        'createdAt': FieldValue.serverTimestamp(),
-        if (message != null) 'message': message,
-      },
-      entityExtraUpdates: {'updatedAt': FieldValue.serverTimestamp()},
     );
 
     // Enviar notificación al usuario confirmando que su solicitud fue enviada

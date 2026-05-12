@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart'; // Necesario para combineLatest
 import '../../screens/ministries/ministries_list_screen.dart';
 import '../../screens/work_invites/work_schedules_main_screen.dart';
-import '../../models/home_screen_section.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../common/app_card.dart';
@@ -21,13 +20,15 @@ class MinistryNotificationsData {
 
 class MinistriesSection extends StatelessWidget {
   final String displayTitle;
-  final SectionAccessMode accessMode;
+  final String accessMode;
   
   const MinistriesSection({
     super.key,
     this.displayTitle = 'Ministérios',
-    this.accessMode = SectionAccessMode.open,
+    this.accessMode = 'open',
   });
+
+  bool get _inviteOnly => accessMode == 'inviteOnly';
 
   // Verificar si el usuario es miembro de algún ministerio
   Future<bool> _checkIfUserBelongsToAnyMinistry() async {
@@ -165,47 +166,25 @@ class MinistriesSection extends StatelessWidget {
     }
   }
 
-  Future<int> _getPendingMembershipInvitesCount() async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return 0;
-
-      final invitesSnapshot = await FirebaseFirestore.instance
-          .collection('membership_requests')
-          .where('userId', isEqualTo: userId)
-          .where('entityType', isEqualTo: 'ministry')
-          .where('requestType', isEqualTo: 'invite')
-          .where('status', isEqualTo: 'pending')
-          .get();
-
-      return invitesSnapshot.docs.length;
-    } catch (e) {
-      debugPrint('Error obteniendo invitaciones de ministerio: $e');
-      return 0;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (_inviteOnly && userId == null) {
+      return const SizedBox.shrink();
+    }
+
     return StreamBuilder<List<dynamic>>(
       stream: CombineLatestStream.list([
         Stream.fromFuture(_checkIfUserBelongsToAnyMinistry()),
         Stream.fromFuture(_getPendingInvitesCount()),
-        Stream.fromFuture(_getPendingMembershipInvitesCount()),
         _getMinistryNotificationsCount(),
       ]),
       builder: (context, snapshot) {
         final isMember = snapshot.hasData && snapshot.data![0] == true;
         final pendingCount = snapshot.hasData ? snapshot.data![1] as int : 0;
-        final pendingMembershipInvites = snapshot.hasData ? snapshot.data![2] as int : 0;
-        final notificationsData = snapshot.hasData && snapshot.data!.length > 3
-            ? snapshot.data![3] as MinistryNotificationsData
+        final notificationsData = snapshot.hasData && snapshot.data!.length > 2 
+            ? snapshot.data![2] as MinistryNotificationsData 
             : MinistryNotificationsData(pendingRequests: 0, notifications: 0);
-        if (accessMode == SectionAccessMode.inviteOnly &&
-            !isMember &&
-            pendingMembershipInvites == 0) {
-          return const SizedBox.shrink();
-        }
         
         final totalNotifications = notificationsData.total;
 
@@ -299,7 +278,7 @@ class MinistriesSection extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => MinistriesListScreen(
-                        inviteOnly: accessMode == SectionAccessMode.inviteOnly,
+                        inviteOnly: _inviteOnly,
                       ),
                     ),
                   );

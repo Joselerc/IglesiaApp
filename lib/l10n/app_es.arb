@@ -4649,45 +4649,6 @@
   "requestLabel": "Solicitud",
   "inviteAccepted": "Invitacion aceptada",
   "inviteRejected": "Invitacion rechazada",
-  "financeAccountsTitle": "Cuentas destino",
-  "financeAccountsEmpty": "No hay cuentas destino registradas",
-  "addFinanceAccount": "Agregar cuenta",
-  "editFinanceAccount": "Editar cuenta",
-  "financeAccountNameLabel": "Nombre de la cuenta",
-  "financeAccountIdReceiverLabel": "IdReceiver Safe2Pay",
-  "financeAccountPaymentAccountIdLabel": "Payment Account ID",
-  "financeAccountActiveLabel": "Activa",
-  "financeAccountSaved": "Cuenta guardada",
-  "financeAccountSaveError": "Error al guardar cuenta",
-  "financeAccountInvalid": "Nombre, IdReceiver y Payment Account ID son obligatorios",
-  "paymentDataTitle": "Datos para el pago",
-  "paymentDataSubtitle": "Necesitamos algunos datos obligatorios para continuar.",
-  "paymentIdentityLabel": "Documento (CPF/CNPJ)",
-  "paymentIdentityHint": "Solo números",
-  "paymentCityIbgeLabel": "Código IBGE (ciudad)",
-  "paymentCityIbgeHint": "Ej: 4323002",
-  "paymentDataContinue": "Continuar",
-  "manageFinanceAccounts": "Gestionar cuentas destino",
-  "manageFinanceAccountsSubtitle": "Configurar cuentas receptoras para cobros",
-  "financeAndPayments": "Finanzas y Pagos",
-  "manageDonationPayments": "Gestionar pagos de donaciones",
-  "manageEventPayments": "Gestionar pagos de eventos",
-  "manageRecurringDonations": "Gestionar donaciones recurrentes",
-  "viewFinanceReports": "Ver reportes financieros",
-  "donateNow": "Donar ahora",
-  "donationAmount": "Monto de donación",
-  "donationCustomAmount": "Otro monto",
-  "donationFrequency": "Frecuencia",
-  "donationOneTime": "Única",
-  "donationRecurring": "Recurrente",
-  "donationMethod": "Método de pago",
-  "donationMethodPix": "Pix",
-  "donationMethodCard": "Tarjeta",
-  "donationContinueToPayment": "Continuar al pago",
-  "donationInvalidAmount": "Ingresa un monto válido",
-  "donationPaymentNotConfigured": "Pago aún no configurado. Contacta al administrador.",
-  "donationPaymentPending": "Pago pendiente. Te notificaremos al confirmar.",
-  "selectFinanceReceiver": "Cuenta destino",
   "inviteMembers": "Invitar miembros",
   "sendInvitations": "Enviar invitaciones",
   "invitesSent": "Invitaciones enviadas",
@@ -4846,6 +4807,27 @@
       },
       "ministryName": {
         "type": "String"
+      }
+    }
+  },
+  "accessModeTitle": "Modo de acceso",
+  "accessModeOpenTitle": "Abierto",
+  "accessModeOpenDescription": "Los usuarios ven el listado completo y pueden solicitar unirse.",
+  "accessModeInviteOnlyTitle": "Solo por invitación",
+  "accessModeInviteOnlyDescription": "Solo ven sus grupos/ministerios e invitaciones pendientes.",
+  "accessModeUpdated": "Modo de acceso actualizado",
+  "myGroups": "Mis grupos",
+  "myMinistries": "Mis ministerios",
+  "mediaSendPermissionsTitle": "Permisos para enviar fotos y videos",
+  "postPermissionsTitle": "Permisos para publicar",
+  "allowedMembersCount": "{allowed} / {total} miembros",
+  "@allowedMembersCount": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
   }

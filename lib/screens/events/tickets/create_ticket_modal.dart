@@ -4,8 +4,6 @@ import '../../../models/event_model.dart';
 import '../../../models/ticket_model.dart';
 import '../../../services/ticket_service.dart';
 import '../../../services/permission_service.dart';
-import '../../../services/finance_receiver_service.dart';
-import '../../../models/finance_receiver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -26,7 +24,6 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   final _formKey = GlobalKey<FormState>();
   final _ticketService = TicketService();
   final _permissionService = PermissionService();
-  final _receiverService = FinanceReceiverService();
 
   final _typeController = TextEditingController();
   final _priceController = TextEditingController();
@@ -38,8 +35,6 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _hasPermission = false;
-  String? _selectedReceiverId;
-  String? _selectedPaymentAccountId;
 
   // Nuevos campos
   bool _useEventDateAsDeadline = true;
@@ -184,13 +179,6 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
       return;
     }
 
-    if (_isPaid && (_selectedReceiverId == null || _selectedReceiverId!.isEmpty)) {
-      setState(() {
-        _errorMessage = _loc.financeAccountInvalid;
-      });
-      return;
-    }
-
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -215,8 +203,6 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
         isPaid: _isPaid,
         price: _isPaid ? double.tryParse(_priceController.text) ?? 0 : 0,
         currency: _currency,
-        receiverId: _isPaid ? _selectedReceiverId : null,
-        paymentAccountId: _isPaid ? _selectedPaymentAccountId : null,
         quantity: _quantityController.text.isNotEmpty
             ? int.tryParse(_quantityController.text)
             : null,
@@ -721,63 +707,17 @@ class _CreateTicketModalState extends State<CreateTicketModal> {
                               : loc.ticketPaidToggleSubtitleFree),
                           value: _isPaid,
                           activeColor: Theme.of(context).primaryColor,
-                        onChanged: (value) {
-                          setState(() {
-                            _isPaid = value;
-                            if (!_isPaid) {
-                              _selectedReceiverId = null;
-                            }
-                          });
-                        },
+                          onChanged: (value) {
+                            setState(() {
+                              _isPaid = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  ),
 
                     // Precio (solo se é pagada)
                     if (_isPaid) ...[
-                      const SizedBox(height: 20),
-                      StreamBuilder<List<FinanceReceiver>>(
-                        stream: _receiverService.streamReceivers(onlyActive: true),
-                        builder: (context, snapshot) {
-                          final receivers = snapshot.data ?? [];
-                          return DropdownButtonFormField<String>(
-                            value: _selectedReceiverId,
-                            decoration: InputDecoration(
-                              labelText: _loc.selectFinanceReceiver,
-                              border: const OutlineInputBorder(),
-                            ),
-                            items: receivers
-                                .map((receiver) => DropdownMenuItem<String>(
-                                      value: receiver.id,
-                                      child: Text(receiver.name),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              final selected = receivers.firstWhere(
-                                (r) => r.id == value,
-                                orElse: () => FinanceReceiver(
-                                  id: '',
-                                  name: '',
-                                  idReceiver: '',
-                                  paymentAccountId: '',
-                                  isActive: true,
-                                ),
-                              );
-                              setState(() {
-                                _selectedReceiverId = value;
-                                _selectedPaymentAccountId =
-                                    selected.id.isEmpty ? null : selected.paymentAccountId;
-                              });
-                            },
-                            validator: (value) {
-                              if (_isPaid && (value == null || value.isEmpty)) {
-                                return _loc.financeAccountInvalid;
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
                       const SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

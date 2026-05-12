@@ -5,7 +5,6 @@ import '../../models/group_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/group_event.dart';
 import 'group_event_detail_screen.dart';
-import '../../widgets/create_group_post_bottom_sheet.dart';
 import '../../screens/create_post_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../modals/group_comments_modal.dart';
@@ -53,12 +52,30 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   }
 
   void _navigateToManageRequests() {
+    if (!_canManageRequests) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ManageGroupRequestsScreen(group: widget.group),
       ),
     );
+  }
+
+  Future<void> _openCreatePostFlow() async {
+    final picker = ImagePicker();
+    final images = await picker.pickMultiImage();
+    if (images.isNotEmpty && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreatePostScreen(
+            initialImages: images,
+            entityId: widget.group.id,
+            entityType: PostEntityType.group,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -100,11 +117,29 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
   }
 
   Future<void> _loadPermissions() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final isAdmin = userId != null && widget.group.adminIds.contains(userId);
+    bool canPost = isAdmin;
+    if (!isAdmin && userId != null && widget.group.memberIds.contains(userId)) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('groups')
+            .doc(widget.group.id)
+            .get();
+        final postSenders = (doc.data()?['postSenders'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toSet() ??
+            <String>{};
+        canPost = postSenders.contains(userId);
+      } catch (_) {
+        canPost = false;
+      }
+    }
     if (mounted) {
       setState(() {
-        _canCreateEvents = true;
-        _canManageRequests = true;
-        _canCreatePosts = true;
+        _canCreateEvents = isAdmin;
+        _canManageRequests = isAdmin;
+        _canCreatePosts = canPost;
       });
     }
   }
@@ -511,7 +546,6 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                     .collection('groups')
                     .doc(widget.group.id))
                 .orderBy('createdAt', descending: true)
-                .limit(30)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -530,50 +564,39 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return SliverToBoxAdapter(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 60, horizontal: 20),
-                    child: Center(
-                        child: Column(
-                          children: [
-                          Icon(Icons.groups_outlined,
-                              size: 60, color: Colors.grey[300]),
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.groups_outlined, size: 64, color: Colors.grey[300]),
                           const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.groupNoPostsYet,
+                          Text(
+                            AppLocalizations.of(context)!.groupNoPostsYet,
                             textAlign: TextAlign.center,
-                          style: TextStyle(
-                                color: Colors.grey[500], fontSize: 16),
+                            style: TextStyle(color: Colors.grey[500], fontSize: 16),
                           ),
                           if (_canCreatePosts) ...[
                             const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                  builder: (context) =>
-                                      CreateGroupPostBottomSheet(
-                                  groupId: widget.group.id,
-                                ),
-                              );
-                            },
+                            ElevatedButton.icon(
+                              onPressed: _openCreatePostFlow,
                               icon: const Icon(Icons.add),
-                              label:
-                                  Text(AppLocalizations.of(context)!.createPost),
+                              label: Text(AppLocalizations.of(context)!.createPost),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                                backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(24),
                                 ),
                               ),
                             ),
                           ],
                         ],
+                      ),
                     ),
-                  ),
                   ),
                 );
               }
@@ -599,22 +622,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       ),
       floatingActionButton: _canCreatePosts
           ? FloatingActionButton.extended(
-              onPressed: () async {
-                final picker = ImagePicker();
-                final images = await picker.pickMultiImage();
-                if (images.isNotEmpty && context.mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreatePostScreen(
-                        initialImages: images,
-                        entityId: widget.group.id,
-                        entityType: PostEntityType.group,
-                      ),
-                    ),
-                  );
-                }
-              },
+              onPressed: _openCreatePostFlow,
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.edit),

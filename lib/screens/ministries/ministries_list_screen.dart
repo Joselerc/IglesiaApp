@@ -269,11 +269,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
       debugPrint('Procesando invitación $requestId para ministerio $ministryId - Accept: $accept');
 
       if (accept) {
-        await _ministryService.respondToInvite(
-          requestId: requestId,
-          ministryId: ministryId,
-          accept: true,
-        );
+        await _ministryService.acceptJoinRequest(currentUser.uid, ministryId);
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -302,11 +298,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
           );
         }
       } else {
-        await _ministryService.respondToInvite(
-          requestId: requestId,
-          ministryId: ministryId,
-          accept: false,
-        );
+        await _ministryService.rejectJoinRequest(currentUser.uid, ministryId);
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -727,7 +719,7 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white70,
                       tabs: [
-                        Tab(text: widget.inviteOnly ? 'Mis ministerios' : strings.ministries),
+                        Tab(text: widget.inviteOnly ? strings.myMinistries : strings.ministries),
                         _buildInvitesTabLabel(userId, strings),
                       ],
                     ),
@@ -823,22 +815,26 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
 
                               if (filteredMinistries.isEmpty) {
                                 return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.group_off,
-                                        size: 64,
-                                        color: AppColors.mutedGray,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        strings.noMinistriesAvailable,
-                                        style: AppTextStyles.subtitle1.copyWith(
-                                          color: AppColors.textSecondary,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.group_off,
+                                          size: 72,
+                                          color: AppColors.mutedGray.withOpacity(0.65),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 18),
+                                        Text(
+                                          strings.noMinistriesAvailable,
+                                          textAlign: TextAlign.center,
+                                          style: AppTextStyles.subtitle1.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               }

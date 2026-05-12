@@ -252,11 +252,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
       debugPrint('Procesando invitación $requestId para grupo $groupId - Accept: $accept');
 
       if (accept) {
-        await _groupService.respondToInvite(
-          requestId: requestId,
-          groupId: groupId,
-          accept: true,
-        );
+        await _groupService.acceptJoinRequest(currentUser.uid, groupId);
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -285,11 +281,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
           );
         }
       } else {
-        await _groupService.respondToInvite(
-          requestId: requestId,
-          groupId: groupId,
-          accept: false,
-        );
+        await _groupService.rejectJoinRequest(currentUser.uid, groupId);
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -706,7 +698,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white70,
                       tabs: [
-                        Tab(text: widget.inviteOnly ? 'Mis grupos' : strings.groups),
+                        Tab(text: widget.inviteOnly ? strings.myGroups : strings.groups),
                         _buildInvitesTabLabel(userId, strings),
                       ],
                     ),
@@ -769,10 +761,17 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                         ),
                       ),
                       Expanded(
-                        child: StreamBuilder<List<Group>>(
+                        child: StreamBuilder<QuerySnapshot>(
                           stream: widget.inviteOnly
-                              ? _groupService.getUserGroups(userId)
-                              : _groupService.getGroups(),
+                              ? FirebaseFirestore.instance
+                                  .collection('groups')
+                                  .where('members',
+                                      arrayContains: FirebaseFirestore.instance
+                                          .doc('users/$userId'))
+                                  .snapshots()
+                              : FirebaseFirestore.instance
+                                  .collection('groups')
+                                  .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
@@ -793,7 +792,9 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
 
                             try {
                               final allGroups = snapshot.hasData
-                                  ? snapshot.data!
+                                  ? snapshot.data!.docs
+                                      .map((doc) => Group.fromFirestore(doc))
+                                      .toList()
                                   : _cachedGroups;
                               if (snapshot.hasData) {
                                 _cachedGroups = allGroups;
@@ -803,23 +804,26 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
 
                               if (filteredGroups.isEmpty) {
                                 return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.group_off,
-                                        size: 64,
-                                        color: AppColors.mutedGray,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                      strings.noGroupsAvailable,
-                                        style:
-                                            AppTextStyles.subtitle1.copyWith(
-                                          color: AppColors.textSecondary,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.group_off,
+                                          size: 72,
+                                          color: AppColors.mutedGray.withOpacity(0.65),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 18),
+                                        Text(
+                                          strings.noGroupsAvailable,
+                                          textAlign: TextAlign.center,
+                                          style: AppTextStyles.subtitle1.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               }

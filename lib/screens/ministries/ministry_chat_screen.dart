@@ -841,7 +841,6 @@ class _MinistryChatScreenState extends State<MinistryChatScreen> {
                       .collection('ministries')
                       .doc(widget.ministry.id))
                   .orderBy('createdAt', descending: true)
-                  .limit(50)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {

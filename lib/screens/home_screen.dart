@@ -27,8 +27,6 @@ import '../widgets/home/families_section.dart';
 import 'dart:async';
 import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
-import '../main.dart' as main_app;
-import '../cubits/navigation_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -435,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
-                            main_app.navigationCubit.navigateTo(NavigationState.profile);
+                            Navigator.pushNamed(context, '/profile_screen');
                           },
                           child: CircleAvatar(
                             radius: 24,

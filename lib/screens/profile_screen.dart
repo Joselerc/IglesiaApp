@@ -13,9 +13,7 @@ import 'notifications/push_notification_screen.dart';
 import '../modals/create_ministry_modal.dart';
 import '../modals/create_group_modal.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../services/auth_service.dart';
-import 'package:image_picker/image_picker.dart';
 // import 'package:intl_phone_field/intl_phone_field.dart'; // Usado en la sección comentada
 import 'admin/user_role_management_screen.dart';
 import 'statistics/ministry_members_stats_screen.dart';
@@ -27,7 +25,6 @@ import '../theme/app_text_styles.dart';
 import 'admin/profile_fields_admin_screen.dart';
 import 'admin/manage_live_stream_config_screen.dart'; // <-- Import añadido
 import 'admin/manage_donations_screen.dart'; // <-- Import añadido
-import 'admin/manage_finance_receivers_screen.dart';
 import 'admin/manage_church_locations_screen.dart';
 // import 'admin/create_edit_role_screen.dart'; // No se usa directamente
 import 'admin/manage_roles_screen.dart'; // <-- Añadir este import
@@ -47,7 +44,6 @@ import '../widgets/profile/profile_personal_information_section.dart'; // <-- A�
 import 'events/events_page.dart'; // <-- IMPORT PARA GERENCIAR EVENTOS
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
-import '../cubits/navigation_cubit.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -65,9 +61,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileFieldsService _profileFieldsService = ProfileFieldsService();
   final PermissionService _permissionService = PermissionService(); // <-- Instancia del servicio
   final RoleService _roleService = RoleService(); // <-- Instancia del servicio
-  final Map<String, Future<bool>> _permissionFutures = {};
-  late final Stream<DocumentSnapshot> _userDocStream;
-  Map<String, dynamic>? _cachedUserData;
   
   // Variables para controlar si se muestran las opciones administrativas
   bool _hasAdminAccess = false; // Reemplaza a _isPastor
@@ -76,13 +69,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      _userDocStream =
-          FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
-    } else {
-      _userDocStream = const Stream.empty();
-    }
     _loadUserData();
     _checkAdminAccess(); // Nuevo método que reemplaza a _checkPastorStatus
   }
@@ -222,21 +208,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: _userDocStream,
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
         builder: (context, userSnapshot) {
-          if (userSnapshot.hasData && userSnapshot.data!.exists) {
-            _cachedUserData =
-                userSnapshot.data!.data() as Map<String, dynamic>;
+          if (userSnapshot.connectionState == ConnectionState.waiting || !userSnapshot.hasData || !userSnapshot.data!.exists) {
+            return const ProfileScreenSkeleton(); 
           }
-          if ((userSnapshot.connectionState == ConnectionState.waiting ||
-                  !userSnapshot.hasData ||
-                  !userSnapshot.data!.exists) &&
-              _cachedUserData == null) {
-            return const ProfileScreenSkeleton();
-          }
-          final userData = (userSnapshot.data?.data() as Map<String, dynamic>?) ??
-              _cachedUserData ??
-              <String, dynamic>{};
+          final userData = userSnapshot.data!.data() as Map<String, dynamic>;
           return Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -249,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity, 
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -265,30 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               defaultIcon: const Icon(Icons.person, size: 60, color: Colors.white),
                               size: 100,
                               isEditable: true,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Simular el clic en la imagen principal
-                                  final imagePicker = ImagePicker();
-                                  imagePicker.pickImage(source: ImageSource.gallery);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[700],
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
+                              showEditIconOutside: true,
                             ),
                           ],
                         ),
@@ -402,79 +359,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.volunteer_activism, 
                             title: AppLocalizations.of(context)!.manageDonations,
                             subtitle: AppLocalizations.of(context)!.configureDonationSection,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageDonationsScreen()),
-                              ),
-                            ),
-                          ),
-                          _buildPermissionControlledTile(
-                            permissionKey: 'manage_finance_accounts',
-                            icon: Icons.account_balance_wallet_outlined,
-                            title: AppLocalizations.of(context)!.manageFinanceAccounts,
-                            subtitle: AppLocalizations.of(context)!.manageFinanceAccountsSubtitle,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageFinanceReceiversScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageDonationsScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_church_locations', // Nueva clave de permiso
                             icon: Icons.location_on_outlined, 
                             title: AppLocalizations.of(context)!.manageLocations,
                             subtitle: AppLocalizations.of(context)!.manageLocationsDescription,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageChurchLocationsScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageChurchLocationsScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_livestream_config',
                             icon: Icons.live_tv_outlined,
                             title: AppLocalizations.of(context)!.manageLiveStreams,
                             subtitle: AppLocalizations.of(context)!.createEditControlStreams,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageLiveStreamConfigScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_courses',
                             icon: Icons.school, 
                             title: AppLocalizations.of(context)!.manageOnlineCourses,
                             subtitle: AppLocalizations.of(context)!.createEditConfigureCourses,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.pushNamed(context, '/admin/courses'),
-                            ),
+                            onTap: () => Navigator.pushNamed(context, '/admin/courses'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_home_sections',
                             icon: Icons.view_quilt_outlined,
                             title: AppLocalizations.of(context)!.manageHomeScreen,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageHomeSectionsScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_families_admin',
                             icon: Icons.family_restroom_outlined,
                             title: AppLocalizations.of(context)!.familiesTitle,
                             subtitle: AppLocalizations.of(context)!.manageFamiliesAdmin,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => FamiliesAdminScreen()),
-                              ),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => FamiliesAdminScreen()),
                             ),
                           ),
                           _buildPermissionControlledTile(
@@ -482,54 +403,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.edit_document, 
                             title: AppLocalizations.of(context)!.managePages,
                             subtitle: AppLocalizations.of(context)!.createEditInfoContent,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.pushNamed(context, '/admin/manage-pages'),
-                            ),
+                            onTap: () => Navigator.pushNamed(context, '/admin/manage-pages'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_counseling_availability',
                             icon: Icons.event_available, 
                             title: AppLocalizations.of(context)!.manageAvailability,
                             subtitle: AppLocalizations.of(context)!.configureCounselingHours,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.pushNamed(context, '/counseling/pastor-availability'),
-                            ),
+                            onTap: () => Navigator.pushNamed(context, '/counseling/pastor-availability'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_profile_fields',
                             icon: Icons.list_alt,
                             title: AppLocalizations.of(context)!.manageProfileFields,
                             subtitle: AppLocalizations.of(context)!.configureAdditionalUserFields,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ProfileFieldsAdminScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileFieldsAdminScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'assign_user_roles', // Permiso para pantalla antigua
                             icon: Icons.admin_panel_settings,
                             title: AppLocalizations.of(context)!.manageRoles,
                             subtitle: AppLocalizations.of(context)!.assignPastorRoles,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const UserRoleManagementScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UserRoleManagementScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_roles', // Permiso para nueva pantalla
                             icon: Icons.assignment_ind_outlined, 
                             title: AppLocalizations.of(context)!.createEditRoles,
                             subtitle: AppLocalizations.of(context)!.createEditRolesAndPermissions,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ManageRolesScreen()),
-                              ),
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageRolesScreen())),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_announcements',
@@ -543,20 +445,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              icon: Icons.list_alt, 
                              title: AppLocalizations.of(context)!.manageAnnouncements,
                              subtitle: AppLocalizations.of(context)!.clickToSeeMore,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.pushNamed(context, '/admin/announcements'),
-                             ),
+                             onTap: () => Navigator.pushNamed(context, '/admin/announcements'),
                            ),
                           _buildPermissionControlledTile(
                             permissionKey: 'create_events',
                              icon: Icons.event, 
                              title: AppLocalizations.of(context)!.manageEvents,
                              subtitle: AppLocalizations.of(context)!.createManageChurchEvents,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(builder: (context) => const EventsPage()),
-                               ),
+                             onTap: () => Navigator.push(
+                               context,
+                               MaterialPageRoute(builder: (context) => const EventsPage()),
                              ),
                            ),
                           _buildPermissionControlledTile(
@@ -564,27 +462,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              icon: Icons.video_library, 
                              title: AppLocalizations.of(context)!.manageVideos,
                              subtitle: AppLocalizations.of(context)!.administerChurchSectionsVideos,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.pushNamed(context, '/videos/manage'),
-                             ),
+                             onTap: () => Navigator.pushNamed(context, '/videos/manage'),
                            ),
                           _buildPermissionControlledTile( 
                              permissionKey: 'manage_cults',
                              icon: Icons.church,
                              title: AppLocalizations.of(context)!.administerCults,
                              subtitle: AppLocalizations.of(context)!.manageCultsMinistriesSongs,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.pushNamed(context, '/cults'),
-                             ),
+                             onTap: () => Navigator.pushNamed(context, '/cults'),
                            ),
                           _buildPermissionControlledTile(
                             permissionKey: 'manage_cults',
                             icon: Icons.assignment_outlined,
                             title: AppLocalizations.of(context)!.manageSchedules,
                             subtitle: AppLocalizations.of(context)!.viewAllSentInvitations,
-                            onTap: () => _navigateFromProfile(
-                              Navigator.pushNamed(context, '/manage-work-invites'),
-                            ),
+                            onTap: () => Navigator.pushNamed(context, '/manage-work-invites'),
                           ),
                           _buildPermissionControlledTile(
                             permissionKey: 'create_ministry',
@@ -603,43 +495,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.support_agent, 
                               title: AppLocalizations.of(context)!.counselingRequests,
                               subtitle: AppLocalizations.of(context)!.manageMemberRequests,
-                              onTap: () => _navigateFromProfile(
-                                Navigator.pushNamed(context, '/counseling/pastor-requests'),
-                              ),
+                              onTap: () => Navigator.pushNamed(context, '/counseling/pastor-requests'),
                             ),
                           _buildPermissionControlledTile(
                               permissionKey: 'manage_private_prayers',
                               icon: Icons.favorite_outline, 
                               title: AppLocalizations.of(context)!.privatePrayers,
                               subtitle: AppLocalizations.of(context)!.managePrivatePrayerRequests,
-                              onTap: () => _navigateFromProfile(
-                                Navigator.pushNamed(context, '/prayers/pastor-private-requests'),
-                              ), 
+                              onTap: () => Navigator.pushNamed(context, '/prayers/pastor-private-requests'), 
                             ),
                           _buildPermissionControlledTile(
                               permissionKey: 'send_push_notifications',
                               icon: Icons.notifications_active_outlined,
                               title: AppLocalizations.of(context)!.sendPushNotification,
                               subtitle: AppLocalizations.of(context)!.sendMessagesToChurchMembers,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(builder: (context) => const PushNotificationScreen()),
-                               ),
-                             ), 
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PushNotificationScreen())), 
                            ),
                           _buildPermissionControlledTile(
                              permissionKey: 'delete_ministry',
                              icon: Icons.delete_outline, 
                              title: AppLocalizations.of(context)!.deleteMinistries,
                              subtitle: AppLocalizations.of(context)!.removeExistingMinistries,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.push(
-                                 context, 
-                                 MaterialPageRoute(
-                                   builder: (context) => const DeleteMinistriesScreen()
-                                 )
-                               ),
+                             onTap: () => Navigator.push(
+                               context, 
+                               MaterialPageRoute(
+                                 builder: (context) => const DeleteMinistriesScreen()
+                               )
                              ),
                            ),
                           _buildPermissionControlledTile(
@@ -647,58 +528,146 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              icon: Icons.remove_circle_outline, 
                              title: AppLocalizations.of(context)!.deleteGroups,
                              subtitle: AppLocalizations.of(context)!.removeExistingGroups,
-                             onTap: () => _navigateFromProfile(
-                               Navigator.push(
-                                 context, 
-                                 MaterialPageRoute(
-                                   builder: (context) => const DeleteGroupsScreen()
-                                 )
-                               ),
+                             onTap: () => Navigator.push(
+                               context, 
+                               MaterialPageRoute(
+                                 builder: (context) => const DeleteGroupsScreen()
+                               )
                              ),
                            ),
                   
                           // --- Subsección: Estadísticas y Asistencia --- 
                           // Verificamos primero si el usuario tiene algún permiso de esta sección
-                          if (_isSuperUser)
-                            _buildReportsSection()
-                          else
-                            FutureBuilder<bool>(
-                              future: _hasAnyReportPermission(),
-                              builder: (context, snapshot) {
-                                // No mostrar nada mientras carga o si no tiene permisos
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const SizedBox.shrink();
-                                }
-                                
-                                // Mostrar la sección solo si tiene al menos un permiso
-                                final hasAnyPermission = snapshot.data ?? false;
-                                if (!hasAnyPermission) {
-                                  return const SizedBox.shrink();
-                                }
-                                
-                                return _buildReportsSection();
-                              },
-                            ),
+                          FutureBuilder<bool>(
+                            future: _hasAnyReportPermission(),
+                            builder: (context, snapshot) {
+                              // No mostrar nada mientras carga o si no tiene permisos
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              // Mostrar la sección solo si tiene al menos un permiso
+                              final hasAnyPermission = snapshot.data ?? false;
+                              if (!hasAnyPermission) {
+                                return const SizedBox.shrink();
+                              }
+                              
+                              // Si tiene permisos, mostrar el encabezado y los elementos
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                           const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
+                           Padding(
+                             padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
+                             child: Text(AppLocalizations.of(context)!.reportsAndAttendance, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'manage_event_attendance',
+                             icon: Icons.event_available, 
+                             title: AppLocalizations.of(context)!.manageEventAttendance,
+                             subtitle: AppLocalizations.of(context)!.checkAttendanceGenerateReports,
+                             onTap: () => Navigator.pushNamed(context, '/admin/events'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_ministry_stats',
+                             icon: Icons.bar_chart_outlined,
+                             title: AppLocalizations.of(context)!.ministryStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MinistryMembersStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_group_stats',
+                             icon: Icons.pie_chart_outline, 
+                             title: AppLocalizations.of(context)!.groupStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GroupMembersStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_schedule_stats',
+                             icon: Icons.assessment_outlined, 
+                             title: AppLocalizations.of(context)!.scheduleStatistics,
+                             subtitle: AppLocalizations.of(context)!.participationInvitationsAnalysis,
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ServicesStatsScreen())), 
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_course_stats',
+                             icon: Icons.analytics_outlined,
+                             title: AppLocalizations.of(context)!.courseStatistics,
+                             subtitle: AppLocalizations.of(context)!.enrollmentProgressAnalysis,
+                             onTap: () => Navigator.pushNamed(context, '/admin/course-stats'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_user_details',
+                             icon: Icons.supervised_user_circle_outlined,
+                             title: AppLocalizations.of(context)!.userInfo,
+                             subtitle: AppLocalizations.of(context)!.consultParticipationDetails,
+                             onTap: () => Navigator.pushNamed(context, '/admin/user-info'),
+                           ),
+                          _buildPermissionControlledTile(
+                             permissionKey: 'view_church_statistics', // NUEVO PERMISO
+                             icon: Icons.bar_chart_rounded, // Icono para estadísticas generales
+                             title: AppLocalizations.of(context)!.churchStatistics,
+                             subtitle: AppLocalizations.of(context)!.membersActivitiesOverview,
+                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChurchStatisticsScreen())),
+                           ),
+                        ],
+                              );
+                            },
+                      ),
 
                           // --- Subsección: Gestão MyKids ---
                           if (!_showMyKidsSection) const SizedBox.shrink() else
-                          if (_isSuperUser)
-                            _buildMyKidsSection()
-                          else
-                            FutureBuilder<bool>(
-                              future: _hasAnyMyKidsPermission(), // Llama a la nueva función
-                              builder: (context, myKidsPermSnapshot) {
-                                if (myKidsPermSnapshot.connectionState == ConnectionState.waiting) {
-                                  return const SizedBox(height: 20); // O un pequeño shimmer/loader
-                                }
-                                // No mostrar nada si hay error o no tiene explícitamente el permiso
-                                if (myKidsPermSnapshot.hasError || !(myKidsPermSnapshot.data ?? false)) {
-                                  return const SizedBox.shrink(); 
-                                }
+                          FutureBuilder<bool>(
+                            future: _hasAnyMyKidsPermission(), // Llama a la nueva función
+                            builder: (context, myKidsPermSnapshot) {
+                              if (myKidsPermSnapshot.connectionState == ConnectionState.waiting) {
+                                return const SizedBox(height: 20); // O un pequeño shimmer/loader
+                              }
+                              // No mostrar nada si hay error o no tiene explícitamente el permiso (myKidsPermSnapshot.data == false)
+                              // O si no es SuperUsuario (que ya se maneja en _hasAnyMyKidsPermission)
+                              if (myKidsPermSnapshot.hasError || !(myKidsPermSnapshot.data ?? false)) {
+                                return const SizedBox.shrink(); 
+                              }
 
-                                return _buildMyKidsSection();
-                              },
-                            ),
+                              // Si tiene al menos un permiso de MyKids (o es SuperAdmin), mostrar la sección
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
+                                    child: Text(AppLocalizations.of(context)!.myKidsManagement, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold, color: Colors.teal.shade700)),
+                                  ),
+                                  _buildPermissionControlledTile(
+                                    permissionKey: 'manage_family_profiles', 
+                                    icon: Icons.family_restroom_outlined, 
+                                    title: AppLocalizations.of(context)!.familyProfiles,
+                                    subtitle: AppLocalizations.of(context)!.manageFamilyProfiles,
+                                    iconColor: Colors.teal.shade700, 
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const FamilyListScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  _buildPermissionControlledTile(
+                                    permissionKey: 'manage_checkin_rooms', 
+                                    icon: Icons.meeting_room_outlined, 
+                                    title: AppLocalizations.of(context)!.manageRoomsAndCheckin, 
+                                    subtitle: AppLocalizations.of(context)!.manageRoomsCheckinDescription, // Usar la nueva clave
+                                    iconColor: Colors.teal.shade700, 
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const KidsAdminScreen()));
+                                    },
+                                  ),
+                                  // Aquí se pueden añadir más _buildPermissionControlledTile para otras funciones de MyKids
+                                ],
+                              );
+                            },
+                          ),
                         ],
                     ),
                     ),
@@ -798,170 +767,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
   
-  void _navigateFromProfile(Future<dynamic> navigationFuture) {
-    final navCubit = context.read<NavigationCubit>();
-    navCubit.setPendingReturn(NavigationState.profile);
-    navigationFuture.whenComplete(() {
-      if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        if (navCubit.state != NavigationState.profile) {
-          navCubit.navigateTo(NavigationState.profile);
-        }
-      });
-    });
-  }
-
-  Future<bool> _permissionFuture(String permissionKey) {
-    return _permissionFutures.putIfAbsent(
-      permissionKey,
-      () => _permissionService.hasPermission(permissionKey),
-    );
-  }
-
-  Widget _buildReportsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
-          child: Text(
-            AppLocalizations.of(context)!.reportsAndAttendance,
-            style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'manage_event_attendance',
-          icon: Icons.event_available, 
-          title: AppLocalizations.of(context)!.manageEventAttendance,
-          subtitle: AppLocalizations.of(context)!.checkAttendanceGenerateReports,
-          onTap: () => _navigateFromProfile(
-            Navigator.pushNamed(context, '/admin/events'),
-          ),
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_ministry_stats',
-          icon: Icons.bar_chart_outlined,
-          title: AppLocalizations.of(context)!.ministryStatistics,
-          subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
-          onTap: () => _navigateFromProfile(
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MinistryMembersStatsScreen()),
-            ),
-          ), 
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_group_stats',
-          icon: Icons.pie_chart_outline, 
-          title: AppLocalizations.of(context)!.groupStatistics,
-          subtitle: AppLocalizations.of(context)!.participationMembersAnalysis,
-          onTap: () => _navigateFromProfile(
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const GroupMembersStatsScreen()),
-            ),
-          ), 
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_schedule_stats',
-          icon: Icons.assessment_outlined, 
-          title: AppLocalizations.of(context)!.scheduleStatistics,
-          subtitle: AppLocalizations.of(context)!.participationInvitationsAnalysis,
-          onTap: () => _navigateFromProfile(
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ServicesStatsScreen()),
-            ),
-          ), 
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_course_stats',
-          icon: Icons.analytics_outlined,
-          title: AppLocalizations.of(context)!.courseStatistics,
-          subtitle: AppLocalizations.of(context)!.enrollmentProgressAnalysis,
-          onTap: () => _navigateFromProfile(
-            Navigator.pushNamed(context, '/admin/course-stats'),
-          ),
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_user_details',
-          icon: Icons.supervised_user_circle_outlined,
-          title: AppLocalizations.of(context)!.userInfo,
-          subtitle: AppLocalizations.of(context)!.consultParticipationDetails,
-          onTap: () => _navigateFromProfile(
-            Navigator.pushNamed(context, '/admin/user-info'),
-          ),
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'view_church_statistics', // NUEVO PERMISO
-          icon: Icons.bar_chart_rounded, // Icono para estadísticas generales
-          title: AppLocalizations.of(context)!.churchStatistics,
-          subtitle: AppLocalizations.of(context)!.membersActivitiesOverview,
-          onTap: () => _navigateFromProfile(
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChurchStatisticsScreen()),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMyKidsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Divider(height: 20, thickness: 1, indent: 16, endIndent: 16),
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 0, top: 8),
-          child: Text(
-            AppLocalizations.of(context)!.myKidsManagement,
-            style: AppTextStyles.subtitle1.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.teal.shade700,
-            ),
-          ),
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'manage_family_profiles', 
-          icon: Icons.family_restroom_outlined, 
-          title: AppLocalizations.of(context)!.familyProfiles,
-          subtitle: AppLocalizations.of(context)!.manageFamilyProfiles,
-          iconColor: Colors.teal.shade700, 
-          onTap: () {
-            _navigateFromProfile(
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FamilyListScreen(),
-                ),
-              ),
-            );
-          },
-        ),
-        _buildPermissionControlledTile(
-          permissionKey: 'manage_checkin_rooms', 
-          icon: Icons.meeting_room_outlined, 
-          title: AppLocalizations.of(context)!.manageRoomsAndCheckin, 
-          subtitle: AppLocalizations.of(context)!.manageRoomsCheckinDescription, // Usar la nueva clave
-          iconColor: Colors.teal.shade700, 
-          onTap: () {
-            _navigateFromProfile(
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const KidsAdminScreen()),
-              ),
-            );
-          },
-        ),
-        // Aquí se pueden añadir más _buildPermissionControlledTile para otras funciones de MyKids
-      ],
-    );
-  }
-
   // --- NUEVO: Helper para construir ListTiles controlados por permiso ---
   Widget _buildPermissionControlledTile({
     required String permissionKey,
@@ -971,41 +776,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     Color? iconColor,
   }) {
-    if (_isSuperUser) {
-      return _buildAdminListTile(
-        icon: icon,
-        title: title,
-        subtitle: subtitle,
-        onTap: onTap,
-        iconColor: iconColor,
-      );
-    }
-
-    return FutureBuilder<bool>(
-      future: _permissionFuture(permissionKey),
-      builder: (context, snapshot) {
+    // <<< Añadir print para depurar si la función se llama >>>
+    print("DEBUG_PROFILE: Intentando construir Tile para permiso: $permissionKey"); 
+    
+    // El FutureBuilder existente ahora maneja todos los casos
+      return FutureBuilder<bool>(
+        future: _permissionService.hasPermission(permissionKey),
+        builder: (context, snapshot) {
         // No mostrar nada mientras carga (evita parpadeo)
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox.shrink(); 
-        }
-        // Si hubo error, tampoco mostrar
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox.shrink(); 
+          }
+        // Si hubo error, tampoco mostrar (podríamos loggear el error)
         if (snapshot.hasError) {
-          return const SizedBox.shrink(); 
+           print("Error al verificar permiso $permissionKey: ${snapshot.error}");
+           return const SizedBox.shrink(); 
         }
-        // Mostrar el ListTile solo si tiene permiso
-        final bool hasPerm = snapshot.data ?? false; 
-        if (hasPerm) {
-          return _buildAdminListTile(
-            icon: icon,
-            title: title,
-            subtitle: subtitle,
-            onTap: onTap,
-            iconColor: iconColor,
-          );
-        }
-        return const SizedBox.shrink();
-      },
-    );
+        // Mostrar el ListTile solo si tiene permiso (o es SuperUser)
+          final bool hasPerm = snapshot.data ?? false; 
+          if (hasPerm) {
+            return _buildAdminListTile(
+              icon: icon,
+              title: title,
+              subtitle: subtitle,
+              onTap: onTap,
+              iconColor: iconColor,
+            );
+          } else {
+          // Si no tiene permiso, no mostrar nada
+            return const SizedBox.shrink();
+          }
+        },
+      );
   }
 
   // --- Helper original para la apariencia del ListTile ---

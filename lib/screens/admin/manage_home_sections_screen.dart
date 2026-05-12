@@ -75,127 +75,6 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     }
   }
 
-  bool _supportsAccessMode(HomeScreenSectionType type) {
-    return type == HomeScreenSectionType.groups ||
-        type == HomeScreenSectionType.ministries;
-  }
-
-  Future<void> _showAccessModeDialog(HomeScreenSection section) async {
-    final bool hasPerm = await _permissionService.hasPermission('manage_home_sections');
-    if (!hasPerm) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.noPermissionEditSections), backgroundColor: Colors.red),
-        );
-      }
-      return;
-    }
-
-    SectionAccessMode selectedMode = section.accessMode;
-    final result = await showDialog<SectionAccessMode>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _getSectionIcon(section.type),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Modo de acceso',
-                            style: AppTextStyles.headline3.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _getSectionDisplayTitle(section),
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _AccessModeOptionTile(
-                  icon: Icons.public,
-                  title: 'Abierto',
-                  description: 'Los usuarios ven el listado completo y pueden solicitar unirse.',
-                  selected: selectedMode == SectionAccessMode.open,
-                  onTap: () => setDialogState(() => selectedMode = SectionAccessMode.open),
-                ),
-                const SizedBox(height: 10),
-                _AccessModeOptionTile(
-                  icon: Icons.lock_outline,
-                  title: 'Solo por invitación',
-                  description: 'Solo ven sus grupos/ministerios e invitaciones pendientes.',
-                  selected: selectedMode == SectionAccessMode.inviteOnly,
-                  onTap: () => setDialogState(() => selectedMode = SectionAccessMode.inviteOnly),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: BorderSide(color: AppColors.primary.withOpacity(0.35)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.cancel),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, selectedMode),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.save),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    if (result != null && result != section.accessMode) {
-      await _sectionsCollection.doc(section.id).update({
-        'accessMode': result == SectionAccessMode.inviteOnly ? 'inviteOnly' : 'open',
-      });
-    }
-  }
-
   // Función para obtener el icono apropiado para cada sección
   Widget _getSectionIcon(HomeScreenSectionType type) {
     IconData iconData;
@@ -459,6 +338,144 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
     }
   }
 
+  bool _isAccessModeConfigurable(HomeScreenSectionType type) {
+    return type == HomeScreenSectionType.groups ||
+        type == HomeScreenSectionType.ministries;
+  }
+
+  Future<void> _showAccessModeDialog(HomeScreenSection section) async {
+    final strings = AppLocalizations.of(context)!;
+    final bool hasPerm =
+        await _permissionService.hasPermission('manage_home_sections');
+    if (!hasPerm) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.noPermissionEditSections),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    String selectedMode =
+        section.accessMode == 'inviteOnly' ? 'inviteOnly' : 'open';
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          section.type == HomeScreenSectionType.groups
+                              ? Icons.groups
+                              : Icons.work_outline,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.accessModeTitle,
+                              style: AppTextStyles.headline3,
+                            ),
+                            Text(
+                              _getSectionDisplayTitle(section),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  _AccessModeOptionTile(
+                    title: strings.accessModeOpenTitle,
+                    description: strings.accessModeOpenDescription,
+                    icon: Icons.public,
+                    selected: selectedMode == 'open',
+                    onTap: () => setDialogState(() => selectedMode = 'open'),
+                  ),
+                  const SizedBox(height: 12),
+                  _AccessModeOptionTile(
+                    title: strings.accessModeInviteOnlyTitle,
+                    description: strings.accessModeInviteOnlyDescription,
+                    icon: Icons.lock_outline,
+                    selected: selectedMode == 'inviteOnly',
+                    onTap: () =>
+                        setDialogState(() => selectedMode = 'inviteOnly'),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(strings.cancel),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context, selectedMode),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(strings.save),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (result != null && result != section.accessMode) {
+      try {
+        await _sectionsCollection.doc(section.id).update({'accessMode': result});
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.accessModeUpdated)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.errorUpdatingConfiguration(e.toString()))),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -586,21 +603,27 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
                                ],
                              ),
                            ],
-                           if (_supportsAccessMode(section.type)) ...[
+                          if (_isAccessModeConfigurable(section.type)) ...[
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 Icon(
-                                  section.isInviteOnly ? Icons.lock_outline : Icons.public,
+                                  section.accessMode == 'inviteOnly'
+                                      ? Icons.lock_outline
+                                      : Icons.public,
                                   size: 16,
-                                  color: section.isInviteOnly ? AppColors.accent : Colors.green,
+                                  color: AppColors.primary,
                                 ),
                                 const SizedBox(width: 4),
                                 Flexible(
                                   child: Text(
-                                    section.isInviteOnly ? 'Solo por invitación' : 'Abierto',
+                                    section.accessMode == 'inviteOnly'
+                                        ? AppLocalizations.of(context)!
+                                            .accessModeInviteOnlyTitle
+                                        : AppLocalizations.of(context)!
+                                            .accessModeOpenTitle,
                                     style: AppTextStyles.caption.copyWith(
-                                      color: section.isInviteOnly ? AppColors.accent : Colors.green,
+                                      color: AppColors.primary,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -834,6 +857,76 @@ class _ManageHomeSectionsScreenState extends State<ManageHomeSectionsScreen> {
   }
 }
 
+class _AccessModeOptionTile extends StatelessWidget {
+  const _AccessModeOptionTile({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String description;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary.withOpacity(0.06) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected ? AppColors.primary : Colors.grey.shade300,
+            width: selected ? 1.4 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary.withOpacity(0.12)
+                    : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.subtitle1),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              selected ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: selected ? AppColors.primary : Colors.grey.shade400,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // Widget de switch personalizado igual al de create_edit_role_screen
 class _CustomSwitch extends StatefulWidget {
   final bool value;
@@ -968,104 +1061,4 @@ class _CustomSwitchState extends State<_CustomSwitch> with SingleTickerProviderS
       ),
     );
   }
-}
-
-class _AccessModeOptionTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _AccessModeOptionTile({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final borderColor = selected ? AppColors.primary : Colors.grey.shade200;
-    final backgroundColor = selected
-        ? AppColors.primary.withOpacity(0.08)
-        : Colors.grey.shade50;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: borderColor,
-            width: selected ? 1.6 : 1,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.primary.withOpacity(0.12)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: selected ? AppColors.primary : AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.subtitle1.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.25,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: selected ? AppColors.primary : Colors.transparent,
-                border: Border.all(
-                  color: selected ? AppColors.primary : Colors.grey.shade400,
-                  width: 2,
-                ),
-              ),
-              child: selected
-                  ? const Icon(Icons.check, color: Colors.white, size: 16)
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+} 

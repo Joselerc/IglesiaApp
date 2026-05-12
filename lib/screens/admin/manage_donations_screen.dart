@@ -6,8 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_colors.dart';
 import '../../services/permission_service.dart';
-import '../../services/finance_receiver_service.dart';
-import '../../models/finance_receiver.dart';
 import '../../l10n/app_localizations.dart';
 
 class ManageDonationsScreen extends StatefulWidget {
@@ -48,14 +46,11 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
-  final FinanceReceiverService _receiverService = FinanceReceiverService();
 
   DocumentReference get _donationConfigDocRef =>
       _firestore.collection('donationsPage').doc('settings');
 
   Future<void>? _loadConfigFuture;
-  String? _selectedReceiverId;
-  String? _selectedPaymentAccountId;
 
   @override
   void initState() {
@@ -84,8 +79,6 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
         _descriptionController.text = data['description'] ?? '';
         _imageUrl = data['imageUrl'];
         _bankAccountsController.text = (data['bankAccounts'] as List<dynamic>? ?? []).join('\n\n');
-        _selectedReceiverId = data['receiverId'];
-        _selectedPaymentAccountId = data['paymentAccountId'];
 
         final List<dynamic> pixData = data['pixKeys'] ?? [];
         _pixKeyEntries = pixData.map<PixKeyEntry>((pixMap) {
@@ -196,8 +189,6 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
       'imageUrl': finalImageUrl,
       'bankAccounts': bankAccountsToSave,
       'pixKeys': pixKeysToSave,
-      'receiverId': _selectedReceiverId,
-      'paymentAccountId': _selectedPaymentAccountId,
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
@@ -307,56 +298,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Sección 3: Cuenta Destino
-                      _buildSectionCard(
-                        title: AppLocalizations.of(context)!.financeAccountsTitle,
-                        icon: Icons.account_balance_wallet_outlined,
-                        children: [
-                          StreamBuilder<List<FinanceReceiver>>(
-                            stream: _receiverService.streamReceivers(onlyActive: true),
-                            builder: (context, snapshot) {
-                              final receivers = snapshot.data ?? [];
-                              final selectedValue = receivers.any((r) => r.id == _selectedReceiverId)
-                                  ? _selectedReceiverId
-                                  : null;
-                              return DropdownButtonFormField<String>(
-                                value: selectedValue,
-                                decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context)!.financeAccountNameLabel,
-                                  border: OutlineInputBorder(),
-                                ),
-                                items: receivers
-                                    .map((receiver) => DropdownMenuItem<String>(
-                                          value: receiver.id,
-                                          child: Text(receiver.name),
-                                        ))
-                                    .toList(),
-                                onChanged: (value) {
-                                  final selected = receivers.firstWhere(
-                                    (r) => r.id == value,
-                                    orElse: () => FinanceReceiver(
-                                      id: '',
-                                      name: '',
-                                      idReceiver: '',
-                                      paymentAccountId: '',
-                                      isActive: true,
-                                    ),
-                                  );
-                                  setState(() {
-                                    _selectedReceiverId = value;
-                                    _selectedPaymentAccountId =
-                                        selected.id.isEmpty ? null : selected.paymentAccountId;
-                                  });
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Sección 4: Cuentas Bancarias
+                      // Sección 3: Cuentas Bancarias
                       _buildSectionCard(
                         title: AppLocalizations.of(context)!.bankAccountsOptional,
                         icon: Icons.account_balance_outlined,
@@ -373,7 +315,7 @@ class _ManageDonationsScreenState extends State<ManageDonationsScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Sección 5: Claves Pix
+                      // Sección 4: Claves Pix
                       _buildSectionCard(
                         title: AppLocalizations.of(context)!.pixKeysOptional,
                         icon: Icons.pix_outlined,

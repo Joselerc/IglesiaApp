@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/ministry.dart';
 import '../../models/ministry_post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../widgets/create_group_post_bottom_sheet.dart';
 import '../../screens/create_post_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../modals/comments_modal.dart';
@@ -58,12 +57,30 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
   }
 
   void _navigateToManageRequests() {
+    if (!_canManageRequests) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ManageRequestsScreen(ministry: widget.ministry),
       ),
     );
+  }
+
+  Future<void> _openCreatePostFlow() async {
+    final picker = ImagePicker();
+    final images = await picker.pickMultiImage();
+    if (images.isNotEmpty && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreatePostScreen(
+            initialImages: images,
+            entityId: widget.ministry.id,
+            entityType: PostEntityType.ministry,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildEventsSection() {
@@ -74,7 +91,6 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
           .collection('ministry_events')
           .where('ministryId', isEqualTo: FirebaseFirestore.instance.collection('ministries').doc(widget.ministry.id))
           .orderBy('date')
-          .limit(10)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -315,11 +331,29 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
   }
 
   Future<void> _loadPermissions() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final isAdmin = userId != null && widget.ministry.adminIds.contains(userId);
+    bool canPost = isAdmin;
+    if (!isAdmin && userId != null && widget.ministry.memberIds.contains(userId)) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('ministries')
+            .doc(widget.ministry.id)
+            .get();
+        final postSenders = (doc.data()?['postSenders'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toSet() ??
+            <String>{};
+        canPost = postSenders.contains(userId);
+      } catch (_) {
+        canPost = false;
+      }
+    }
     if (mounted) {
       setState(() {
-        _canCreateEvents = true;
-        _canManageRequests = true;
-        _canCreatePosts = true;
+        _canCreateEvents = isAdmin;
+        _canManageRequests = isAdmin;
+        _canCreatePosts = canPost;
       });
     }
   }
@@ -509,7 +543,6 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                     .collection('ministries')
                     .doc(widget.ministry.id))
                 .orderBy('createdAt', descending: true)
-                .limit(30)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -528,46 +561,39 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return SliverToBoxAdapter(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
-                    child: Center(
-                        child: Column(
-                          children: [
-                          Icon(Icons.post_add, size: 60, color: Colors.grey[300]),
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.post_add, size: 64, color: Colors.grey[300]),
                           const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.ministryNoPostsYet,
-                          textAlign: TextAlign.center,
+                          Text(
+                            AppLocalizations.of(context)!.ministryNoPostsYet,
+                            textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.grey[500], fontSize: 16),
-                        ),
+                          ),
                           if (_canCreatePosts) ...[
                             const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => CreateGroupPostBottomSheet(
-                                  ministryId: widget.ministry.id,
-                                  entityType: PostComposerEntityType.ministry,
-                                ),
-                              );
-                            },
+                            ElevatedButton.icon(
+                              onPressed: _openCreatePostFlow,
                               icon: const Icon(Icons.add),
                               label: Text(AppLocalizations.of(context)!.createPost),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(24),
                                 ),
                               ),
-                          ),
+                            ),
+                          ],
                         ],
-                        ],
+                      ),
                     ),
-                  ),
                   ),
                 );
               }
@@ -594,22 +620,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       ),
       floatingActionButton: _canCreatePosts
           ? FloatingActionButton.extended(
-              onPressed: () async {
-                final picker = ImagePicker();
-                final images = await picker.pickMultiImage();
-                if (images.isNotEmpty && context.mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreatePostScreen(
-                        initialImages: images,
-                        entityId: widget.ministry.id,
-                        entityType: PostEntityType.ministry,
-                      ),
-                    ),
-                  );
-                }
-              },
+              onPressed: _openCreatePostFlow,
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.edit),

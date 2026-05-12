@@ -4,12 +4,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../models/event_model.dart';
 import '../../../models/ticket_model.dart';
 import '../../../services/ticket_service.dart';
-import '../../../services/payment_service.dart';
-import '../../../services/payment_customer_service.dart';
 import 'qr_fullscreen_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../widgets/payments/payment_customer_form.dart';
 
 class RegisterTicketForm extends StatefulWidget {
   final EventModel event;
@@ -30,13 +26,10 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
   final Map<String, TextEditingController> _fieldControllers = {};
 
   final _ticketService = TicketService();
-  final _paymentService = PaymentService();
-  final _paymentCustomerService = PaymentCustomerService();
   bool _isLoading = false;
   String? _errorMessage;
   TicketModel? _ticket;
   Map<String, dynamic> _userData = {};
-  String _paymentMethod = 'pix';
 
   AppLocalizations get _loc => AppLocalizations.of(context)!;
 
@@ -273,16 +266,7 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
           _userData['phone'] ??
           '';
 
-      if (_ticket!.isPaid) {
-        await _startPaidFlow(
-          formData: formData,
-          userName: userName,
-          userEmail: userEmail,
-          userPhone: userPhone,
-        );
-        return;
-      }
-
+      // Registrar para o ingresso
       await _ticketService.registerForTicket(
         ticketId: widget.ticketId,
         eventId: widget.event.id,
@@ -328,92 +312,6 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
-    }
-  }
-
-  Future<void> _startPaidFlow({
-    required Map<String, dynamic> formData,
-    required String userName,
-    required String userEmail,
-    required String userPhone,
-  }) async {
-    final loc = _loc;
-    final receiverId = _ticket?.receiverId;
-    if (receiverId == null || receiverId.isEmpty) {
-      setState(() {
-        _errorMessage = loc.donationPaymentNotConfigured;
-      });
-      return;
-    }
-
-    final amount = _ticket?.price ?? 0;
-    if (amount <= 0) {
-      setState(() {
-        _errorMessage = loc.donationInvalidAmount;
-      });
-      return;
-    }
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      setState(() {
-        _errorMessage = loc.unauthenticatedUser;
-      });
-      return;
-    }
-
-    Map<String, dynamic> customerData =
-        await _paymentCustomerService.getCustomerData(user.uid);
-    final missingFields = PaymentCustomerService.getMissingFields(customerData);
-    if (missingFields.isNotEmpty) {
-      final result = await showPaymentCustomerForm(
-        context: context,
-        initialData: customerData,
-        missingFields: missingFields,
-      );
-      if (result == null) {
-        return;
-      }
-      customerData = result.data;
-      await _paymentCustomerService.saveCustomerData(user.uid, customerData);
-    }
-
-    final session = await _paymentService.createEventPayment(
-      eventId: widget.event.id,
-      ticketId: widget.ticketId,
-      amount: amount,
-      currency: _ticket?.currency ?? 'BRL',
-      method: _paymentMethod,
-      formData: {
-        ...formData,
-        'userName': userName,
-        'userEmail': userEmail,
-        'userPhone': userPhone,
-      },
-      paymentAccountId: _ticket?.paymentAccountId,
-      customerData: customerData,
-    );
-
-    if (session.checkoutUrl == null || session.checkoutUrl!.isEmpty) {
-      setState(() {
-        _errorMessage = loc.donationPaymentNotConfigured;
-      });
-      return;
-    }
-
-    final uri = Uri.parse(session.checkoutUrl!);
-    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!launched && mounted) {
-      setState(() {
-        _errorMessage = loc.somethingWentWrong;
-      });
-      return;
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.donationPaymentPending)),
-      );
     }
   }
 
@@ -601,35 +499,6 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                           .map((field) => _buildFormField(field))
                           .toList(),
 
-                    if (_ticket?.isPaid == true) ...[
-                      SizedBox(height: 8),
-                      Text(
-                        loc.donationMethod,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ChoiceChip(
-                              label: Text(loc.donationMethodPix),
-                              selected: _paymentMethod == 'pix',
-                              onSelected: (_) => setState(() => _paymentMethod = 'pix'),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: ChoiceChip(
-                              label: Text(loc.donationMethodCard),
-                              selected: _paymentMethod == 'card',
-                              onSelected: (_) => setState(() => _paymentMethod = 'card'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                    ],
-
                     // Mensagem de erro
                     if (_errorMessage != null) ...[
                       SizedBox(height: 16),
@@ -674,11 +543,7 @@ class _RegisterTicketFormState extends State<RegisterTicketForm> {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text(
-                                _ticket?.isPaid == true
-                                    ? loc.donationContinueToPayment
-                                    : loc.registerTicketButtonLabel,
-                              ),
+                            : Text(loc.registerTicketButtonLabel),
                       ),
                     ),
                   ],
