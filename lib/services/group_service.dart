@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group.dart';
 import './membership_log_service.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 class GroupService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final MembershipLogService _logService = MembershipLogService();
   final MembershipRequestService _requestService = MembershipRequestService();
@@ -210,18 +212,14 @@ class GroupService {
       throw Exception('Ya eres miembro de este grupo');
     }
     
-    // Verificar que no tiene una solicitud pendiente
-    if (group.pendingRequests.containsKey(userId)) {
+    final pendingRequest =
+        await _requestService.findPendingRequest(userId, groupId, 'group');
+    if (pendingRequest != null) {
       throw Exception('Ya tienes una solicitud pendiente para este grupo');
     }
     
-    // Añadir solicitud pendiente a la colección de grupos (para mantener compatibilidad)
-    await _firestore.collection('groups').doc(groupId).update({
-      'pendingRequests.$userId': Timestamp.now(),
-    });
-    
-    // Registrar la solicitud en el nuevo servicio de solicitudes
-    await _requestService.logRequest(
+    await _requestService.createPendingEntityRequest(
+      entityRef: _firestore.collection('groups').doc(groupId),
       userId: userId,
       entityId: groupId,
       entityType: 'group',
@@ -246,18 +244,17 @@ class GroupService {
       throw Exception('El usuario ya es miembro del grupo');
     }
 
-    if (group.pendingRequests.containsKey(userId)) {
+    final pendingRequest =
+        await _requestService.findPendingRequest(userId, groupId, 'group');
+    if (pendingRequest != null) {
       throw Exception('El usuario ya tiene una solicitud pendiente');
     }
-
-    await _firestore.collection('groups').doc(groupId).update({
-      'pendingRequests.$userId': Timestamp.now(),
-    });
 
     final inviterDoc = await _firestore.collection('users').doc(currentUser.uid).get();
     final inviterName = inviterDoc.data()?['name'] ?? inviterDoc.data()?['displayName'] ?? 'Administrador';
 
-    await _requestService.logRequest(
+    await _requestService.createPendingEntityRequest(
+      entityRef: _firestore.collection('groups').doc(groupId),
       userId: userId,
       entityId: groupId,
       entityType: 'group',
@@ -268,6 +265,20 @@ class GroupService {
       invitedByName: inviterName,
     );
   }
+
+  Future<void> respondToInvite({
+    required String requestId,
+    required String groupId,
+    required bool accept,
+  }) async {
+    final callable = _functions.httpsCallable('respondToMembershipInvite');
+    await callable.call({
+      'requestId': requestId,
+      'entityId': groupId,
+      'entityType': 'group',
+      'accept': accept,
+    });
+  }
   
   /// Acepta una solicitud pendiente
   Future<void> acceptJoinRequest(String userId, String groupId, {String? reason}) async {
@@ -276,16 +287,15 @@ class GroupService {
       throw Exception('Grupo no encontrado');
     }
     
-    // Verificar que el usuario tiene una solicitud pendiente
-    if (!group.pendingRequests.containsKey(userId)) {
+    final requestDoc =
+        await _requestService.findPendingRequest(userId, groupId, 'group');
+    if (requestDoc == null && !group.pendingRequests.containsKey(userId)) {
       throw Exception('El usuario no tiene una solicitud pendiente');
     }
     
     final currentUser = _auth.currentUser;
     final String actorId = currentUser?.uid ?? 'system';
     
-    // Buscar la solicitud en la colección de solicitudes
-    final requestDoc = await _requestService.findRequest(userId, groupId, 'group');
     if (requestDoc != null) {
       await _requestService.markRequestAsAccepted(
         requestId: requestDoc.id,
@@ -305,16 +315,15 @@ class GroupService {
       throw Exception('Grupo no encontrado');
     }
     
-    // Verificar que el usuario tiene una solicitud pendiente
-    if (!group.pendingRequests.containsKey(userId)) {
+    final requestDoc =
+        await _requestService.findPendingRequest(userId, groupId, 'group');
+    if (requestDoc == null && !group.pendingRequests.containsKey(userId)) {
       throw Exception('El usuario no tiene una solicitud pendiente');
     }
     
     final currentUser = _auth.currentUser;
     final String actorId = currentUser?.uid ?? 'system';
     
-    // Buscar la solicitud en la colección de solicitudes
-    final requestDoc = await _requestService.findRequest(userId, groupId, 'group');
     if (requestDoc != null) {
       await _requestService.markRequestAsRejected(
         requestId: requestDoc.id,

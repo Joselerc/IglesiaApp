@@ -1,12 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../models/ministry.dart';
-import '../models/group.dart';
 
 /// Servicio para gestionar y registrar las solicitudes de membresía a ministerios y grupos
 class MembershipRequestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final String _requestsCollectionPath = 'membership_requests';
 
   /// Registra una nueva solicitud para unirse a un ministerio, grupo o familia
@@ -21,11 +17,68 @@ class MembershipRequestService {
     String? invitedBy, // Cuando la solicitud viene de un admin
     String? invitedByName, // Nombre del admin/invitador
   }) async {
+    await _firestore
+        .collection(_requestsCollectionPath)
+        .add(await buildRequestData(
+          userId: userId,
+          entityId: entityId,
+          entityType: entityType,
+          entityName: entityName,
+          message: message,
+          requestType: requestType,
+          desiredRole: desiredRole,
+          invitedBy: invitedBy,
+          invitedByName: invitedByName,
+        ));
+  }
+
+  Future<void> createPendingEntityRequest({
+    required DocumentReference<Map<String, dynamic>> entityRef,
+    required String userId,
+    required String entityId,
+    required String entityType,
+    required String entityName,
+    String? message,
+    String requestType = 'join',
+    String? desiredRole,
+    String? invitedBy,
+    String? invitedByName,
+  }) async {
+    final batch = _firestore.batch();
+    batch.update(entityRef, {
+      'pendingRequests.$userId': FieldValue.serverTimestamp(),
+    });
+    batch.set(_firestore.collection(_requestsCollectionPath).doc(),
+        await buildRequestData(
+      userId: userId,
+      entityId: entityId,
+      entityType: entityType,
+      entityName: entityName,
+      message: message,
+      requestType: requestType,
+      desiredRole: desiredRole,
+      invitedBy: invitedBy,
+      invitedByName: invitedByName,
+    ));
+    await batch.commit();
+  }
+
+  Future<Map<String, dynamic>> buildRequestData({
+    required String userId,
+    required String entityId,
+    required String entityType,
+    required String entityName,
+    String? message,
+    String requestType = 'join',
+    String? desiredRole,
+    String? invitedBy,
+    String? invitedByName,
+  }) async {
     // Obtener información del usuario solicitante para guardarla
     final userDoc = await _firestore.collection('users').doc(userId).get();
     final userData = userDoc.data() ?? {};
     
-    final requestData = {
+    return {
       'userId': userId,
       'entityId': entityId,
       'entityType': entityType,
@@ -41,8 +94,6 @@ class MembershipRequestService {
       'userEmail': userData['email'] ?? '',
       'userPhotoUrl': userData['photoUrl'] ?? '',
     };
-    
-    await _firestore.collection(_requestsCollectionPath).add(requestData);
   }
 
   /// Actualiza el estado de una solicitud cuando es aceptada
@@ -127,6 +178,24 @@ class MembershipRequestService {
       return null;
     }
     
+    return requests.docs.first;
+  }
+
+  Future<DocumentSnapshot?> findPendingRequest(
+      String userId, String entityId, String entityType) async {
+    final requests = await _firestore
+        .collection(_requestsCollectionPath)
+        .where('userId', isEqualTo: userId)
+        .where('entityId', isEqualTo: entityId)
+        .where('entityType', isEqualTo: entityType)
+        .where('status', isEqualTo: 'pending')
+        .limit(1)
+        .get();
+
+    if (requests.docs.isEmpty) {
+      return null;
+    }
+
     return requests.docs.first;
   }
   

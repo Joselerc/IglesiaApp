@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/ministry.dart';
 import './membership_log_service.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 class MinistryService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final MembershipLogService _logService = MembershipLogService();
   final MembershipRequestService _requestService = MembershipRequestService();
@@ -210,18 +212,14 @@ class MinistryService {
       throw Exception('Ya eres miembro de este ministerio');
     }
     
-    // Verificar que no tiene una solicitud pendiente
-    if (ministry.pendingRequests.containsKey(userId)) {
+    final pendingRequest =
+        await _requestService.findPendingRequest(userId, ministryId, 'ministry');
+    if (pendingRequest != null) {
       throw Exception('Ya tienes una solicitud pendiente para este ministerio');
     }
     
-    // Añadir solicitud pendiente a la colección de ministerios (para mantener compatibilidad)
-    await _firestore.collection('ministries').doc(ministryId).update({
-      'pendingRequests.$userId': Timestamp.now(),
-    });
-    
-    // Registrar la solicitud en el nuevo servicio de solicitudes
-    await _requestService.logRequest(
+    await _requestService.createPendingEntityRequest(
+      entityRef: _firestore.collection('ministries').doc(ministryId),
       userId: userId,
       entityId: ministryId,
       entityType: 'ministry',
@@ -246,18 +244,17 @@ class MinistryService {
       throw Exception('El usuario ya es miembro del ministerio');
     }
 
-    if (ministry.pendingRequests.containsKey(userId)) {
+    final pendingRequest =
+        await _requestService.findPendingRequest(userId, ministryId, 'ministry');
+    if (pendingRequest != null) {
       throw Exception('El usuario ya tiene una solicitud pendiente');
     }
-
-    await _firestore.collection('ministries').doc(ministryId).update({
-      'pendingRequests.$userId': Timestamp.now(),
-    });
 
     final inviterDoc = await _firestore.collection('users').doc(currentUser.uid).get();
     final inviterName = inviterDoc.data()?['name'] ?? inviterDoc.data()?['displayName'] ?? 'Administrador';
 
-    await _requestService.logRequest(
+    await _requestService.createPendingEntityRequest(
+      entityRef: _firestore.collection('ministries').doc(ministryId),
       userId: userId,
       entityId: ministryId,
       entityType: 'ministry',
@@ -269,6 +266,20 @@ class MinistryService {
     );
   }
 
+  Future<void> respondToInvite({
+    required String requestId,
+    required String ministryId,
+    required bool accept,
+  }) async {
+    final callable = _functions.httpsCallable('respondToMembershipInvite');
+    await callable.call({
+      'requestId': requestId,
+      'entityId': ministryId,
+      'entityType': 'ministry',
+      'accept': accept,
+    });
+  }
+
   // Aceptar una solicitud pendiente
   Future<void> acceptJoinRequest(String userId, String ministryId, {String? reason}) async {
     final ministry = await getMinistryById(ministryId);
@@ -276,16 +287,15 @@ class MinistryService {
       throw Exception('Ministerio no encontrado');
     }
     
-    // Verificar que el usuario tiene una solicitud pendiente
-    if (!ministry.pendingRequests.containsKey(userId)) {
+    final requestDoc =
+        await _requestService.findPendingRequest(userId, ministryId, 'ministry');
+    if (requestDoc == null && !ministry.pendingRequests.containsKey(userId)) {
       throw Exception('El usuario no tiene una solicitud pendiente');
     }
     
     final currentUser = _auth.currentUser;
     final String actorId = currentUser?.uid ?? 'system';
     
-    // Buscar la solicitud en la colección de solicitudes
-    final requestDoc = await _requestService.findRequest(userId, ministryId, 'ministry');
     if (requestDoc != null) {
       await _requestService.markRequestAsAccepted(
         requestId: requestDoc.id,
@@ -305,16 +315,15 @@ class MinistryService {
       throw Exception('Ministerio no encontrado');
     }
     
-    // Verificar que el usuario tiene una solicitud pendiente
-    if (!ministry.pendingRequests.containsKey(userId)) {
+    final requestDoc =
+        await _requestService.findPendingRequest(userId, ministryId, 'ministry');
+    if (requestDoc == null && !ministry.pendingRequests.containsKey(userId)) {
       throw Exception('El usuario no tiene una solicitud pendiente');
     }
     
     final currentUser = _auth.currentUser;
     final String actorId = currentUser?.uid ?? 'system';
     
-    // Buscar la solicitud en la colección de solicitudes
-    final requestDoc = await _requestService.findRequest(userId, ministryId, 'ministry');
     if (requestDoc != null) {
       await _requestService.markRequestAsRejected(
         requestId: requestDoc.id,

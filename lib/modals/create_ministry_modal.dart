@@ -90,6 +90,8 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
           'createdBy': userRef,
           'members': [userRef],
           'ministrieAdmin': _selectedAdmins.isEmpty ? [userRef] : _selectedAdmins,
+          'pendingRequests': {},
+          'rejectedRequests': {},
         };
 
         await FirebaseFirestore.instance.collection('ministries').add(ministry);

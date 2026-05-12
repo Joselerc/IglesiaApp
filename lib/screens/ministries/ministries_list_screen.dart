@@ -269,7 +269,11 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
       debugPrint('Procesando invitación $requestId para ministerio $ministryId - Accept: $accept');
 
       if (accept) {
-        await _ministryService.acceptJoinRequest(currentUser.uid, ministryId);
+        await _ministryService.respondToInvite(
+          requestId: requestId,
+          ministryId: ministryId,
+          accept: true,
+        );
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -298,7 +302,11 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
           );
         }
       } else {
-        await _ministryService.rejectJoinRequest(currentUser.uid, ministryId);
+        await _ministryService.respondToInvite(
+          requestId: requestId,
+          ministryId: ministryId,
+          accept: false,
+        );
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {

@@ -103,6 +103,48 @@ service cloud.firestore {
         || hasPermission('manage_videos');
     }
 
+    function canManageGroupRequests() {
+      return hasPermission('create_group') || hasPermission('manage_groups');
+    }
+
+    function canManageMinistryRequests() {
+      return hasPermission('create_ministry') || hasPermission('manage_ministries');
+    }
+
+    function canManageMembershipRequests() {
+      return canManageGroupRequests() || canManageMinistryRequests() || adminOnly();
+    }
+
+    function canCreateMembershipInvite() {
+      return request.resource.data.requestType == 'invite'
+        && request.resource.data.invitedBy == request.auth.uid
+        && ((request.resource.data.entityType == 'group' && canManageGroupRequests())
+          || (request.resource.data.entityType == 'ministry' && canManageMinistryRequests())
+          || (request.resource.data.entityType == 'family' && adminOnly()));
+    }
+
+    function changesOnlyOwnPendingRequest() {
+      return trustedUser()
+        && request.resource.data.pendingRequests is map
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingRequests'])
+        && ((resource.data.pendingRequests is map
+            && request.resource.data.pendingRequests.diff(resource.data.pendingRequests).affectedKeys().hasOnly([request.auth.uid]))
+          || (!(resource.data.pendingRequests is map)
+            && request.resource.data.pendingRequests.keys().hasOnly([request.auth.uid])));
+    }
+
+    function respondsOwnMembershipInvite() {
+      return signedIn()
+        && resource.data.userId == request.auth.uid
+        && resource.data.requestType == 'invite'
+        && resource.data.status == 'pending'
+        && request.resource.data.respondedBy == request.auth.uid
+        && request.resource.data.status in ['accepted', 'rejected']
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(['status', 'responseTimestamp', 'respondedBy', 'responseReason']);
+    }
+
     function ownNotification() {
       return signedIn() && resource.data.userId == request.auth.uid;
     }
@@ -215,7 +257,8 @@ service cloud.firestore {
     match /groups/{groupId} {
       allow read: if publicRead();
       allow create: if hasPermission('create_group');
-      allow update, delete: if hasPermission('create_group') || hasPermission('manage_groups');
+      allow update: if canManageGroupRequests() || changesOnlyOwnPendingRequest();
+      allow delete: if canManageGroupRequests();
 
       match /members/{userId} {
         allow read: if trustedUser();
@@ -226,7 +269,8 @@ service cloud.firestore {
     match /ministries/{ministryId} {
       allow read: if publicRead();
       allow create: if hasPermission('create_ministry');
-      allow update, delete: if hasPermission('create_ministry') || hasPermission('manage_ministries');
+      allow update: if canManageMinistryRequests() || changesOnlyOwnPendingRequest();
+      allow delete: if canManageMinistryRequests();
 
       match /members/{userId} {
         allow read: if trustedUser();
@@ -237,10 +281,10 @@ service cloud.firestore {
     match /membership_requests/{requestId} {
       allow read: if signedIn()
         && (resource.data.userId == request.auth.uid
-          || hasPermission('create_group')
-          || hasPermission('create_ministry'));
-      allow create: if trustedUser() && request.resource.data.userId == request.auth.uid;
-      allow update: if hasPermission('create_group') || hasPermission('create_ministry');
+          || canManageMembershipRequests());
+      allow create: if trustedUser()
+        && (request.resource.data.userId == request.auth.uid || canCreateMembershipInvite());
+      allow update: if canManageMembershipRequests() || respondsOwnMembershipInvite();
       allow delete: if adminOnly();
     }
 

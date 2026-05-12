@@ -252,7 +252,11 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
       debugPrint('Procesando invitación $requestId para grupo $groupId - Accept: $accept');
 
       if (accept) {
-        await _groupService.acceptJoinRequest(currentUser.uid, groupId);
+        await _groupService.respondToInvite(
+          requestId: requestId,
+          groupId: groupId,
+          accept: true,
+        );
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {
@@ -281,7 +285,11 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
           );
         }
       } else {
-        await _groupService.rejectJoinRequest(currentUser.uid, groupId);
+        await _groupService.respondToInvite(
+          requestId: requestId,
+          groupId: groupId,
+          accept: false,
+        );
 
         // Enviar notificación al invitador
         if (inviterId.isNotEmpty && inviterId != currentUser.uid) {

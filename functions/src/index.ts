@@ -44,6 +44,13 @@ interface RegisterFreeTicketRequest {
   formData: Record<string, unknown>;
 }
 
+interface RespondMembershipInviteRequest {
+  requestId: string;
+  entityId: string;
+  entityType: 'group' | 'ministry';
+  accept: boolean;
+}
+
 interface CustomerAddressInput {
   zipCode: string;
   street: string;
@@ -1030,6 +1037,90 @@ export const registerFreeEventTicket = functions.https.onCall(async (request) =>
   });
 
   return { registrationId: registrationRef.id };
+});
+
+export const respondToMembershipInvite = functions.https.onCall(async (request) => {
+  const uid = authUid(request);
+  await enforceRateLimit(uid, 'respondToMembershipInvite', 20);
+  const data = request.data as RespondMembershipInviteRequest;
+
+  if (!data?.requestId || !data.entityId || !['group', 'ministry'].includes(data.entityType)) {
+    throw new functions.https.HttpsError('invalid-argument', 'Invitación inválida');
+  }
+
+  const collection = data.entityType === 'group' ? 'groups' : 'ministries';
+  const requestRef = db.collection('membership_requests').doc(data.requestId);
+  const entityRef = db.collection(collection).doc(data.entityId);
+  const userRef = db.collection('users').doc(uid);
+
+  await db.runTransaction(async (tx) => {
+    const [requestSnap, entitySnap] = await Promise.all([
+      tx.get(requestRef),
+      tx.get(entityRef),
+    ]);
+
+    if (!requestSnap.exists || !entitySnap.exists) {
+      throw new functions.https.HttpsError('not-found', 'Invitación no encontrada');
+    }
+
+    const requestData = requestSnap.data() || {};
+    if (
+      requestData.userId !== uid ||
+      requestData.entityId !== data.entityId ||
+      requestData.entityType !== data.entityType ||
+      requestData.requestType !== 'invite' ||
+      requestData.status !== 'pending'
+    ) {
+      throw new functions.https.HttpsError('permission-denied', 'No puedes responder esta invitación');
+    }
+
+    const entityData = entitySnap.data() || {};
+    const memberIds = extractUserIds(entityData.members);
+    const status = data.accept ? 'accepted' : 'rejected';
+
+    if (data.accept && !memberIds.includes(uid)) {
+      tx.update(entityRef, {
+        members: admin.firestore.FieldValue.arrayUnion(userRef),
+        [`pendingRequests.${uid}`]: admin.firestore.FieldValue.delete(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      tx.set(db.collection('membership_logs').doc(), {
+        userId: uid,
+        entityId: data.entityId,
+        entityType: data.entityType,
+        entityName: requestData.entityName || entityData.name || '',
+        actionType: 'join',
+        initiatedBy: 'user',
+        actorId: uid,
+        reason: null,
+        roleInEntity: 'member',
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        additionalData: { requestType: 'invite' },
+      });
+    } else {
+      const updateData: admin.firestore.UpdateData<admin.firestore.DocumentData> = {
+        [`pendingRequests.${uid}`]: admin.firestore.FieldValue.delete(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+      if (!data.accept) {
+        updateData[`rejectedRequests.${uid}`] = {
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          rejectedBy: uid,
+          originalRequest: requestData.requestTimestamp || null,
+          reason: null,
+        };
+      }
+      tx.update(entityRef, updateData);
+    }
+
+    tx.update(requestRef, {
+      status,
+      responseTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+      respondedBy: uid,
+    });
+  });
+
+  return { success: true };
 });
 
 export const safe2payWebhook = functions.https.onRequest(async (req, res) => {

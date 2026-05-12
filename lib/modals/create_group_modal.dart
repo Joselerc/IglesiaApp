@@ -92,6 +92,8 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
           'createdBy': userRef,
           'members': [userRef],
           'groupAdmin': _selectedAdmins.isEmpty ? [userRef] : _selectedAdmins,
+          'pendingRequests': {},
+          'rejectedRequests': {},
         };
 
         await FirebaseFirestore.instance.collection('groups').add(group);
