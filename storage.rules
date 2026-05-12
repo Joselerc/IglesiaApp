@@ -43,22 +43,27 @@ service firebase.storage {
 
     match /app_config/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(3);
+      allow write: if trustedUser() && isImage() && belowMb(3);
     }
 
     match /donation_section_images/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /live_stream_images/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /announcements/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
+    }
+
+    match /announcement_images/{fileName} {
+      allow read: if true;
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /events/{eventId}/{fileName} {
@@ -81,6 +86,11 @@ service firebase.storage {
       allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
+    match /ministry_events/{fileName} {
+      allow read: if true;
+      allow write: if trustedUser() && isImage() && belowMb(5);
+    }
+
     match /posts/{userId}/{fileName} {
       allow read: if true;
       allow write: if isOwner(userId) && isImage() && belowMb(5);
@@ -92,6 +102,11 @@ service firebase.storage {
     }
 
     match /group_posts/{groupId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if trustedUser() && isImage() && belowMb(5);
+    }
+
+    match /group_posts/{fileName} {
       allow read: if signedIn();
       allow write: if trustedUser() && isImage() && belowMb(5);
     }
@@ -114,13 +129,13 @@ service firebase.storage {
     match /group_chats/{groupId}/{fileName} {
       allow read: if signedIn();
       allow write: if trustedUser()
-        && ((isImage() && belowMb(5)) || (isPdf() && belowMb(10)));
+        && ((isImage() && belowMb(5)) || (isPdf() && belowMb(10)) || (isAudio() && belowMb(25)));
     }
 
     match /ministry_chats/{ministryId}/{fileName} {
       allow read: if signedIn();
       allow write: if trustedUser()
-        && ((isImage() && belowMb(5)) || (isPdf() && belowMb(10)));
+        && ((isImage() && belowMb(5)) || (isPdf() && belowMb(10)) || (isAudio() && belowMb(25)));
     }
 
     match /user_images/{userIdFileName} {
@@ -150,54 +165,65 @@ service firebase.storage {
 
     match /family_images/{familyId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /children/{childId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim() && isImage() && belowMb(3);
+      allow write: if trustedUser() && isImage() && belowMb(3);
     }
 
     match /guardians/{guardianId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim() && isImage() && belowMb(3);
+      allow write: if trustedUser() && isImage() && belowMb(3);
     }
 
     match /visitors/{visitorId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim() && isImage() && belowMb(3);
+      allow write: if trustedUser() && isImage() && belowMb(3);
     }
 
     match /page_content_images/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /page_card_images/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(3);
+      allow write: if trustedUser() && isImage() && belowMb(3);
     }
 
     match /lesson_materials/{courseId}/{lessonId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim()
+      allow write: if trustedUser()
         && ((isImage() && belowMb(5)) || (isPdf() && belowMb(20)));
     }
 
     match /courses/{courseId}/lessons/{lessonId}/materials/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim()
+      allow write: if trustedUser()
         && ((isImage() && belowMb(5)) || (isPdf() && belowMb(25)));
+    }
+
+    match /courses/{courseId}/{fileName} {
+      allow read: if true;
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /course_images/{fileName} {
       allow read: if true;
-      allow write: if hasAdminClaim() && isImage() && belowMb(5);
+      allow write: if trustedUser() && isImage() && belowMb(5);
     }
 
     match /cult_songs/{songId}/{fileName} {
       allow read: if signedIn();
-      allow write: if hasAdminClaim()
+      allow write: if trustedUser()
+        && ((isAudio() && belowMb(25)) || (isPdf() && belowMb(10)));
+    }
+
+    match /cult_songs/{cultId}/{songId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if trustedUser()
         && ((isAudio() && belowMb(25)) || (isPdf() && belowMb(10)));
     }
 

@@ -115,11 +115,23 @@ service cloud.firestore {
       return canManageGroupRequests() || canManageMinistryRequests() || adminOnly();
     }
 
+    function isFamilyGroupAdmin(familyId) {
+      return trustedUser()
+        && familyId is string
+        && exists(/databases/$(database)/documents/family_groups/$(familyId))
+        && get(/databases/$(database)/documents/family_groups/$(familyId)).data.admins.hasAny([userPath(request.auth.uid)]);
+    }
+
+    function canManageFamilyRequest(data) {
+      return data.entityType == 'family' && isFamilyGroupAdmin(data.entityId);
+    }
+
     function canCreateMembershipInvite() {
       return request.resource.data.requestType == 'invite'
         && request.resource.data.invitedBy == request.auth.uid
         && ((request.resource.data.entityType == 'group' && canManageGroupRequests())
           || (request.resource.data.entityType == 'ministry' && canManageMinistryRequests())
+          || canManageFamilyRequest(request.resource.data)
           || (request.resource.data.entityType == 'family' && adminOnly()));
     }
 
@@ -143,6 +155,37 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data)
           .affectedKeys()
           .hasOnly(['status', 'responseTimestamp', 'respondedBy', 'responseReason']);
+    }
+
+    function createsOwnFamilyGroup() {
+      return trustedUser()
+        && request.resource.data.creator == userPath(request.auth.uid)
+        && request.resource.data.admins.hasAny([userPath(request.auth.uid)])
+        && request.resource.data.members.hasAny([userPath(request.auth.uid)]);
+    }
+
+    function changesOnlyOwnFamilyPendingRequest() {
+      return trustedUser()
+        && request.resource.data.pendingRequests is map
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingRequests', 'updatedAt'])
+        && ((resource.data.pendingRequests is map
+            && request.resource.data.pendingRequests.diff(resource.data.pendingRequests).affectedKeys().hasOnly([request.auth.uid]))
+          || (!(resource.data.pendingRequests is map)
+            && request.resource.data.pendingRequests.keys().hasOnly([request.auth.uid])));
+    }
+
+    function respondsOwnFamilyInvite() {
+      return trustedUser()
+        && resource.data.pendingInvites is map
+        && request.resource.data.pendingInvites is map
+        && resource.data.pendingInvites[request.auth.uid] is map
+        && request.resource.data.pendingInvites.diff(resource.data.pendingInvites).affectedKeys().hasOnly([request.auth.uid])
+        && ((request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingInvites', 'updatedAt']))
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'memberRoles', 'pendingInvites', 'updatedAt'])
+            && request.resource.data.members is list
+            && request.resource.data.memberRoles is map
+            && request.resource.data.members.hasAny([userPath(request.auth.uid)])
+            && request.resource.data.memberRoles[request.auth.uid] is string));
     }
 
     function ownNotification() {
@@ -188,6 +231,18 @@ service cloud.firestore {
       allow write: if hasPermission('manage_livestream_config')
         || hasPermission('manage_donations_config')
         || hasPermission('manage_pages');
+    }
+
+    match /app_config/{configId} {
+      allow read: if publicRead();
+      allow write: if hasPermission('manage_livestream_config')
+        || hasPermission('manage_donations_config')
+        || hasPermission('manage_pages');
+    }
+
+    match /donationsPage/{configId} {
+      allow read: if publicRead();
+      allow write: if hasPermission('manage_donations_config');
     }
 
     match /finance_receivers/{receiverId} {
@@ -281,10 +336,13 @@ service cloud.firestore {
     match /membership_requests/{requestId} {
       allow read: if signedIn()
         && (resource.data.userId == request.auth.uid
+          || canManageFamilyRequest(resource.data)
           || canManageMembershipRequests());
       allow create: if trustedUser()
         && (request.resource.data.userId == request.auth.uid || canCreateMembershipInvite());
-      allow update: if canManageMembershipRequests() || respondsOwnMembershipInvite();
+      allow update: if canManageMembershipRequests()
+        || canManageFamilyRequest(resource.data)
+        || respondsOwnMembershipInvite();
       allow delete: if adminOnly();
     }
 
@@ -339,6 +397,12 @@ service cloud.firestore {
     }
 
     match /group_post_comments/{commentId} {
+      allow read: if publicRead();
+      allow create: if trustedUser();
+      allow update, delete: if adminOnly() || resource.data.authorId == userPath(request.auth.uid);
+    }
+
+    match /group_posts_comments/{commentId} {
       allow read: if publicRead();
       allow create: if trustedUser();
       allow update, delete: if adminOnly() || resource.data.authorId == userPath(request.auth.uid);
@@ -431,12 +495,22 @@ service cloud.firestore {
       allow write: if hasPermission('manage_cults') || hasPermission('view_schedule_stats');
     }
 
+    match /timeSlots/{slotId} {
+      allow read: if trustedUser();
+      allow write: if hasPermission('manage_cults') || hasPermission('view_schedule_stats');
+    }
+
     match /available_roles/{roleId} {
       allow read: if trustedUser();
       allow write: if hasPermission('manage_cults') || hasPermission('view_schedule_stats');
     }
 
     match /work_assignments/{assignmentId} {
+      allow read: if trustedUser();
+      allow write: if hasPermission('manage_cults') || hasPermission('view_schedule_stats');
+    }
+
+    match /workAssignments/{assignmentId} {
       allow read: if trustedUser();
       allow write: if hasPermission('manage_cults') || hasPermission('view_schedule_stats');
     }
@@ -482,6 +556,31 @@ service cloud.firestore {
       allow write: if hasPermission('manage_event_attendance');
     }
 
+    match /eventAttendances/{attendanceId} {
+      allow read: if hasPermission('manage_event_attendance') || hasPermission('view_group_stats') || hasPermission('view_ministry_stats');
+      allow write: if hasPermission('manage_event_attendance');
+    }
+
+    match /ministryAttendances/{attendanceId} {
+      allow read: if hasPermission('manage_event_attendance') || hasPermission('view_ministry_stats');
+      allow write: if hasPermission('manage_event_attendance');
+    }
+
+    match /groupEvents/{eventId} {
+      allow read: if publicRead();
+      allow write: if hasPermission('create_group') || hasPermission('manage_event_attendance');
+    }
+
+    match /ministry_members/{memberId} {
+      allow read: if trustedUser();
+      allow write: if canManageMinistryRequests();
+    }
+
+    match /group_members/{memberId} {
+      allow read: if trustedUser();
+      allow write: if canManageGroupRequests();
+    }
+
     match /families/{familyId} {
       allow read: if trustedUser();
       allow write: if adminOnly();
@@ -489,7 +588,12 @@ service cloud.firestore {
 
     match /family_groups/{familyId} {
       allow read: if trustedUser();
-      allow write: if adminOnly();
+      allow create: if adminOnly() || createsOwnFamilyGroup();
+      allow update: if adminOnly()
+        || isFamilyGroupAdmin(familyId)
+        || changesOnlyOwnFamilyPendingRequest()
+        || respondsOwnFamilyInvite();
+      allow delete: if adminOnly() || isFamilyGroupAdmin(familyId);
     }
 
     match /children/{childId} {
@@ -511,13 +615,34 @@ service cloud.firestore {
       allow write: if hasPermission('manage_pages');
     }
 
+    match /courseModules/{moduleId} {
+      allow read: if publicRead();
+      allow write: if hasPermission('manage_pages');
+    }
+
     match /course_lessons/{lessonId} {
+      allow read: if publicRead();
+      allow write: if hasPermission('manage_pages');
+    }
+
+    match /courseLessons/{lessonId} {
       allow read: if publicRead();
       allow write: if hasPermission('manage_pages');
     }
 
     match /user_course_progress/{progressId} {
       allow read, write: if trustedUser();
+    }
+
+    match /userCourseProgress/{progressId} {
+      allow read, write: if trustedUser();
+    }
+
+    match /courseComments/{commentId} {
+      allow read: if publicRead();
+      allow create, update: if trustedUser();
+      allow delete: if hasPermission('manage_pages')
+        || (signedIn() && resource.data.userId == request.auth.uid);
     }
 
     match /saved_locations/{locationId} {
@@ -532,6 +657,12 @@ service cloud.firestore {
     match /eventCategories/{categoryId} {
       allow read: if publicRead();
       allow write: if hasPermission('manage_event_attendance') || hasPermission('manage_cults');
+    }
+
+    match /ticket_fields/{fieldId} {
+      allow read: if trustedUser();
+      allow create: if trustedUser();
+      allow update, delete: if hasPermission('manage_event_attendance');
     }
 
     match /ministry_roles/{roleId} {

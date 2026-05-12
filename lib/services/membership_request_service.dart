@@ -33,7 +33,7 @@ class MembershipRequestService {
   }
 
   Future<void> createPendingEntityRequest({
-    required DocumentReference<Map<String, dynamic>> entityRef,
+    required DocumentReference entityRef,
     required String userId,
     required String entityId,
     required String entityType,
@@ -43,10 +43,14 @@ class MembershipRequestService {
     String? desiredRole,
     String? invitedBy,
     String? invitedByName,
+    String pendingField = 'pendingRequests',
+    dynamic pendingValue,
+    Map<String, dynamic>? entityExtraUpdates,
   }) async {
     final batch = _firestore.batch();
     batch.update(entityRef, {
-      'pendingRequests.$userId': FieldValue.serverTimestamp(),
+      '$pendingField.$userId': pendingValue ?? FieldValue.serverTimestamp(),
+      if (entityExtraUpdates != null) ...entityExtraUpdates,
     });
     batch.set(_firestore.collection(_requestsCollectionPath).doc(),
         await buildRequestData(
