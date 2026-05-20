@@ -8932,4 +8932,39 @@ class AppLocalizationsPt extends AppLocalizations {
   String allowedMembersCount(int allowed, int total) {
     return '$allowed / $total membros';
   }
+
+  @override
+  String get now => 'Agora';
+
+  @override
+  String withTaggedUsers(String names) {
+    return 'Com $names';
+  }
+
+  @override
+  String andMoreUsers(int count) {
+    return ' e mais $count';
+  }
+
+  @override
+  String likesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count curtidas',
+      one: '1 curtida',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String viewCommentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ver os $count comentários',
+      one: 'Ver o comentário',
+    );
+    return '$_temp0';
+  }
 }

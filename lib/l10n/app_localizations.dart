@@ -15985,6 +15985,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{allowed} / {total} miembros'**
   String allowedMembersCount(int allowed, int total);
+
+  /// No description provided for @now.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora'**
+  String get now;
+
+  /// No description provided for @withTaggedUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Con {names}'**
+  String withTaggedUsers(String names);
+
+  /// No description provided for @andMoreUsers.
+  ///
+  /// In es, this message translates to:
+  /// **' y {count} más'**
+  String andMoreUsers(int count);
+
+  /// No description provided for @likesCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 Me gusta} other{{count} Me gusta}}'**
+  String likesCount(int count);
+
+  /// No description provided for @viewCommentsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Ver el comentario} other{Ver los {count} comentarios}}'**
+  String viewCommentsCount(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@ import '../../models/group_event.dart';
 import 'group_event_detail_screen.dart';
 import '../../screens/create_post_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../modals/create_group_event_modal.dart';
 import '../../modals/group_comments_modal.dart';
 import 'group_chat_screen.dart';
 import '../profile_screen.dart';
@@ -57,6 +58,19 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ManageGroupRequestsScreen(group: widget.group),
+      ),
+    );
+  }
+
+  void _openCreateEventModal() {
+    if (!_canCreateEvents) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.92,
+        child: CreateGroupEventModal(group: widget.group),
       ),
     );
   }
@@ -495,7 +509,7 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Grupo',
+                      AppLocalizations.of(context)!.group,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -509,6 +523,12 @@ class _GroupFeedScreenState extends State<GroupFeedScreen> {
           ),
         ),
         actions: [
+          if (_canCreateEvents)
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: Colors.black87),
+              tooltip: AppLocalizations.of(context)!.createGroupEvent,
+              onPressed: _openCreateEventModal,
+            ),
           if (_canManageRequests) 
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -817,17 +837,17 @@ class _GroupPostCardState extends State<GroupPostCard> {
             title: FutureBuilder<DocumentSnapshot>(
               future: widget.post.authorId.get(),
               builder: (context, snapshot) {
-                String name = 'Usuario';
+                String name = AppLocalizations.of(context)!.userFallbackName;
                 if (snapshot.hasData && snapshot.data!.exists) {
                   final data = snapshot.data!.data() as Map<String, dynamic>;
-                  name = data['name'] ?? data['displayName'] ?? 'Usuario';
+                  name = data['name'] ?? data['displayName'] ?? AppLocalizations.of(context)!.userFallbackName;
                 }
                 return Text(name,
                     style: const TextStyle(fontWeight: FontWeight.bold));
               },
             ),
             subtitle: Text(
-              _formatDate(widget.post.createdAt),
+              _formatDate(widget.post.createdAt, AppLocalizations.of(context)!),
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
             trailing: widget.post.authorId.id == userId
@@ -942,7 +962,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
-                      '${widget.post.likes.length} Me gusta',
+                      AppLocalizations.of(context)!.likesCount(widget.post.likes.length),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13.5,
@@ -961,7 +981,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                           final data =
                               snapshot.data!.data() as Map<String, dynamic>;
                           name =
-                              data['name'] ?? data['displayName'] ?? 'Usuario';
+                              data['name'] ?? data['displayName'] ?? AppLocalizations.of(context)!.userFallbackName;
                         }
                         return RichText(
                           text: TextSpan(
@@ -988,7 +1008,7 @@ class _GroupPostCardState extends State<GroupPostCard> {
                   GestureDetector(
                     onTap: widget.onCommentTap,
                     child: Text(
-                      'Ver los ${widget.post.commentCount} comentarios',
+                      AppLocalizations.of(context)!.viewCommentsCount(widget.post.commentCount),
                       style:
                           TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
@@ -1020,8 +1040,9 @@ class _GroupPostCardState extends State<GroupPostCard> {
                       return const SizedBox.shrink();
                     }
                     final names = snapshot.data!;
-                    final extra =
-                        names.length > 3 ? ' +${names.length - 3}' : '';
+                    final extra = names.length > 3
+                        ? AppLocalizations.of(context)!.andMoreUsers(names.length - 3)
+                        : '';
                     final visibleNames = names.take(3).join(', ');
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
@@ -1032,7 +1053,8 @@ class _GroupPostCardState extends State<GroupPostCard> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'Con $visibleNames$extra',
+                              AppLocalizations.of(context)!
+                                  .withTaggedUsers('$visibleNames$extra'),
                               style: TextStyle(
                                   color: Colors.grey[700], fontSize: 13),
                               overflow: TextOverflow.ellipsis,
@@ -1110,13 +1132,13 @@ class _GroupPostCardState extends State<GroupPostCard> {
     return 1.0;
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations strings) {
     final now = DateTime.now();
     final diff = now.difference(date);
     if (diff.inDays > 7) return DateFormat('d MMM').format(date);
     if (diff.inDays > 0) return '${diff.inDays}d';
     if (diff.inHours > 0) return '${diff.inHours}h';
-    return 'Ahora';
+    return strings.now;
   }
 
   Future<List<String>> _fetchTaggedUserNames() async {

@@ -1,5 +1,6 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
+import * as crypto from 'crypto';
 
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -17,6 +18,27 @@ interface SendPushNotificationRequest {
     imageUrl?: string;
   };
   data?: { [key: string]: string };
+}
+
+interface RegisterFreeTicketRequest {
+  eventId: string;
+  ticketId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  formData: Record<string, unknown>;
+}
+
+function requireCallableUid(request: any): string {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new functions.https.HttpsError('unauthenticated', 'Usuario no autenticado');
+  }
+  return uid;
+}
+
+function normalizeString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 // Cloud Function para enviar notificaciones push masivas
@@ -192,4 +214,83 @@ export const sendPushNotifications = functions.https.onCall(async (request) => {
     console.error('Error enviando notificaciones:', error);
     throw new functions.https.HttpsError('internal', 'Error al enviar notificaciones');
   }
-}); 
+});
+
+export const registerFreeEventTicket = functions.https.onCall(async (request) => {
+  const uid = requireCallableUid(request);
+  const payload = request.data as RegisterFreeTicketRequest;
+  if (!payload.eventId || !payload.ticketId) {
+    throw new functions.https.HttpsError('invalid-argument', 'eventId/ticketId inválidos');
+  }
+
+  const eventRef = db.collection('events').doc(payload.eventId);
+  const ticketRef = eventRef.collection('tickets').doc(payload.ticketId);
+  const [eventSnap, ticketSnap] = await Promise.all([eventRef.get(), ticketRef.get()]);
+  if (!eventSnap.exists || !ticketSnap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Evento o ticket no encontrado');
+  }
+
+  const eventData = eventSnap.data() || {};
+  const ticketData = ticketSnap.data() || {};
+  if (ticketData.isPaid === true) {
+    throw new functions.https.HttpsError('failed-precondition', 'Este ticket requiere pago');
+  }
+
+  const now = new Date();
+  const deadline = ticketData.registrationDeadline as admin.firestore.Timestamp | undefined;
+  const eventStart = eventData.startDate as admin.firestore.Timestamp | undefined;
+  if (deadline && now > deadline.toDate()) {
+    throw new functions.https.HttpsError('failed-precondition', 'Prazo de inscrição expirado');
+  }
+  if (ticketData.useEventDateAsDeadline !== false && eventStart && now > eventStart.toDate()) {
+    throw new functions.https.HttpsError('failed-precondition', 'Evento já iniciado');
+  }
+
+  const restriction = normalizeString(ticketData.accessRestriction) || 'public';
+  if (restriction === 'church') {
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (userDoc.data()?.isChurchMember !== true) {
+      throw new functions.https.HttpsError('permission-denied', 'Este ingresso é exclusivo para membros da igreja');
+    }
+  }
+
+  const registrationRef = eventRef.collection('registrations').doc(`${payload.ticketId}_${uid}`);
+  await db.runTransaction(async (tx) => {
+    const [freshTicketSnap, registrationSnap] = await Promise.all([
+      tx.get(ticketRef),
+      tx.get(registrationRef),
+    ]);
+    if (!freshTicketSnap.exists) {
+      throw new functions.https.HttpsError('not-found', 'Ticket no encontrado');
+    }
+    if (registrationSnap.exists) {
+      throw new functions.https.HttpsError('already-exists', 'Você já está registrado para este ticket');
+    }
+
+    const freshTicket = freshTicketSnap.data() || {};
+    const quantity = freshTicket.quantity as number | undefined;
+    const soldCount = Number(freshTicket.soldCount || 0);
+    if (quantity && soldCount >= quantity) {
+      throw new functions.https.HttpsError('resource-exhausted', 'Não há mais ingressos disponíveis');
+    }
+
+    tx.set(registrationRef, {
+      eventId: payload.eventId,
+      ticketId: payload.ticketId,
+      userId: uid,
+      userName: normalizeString(payload.userName),
+      userEmail: normalizeString(payload.userEmail),
+      userPhone: normalizeString(payload.userPhone),
+      formData: payload.formData || {},
+      qrCode: `${payload.eventId}-${payload.ticketId}-${uid}-${crypto.randomUUID()}`,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      isUsed: false,
+    });
+    tx.update(ticketRef, {
+      soldCount: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  });
+
+  return { registrationId: registrationRef.id };
+});

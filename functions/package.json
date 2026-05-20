@@ -4,7 +4,7 @@
   "description": "Cloud Functions for Church App",
   "main": "lib/index.js",
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "scripts": {
     "build": "tsc",

@@ -13,6 +13,7 @@ import 'manage_requests_screen.dart';
 import '../../models/ministry_event.dart';
 import 'ministry_event_detail_screen.dart';
 import 'package:intl/intl.dart';
+import '../../modals/create_ministry_event_modal.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
@@ -62,6 +63,19 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ManageRequestsScreen(ministry: widget.ministry),
+      ),
+    );
+  }
+
+  void _openCreateEventModal() {
+    if (!_canCreateEvents) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.92,
+        child: CreateMinistryEventModal(ministry: widget.ministry),
       ),
     );
   }
@@ -493,7 +507,7 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Ministerio',
+                      AppLocalizations.of(context)!.ministry,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -507,6 +521,12 @@ class _MinistryFeedScreenState extends State<MinistryFeedScreen> {
           ),
         ),
         actions: [
+          if (_canCreateEvents)
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: Colors.black87),
+              tooltip: AppLocalizations.of(context)!.createMinistryEvent,
+              onPressed: _openCreateEventModal,
+            ),
           if (_canManageRequests) 
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -811,17 +831,17 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
             title: FutureBuilder<DocumentSnapshot>(
               future: widget.post.authorId.get(),
               builder: (context, snapshot) {
-                String name = 'Usuario';
+                String name = AppLocalizations.of(context)!.userFallbackName;
                 if (snapshot.hasData && snapshot.data!.exists) {
                   final data = snapshot.data!.data() as Map<String, dynamic>;
-                  name = data['name'] ?? data['displayName'] ?? 'Usuario';
+                  name = data['name'] ?? data['displayName'] ?? AppLocalizations.of(context)!.userFallbackName;
                 }
                 return Text(name,
                     style: const TextStyle(fontWeight: FontWeight.bold));
               },
             ),
             subtitle: Text(
-              _formatDate(widget.post.createdAt),
+              _formatDate(widget.post.createdAt, AppLocalizations.of(context)!),
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
             trailing: widget.post.authorId.id == userId
@@ -937,7 +957,7 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
-                      '${widget.post.likes.length} Me gusta',
+                      AppLocalizations.of(context)!.likesCount(widget.post.likes.length),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13.5,
@@ -956,7 +976,7 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
                           final data =
                               snapshot.data!.data() as Map<String, dynamic>;
                           name =
-                              data['name'] ?? data['displayName'] ?? 'Usuario';
+                              data['name'] ?? data['displayName'] ?? AppLocalizations.of(context)!.userFallbackName;
                         }
                         return RichText(
                           text: TextSpan(
@@ -983,7 +1003,7 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
                   GestureDetector(
                     onTap: widget.onCommentTap,
                     child: Text(
-                      'Ver los ${widget.post.commentCount} comentarios',
+                      AppLocalizations.of(context)!.viewCommentsCount(widget.post.commentCount),
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ),
@@ -1011,7 +1031,9 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
                       return const SizedBox.shrink();
                     }
                     final names = snapshot.data!;
-                    final extra = names.length > 3 ? ' +${names.length - 3}' : '';
+                    final extra = names.length > 3
+                        ? AppLocalizations.of(context)!.andMoreUsers(names.length - 3)
+                        : '';
                     final visibleNames = names.take(3).join(', ');
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
@@ -1021,7 +1043,8 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'Con $visibleNames$extra',
+                              AppLocalizations.of(context)!
+                                  .withTaggedUsers('$visibleNames$extra'),
                               style: TextStyle(color: Colors.grey[700], fontSize: 13),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1090,13 +1113,13 @@ class _MinistryPostCardState extends State<MinistryPostCard> {
     return 1.0;
   }
   
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations strings) {
     final now = DateTime.now();
     final diff = now.difference(date);
     if (diff.inDays > 7) return DateFormat('d MMM').format(date);
     if (diff.inDays > 0) return '${diff.inDays}d';
     if (diff.inHours > 0) return '${diff.inHours}h';
-    return 'Ahora';
+    return strings.now;
   }
 
   Future<List<String>> _fetchTaggedUserNames() async {

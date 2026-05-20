@@ -77,8 +77,8 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al seleccionar la imagen'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorSelectingImageText),
             backgroundColor: Colors.red,
           ),
         );
@@ -159,27 +159,45 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
   void _showLocationPicker() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return SafeArea(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.72,
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 42,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Row(
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.selectLocation, // Asegúrate de tener esta key o usa un string hardcoded por ahora
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.selectLocation,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        minimumSize: const Size(0, 40),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                       onPressed: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -187,14 +205,17 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                           MaterialPageRoute(builder: (context) => const ManageChurchLocationsScreen()),
                         );
                       },
-                      child: Text(AppLocalizations.of(context)!.createOrEdit),
+                      child: Text(
+                        AppLocalizations.of(context)!.createOrEdit,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-              ),
-              const Divider(),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
+                const SizedBox(height: 12),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection('churchLocations').orderBy('name').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -223,7 +244,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                     final locations = snapshot.data!.docs.map((doc) => ChurchLocation.fromFirestore(doc)).toList();
 
                     return ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.zero,
                       itemCount: locations.length,
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
@@ -249,7 +270,8 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                   },
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -355,7 +377,8 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SafeArea(
+      child: Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -364,14 +387,14 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxHeight: MediaQuery.of(context).size.height * 0.94,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.fromLTRB(8, 10, 12, 10),
             child: Row(
               children: [
                 IconButton(
@@ -382,13 +405,15 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                   child: Text(
                     AppLocalizations.of(context)!.createMinistryEvent,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.start,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 _isLoading
                     ? const SizedBox(
                         width: 24,
@@ -397,6 +422,11 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
                       )
                     : TextButton(
                         onPressed: _createEvent,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 40),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                         child: Text(
                           AppLocalizations.of(context)!.save,
                           style: TextStyle(
@@ -632,6 +662,7 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -643,43 +674,61 @@ class _CreateMinistryEventModalState extends State<CreateMinistryEventModal> {
     required VoidCallback onDateTap,
     required VoidCallback onTimeTap,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(icon, color: Colors.grey[600], size: 20),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: onDateTap,
-                  borderRadius: BorderRadius.circular(4),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                    child: Text(
-                      DateFormat('EEE, d MMM yyyy').format(date),
-                      style: const TextStyle(fontSize: 16),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.grey[600], size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: onDateTap,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Text(
+                          DateFormat('EEE, d MMM yyyy').format(date),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    InkWell(
+                      onTap: onTimeTap,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Text(
+                        time.format(context),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: onTimeTap,
-                borderRadius: BorderRadius.circular(4),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                  child: Text(
-                    time.format(context),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

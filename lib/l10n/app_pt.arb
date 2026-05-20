@@ -4751,5 +4751,38 @@
         "type": "int"
       }
     }
+  },
+  "now": "Agora",
+  "withTaggedUsers": "Com {names}",
+  "@withTaggedUsers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "andMoreUsers": " e mais {count}",
+  "@andMoreUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesCount": "{count, plural, =1{1 curtida} other{{count} curtidas}}",
+  "@likesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewCommentsCount": "{count, plural, =1{Ver o comentário} other{Ver os {count} comentários}}",
+  "@viewCommentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -4830,5 +4830,38 @@
         "type": "int"
       }
     }
+  },
+  "now": "Ahora",
+  "withTaggedUsers": "Con {names}",
+  "@withTaggedUsers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "andMoreUsers": " y {count} más",
+  "@andMoreUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesCount": "{count, plural, =1{1 Me gusta} other{{count} Me gusta}}",
+  "@likesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewCommentsCount": "{count, plural, =1{Ver el comentario} other{Ver los {count} comentarios}}",
+  "@viewCommentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
