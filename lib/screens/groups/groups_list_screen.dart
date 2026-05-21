@@ -146,10 +146,15 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
   }
 
   List<Group> _filterGroups(List<Group> groups) {
-    if (_searchQuery.isEmpty) return groups;
-    return groups.where((group) => 
-      group.name.toLowerCase().contains(_searchQuery.toLowerCase())
-    ).toList();
+    final List<Group> filtered = _searchQuery.isEmpty
+        ? List<Group>.from(groups)
+        : groups
+            .where((group) =>
+                group.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+    filtered.sort(
+        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return filtered;
   }
 
   Future<void> _handleGroupAction(Group group) async {
@@ -419,10 +424,24 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
           return const ListTabContentSkeleton();
         }
 
-        final invites = snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
+        final rawInvites =
+            snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
         if (snapshot.hasData) {
-          _cachedInvites = invites;
+          _cachedInvites = rawInvites;
         }
+        // Ordenar alfabéticamente por nombre del grupo invitado
+        final invites = List<QueryDocumentSnapshot>.from(rawInvites)
+          ..sort((a, b) {
+            final aName = ((a.data() as Map<String, dynamic>)['entityName'] ??
+                    '')
+                .toString()
+                .toLowerCase();
+            final bName = ((b.data() as Map<String, dynamic>)['entityName'] ??
+                    '')
+                .toString()
+                .toLowerCase();
+            return aName.compareTo(bName);
+          });
         if (invites.isEmpty) {
           return Center(
             child: Text(

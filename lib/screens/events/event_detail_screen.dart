@@ -1043,7 +1043,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 );
               },
             ),
-          if (_isPastor &&
+          if ((_isPastor || _canManageTickets) &&
               (widget.event.eventType == 'presential' ||
                   widget.event.eventType == 'hybrid'))
             IconButton(

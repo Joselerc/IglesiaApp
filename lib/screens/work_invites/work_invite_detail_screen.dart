@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/work_invite.dart';
 import '../../services/work_schedule_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/cult_details/cult_full_details_section.dart';
 
 class WorkInviteDetailScreen extends StatefulWidget {
   final WorkInvite invite;
@@ -294,7 +295,16 @@ class _WorkInviteDetailScreenState extends State<WorkInviteDetailScreen> {
                             ],
                           ],
                         ),
-                        
+
+                        // Detalles completos del culto: solo si la invitación
+                        // ya está aceptada y pertenece a un culto.
+                        if (widget.invite.status == 'accepted' &&
+                            widget.invite.entityType == 'cult' &&
+                            widget.invite.entityId.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          CultFullDetailsSection(invite: widget.invite),
+                        ],
+
                         const SizedBox(height: 24),
                       ],
                     ),

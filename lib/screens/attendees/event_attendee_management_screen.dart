@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:open_file/open_file.dart';
 import '../../models/ticket_registration_model.dart';
 import '../../models/ticket_model.dart';
 import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/event_attendees_export_service.dart';
+import '../../services/permission_service.dart';
 
 class EventAttendeeManagementScreen extends StatefulWidget {
   final String eventId;
@@ -24,22 +27,69 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
   List<TicketModel> _tickets = [];
   Map<String, List<TicketRegistrationModel>> _registrationsByTicket = {};
   bool _isLoading = true;
+  bool _isExporting = false;
+  bool _canExport = false; // pastor/admin o permiso manage_event_tickets
+  DateTime? _eventDate;
   String? _selectedTicketId;
   String _searchQuery = '';
   String _viewFilter = 'all'; // 'all', 'registered', 'attended'
 
+  final PermissionService _permissionService = PermissionService();
+
   AppLocalizations get _loc => AppLocalizations.of(context)!;
-  
+
   @override
   void initState() {
     super.initState();
+    _checkExportPermission();
     _loadData();
+  }
+
+  Future<void> _checkExportPermission() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      bool isPastorOrAdmin = false;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (userDoc.exists) {
+        final role = (userDoc.data() as Map<String, dynamic>)['role'] as String?;
+        isPastorOrAdmin = role == 'pastor' || role == 'admin';
+      }
+      final hasTicketsPermission =
+          await _permissionService.hasPermission('manage_event_tickets');
+      if (mounted) {
+        setState(() {
+          _canExport = isPastorOrAdmin || hasTicketsPermission;
+        });
+      }
+    } catch (e) {
+      print('Error verificando permiso de exportación: $e');
+    }
   }
   
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    
+
     try {
+      // Cargar el documento del evento (para fecha y otros datos)
+      try {
+        final eventDoc = await FirebaseFirestore.instance
+            .collection('events')
+            .doc(widget.eventId)
+            .get();
+        if (eventDoc.exists) {
+          final data = eventDoc.data() as Map<String, dynamic>;
+          final ts = data['startDate'] ?? data['date'];
+          if (ts is Timestamp) _eventDate = ts.toDate();
+        }
+      } catch (e) {
+        // No bloquear la carga por esto
+        print('Error cargando fecha del evento: $e');
+      }
+
       // Cargar tickets del evento mediante el snapshot
       final ticketsSnapshot = await FirebaseFirestore.instance
           .collection('events')
@@ -96,6 +146,53 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
     }
   }
   
+  Future<void> _exportToExcel() async {
+    if (_tickets.isEmpty) return;
+    final totalRegs = _registrationsByTicket.values
+        .fold<int>(0, (sum, list) => sum + list.length);
+    if (totalRegs == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não há participantes para exportar')),
+      );
+      return;
+    }
+
+    setState(() => _isExporting = true);
+    try {
+      final filePath = await EventAttendeesExportService.exportToExcel(
+        eventTitle: widget.eventTitle,
+        eventDate: _eventDate,
+        tickets: _tickets,
+        registrationsByTicket: _registrationsByTicket,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Excel gerado com sucesso'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Abrir',
+            textColor: Colors.white,
+            onPressed: () => OpenFile.open(filePath),
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error al exportar Excel: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao gerar Excel: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
   // Función para buscar y seleccionar usuarios registrados en la app
   Future<void> _searchAndAddUser() async {
     if (_selectedTicketId == null) {
@@ -389,6 +486,22 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
         elevation: 0,
         foregroundColor: Colors.white,
         actions: [
+          if (_canExport)
+            IconButton(
+              icon: _isExporting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.file_download_outlined),
+              onPressed:
+                  (_isExporting || _tickets.isEmpty) ? null : _exportToExcel,
+              tooltip: 'Baixar Excel',
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,

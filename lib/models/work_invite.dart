@@ -20,6 +20,7 @@ class WorkInvite {
   final DateTime createdAt;
   final DateTime? respondedAt;
   final String sentBy;
+  final String timeSlotId; // ID de la franja horaria (time_slots) a la que pertenece
 
   WorkInvite({
     required this.id,
@@ -41,6 +42,7 @@ class WorkInvite {
     required this.createdAt,
     this.respondedAt,
     required this.sentBy,
+    this.timeSlotId = '',
   });
 
   factory WorkInvite.fromFirestore(DocumentSnapshot doc) {
@@ -65,6 +67,7 @@ class WorkInvite {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       respondedAt: (data['respondedAt'] as Timestamp?)?.toDate(),
       sentBy: data['sentBy']?.id ?? '',
+      timeSlotId: data['timeSlotId'] ?? '',
     );
   }
 
@@ -87,6 +90,7 @@ class WorkInvite {
       'isVisible': isVisible,
       'createdAt': Timestamp.fromDate(createdAt),
       'sentBy': FirebaseFirestore.instance.collection('users').doc(sentBy),
+      'timeSlotId': timeSlotId,
     };
 
     if (respondedAt != null) {
@@ -117,6 +121,7 @@ class WorkInvite {
     DateTime? createdAt,
     DateTime? respondedAt,
     String? sentBy,
+    String? timeSlotId,
   }) {
     return WorkInvite(
       id: id ?? this.id,
@@ -138,6 +143,7 @@ class WorkInvite {
       createdAt: createdAt ?? this.createdAt,
       respondedAt: respondedAt ?? this.respondedAt,
       sentBy: sentBy ?? this.sentBy,
+      timeSlotId: timeSlotId ?? this.timeSlotId,
     );
   }
 } 

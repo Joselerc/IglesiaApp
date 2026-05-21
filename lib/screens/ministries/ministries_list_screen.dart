@@ -157,10 +157,15 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
   }
 
   List<Ministry> _filterMinistries(List<Ministry> ministries) {
-    if (_searchQuery.isEmpty) return ministries;
-    return ministries.where((ministry) => 
-      ministry.name.toLowerCase().contains(_searchQuery.toLowerCase())
-    ).toList();
+    final List<Ministry> filtered = _searchQuery.isEmpty
+        ? List<Ministry>.from(ministries)
+        : ministries
+            .where((ministry) =>
+                ministry.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+    filtered.sort(
+        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return filtered;
   }
 
   Future<void> _handleMinistryAction(Ministry ministry) async {
@@ -436,10 +441,24 @@ class _MinistriesListScreenState extends State<MinistriesListScreen> {
           return const ListTabContentSkeleton();
         }
 
-        final invites = snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
+        final rawInvites =
+            snapshot.hasData ? snapshot.data!.docs : _cachedInvites;
         if (snapshot.hasData) {
-          _cachedInvites = invites;
+          _cachedInvites = rawInvites;
         }
+        // Ordenar alfabéticamente por nombre del ministerio invitado
+        final invites = List<QueryDocumentSnapshot>.from(rawInvites)
+          ..sort((a, b) {
+            final aName = ((a.data() as Map<String, dynamic>)['entityName'] ??
+                    '')
+                .toString()
+                .toLowerCase();
+            final bName = ((b.data() as Map<String, dynamic>)['entityName'] ??
+                    '')
+                .toString()
+                .toLowerCase();
+            return aName.compareTo(bName);
+          });
         if (invites.isEmpty) {
           return Center(
             child: Text(

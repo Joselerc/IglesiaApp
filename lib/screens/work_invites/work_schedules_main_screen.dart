@@ -31,6 +31,7 @@ class _WorkSchedulesMainScreenState extends State<WorkSchedulesMainScreen> with 
   
   bool _isLoading = true;
   String _currentView = 'list'; // 'list' o 'calendar'
+  bool _initialTabAdjusted = false; // Para ajustar el tab inicial solo una vez
 
   @override
   void initState() {
@@ -107,6 +108,20 @@ class _WorkSchedulesMainScreenState extends State<WorkSchedulesMainScreen> with 
             }
             _rejectedInvites[date]!.add(invite);
             break;
+        }
+      }
+
+      // En la primera carga, si el usuario no tiene escalas pendientes
+      // pero sí aceptadas (o solo rechazadas), saltar a ese tab para que
+      // no vea una pantalla vacía sin saber dónde están sus escalas.
+      if (!_initialTabAdjusted) {
+        _initialTabAdjusted = true;
+        if (_pendingInvites.isEmpty) {
+          if (_acceptedInvites.isNotEmpty) {
+            _tabController.animateTo(2);
+          } else if (_rejectedInvites.isNotEmpty) {
+            _tabController.animateTo(3);
+          }
         }
       }
 
