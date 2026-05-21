@@ -22,8 +22,9 @@ class EventAttendeesExportService {
   }) async {
     final excel = Excel.createExcel();
 
-    // Eliminar la hoja por defecto que crea la librería ("Sheet1")
-    excel.delete('Sheet1');
+    // Renombrar la hoja por defecto a "Participantes" para que sea la primera
+    // pestaña del archivo (la librería no permite reordenar después de crear).
+    excel.rename('Sheet1', 'Participantes');
 
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final ticketsById = {for (final t in tickets) t.id: t};

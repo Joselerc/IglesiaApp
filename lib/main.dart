@@ -276,6 +276,19 @@ class MyApp extends StatelessWidget {
             navigatorKey: EventService.navigatorKey,
             theme: AppTheme.lightTheme,
             home: const AuthWrapper(),
+            // En iOS el teclado no tiene botón "Concluir" por defecto.
+            // Al envolver todo con un GestureDetector traslúcido, al tocar
+            // cualquier zona vacía se cierra el teclado.
+            builder: (context, child) => GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                final focus = FocusManager.instance.primaryFocus;
+                if (focus != null && focus.hasFocus) {
+                  focus.unfocus();
+                }
+              },
+              child: child,
+            ),
             localizationsDelegates: const [
               AppLocalizations.delegate, // Añadir delegado generado automáticamente
               GlobalMaterialLocalizations.delegate,

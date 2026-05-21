@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../models/ticket_registration_model.dart';
 import '../../models/ticket_model.dart';
 import 'package:intl/intl.dart';
@@ -178,6 +179,14 @@ class _EventAttendeeManagementScreenState extends State<EventAttendeeManagementS
             onPressed: () => OpenFile.open(filePath),
           ),
         ),
+      );
+
+      // Abrir el share sheet del sistema para que el usuario pueda
+      // guardarlo en Downloads, Drive, enviar por WhatsApp, etc.
+      // Esto es lo que hacen apps como Google Sheets cuando exportas.
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        subject: 'Participantes - ${widget.eventTitle}',
       );
     } catch (e) {
       print('Error al exportar Excel: $e');

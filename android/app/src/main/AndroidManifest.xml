@@ -48,10 +48,12 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="church_app_high_importance" />
 
-        <!-- Icono por defecto para notificaciones -->
+        <!-- Icono por defecto para notificaciones (silueta blanca monocroma).
+             Android pinta de gris cualquier pixel de color en el icono pequeño
+             de notificaciones, por eso no se puede usar el ic_launcher directo. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher" />
+            android:resource="@drawable/ic_notification" />
 
         <!-- Color por defecto para notificaciones -->
         <meta-data

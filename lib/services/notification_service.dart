@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import '../models/notification.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color;
+import 'notification_translations.dart';
 
 class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -29,7 +31,7 @@ class NotificationService {
     if (_isInitialized) return;
     
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings('@drawable/ic_notification');
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -95,6 +97,8 @@ class NotificationService {
         showWhen: true,
         playSound: true,
         enableVibration: true,
+        icon: '@drawable/ic_notification',
+        color: Color(0xFFE94F1A),
       );
       
       const iosDetails = DarwinNotificationDetails(
@@ -126,6 +130,45 @@ class NotificationService {
   
   // Referencia a la colección de notificaciones
   CollectionReference get _notificationsRef => _firestore.collection('notifications');
+
+  /// Obtiene el idioma preferido de un usuario desde Firestore.
+  /// Si no está definido, devuelve `'pt'` (idioma por defecto).
+  Future<String> getUserPreferredLanguage(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        final lang = data['preferredLanguage'] as String?;
+        if (lang != null && lang.isNotEmpty) return lang;
+      }
+    } catch (e) {
+      debugPrint('Error obteniendo preferredLanguage de $userId: $e');
+    }
+    return 'pt';
+  }
+
+  /// Traduce una notificación a partir de su clave y los parámetros usando
+  /// el idioma del receptor. Devuelve el texto final listo para enviar.
+  Future<({String title, String body})> buildLocalizedNotification({
+    required String receiverUserId,
+    required String titleKey,
+    required String bodyKey,
+    Map<String, String> titleParams = const {},
+    Map<String, String> bodyParams = const {},
+  }) async {
+    final language = await getUserPreferredLanguage(receiverUserId);
+    final title = NotificationTranslations.translate(
+      titleKey,
+      language: language,
+      params: titleParams,
+    );
+    final body = NotificationTranslations.translate(
+      bodyKey,
+      language: language,
+      params: bodyParams,
+    );
+    return (title: title, body: body);
+  }
   
   // Obtener las notificaciones del usuario actual
   Stream<List<AppNotification>> getUserNotifications() {

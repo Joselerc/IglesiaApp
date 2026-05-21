@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Icono monocromo blanco para notificaciones push.
+  Android exige que el icono pequeño de notificaciones sea una silueta
+  blanca con transparencia (cualquier pixel coloreado se renderiza gris).
+  El color de fondo del círculo se toma de notification_color (colors.xml).
+
+  Path: silueta de iglesia de Material Icons.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="@android:color/white">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M18,12.22V9l-6,-3 -6,3v3.22L4,13v8h6v-5h4v5h6v-8l-2,-0.78z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M11,3h2v2h2v2h-2v2h-2V7H9V5h2z" />
+</vector>

@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../models/cult.dart';
 import '../../../models/time_slot.dart';
+import '../../../services/notification_service.dart';
+import '../../../services/notification_translations.dart';
 import '../../../services/work_schedule_service.dart';
 import '../../../theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -138,6 +140,27 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
     });
   }
   
+  /// Construye el título y cuerpo de la notificación de invitación traducidos
+  /// al idioma preferido del usuario que la va a recibir. Si el receptor no
+  /// tiene idioma guardado en Firestore, cae a portugués (default de la app).
+  Future<({String title, String body})> _buildInviteNotification(
+    String receiverUserId,
+    String role,
+  ) async {
+    final language =
+        await NotificationService().getUserPreferredLanguage(receiverUserId);
+    final title = NotificationTranslations.translate(
+      'NEW_SERVICE_INVITATION',
+      language: language,
+    );
+    final body = NotificationTranslations.translate(
+      'INVITED_TO_SERVE_AS',
+      language: language,
+      params: {'role': role},
+    );
+    return (title: title, body: body);
+  }
+
   Future<void> _loadSavedRoles() async {
     setState(() {
       _isLoadingUsers = true;
@@ -788,15 +811,18 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
             }
           }
           
-          // Crear nueva invitación
-          // Usar claves fijas que se traducirán al mostrar la notificación
+          // Crear nueva invitación traduciendo al idioma del receptor
+          final localized = await _buildInviteNotification(
+            userId,
+            widget.predefinedRole!,
+          );
           await WorkScheduleService().createWorkAssignment(
             timeSlotId: widget.timeSlot.id,
             userId: userId,
             ministryId: widget.ministryId,
             role: widget.predefinedRole!,
-            notificationTitle: 'NEW_SERVICE_INVITATION',
-            notificationMessage: 'INVITED_TO_SERVE_AS:${widget.predefinedRole!}',
+            notificationTitle: localized.title,
+            notificationMessage: localized.body,
           );
         }
       } 
@@ -840,15 +866,15 @@ class _AssignPersonModalState extends State<AssignPersonModal> {
             }
           }
       
-          // Crear invitación con el nuevo rol
-          // Usar claves fijas que se traducirán al mostrar la notificación
+          // Crear invitación con el nuevo rol traduciendo al idioma del receptor
+          final localized = await _buildInviteNotification(userId, role);
           await WorkScheduleService().createWorkAssignment(
             timeSlotId: widget.timeSlot.id,
             userId: userId,
             ministryId: widget.ministryId,
             role: role,
-            notificationTitle: 'NEW_SERVICE_INVITATION',
-            notificationMessage: 'INVITED_TO_SERVE_AS:$role',
+            notificationTitle: localized.title,
+            notificationMessage: localized.body,
           );
         }
       }
