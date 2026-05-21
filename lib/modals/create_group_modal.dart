@@ -83,6 +83,10 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
         if (user == null) return;
 
         final userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final adminRefs = [
+          userRef,
+          ..._selectedAdmins.where((ref) => ref.path != userRef.path),
+        ];
         
         final group = {
           'name': _nameController.text.trim(),
@@ -90,8 +94,8 @@ class _CreateGroupModalState extends State<CreateGroupModal> with SingleTickerPr
           'imageUrl': '',
           'createdAt': FieldValue.serverTimestamp(),
           'createdBy': userRef,
-          'members': [userRef],
-          'groupAdmin': _selectedAdmins.isEmpty ? [userRef] : _selectedAdmins,
+          'members': adminRefs,
+          'groupAdmin': adminRefs,
         };
 
         await FirebaseFirestore.instance.collection('groups').add(group);

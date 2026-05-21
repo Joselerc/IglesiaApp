@@ -27,21 +27,34 @@ class Group {
 
   factory Group.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+
+    String? extractUserId(dynamic value) {
+      if (value is DocumentReference) return value.id;
+      if (value is Map && value['path'] != null) {
+        return value['path'].toString().split('/').last;
+      }
+      if (value is String) {
+        final parts = value.split('/').where((part) => part.isNotEmpty).toList();
+        return parts.isEmpty ? value : parts.last;
+      }
+      return value?.toString();
+    }
     
     // Convertir referencias de documentos a IDs de string para adminIds
     List<String> adminIds = [];
     if (data['groupAdmin'] != null) {
       final admins = data['groupAdmin'] as List?;
       if (admins != null) {
-        adminIds = admins.map((admin) {
-          if (admin is DocumentReference) {
-            return admin.id;
-          } else if (admin is String && admin.startsWith('/users/')) {
-            return admin.substring(7); // Quitar '/users/'
-          }
-          return admin.toString();
-        }).toList();
+        adminIds = admins
+            .map(extractUserId)
+            .whereType<String>()
+            .where((id) => id.isNotEmpty)
+            .toList();
       }
+    }
+    final creatorId = extractUserId(data['createdBy']);
+    if (creatorId != null && creatorId.isNotEmpty && !adminIds.contains(creatorId)) {
+      adminIds.add(creatorId);
     }
     
     // Convertir referencias de documentos a IDs de string para memberIds
@@ -49,14 +62,11 @@ class Group {
     if (data['members'] != null) {
       final members = data['members'] as List?;
       if (members != null) {
-        memberIds = members.map((member) {
-          if (member is DocumentReference) {
-            return member.id;
-          } else if (member is String && member.startsWith('/users/')) {
-            return member.substring(7); // Quitar '/users/'
-          }
-          return member.toString();
-        }).toList();
+        memberIds = members
+            .map(extractUserId)
+            .whereType<String>()
+            .where((id) => id.isNotEmpty)
+            .toList();
       }
     }
     

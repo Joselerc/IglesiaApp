@@ -81,6 +81,10 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
         if (user == null) return;
 
         final userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final adminRefs = [
+          userRef,
+          ..._selectedAdmins.where((ref) => ref.path != userRef.path),
+        ];
         
         final ministry = {
           'name': _nameController.text.trim(),
@@ -88,8 +92,8 @@ class _CreateMinistryModalState extends State<CreateMinistryModal> with SingleTi
           'imageUrl': '',
           'createdAt': FieldValue.serverTimestamp(),
           'createdBy': userRef,
-          'members': [userRef],
-          'ministrieAdmin': _selectedAdmins.isEmpty ? [userRef] : _selectedAdmins,
+          'members': adminRefs,
+          'ministrieAdmin': adminRefs,
         };
 
         await FirebaseFirestore.instance.collection('ministries').add(ministry);

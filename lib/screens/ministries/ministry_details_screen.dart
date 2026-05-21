@@ -1419,11 +1419,34 @@ class _MinistryDetailsScreenState extends State<MinistryDetailsScreen> {
   }
 
   List<String> _getAdminIds(Map<String, dynamic> ministryData) {
-    List<String> adminIds = [];
+    final adminIds = <String>[];
+    String? extractUserId(dynamic value) {
+      if (value is DocumentReference) return value.id;
+      if (value is Map && value['path'] != null) {
+        return value['path'].toString().split('/').last;
+      }
+      if (value is String) {
+        final parts = value.split('/').where((part) => part.isNotEmpty).toList();
+        return parts.isEmpty ? value : parts.last;
+      }
+      return value?.toString();
+    }
+
     final adminData = ministryData['ministrieAdmin'];
     if (adminData != null) {
-      if (adminData is List) { adminIds = adminData.whereType<DocumentReference>().map((ref) => ref.id).toList(); }
-      else if (adminData is Map) { adminIds = (adminData as Map).keys.toList().cast<String>(); }
+      if (adminData is List) {
+        adminIds.addAll(adminData
+            .map(extractUserId)
+            .whereType<String>()
+            .where((id) => id.isNotEmpty));
+      } else if (adminData is Map) {
+        adminIds.addAll(adminData.keys.map((key) => key.toString()));
+      }
+    }
+
+    final creatorId = extractUserId(ministryData['createdBy']);
+    if (creatorId != null && creatorId.isNotEmpty && !adminIds.contains(creatorId)) {
+      adminIds.add(creatorId);
     }
     return adminIds;
   }

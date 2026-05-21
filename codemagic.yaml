@@ -14,7 +14,7 @@ workflows:
         BUNDLE_ID: "com.iglesia.app"
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-      flutter: stable
+      flutter: 3.38.5
       xcode: latest
       cocoapods: default
     scripts:
@@ -41,7 +41,7 @@ workflows:
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
-            --build-name=2.3.1 \
+            --build-name=2.3.9 \
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
@@ -67,7 +67,7 @@ workflows:
         - keystore_reference
       vars:
         PACKAGE_NAME: "com.iglesia.app"
-      flutter: stable
+      flutter: 3.38.5
       java: 11
     scripts:
       - name: Set up Firebase configuration files
@@ -90,12 +90,12 @@ workflows:
       - name: Build APK with Flutter
         script: |
           flutter build apk --release \
-            --build-name=1.0.0 \
+            --build-name=2.3.9 \
             --build-number=$BUILD_NUMBER
       - name: Build App Bundle
         script: |
           flutter build appbundle --release \
-            --build-name=1.0.0 \
+            --build-name=2.3.9 \
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/**/outputs/**/*.apk
