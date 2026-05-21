@@ -14,7 +14,7 @@ workflows:
         BUNDLE_ID: "com.iglesia.app"
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-      flutter: 3.38.5
+      flutter: stable
       xcode: latest
       cocoapods: default
     scripts:
@@ -28,7 +28,7 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Patch flutter_quill for current Flutter
+      - name: Patch flutter_quill for current Flutter (safety net)
         script: |
           python3 - <<'PY'
           from pathlib import Path
@@ -37,19 +37,21 @@ workflows:
               ".pub-cache/hosted/pub.dev/flutter_quill-*/lib/src/editor/raw_editor/raw_editor_state.dart"
           ))
           if not files:
-              raise SystemExit("flutter_quill raw_editor_state.dart not found")
+              print("flutter_quill raw_editor_state.dart not found; skipping patch")
+              raise SystemExit(0)
 
           for file in files:
               text = file.read_text()
-              if "onFocusReceived()" in text:
-                  print(f"{file} already patched")
+              if "onFocusReceived" in text:
+                  print(f"{file} already implements onFocusReceived; skipping")
                   continue
 
               marker = "class QuillRawEditorState extends EditorState"
               start = text.find(marker)
               brace = text.find("{", start)
               if start == -1 or brace == -1:
-                  raise SystemExit(f"Could not patch {file}")
+                  print(f"Could not patch {file}; skipping")
+                  continue
 
               patch = "\n  @override\n  bool onFocusReceived() => false;\n"
               file.write_text(text[:brace + 1] + patch + text[brace + 1:])
@@ -94,8 +96,8 @@ workflows:
         - keystore_reference
       vars:
         PACKAGE_NAME: "com.iglesia.app"
-      flutter: 3.38.5
-      java: 11
+      flutter: stable
+      java: 17
     scripts:
       - name: Set up Firebase configuration files
         script: |
@@ -107,7 +109,7 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Patch flutter_quill for current Flutter
+      - name: Patch flutter_quill for current Flutter (safety net)
         script: |
           python3 - <<'PY'
           from pathlib import Path
@@ -116,19 +118,21 @@ workflows:
               ".pub-cache/hosted/pub.dev/flutter_quill-*/lib/src/editor/raw_editor/raw_editor_state.dart"
           ))
           if not files:
-              raise SystemExit("flutter_quill raw_editor_state.dart not found")
+              print("flutter_quill raw_editor_state.dart not found; skipping patch")
+              raise SystemExit(0)
 
           for file in files:
               text = file.read_text()
-              if "onFocusReceived()" in text:
-                  print(f"{file} already patched")
+              if "onFocusReceived" in text:
+                  print(f"{file} already implements onFocusReceived; skipping")
                   continue
 
               marker = "class QuillRawEditorState extends EditorState"
               start = text.find(marker)
               brace = text.find("{", start)
               if start == -1 or brace == -1:
-                  raise SystemExit(f"Could not patch {file}")
+                  print(f"Could not patch {file}; skipping")
+                  continue
 
               patch = "\n  @override\n  bool onFocusReceived() => false;\n"
               file.write_text(text[:brace + 1] + patch + text[brace + 1:])

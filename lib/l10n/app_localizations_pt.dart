@@ -2565,7 +2565,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String progressWithDetails(
-      Object completed, Object percentage, Object total) {
+    Object completed,
+    Object percentage,
+    Object total,
+  ) {
     return 'Progresso: $percentage% ($completed/$total)';
   }
 
@@ -8881,7 +8884,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String ministryInviteReceivedMessage(
-      String inviterName, String ministryName) {
+    String inviterName,
+    String ministryName,
+  ) {
     return '$inviterName convidou voce para entrar no ministerio $ministryName';
   }
 
