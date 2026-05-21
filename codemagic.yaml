@@ -28,6 +28,33 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
+      - name: Patch flutter_quill for current Flutter
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = list(Path.home().glob(
+              ".pub-cache/hosted/pub.dev/flutter_quill-*/lib/src/editor/raw_editor/raw_editor_state.dart"
+          ))
+          if not files:
+              raise SystemExit("flutter_quill raw_editor_state.dart not found")
+
+          for file in files:
+              text = file.read_text()
+              if "onFocusReceived()" in text:
+                  print(f"{file} already patched")
+                  continue
+
+              marker = "class QuillRawEditorState extends EditorState"
+              start = text.find(marker)
+              brace = text.find("{", start)
+              if start == -1 or brace == -1:
+                  raise SystemExit(f"Could not patch {file}")
+
+              patch = "\n  @override\n  bool onFocusReceived() => false;\n"
+              file.write_text(text[:brace + 1] + patch + text[brace + 1:])
+              print(f"Patched {file}")
+          PY
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
@@ -80,6 +107,33 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
+      - name: Patch flutter_quill for current Flutter
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = list(Path.home().glob(
+              ".pub-cache/hosted/pub.dev/flutter_quill-*/lib/src/editor/raw_editor/raw_editor_state.dart"
+          ))
+          if not files:
+              raise SystemExit("flutter_quill raw_editor_state.dart not found")
+
+          for file in files:
+              text = file.read_text()
+              if "onFocusReceived()" in text:
+                  print(f"{file} already patched")
+                  continue
+
+              marker = "class QuillRawEditorState extends EditorState"
+              start = text.find(marker)
+              brace = text.find("{", start)
+              if start == -1 or brace == -1:
+                  raise SystemExit(f"Could not patch {file}")
+
+              patch = "\n  @override\n  bool onFocusReceived() => false;\n"
+              file.write_text(text[:brace + 1] + patch + text[brace + 1:])
+              print(f"Patched {file}")
+          PY
       - name: Flutter analyze
         script: |
           flutter analyze
