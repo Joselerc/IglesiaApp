@@ -70,7 +70,7 @@ workflows:
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
-            --build-name=2.3.9 \
+            --build-name=2.4.0 \
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
@@ -148,12 +148,12 @@ workflows:
       - name: Build APK with Flutter
         script: |
           flutter build apk --release \
-            --build-name=2.3.9 \
+            --build-name=2.4.0 \
             --build-number=$BUILD_NUMBER
       - name: Build App Bundle
         script: |
           flutter build appbundle --release \
-            --build-name=2.3.9 \
+            --build-name=2.4.0 \
             --build-number=$BUILD_NUMBER
     artifacts:
       - build/**/outputs/**/*.apk
