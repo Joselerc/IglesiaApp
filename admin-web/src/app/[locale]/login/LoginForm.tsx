@@ -3,8 +3,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "@/i18n/navigation";
+import { hasAnyAdminAccess } from "@/lib/permissions";
 import { Button, Card, Input } from "@/components/ui";
 
 export default function LoginForm() {
@@ -20,20 +22,30 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (!loading && appUser && hasAdminAccess) {
-      router.replace("/dashboard");
+      const next = params.get("next") || "/dashboard";
+      router.replace(next.startsWith("/") ? next : "/dashboard");
     }
-  }, [loading, appUser, hasAdminAccess, router]);
+  }, [loading, appUser, hasAdminAccess, router, params]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
-      await signIn(email.trim(), password);
-      const next = params.get("next") || "/dashboard";
-      router.replace(next);
-    } catch {
-      setError(t("auth.invalid"));
+      const profile = await signIn(email.trim(), password);
+      if (!hasAnyAdminAccess(profile.isSuperUser, profile.permissions)) {
+        setError(t("auth.noAccess"));
+        return;
+      }
+      // La redirección la hace el useEffect cuando el estado ya está listo
+    } catch (err) {
+      // Solo errores de Auth de Firebase = credenciales inválidas
+      if (err instanceof FirebaseError && err.code.startsWith("auth/")) {
+        setError(t("auth.invalid"));
+      } else {
+        console.error(err);
+        setError(t("auth.invalid"));
+      }
     } finally {
       setBusy(false);
     }
@@ -63,7 +75,7 @@ export default function LoginForm() {
         </div>
         {(error || params.get("error") === "no_access") && (
           <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {params.get("error") === "no_access" ? t("auth.noAccess") : error}
+            {error || t("auth.noAccess")}
           </p>
         )}
         <form onSubmit={onSubmit} className="space-y-4">
@@ -73,6 +85,7 @@ export default function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
           <Input
             label={t("auth.password")}
@@ -80,9 +93,10 @@ export default function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? t("auth.loading") : t("auth.signIn")}
+          <Button type="submit" className="w-full" disabled={busy || loading}>
+            {busy || loading ? t("auth.loading") : t("auth.signIn")}
           </Button>
         </form>
         <p className="mt-4 text-center text-xs text-[var(--muted)]">

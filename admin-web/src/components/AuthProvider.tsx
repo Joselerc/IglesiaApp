@@ -33,7 +33,7 @@ type AuthContextValue = {
   firebaseUser: User | null;
   appUser: AppUser | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AppUser>;
   signOut: () => Promise<void>;
   can: (key: string | string[]) => boolean;
   hasAdminAccess: boolean;
@@ -92,12 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-      setFirebaseUser(user);
       if (!user) {
+        setFirebaseUser(null);
         setAppUser(null);
         setLoading(false);
         return;
       }
+      setLoading(true);
+      setFirebaseUser(user);
       try {
         setAppUser(await loadAppUser(user));
       } catch (e) {
@@ -111,11 +113,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    setLoading(true);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      setFirebaseUser(cred.user);
+      const profile = await loadAppUser(cred.user);
+      setAppUser(profile);
+      return profile;
+    } catch (e) {
+      setLoading(false);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
     await firebaseSignOut(auth);
+    setFirebaseUser(null);
     setAppUser(null);
   };
 
